@@ -41,10 +41,12 @@ Partial Public Class ScriptMain
     Private _packageName As String = String.Empty
 
     Public Sub Main()
+
         Log("════════════════════════════════════════════════════════")
         Log("SCR16_Partitionladen_Nachlauf – Start")
         Log("Zeitpunkt: " & DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss"))
         Log("════════════════════════════════════════════════════════")
+
         Try
             _runID = Convert.ToInt32(Dts.Variables("BA::RunID").Value)
             _parameterDB = Dts.Variables("BA::ParameterDB").Value.ToString().Trim()
@@ -58,6 +60,16 @@ Partial Public Class ScriptMain
             _userName = System.Environment.UserName
             _packageName = System.Environment.MachineName
 
+            Log("Server           : " & _server)
+            Log("Datenbank        : " & _datenbank)
+            Log("Datamart         : " & _datamart)
+            Log("ProtokollDB      : " & _protokollDB)
+            Log("Protokolltabelle : " & _protokolltabelle)
+            Log("ProtokollSP      : " & _protokollSP)
+            Log("UserName         : " & _userName)
+            Log("PackageName      : " & _packageName)
+
+            ' BA::objPartitionValues lesen
             Dim partObjekt As Object = Dts.Variables("BA::objPartitionValues").Value
             If partObjekt Is Nothing Then
                 Log("BA::objPartitionValues ist leer -> keine Nachlauf-Aufrufe noetig")
@@ -69,17 +81,22 @@ Partial Public Class ScriptMain
             Dim anzahl As Integer = partArray.GetLength(0)
             Log("Partitionswerte: " & anzahl.ToString() & " Eintraege")
 
+            ' Nach Verfahren gruppieren
             Dim verfahrenWerte As New Dictionary(Of String, List(Of String))()
             For i As Integer = 0 To anzahl - 1
                 Dim verf As String = partArray(i, 0)
                 Dim wert As String = partArray(i, 1)
                 Dim modus As String = partArray(i, 2)
-                If Not verfahrenWerte.ContainsKey(verf) Then verfahrenWerte(verf) = New List(Of String)()
+                If Not verfahrenWerte.ContainsKey(verf) Then
+                    verfahrenWerte(verf) = New List(Of String)()
+                End If
                 verfahrenWerte(verf).Add(wert)
                 Log("  Gelesen: " & verf & " | " & wert & " | " & modus)
             Next
 
             Dim connStr As String = HoleVerbindungszeichenfolge()
+
+            ' Verfahren aus ETL_Fkt_Arbeitsliste laden
             Dim verfahren As List(Of VerfahrenInfo) = VerfahrenLaden(connStr)
             Log("Verfahren mit Status '" & STATUS_START & "': " & verfahren.Count.ToString())
 
@@ -94,7 +111,11 @@ Partial Public Class ScriptMain
 
             For Each v As VerfahrenInfo In verfahren
                 Log("────────────────────────────────────────────────────────")
-                Log("Verfahren: " & v.Verfahren)
+                Log("Verfahren        : " & v.Verfahren)
+                Log("Faktentabelle    : " & v.Faktentabelle)
+                Log("Partitionsspalte : " & v.PartitionsSpalte)
+                Log("ClusteredIndex   : " & v.ClusteredIndex)
+                Log("Komprimierung    : " & v.Komprimierung)
 
                 Dim meineWerte As List(Of String) = Nothing
                 If Not verfahrenWerte.TryGetValue(v.Verfahren, meineWerte) OrElse meineWerte.Count = 0 Then
@@ -111,18 +132,25 @@ Partial Public Class ScriptMain
 
                 If Not ProzedurExistiert(connStr, procName) Then
                     Log("  Info: Prozedur [" & procName & "] nicht aktiviert -> uebersprungen")
-                    ProtokollSchreiben(connStr, v.Verfahren, "INFO_SCR16", "Prozedur " & procName & " nicht aktiviert")
+                    ProtokollSchreiben(connStr, v.Verfahren, "INFO_SCR16",
+                        "Prozedur " & procName & " nicht aktiviert")
                     StatusSetzen(connStr, v.ID, STATUS_OK)
                     cntOK += 1
                     Continue For
                 End If
+
+                Log("  Prozedur existiert")
 
                 Try
                     StatusSetzen(connStr, v.ID, STATUS_RUN)
                     Dim protokollID As String = "{" & Guid.NewGuid().ToString() & "}"
 
                     For Each partWert As String In meineWerte
-                        Log("  Partition: " & partWert & " | ProtokollID: " & protokollID)
+                        Log("  ────────────────────────────────────────────────")
+                        Log("  Partition      : " & partWert)
+                        Log("  ProtokollID    : " & protokollID)
+
+                        ' 15 Parameter (wie im Original)
                         Dim sql As String = "EXEC [" & procName & "]" &
                             " '" & partWert & "'" &
                             ", '" & v.Faktentabelle & "'" &
@@ -139,14 +167,20 @@ Partial Public Class ScriptMain
                             ", '" & _protokollDB & "'" &
                             ", '" & _protokolltabelle & "'" &
                             ", '" & _protokollSP & "'"
+
+                        Log("  SQL: " & sql)
+
                         Dim zeilen As Integer = SqlAusfuehren(connStr, sql, "Nachlauf " & partWert)
                         Log("  -> Ausgefuehrt, Zeilen: " & zeilen.ToString())
-                        ProtokollSchreiben(connStr, v.Verfahren, "NACHLAUF_PART_" & partWert, "Nachlauf Partition " & partWert & " | Zeilen: " & zeilen.ToString())
+                        ProtokollSchreiben(connStr, v.Verfahren, "NACHLAUF_PART_" & partWert,
+                            "Nachlauf Partition " & partWert & " | Zeilen: " & zeilen.ToString())
                     Next
 
                     StatusSetzen(connStr, v.ID, STATUS_OK)
-                    ProtokollSchreiben(connStr, v.Verfahren, "SCHRITT_NACHLAUF_PART", "Partitionladen Nachlauf erfolgreich: " & meineWerte.Count.ToString() & " Partition(en)")
+                    ProtokollSchreiben(connStr, v.Verfahren, "SCHRITT_NACHLAUF_PART",
+                        "Partitionladen Nachlauf erfolgreich: " & meineWerte.Count.ToString() & " Partition(en)")
                     cntOK += 1
+                    Log("  Nachlauf erfolgreich fuer " & meineWerte.Count.ToString() & " Partition(en)")
 
                 Catch ex As Exception
                     cntFehler += 1
@@ -156,7 +190,9 @@ Partial Public Class ScriptMain
                 End Try
             Next
 
+            Log("════════════════════════════════════════════════════════")
             Log("Erfolgreich: " & cntOK.ToString() & " | Fehler: " & cntFehler.ToString())
+            Log("════════════════════════════════════════════════════════")
             Dts.TaskResult = If(cntFehler > 0, ScriptResults.Failure, ScriptResults.Success)
 
         Catch ex As Exception
@@ -169,14 +205,19 @@ Partial Public Class ScriptMain
         Dim liste As New List(Of VerfahrenInfo)()
         Dim sql As String =
 "SELECT a.ID, a.Verfahren, a.Themengebiet, a.LetzterSchritt," &
-"       pf.Wert AS Faktentabelle, pp.Wert AS PartitionsSpalte," &
-"       ISNULL(pci.Wert,'FALSE') AS ClusteredIndex, ISNULL(pk.Wert,'PAGE') AS Komprimierung" &
+"       pf.Wert AS Faktentabelle," &
+"       pp.Wert AS PartitionsSpalte," &
+"       ISNULL(pci.Wert, 'FALSE') AS ClusteredIndex," &
+"       ISNULL(pk.Wert, 'PAGE') AS Komprimierung" &
 " FROM  dbo.ETL_Fkt_Arbeitsliste a" &
 " JOIN  " & _parameterDB & ".dbo." & _parametertab & " pf ON pf.Verfahren=a.Verfahren AND pf.Parameter='Faktentabelle'" &
 " JOIN  " & _parameterDB & ".dbo." & _parametertab & " pp ON pp.Verfahren=a.Verfahren AND pp.Parameter='Faktenpartitionsspalte'" &
 " LEFT JOIN " & _parameterDB & ".dbo." & _parametertab & " pci ON pci.Verfahren=a.Verfahren AND pci.Parameter='FaktenClusteredIndex'" &
 " LEFT JOIN " & _parameterDB & ".dbo." & _parametertab & " pk ON pk.Verfahren=a.Verfahren AND pk.Parameter='Faktenkomprimierung'" &
-" WHERE a.Status IN ('" & STATUS_START & "','" & STATUS_RUN & "') AND a.RunID=" & _runID & " ORDER BY a.Verfahren"
+" WHERE a.Status IN ('" & STATUS_START & "','" & STATUS_RUN & "')" &
+" AND   a.RunID = " & _runID &
+" ORDER BY a.Verfahren"
+
         Dim versuch As Integer = 0
         While versuch < MAX_VERSUCHE
             versuch += 1
@@ -189,7 +230,8 @@ Partial Public Class ScriptMain
                             While rdr.Read()
                                 Dim rohPart As String = rdr(5).ToString().Trim()
                                 liste.Add(New VerfahrenInfo With {
-                                    .ID = rdr.GetInt32(0), .Verfahren = rdr(1).ToString().Trim(),
+                                    .ID = rdr.GetInt32(0),
+                                    .Verfahren = rdr(1).ToString().Trim(),
                                     .Themengebiet = rdr(2).ToString().Trim(),
                                     .LetzterSchritt = If(rdr.IsDBNull(3), "", rdr(3).ToString().Trim()),
                                     .Faktentabelle = rdr(4).ToString().Trim(),
@@ -202,6 +244,7 @@ Partial Public Class ScriptMain
                 End Using
                 Return liste
             Catch ex As Exception
+                Log(String.Format("WARNUNG [Verfahren laden] Versuch {0}/{1}: {2}", versuch, MAX_VERSUCHE, ex.Message))
                 If versuch < MAX_VERSUCHE Then System.Threading.Thread.Sleep(WARTE_SEK * 1000) Else Throw
             End Try
         End While

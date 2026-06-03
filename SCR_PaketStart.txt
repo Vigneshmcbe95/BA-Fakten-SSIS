@@ -25,6 +25,8 @@ Partial Public Class ScriptMain
             Dim connStr As String = HoleVerbindungszeichenfolge()
 
             LaufHistorieSicherstellen(connStr)
+            ResetOverrideTabelleSicherstellen(connStr)
+            LadenAbschlussTabelleSicherstellen(connStr)
             VerwaistelaeufeAbschliessen(connStr)
             FehlerZuruecksetzen(connStr)
 
@@ -83,6 +85,60 @@ ELSE
         SqlAusfuehren(connStr, sql, "ETL_Fakt_LaufHistorie sicherstellen")
         Log("ETL_Fakt_LaufHistorie: geprüft/angelegt.")
 
+    End Sub
+
+    Private Sub ResetOverrideTabelleSicherstellen(connStr As String)
+        Dim sql As String =
+"IF NOT EXISTS (
+    SELECT 1 FROM sys.tables
+    WHERE  name      = 'ETL_Fakt_Reset_Override'
+    AND    schema_id = SCHEMA_ID('dbo')
+)
+BEGIN
+    CREATE TABLE dbo.ETL_Fakt_Reset_Override
+    (
+        ID            INT            IDENTITY(1,1) PRIMARY KEY,
+        Verfahren     VARCHAR(200)   NOT NULL,
+        ResetZu       VARCHAR(100)   NOT NULL,
+        Grund         NVARCHAR(1000) NULL,
+        ErstelltAm    DATETIME       NOT NULL DEFAULT GETDATE(),
+        Verarbeitet   BIT            NOT NULL DEFAULT 0,
+        VerarbeitetAm DATETIME       NULL,
+        RunID         INT            NULL
+    );
+    PRINT 'ETL_Fakt_Reset_Override wurde neu angelegt.';
+END
+ELSE
+    PRINT 'ETL_Fakt_Reset_Override bereits vorhanden.';"
+        SqlAusfuehren(connStr, sql, "ETL_Fakt_Reset_Override sicherstellen")
+        Log("ETL_Fakt_Reset_Override: geprüft/angelegt.")
+    End Sub
+
+    Private Sub LadenAbschlussTabelleSicherstellen(connStr As String)
+        Dim sql As String =
+"IF NOT EXISTS (
+    SELECT 1 FROM sys.tables
+    WHERE  name      = 'ETL_Fakt_Laden_Abschluss'
+    AND    schema_id = SCHEMA_ID('dbo')
+)
+BEGIN
+    CREATE TABLE dbo.ETL_Fakt_Laden_Abschluss
+    (
+        ID              INT          IDENTITY(1,1) PRIMARY KEY,
+        RunID           INT          NOT NULL,
+        Verfahren       VARCHAR(200) NOT NULL,
+        InTabelle       VARCHAR(300) NOT NULL,
+        Zeilen          INT          NOT NULL,
+        AbgeschlossenAm DATETIME     NOT NULL DEFAULT GETDATE()
+    );
+    CREATE INDEX IX_Laden_Abschluss_InTabelle
+        ON dbo.ETL_Fakt_Laden_Abschluss (InTabelle);
+    PRINT 'ETL_Fakt_Laden_Abschluss wurde neu angelegt.';
+END
+ELSE
+    PRINT 'ETL_Fakt_Laden_Abschluss bereits vorhanden.';"
+        SqlAusfuehren(connStr, sql, "ETL_Fakt_Laden_Abschluss sicherstellen")
+        Log("ETL_Fakt_Laden_Abschluss: geprüft/angelegt.")
     End Sub
 
     ' Verwaiste Läufe statusbasiert abschliessen
