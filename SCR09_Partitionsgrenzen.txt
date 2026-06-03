@@ -19,11 +19,15 @@ Partial Public Class ScriptMain
     Private Const WARTE_SEK As Integer = 30
 
     Private _runID As Integer = 0
+    Private _parameterDB As String = String.Empty
+    Private _parametertab As String = String.Empty
 
     Public Sub Main()
         Log("SCR11 Start: " & DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss"))
         Try
             _runID = Convert.ToInt32(Dts.Variables("BA::RunID").Value)
+            _parameterDB = Dts.Variables("BA::ParameterDB").Value.ToString().Trim()
+            _parametertab = Dts.Variables("BA::Parametertabelle").Value.ToString().Trim()
             Dim connStr As String = HoleVerbindungszeichenfolge()
             Dim verfahren As List(Of VerfahrenInfo) = VerfahrenLaden(connStr)
             Log("Verfahren: " & verfahren.Count.ToString())
@@ -116,11 +120,14 @@ Partial Public Class ScriptMain
     Private Function VerfahrenLaden(connStr As String) As List(Of VerfahrenInfo)
         Dim liste As New List(Of VerfahrenInfo)()
         Dim sql As String =
-"SELECT ID, Verfahren, Themengebiet, LetzterSchritt,
-    ISNULL(Partitionsspalte,'') AS Partitionsspalte,
-    ISNULL(AnzahlPartitionen,1) AS AnzahlPartitionen
- FROM dbo.ETL_Fkt_Arbeitsliste
- WHERE Status IN ('FAKTENTABELLE_ERSTELLT','PARTITIONSGRENZEN_ERSTELLEN') AND RunID=" & _runID.ToString() & " ORDER BY Verfahren"
+"SELECT a.ID, a.Verfahren, a.Themengebiet, a.LetzterSchritt,
+    ISNULL(pp.Wert,'') AS Partitionsspalte
+ FROM dbo.ETL_Fkt_Arbeitsliste a
+ LEFT JOIN " & _parameterDB & ".dbo." & _parametertab & " pp
+        ON pp.Verfahren = a.Verfahren AND pp.Parameter = 'Faktenpartitionsspalte'
+ WHERE a.Status IN ('FAKTENTABELLE_ERSTELLT','PARTITIONSGRENZEN_ERSTELLEN')
+ AND   a.RunID = " & _runID.ToString() & "
+ ORDER BY a.Verfahren"
         Dim versuch As Integer = 0
         While versuch < MAX_VERSUCHE
             versuch += 1
@@ -132,12 +139,13 @@ Partial Public Class ScriptMain
                         Log("SQL: " & cmd.CommandText.Substring(0, Math.Min(150, cmd.CommandText.Length)).Replace(vbCrLf, " "))
                         Using rdr As SqlDataReader = cmd.ExecuteReader()
                             While rdr.Read()
+                                Dim rohPart As String = rdr(4).ToString().Trim()
                                 liste.Add(New VerfahrenInfo With {
                                     .ID = rdr.GetInt32(0), .Verfahren = rdr(1).ToString().Trim(),
                                     .Themengebiet = rdr(2).ToString().Trim(),
                                     .LetzterSchritt = If(rdr.IsDBNull(3), "", rdr(3).ToString().Trim()),
-                                    .Partitionsspalte = rdr(4).ToString().Trim(),
-                                    .AnzahlPartitionen = Convert.ToInt32(rdr(5))})
+                                    .Partitionsspalte = If(rohPart.Contains("|"), rohPart.Substring(0, rohPart.IndexOf("|")), rohPart),
+                                    .AnzahlPartitionen = 1})
                             End While
                         End Using
                     End Using
