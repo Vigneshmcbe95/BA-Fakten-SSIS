@@ -106,7 +106,7 @@ Partial Public Class ScriptMain
         Dim sqlCreate As String =
 "CREATE EXTERNAL TABLE [" & _extTableSchema & "].[" & tab.Trim().ToUpper() & "] (" & Environment.NewLine &
 sbCols.ToString() & Environment.NewLine &
-") WITH (DATA_SOURCE = [" & _datenbank & "], SCHEMA_NAME = N'" & thema.Trim().ToUpper() & "', OBJECT_NAME = N'" & tab.Trim().ToUpper() & "');"
+") WITH (DATA_SOURCE = [" & _datenbank & "], LOCATION = N'" & thema.Trim().ToUpper() & "." & tab.Trim().ToUpper() & "');"
         SqlAusfuehren(connStr, sqlCreate, "Ext Tabelle CREATE")
         Log("Externe Tabelle [" & _extTableSchema & "].[" & tab.Trim().ToUpper() & "] erstellt.")
     End Sub
