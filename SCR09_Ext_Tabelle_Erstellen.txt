@@ -22,6 +22,10 @@ Partial Public Class ScriptMain
     Private _runID As Integer = 0
     Private _datenbank As String = String.Empty
     Private _extTableSchema As String = String.Empty
+    Private _extSourceName As String = String.Empty
+    Private _extSourceLocation As String = String.Empty
+    Private _credUser As String = String.Empty
+    Private _credPass As String = String.Empty
 
     Public Sub Main()
         Log("SCR09 Start: " & DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss"))
@@ -29,8 +33,16 @@ Partial Public Class ScriptMain
             _runID = Convert.ToInt32(Dts.Variables("BA::RunID").Value)
             _datenbank = Dts.Variables("BA::Datenbank").Value.ToString().Trim()
             _extTableSchema = Dts.Variables("BA::ExtTableSchema").Value.ToString().Trim()
-            Log("Datenbank: " & _datenbank & " | Ext. Schema: " & _extTableSchema)
+            _extSourceName = Dts.Variables("BA::ExtSourceName").Value.ToString().Trim()
+            _extSourceLocation = Dts.Variables("BA::ExtSourceLocation").Value.ToString().Trim()
+            _credUser = Dts.Variables("BA::CredBenutzername").Value.ToString().Trim()
+            _credPass = Dts.Variables("BA::CredKennwort").Value.ToString().Trim()
+            Log("Datenbank      : " & _datenbank)
+            Log("Ext. Schema    : " & _extTableSchema)
+            Log("ExtSourceName  : " & _extSourceName)
+            Log("ExtSourceLoc   : " & _extSourceLocation)
             Dim connStr As String = HoleVerbindungszeichenfolge()
+            EnsureExternalDataSource(connStr)
             Dim verfahren As List(Of VerfahrenInfo) = VerfahrenLaden(connStr)
             Log("Verfahren: " & verfahren.Count.ToString())
             If verfahren.Count = 0 Then
@@ -64,6 +76,44 @@ Partial Public Class ScriptMain
             LogFehler("Kritischer Fehler: " & ex.Message)
             Dts.TaskResult = ScriptResults.Failure
         End Try
+    End Sub
+
+    Private Sub EnsureExternalDataSource(connStr As String)
+        ' Check if external data source already exists
+        Dim sqlCheck As String =
+"SELECT COUNT(*) FROM sys.external_data_sources WHERE name = '" & _extSourceName & "';"
+        Dim cnt As Integer = 0
+        Using conn As New SqlConnection(connStr)
+            conn.Open()
+            Using cmd As New SqlCommand(sqlCheck, conn)
+                cmd.CommandTimeout = 0
+                cnt = Convert.ToInt32(cmd.ExecuteScalar())
+            End Using
+        End Using
+
+        If cnt > 0 Then
+            Log("External Data Source [" & _extSourceName & "] bereits vorhanden.")
+            Return
+        End If
+
+        Log("External Data Source [" & _extSourceName & "] nicht gefunden -> wird erstellt.")
+
+        ' Create database scoped credential if not exists
+        Dim credName As String = "cred_" & _extSourceName
+        Dim sqlCred As String =
+"IF NOT EXISTS (SELECT 1 FROM sys.database_scoped_credentials WHERE name='" & credName & "')
+    CREATE DATABASE SCOPED CREDENTIAL [" & credName & "]
+    WITH IDENTITY = '" & _credUser & "', SECRET = '" & _credPass & "';"
+        SqlAusfuehren(connStr, sqlCred, "Credential sicherstellen")
+        Log("Credential [" & credName & "] geprüft/erstellt.")
+
+        ' Create external data source
+        Dim sqlDS As String =
+"CREATE EXTERNAL DATA SOURCE [" & _extSourceName & "]
+WITH (LOCATION = '" & _extSourceLocation & "', CREDENTIAL = [" & credName & "]);"
+        Log("SQL: " & sqlDS)
+        SqlAusfuehren(connStr, sqlDS, "External Data Source CREATE")
+        Log("External Data Source [" & _extSourceName & "] erstellt.")
     End Sub
 
     Private Sub ExtTabelleDrop(connStr As String, thema As String, tab As String)
@@ -106,7 +156,8 @@ Partial Public Class ScriptMain
         Dim sqlCreate As String =
 "CREATE EXTERNAL TABLE [" & _extTableSchema & "].[" & tab.Trim().ToUpper() & "] (" & Environment.NewLine &
 sbCols.ToString() & Environment.NewLine &
-") WITH (DATA_SOURCE = [" & _datenbank & "], LOCATION = N'" & thema.Trim().ToUpper() & "." & tab.Trim().ToUpper() & "');"
+") WITH (DATA_SOURCE = [" & _extSourceName & "], LOCATION = N'" & thema.Trim().ToUpper() & "." & tab.Trim().ToUpper() & "');"
+        Log("SQL (vollständig):" & Environment.NewLine & sqlCreate)
         SqlAusfuehren(connStr, sqlCreate, "Ext Tabelle CREATE")
         Log("Externe Tabelle [" & _extTableSchema & "].[" & tab.Trim().ToUpper() & "] erstellt.")
     End Sub
