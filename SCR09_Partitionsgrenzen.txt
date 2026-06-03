@@ -416,6 +416,16 @@ Partial Public Class ScriptMain
     ' =========================================================================
     Private Function MssqlWerteLaden(connStr As String, v As VerfahrenInfo) As List(Of Integer)
         Dim liste As New List(Of Integer)()
+
+        ' If table does not exist yet → return empty list → caller treats as FULL LOAD
+        Dim existiert As Object = SqlSkalar(connStr,
+            "SELECT CASE WHEN OBJECT_ID('dbo.[" & v.Faktentabelle & "]','U') IS NOT NULL THEN 1 ELSE 0 END",
+            "Tabelle existiert")
+        If Convert.ToInt32(existiert) = 0 Then
+            Log("  MSSQL dbo.[" & v.Faktentabelle & "] nicht vorhanden → wird als FULL LOAD behandelt")
+            Return liste
+        End If
+
         Dim sql As String = "SELECT DISTINCT [" & v.PartitionsSpalte & "] FROM dbo.[" & v.Faktentabelle &
             "] WHERE [" & v.PartitionsSpalte & "] IS NOT NULL ORDER BY [" & v.PartitionsSpalte & "]"
 
