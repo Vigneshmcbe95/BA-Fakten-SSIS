@@ -1,0 +1,270 @@
+Imports System
+Imports System.Data.SqlClient
+Imports System.Collections.Generic
+Imports System.Text
+Imports Microsoft.SqlServer.Dts.Runtime
+
+' =====================================================
+' SCR08 : Template_Erstellen
+' Zweck : Templates aus Oracle-Schemadaten aufbauen
+' Version: 1.0
+' =====================================================
+<Microsoft.SqlServer.Dts.Tasks.ScriptTask.SSISScriptTaskEntryPointAttribute()>
+<CLSCompliant(False)>
+Partial Public Class ScriptMain
+    Inherits Microsoft.SqlServer.Dts.Tasks.ScriptTask.VSTARTScriptObjectModelBase
+
+    Private Const SKRIPT_NAME As String = "SCR08_TemplateErstellen"
+    Private Const CONN_NAME As String = "Verbindung"
+    Private Const MAX_VERSUCHE As Integer = 10
+    Private Const WARTE_SEK As Integer = 30
+
+    Private _runID As Integer = 0
+
+    Public Sub Main()
+        Log("SCR08 Start: " & DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss"))
+        Try
+            _runID = Convert.ToInt32(Dts.Variables("BA::RunID").Value)
+            Dim connStr As String = HoleVerbindungszeichenfolge()
+            Dim verfahren As List(Of VerfahrenInfo) = VerfahrenLaden(connStr)
+            Log("Verfahren: " & verfahren.Count.ToString())
+            If verfahren.Count = 0 Then
+                Log("Keine Verfahren zur Verarbeitung.")
+                Dts.TaskResult = ScriptResults.Success
+                Return
+            End If
+            Dim cntOK As Integer = 0
+            Dim cntFehler As Integer = 0
+            For Each v As VerfahrenInfo In verfahren
+                If v.LetzterSchritt = "TEMPLATE_ERSTELLT" Then
+                    Continue For
+                End If
+                Try
+                    StatusSetzen(connStr, v.ID, "TEMPLATE_ERSTELLEN")
+                    Dim ok As Boolean = TemplateErstellen(connStr, v.Themengebiet, v.Verfahren)
+                    If ok Then
+                        StatusSetzen(connStr, v.ID, "TEMPLATE_ERSTELLT")
+                        LogSchreiben(connStr, v.Verfahren, "SCHRITT_8", "Template erfolgreich erstellt")
+                        cntOK += 1
+                    Else
+                        FehlerSetzen(connStr, v.ID, "Template konnte nicht erstellt werden")
+                        LogSchreiben(connStr, v.Verfahren, "FEHLER_SCR08", "Template konnte nicht erstellt werden")
+                        cntFehler += 1
+                        Log("FEHLER: Template nicht erstellt fuer " & v.Verfahren)
+                    End If
+                Catch ex As Exception
+                    cntFehler += 1
+                    FehlerSetzen(connStr, v.ID, ex.Message)
+                    LogSchreiben(connStr, v.Verfahren, "FEHLER_SCR08", ex.Message)
+                    LogFehler("FEHLER bei '" & v.Verfahren & "': " & ex.Message)
+                End Try
+            Next
+            Log("Abschluss: " & cntOK.ToString() & " OK, " & cntFehler.ToString() & " Fehler")
+            Dts.TaskResult = If(cntFehler > 0, ScriptResults.Failure, ScriptResults.Success)
+        Catch ex As Exception
+            LogFehler("Kritischer Fehler: " & ex.Message)
+            Dts.TaskResult = ScriptResults.Failure
+        End Try
+    End Sub
+
+    Private Function TemplateErstellen(connStr As String, thema As String, tab As String) As Boolean
+        Dim templateName As String = tab.Trim().ToLower() & "_template"
+
+        ' Load column names + ext DDL from tm_polybase_struktur
+        Dim quelleCols As New List(Of String)()
+        Dim sbExt As New StringBuilder()
+        Dim sqlCols As String =
+"SELECT UPPER(colname), columns_ext FROM dbo.tm_polybase_struktur
+ WHERE themengebiet=@thema AND tabname=@tab ORDER BY colno;"
+        Using conn As New SqlConnection(connStr)
+            conn.Open()
+            Using cmd As New SqlCommand(sqlCols, conn)
+                cmd.CommandTimeout = 0
+                cmd.Parameters.AddWithValue("@thema", thema.Trim().ToLower())
+                cmd.Parameters.AddWithValue("@tab", tab.Trim().ToLower())
+                Log("SQL: " & cmd.CommandText.Substring(0, Math.Min(150, cmd.CommandText.Length)).Replace(vbCrLf, " "))
+                Using rdr As SqlDataReader = cmd.ExecuteReader()
+                    While rdr.Read()
+                        quelleCols.Add(rdr(0).ToString().Trim())
+                        If sbExt.Length > 0 Then sbExt.Append("," & Environment.NewLine)
+                        sbExt.Append(rdr(1).ToString())
+                    End While
+                End Using
+            End Using
+        End Using
+        If quelleCols.Count = 0 Then Return False
+
+        ' Check if physical template table dbo.[{tabname}_template] already exists
+        Dim tableExists As Boolean = False
+        Using conn As New SqlConnection(connStr)
+            conn.Open()
+            Using cmd As New SqlCommand(
+                "SELECT CASE WHEN OBJECT_ID('dbo.[" & templateName & "]','U') IS NOT NULL THEN 1 ELSE 0 END", conn)
+                cmd.CommandTimeout = 0
+                Log("SQL: OBJECT_ID check dbo.[" & templateName & "]")
+                tableExists = (Convert.ToInt32(cmd.ExecuteScalar()) = 1)
+            End Using
+        End Using
+
+        If tableExists Then
+            ' Compare column names (ordered by position) against source
+            Dim templateCols As New List(Of String)()
+            Using conn As New SqlConnection(connStr)
+                conn.Open()
+                Using cmd As New SqlCommand(
+                    "SELECT UPPER(name) FROM sys.columns WHERE object_id = OBJECT_ID('dbo.[" & templateName & "]') ORDER BY column_id", conn)
+                    cmd.CommandTimeout = 0
+                    Log("SQL: sys.columns check dbo.[" & templateName & "]")
+                    Using rdr As SqlDataReader = cmd.ExecuteReader()
+                        While rdr.Read()
+                            templateCols.Add(rdr(0).ToString().Trim())
+                        End While
+                    End Using
+                End Using
+            End Using
+
+            Dim match As Boolean = (templateCols.Count = quelleCols.Count)
+            If match Then
+                For i As Integer = 0 To templateCols.Count - 1
+                    If templateCols(i) <> quelleCols(i) Then
+                        match = False
+                        Exit For
+                    End If
+                Next
+            End If
+
+            If match Then
+                Log("Template dbo.[" & templateName & "] stimmt überein → wird unverändert verwendet.")
+                Return True
+            End If
+
+            ' Columns differ: drop old physical table, recreate
+            Log("INFO: Template dbo.[" & templateName & "] hat geänderte Spalten → altes Template gelöscht, neues wird erstellt.")
+            LogSchreiben(connStr, tab, "SCHRITT_8", "Template aktualisiert (Spaltenänderung erkannt): " & thema & "." & tab)
+            SqlAusfuehren(connStr, "DROP TABLE dbo.[" & templateName & "];", "Template DROP (Spalten geändert)")
+        End If
+
+        ' Create physical template table from columns_ext DDL
+        Dim sqlCreate As String =
+"CREATE TABLE dbo.[" & templateName & "] (" & Environment.NewLine &
+sbExt.ToString() & Environment.NewLine & ");"
+        SqlAusfuehren(connStr, sqlCreate, "Template CREATE")
+        Log("Template dbo.[" & templateName & "] erstellt.")
+        Return True
+    End Function
+
+    Private Function VerfahrenLaden(connStr As String) As List(Of VerfahrenInfo)
+        Dim liste As New List(Of VerfahrenInfo)()
+        Dim sql As String =
+"SELECT ID, Verfahren, Themengebiet, LetzterSchritt FROM dbo.ETL_Fkt_Arbeitsliste
+ WHERE Status IN ('SCHEMADATEN_KOPIERT','TEMPLATE_ERSTELLEN') AND RunID=" & _runID.ToString() & " ORDER BY Verfahren"
+        Dim versuch As Integer = 0
+        While versuch < MAX_VERSUCHE
+            versuch += 1
+            Try
+                Using conn As New SqlConnection(connStr)
+                    conn.Open()
+                    Using cmd As New SqlCommand(sql, conn)
+                        cmd.CommandTimeout = 0
+                        Log("SQL: " & cmd.CommandText.Substring(0, Math.Min(150, cmd.CommandText.Length)).Replace(vbCrLf, " "))
+                        Using rdr As SqlDataReader = cmd.ExecuteReader()
+                            While rdr.Read()
+                                liste.Add(New VerfahrenInfo With {
+                                    .ID = rdr.GetInt32(0), .Verfahren = rdr(1).ToString().Trim(),
+                                    .Themengebiet = rdr(2).ToString().Trim(),
+                                    .LetzterSchritt = If(rdr.IsDBNull(3), "", rdr(3).ToString().Trim())})
+                            End While
+                        End Using
+                    End Using
+                End Using
+                Return liste
+            Catch ex As Exception
+                Log(String.Format("WARNUNG [Verfahren laden] Versuch {0}/{1}: {2}", versuch, MAX_VERSUCHE, ex.Message))
+                If versuch < MAX_VERSUCHE Then System.Threading.Thread.Sleep(WARTE_SEK * 1000) Else Throw
+            End Try
+        End While
+        Return liste
+    End Function
+
+    Private Sub StatusSetzen(connStr As String, id As Integer, status As String)
+        SqlAusfuehren(connStr, "UPDATE dbo.ETL_Fkt_Arbeitsliste SET Status='" & status & "',LetzterSchritt='" & status & "',AktualisiertAm=GETDATE() WHERE ID=" & id.ToString(), "Status setzen")
+    End Sub
+
+    Private Sub FehlerSetzen(connStr As String, id As Integer, msg As String)
+        Try
+            Using conn As New SqlConnection(connStr)
+                conn.Open()
+                Using cmd As New SqlCommand("UPDATE dbo.ETL_Fkt_Arbeitsliste SET Status='FEHLER',Fehlermeldung=@m,AktualisiertAm=GETDATE() WHERE ID=@id", conn)
+                    cmd.Parameters.AddWithValue("@m", If(msg.Length > 3900, msg.Substring(0, 3900), msg))
+                    cmd.Parameters.AddWithValue("@id", id)
+                    cmd.ExecuteNonQuery()
+                End Using
+            End Using
+        Catch
+        End Try
+    End Sub
+
+    Private Sub LogSchreiben(connStr As String, verfahren As String, schritt As String, meldung As String)
+        Try
+            Using conn As New SqlConnection(connStr)
+                conn.Open()
+                Using cmd As New SqlCommand("INSERT INTO dbo.tm_fakten_load_log(verfahren,schritt,meldung) VALUES(@v,@s,@m)", conn)
+                    cmd.Parameters.AddWithValue("@v", verfahren)
+                    cmd.Parameters.AddWithValue("@s", schritt)
+                    cmd.Parameters.AddWithValue("@m", meldung)
+                    cmd.ExecuteNonQuery()
+                End Using
+            End Using
+        Catch
+        End Try
+    End Sub
+
+    Private Function SqlAusfuehren(connStr As String, sql As String, beschreibung As String) As Integer
+        Dim versuch As Integer = 0
+        Dim letzterFehler As Exception = Nothing
+        While versuch < MAX_VERSUCHE
+            versuch += 1
+            Try
+                Using conn As New SqlConnection(connStr)
+                    conn.Open()
+                    Using cmd As New SqlCommand(sql, conn)
+                        cmd.CommandTimeout = 0
+                        Log("SQL: " & cmd.CommandText.Substring(0, Math.Min(150, cmd.CommandText.Length)).Replace(vbCrLf, " "))
+                        Return cmd.ExecuteNonQuery()
+                    End Using
+                End Using
+            Catch ex As Exception
+                letzterFehler = ex
+                Log(String.Format("WARNUNG [{0}] Versuch {1}/{2}: {3}", beschreibung, versuch, MAX_VERSUCHE, ex.Message))
+                If versuch < MAX_VERSUCHE Then System.Threading.Thread.Sleep(WARTE_SEK * 1000)
+            End Try
+        End While
+        Throw New Exception(String.Format("[{0}] fehlgeschlagen: {1}", beschreibung, If(letzterFehler IsNot Nothing, letzterFehler.Message, "Unbekannt")))
+    End Function
+
+    Private Function HoleVerbindungszeichenfolge() As String
+        Return Dts.Connections(CONN_NAME).ConnectionString
+    End Function
+
+    Private Sub Log(n As String)
+        Dim f As Boolean = False
+        Dts.Events.FireInformation(0, SKRIPT_NAME, n, "", 0, f)
+    End Sub
+
+    Private Sub LogFehler(n As String)
+        Dts.Events.FireError(0, SKRIPT_NAME, n, "", 0)
+    End Sub
+
+    Private Class VerfahrenInfo
+        Public Property ID As Integer
+        Public Property Verfahren As String
+        Public Property Themengebiet As String
+        Public Property LetzterSchritt As String
+    End Class
+
+    Public Enum ScriptResults
+        Success = DTSExecResult.Success
+        Failure = DTSExecResult.Failure
+    End Enum
+
+End Class

@@ -1,0 +1,232 @@
+Imports System
+Imports System.Data.SqlClient
+Imports System.Collections.Generic
+Imports Microsoft.SqlServer.Dts.Runtime
+
+' =====================================================
+' SCR06 : Arbeitsliste_Aufbauen_Fakten
+' Zweck : Arbeitsliste befüllen und alle Verfahren auf AUSSTEHEND setzen
+' Version: 1.0
+' =====================================================
+<Microsoft.SqlServer.Dts.Tasks.ScriptTask.SSISScriptTaskEntryPointAttribute()>
+<CLSCompliant(False)>
+Partial Public Class ScriptMain
+    Inherits Microsoft.SqlServer.Dts.Tasks.ScriptTask.VSTARTScriptObjectModelBase
+
+    Private Const SKRIPT_NAME As String = "SCR06_ArbeitslisteAufbauenFakten"
+    Private Const CONN_NAME As String = "Verbindung"
+
+    Private _runID As Integer = 0
+    Private _parameterDB As String = String.Empty
+    Private _parametertabelle As String = String.Empty
+    Private _steuerlistenTabelle As String = String.Empty
+    Private _connectionString As String = String.Empty
+
+    ' ZONE 2: Statuses bei denen DATEN_LADEN bereits abgeschlossen war
+    Private Shared ReadOnly POST_LOAD_STATUSES As New HashSet(Of String)(
+        StringComparer.OrdinalIgnoreCase) From {
+        "DATEN_GELADEN",
+        "STAGE_DML",
+        "STAGE_DML_ERFOLG",
+        "INDEX_IN_OUT",
+        "INDEX_IN_OUT_ERSTELLT",
+        "KOMPRIMIERUNG",
+        "KOMPRIMIERUNG_ERSTELLT",
+        "NCCI_OUT",
+        "NCCI_OUT_ERSTELLT",
+        "PARTITIONSTAUSCH",
+        "ERFOLG"
+    }
+
+    Public Sub Main()
+        Try
+            Log("SCR06 Start: " & DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss"))
+
+            VariablenLaden()
+            If Not PflichtfelderPruefen() Then
+                Dts.TaskResult = ScriptResults.Failure
+                Return
+            End If
+
+            _connectionString = HoleVerbindungszeichenfolge()
+
+            Dim neueVerfahren As Integer = NeueVerfahrenEintragen()
+            Log("Neue Verfahren: " & neueVerfahren.ToString())
+
+            Dim resetResult As String = TwoZoneReset()
+            Log(resetResult)
+
+            Dim updatedRunID As Integer = RunIDAktualisieren()
+            Log("RunID aktualisiert: " & updatedRunID.ToString() & " Verfahren")
+
+            StatusZusammenfassung()
+
+            Dts.TaskResult = ScriptResults.Success
+
+        Catch ex As Exception
+            LogFehler("KRITISCHER FEHLER: " & ex.Message)
+            Dts.TaskResult = ScriptResults.Failure
+        End Try
+    End Sub
+
+    ' Alle Verfahren auf AUSSTEHEND; SCR13 prüft selbst ob Reload nötig
+    Private Function TwoZoneReset() As String
+
+        Dim sqlCount As String =
+"SELECT COUNT(*) AS Total,
+        SUM(CASE WHEN a.Status='ERFOLG' THEN 1 ELSE 0 END) AS CntErfolg
+ FROM dbo.ETL_Fkt_Arbeitsliste a
+ INNER JOIN " & _parameterDB & ".dbo." & _parametertabelle & " p ON LOWER(p.Verfahren)=a.Verfahren
+ INNER JOIN dbo." & _steuerlistenTabelle & " f
+     ON LOWER(LTRIM(RTRIM(f.tabelle)))=LOWER(LTRIM(RTRIM(p.Verfahren)))
+ WHERE p.Verfahren IS NOT NULL;"
+
+        Dim total As Integer = 0
+        Dim cntErfolg As Integer = 0
+
+        Using conn As New SqlConnection(_connectionString)
+            conn.Open()
+            Using cmd As New SqlCommand(sqlCount, conn)
+                cmd.CommandTimeout = 0
+                Log("SQL: " & cmd.CommandText.Substring(0, Math.Min(150, cmd.CommandText.Length)).Replace(vbCrLf, " "))
+                Using rdr As SqlDataReader = cmd.ExecuteReader()
+                    If rdr.Read() Then
+                        total     = Convert.ToInt32(rdr("Total"))
+                        cntErfolg = Convert.ToInt32(rdr("CntErfolg"))
+                    End If
+                End Using
+            End Using
+        End Using
+
+        If total = 0 Then Return "Keine Verfahren in Steuerliste."
+
+        Log("Total=" & total & " | ERFOLG=" & cntErfolg)
+
+        Dim rows As Integer = ResetAlleAufAusstehend()
+
+        If cntErfolg = total Then
+            Return "FULL RE-RUN (alle ERFOLG): " & rows.ToString() & " Verfahren -> AUSSTEHEND"
+        Else
+            Return "RETRY: " & rows.ToString() & " Verfahren -> AUSSTEHEND"
+        End If
+    End Function
+
+    Private Function ResetAlleAufAusstehend() As Integer
+        Return SqlAusfuehren(
+"UPDATE a
+ SET a.Status='AUSSTEHEND', a.LetzterSchritt=NULL,
+     a.Fehlermeldung=NULL, a.Versuche=0, a.AktualisiertAm=GETDATE()
+ FROM dbo.ETL_Fkt_Arbeitsliste a
+ INNER JOIN " & _parameterDB & ".dbo." & _parametertabelle & " p ON LOWER(p.Verfahren)=a.Verfahren
+ INNER JOIN dbo." & _steuerlistenTabelle & " f
+     ON LOWER(LTRIM(RTRIM(f.tabelle)))=LOWER(LTRIM(RTRIM(p.Verfahren)))
+ WHERE p.Verfahren IS NOT NULL;",
+            "Full Reset")
+    End Function
+
+    Private Function NeueVerfahrenEintragen() As Integer
+        Return SqlAusfuehren(
+"INSERT INTO dbo.ETL_Fkt_Arbeitsliste
+    (RunID, Verfahren, Themengebiet, Status, LetzterSchritt, Versuche, AktualisiertAm)
+SELECT DISTINCT @runID, LOWER(p.Verfahren), LOWER(f.themengebiet),
+    'AUSSTEHEND', NULL, 0, GETDATE()
+FROM " & _parameterDB & ".dbo." & _parametertabelle & " p
+INNER JOIN dbo." & _steuerlistenTabelle & " f
+    ON LOWER(LTRIM(RTRIM(f.tabelle))) = LOWER(LTRIM(RTRIM(p.Verfahren)))
+WHERE p.Verfahren IS NOT NULL
+  AND NOT EXISTS (
+      SELECT 1 FROM dbo.ETL_Fkt_Arbeitsliste a
+      WHERE a.Verfahren = LOWER(p.Verfahren));",
+            "Neue Verfahren",
+            New With {.runID = _runID})
+    End Function
+
+    Private Function RunIDAktualisieren() As Integer
+        Return SqlAusfuehren(
+"UPDATE a SET a.RunID=@runID, a.AktualisiertAm=GETDATE()
+ FROM dbo.ETL_Fkt_Arbeitsliste a
+ INNER JOIN " & _parameterDB & ".dbo." & _parametertabelle & " p ON LOWER(p.Verfahren)=a.Verfahren
+ INNER JOIN dbo." & _steuerlistenTabelle & " f
+     ON LOWER(LTRIM(RTRIM(f.tabelle)))=LOWER(LTRIM(RTRIM(p.Verfahren)))
+ WHERE p.Verfahren IS NOT NULL;",
+            "RunID",
+            New With {.runID = _runID})
+    End Function
+
+    Private Sub StatusZusammenfassung()
+        Log("Status-Verteilung:")
+        Using conn As New SqlConnection(_connectionString)
+            conn.Open()
+            Using cmd As New SqlCommand(
+"SELECT a.Status, COUNT(*) AS Anzahl
+ FROM dbo.ETL_Fkt_Arbeitsliste a
+ INNER JOIN " & _parameterDB & ".dbo." & _parametertabelle & " p ON LOWER(p.Verfahren)=a.Verfahren
+ INNER JOIN dbo." & _steuerlistenTabelle & " f
+     ON LOWER(LTRIM(RTRIM(f.tabelle)))=LOWER(LTRIM(RTRIM(p.Verfahren)))
+ WHERE p.Verfahren IS NOT NULL
+ GROUP BY a.Status ORDER BY a.Status;", conn)
+                cmd.CommandTimeout = 0
+                Log("SQL: " & cmd.CommandText.Substring(0, Math.Min(150, cmd.CommandText.Length)).Replace(vbCrLf, " "))
+                Using rdr As SqlDataReader = cmd.ExecuteReader()
+                    While rdr.Read()
+                        Log(String.Format("   {0}: {1}", rdr(0).ToString(), rdr(1).ToString()))
+                    End While
+                End Using
+            End Using
+        End Using
+    End Sub
+
+    Private Sub VariablenLaden()
+        _runID = Convert.ToInt32(Dts.Variables("BA::RunID").Value)
+        _parameterDB = Dts.Variables("BA::ParameterDB").Value.ToString().Trim()
+        _parametertabelle = Dts.Variables("BA::Parametertabelle").Value.ToString().Trim()
+        _steuerlistenTabelle = Dts.Variables("BA::SteuerlistenTabelle").Value.ToString().Trim()
+        Log("RunID=" & _runID & " | ParameterDB=" & _parameterDB & " | STL=" & _steuerlistenTabelle)
+    End Sub
+
+    Private Function PflichtfelderPruefen() As Boolean
+        Dim f As New System.Text.StringBuilder()
+        If _runID <= 0 Then f.AppendLine("  -> BA::RunID")
+        If String.IsNullOrEmpty(_parameterDB) Then f.AppendLine("  -> BA::ParameterDB")
+        If String.IsNullOrEmpty(_parametertabelle) Then f.AppendLine("  -> BA::Parametertabelle")
+        If String.IsNullOrEmpty(_steuerlistenTabelle) Then f.AppendLine("  -> BA::SteuerlistenTabelle")
+        If f.Length > 0 Then LogFehler("Pflichtfelder fehlen:" & Environment.NewLine & f.ToString()) : Return False
+        Return True
+    End Function
+
+    Private Function SqlAusfuehren(sql As String, beschreibung As String,
+                                    Optional params As Object = Nothing) As Integer
+        Using conn As New SqlConnection(_connectionString)
+            conn.Open()
+            Using cmd As New SqlCommand(sql, conn)
+                cmd.CommandTimeout = 0
+                If params IsNot Nothing Then
+                    For Each prop As System.Reflection.PropertyInfo In params.GetType().GetProperties()
+                        cmd.Parameters.AddWithValue("@" & prop.Name, prop.GetValue(params, Nothing))
+                    Next
+                End If
+                Log("SQL: " & cmd.CommandText.Substring(0, Math.Min(150, cmd.CommandText.Length)).Replace(vbCrLf, " "))
+                Return cmd.ExecuteNonQuery()
+            End Using
+        End Using
+    End Function
+
+    Private Function HoleVerbindungszeichenfolge() As String
+        Return Dts.Connections(CONN_NAME).ConnectionString
+    End Function
+
+    Private Sub Log(n As String)
+        Dim f As Boolean = False
+        Dts.Events.FireInformation(0, SKRIPT_NAME, n, "", 0, f)
+    End Sub
+
+    Private Sub LogFehler(n As String)
+        Dts.Events.FireError(0, SKRIPT_NAME, n, "", 0)
+    End Sub
+
+    Public Enum ScriptResults
+        Success = DTSExecResult.Success
+        Failure = DTSExecResult.Failure
+    End Enum
+
+End Class
