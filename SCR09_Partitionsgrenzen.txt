@@ -480,6 +480,7 @@ Partial Public Class ScriptMain
         Dim leer As Integer = 0
         Dim partName As Integer = 0
         Dim partId As Integer = 0
+        Dim rowsFound As Boolean = False
 
         Dim versuch As Integer = 0
         While versuch < MAX_VERSUCHE
@@ -493,6 +494,7 @@ Partial Public Class ScriptMain
                         cmd.Parameters.AddWithValue("@ft", v.Faktentabelle)
                         Using rdr As SqlDataReader = cmd.ExecuteReader()
                             If rdr.Read() Then
+                                rowsFound = True
                                 treffer = If(rdr.IsDBNull(0), 0, rdr.GetInt32(0))
                                 leer = If(rdr.IsDBNull(1), 0, rdr.GetInt32(1))
                                 partName = If(rdr.IsDBNull(2), 0, rdr.GetInt32(2))
@@ -511,7 +513,8 @@ Partial Public Class ScriptMain
             Return  ' Boundary already exists
         End If
 
-        If leer = 1 Then
+        ' No rows = table is HEAP or not yet partitioned → treat as empty → direct SPLIT
+        If Not rowsFound OrElse leer = 1 Then
             ' Direct SPLIT - partition is empty
             SqlAusfuehren(connStr,
                 "ALTER PARTITION SCHEME [" & ps & "] NEXT USED [" & dateigruppe & "];" &
