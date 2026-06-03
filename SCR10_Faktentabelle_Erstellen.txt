@@ -20,11 +20,16 @@ Partial Public Class ScriptMain
     Private Const WARTE_SEK As Integer = 30
 
     Private _runID As Integer = 0
+    Private _parameterDB As String = String.Empty
+    Private _parametertab As String = String.Empty
 
     Public Sub Main()
         Log("SCR10 Start: " & DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss"))
         Try
             _runID = Convert.ToInt32(Dts.Variables("BA::RunID").Value)
+            _parameterDB = Dts.Variables("BA::ParameterDB").Value.ToString().Trim()
+            _parametertab = Dts.Variables("BA::Parametertabelle").Value.ToString().Trim()
+            Log("ParameterDB: " & _parameterDB & " | Parametertabelle: " & _parametertab)
             Dim connStr As String = HoleVerbindungszeichenfolge()
             Dim verfahren As List(Of VerfahrenInfo) = VerfahrenLaden(connStr)
             Log("Verfahren: " & verfahren.Count.ToString())
@@ -41,7 +46,7 @@ Partial Public Class ScriptMain
                 End If
                 Try
                     StatusSetzen(connStr, v.ID, "FAKTENTABELLE_ERSTELLEN")
-                    FaktentabelleErstellen(connStr, v.Themengebiet, v.Verfahren, v.Partitionsspalte, v.AnzahlPartitionen)
+                    FaktentabelleErstellen(connStr, v.Themengebiet, v.Verfahren, v.Partitionsspalte)
                     StatusSetzen(connStr, v.ID, "FAKTENTABELLE_ERSTELLT")
                     LogSchreiben(connStr, v.Verfahren, "SCHRITT_10", "Faktentabelle erfolgreich erstellt")
                     cntOK += 1
@@ -60,7 +65,7 @@ Partial Public Class ScriptMain
         End Try
     End Sub
 
-    Private Sub FaktentabelleErstellen(connStr As String, thema As String, tab As String, partCol As String, anzPart As Integer)
+    Private Sub FaktentabelleErstellen(connStr As String, thema As String, tab As String, partCol As String)
         Dim tabellenName As String = "fkt_" & tab.Trim().ToLower()
         Dim templateName As String = tab.Trim().ToLower() & "_template"
         Dim pfName As String = "pf_" & tab.Trim().ToLower()
@@ -77,7 +82,7 @@ Partial Public Class ScriptMain
         SqlAusfuehren(connStr, sqlDropPS, "Partition Scheme DROP")
         SqlAusfuehren(connStr, sqlDropPF, "Partition Function DROP")
 
-        If String.IsNullOrEmpty(partCol) OrElse anzPart <= 1 Then
+        If String.IsNullOrEmpty(partCol) Then
             ' Non-partitioned: copy schema directly from physical template table
             Dim sqlCreate As String =
 "SELECT TOP 0 * INTO dbo.[" & tabellenName & "] FROM dbo.[" & templateName & "];"
@@ -134,11 +139,14 @@ sbCols.ToString() & Environment.NewLine &
     Private Function VerfahrenLaden(connStr As String) As List(Of VerfahrenInfo)
         Dim liste As New List(Of VerfahrenInfo)()
         Dim sql As String =
-"SELECT ID, Verfahren, Themengebiet, LetzterSchritt,
-    ISNULL(Partitionsspalte,'') AS Partitionsspalte,
-    ISNULL(AnzahlPartitionen,1) AS AnzahlPartitionen
- FROM dbo.ETL_Fkt_Arbeitsliste
- WHERE Status IN ('EXT_TABELLE_ERSTELLT','FAKTENTABELLE_ERSTELLEN') AND RunID=" & _runID.ToString() & " ORDER BY Verfahren"
+"SELECT a.ID, a.Verfahren, a.Themengebiet, a.LetzterSchritt,
+    ISNULL(pp.Wert,'') AS Partitionsspalte
+ FROM dbo.ETL_Fkt_Arbeitsliste a
+ LEFT JOIN " & _parameterDB & ".dbo." & _parametertab & " pp
+        ON pp.Verfahren = a.Verfahren AND pp.Parameter = 'Faktenpartitionsspalte'
+ WHERE a.Status IN ('EXT_TABELLE_ERSTELLT','FAKTENTABELLE_ERSTELLEN')
+ AND   a.RunID = " & _runID.ToString() & "
+ ORDER BY a.Verfahren"
         Dim versuch As Integer = 0
         While versuch < MAX_VERSUCHE
             versuch += 1
@@ -150,12 +158,13 @@ sbCols.ToString() & Environment.NewLine &
                         Log("SQL: " & cmd.CommandText.Substring(0, Math.Min(150, cmd.CommandText.Length)).Replace(vbCrLf, " "))
                         Using rdr As SqlDataReader = cmd.ExecuteReader()
                             While rdr.Read()
+                                Dim rohPart As String = rdr(4).ToString().Trim()
                                 liste.Add(New VerfahrenInfo With {
-                                    .ID = rdr.GetInt32(0), .Verfahren = rdr(1).ToString().Trim(),
+                                    .ID = rdr.GetInt32(0),
+                                    .Verfahren = rdr(1).ToString().Trim(),
                                     .Themengebiet = rdr(2).ToString().Trim(),
                                     .LetzterSchritt = If(rdr.IsDBNull(3), "", rdr(3).ToString().Trim()),
-                                    .Partitionsspalte = rdr(4).ToString().Trim(),
-                                    .AnzahlPartitionen = Convert.ToInt32(rdr(5))})
+                                    .Partitionsspalte = If(rohPart.Contains("|"), rohPart.Substring(0, rohPart.IndexOf("|")), rohPart)})
                             End While
                         End Using
                     End Using
@@ -244,7 +253,6 @@ sbCols.ToString() & Environment.NewLine &
         Public Property Themengebiet As String
         Public Property LetzterSchritt As String
         Public Property Partitionsspalte As String
-        Public Property AnzahlPartitionen As Integer
     End Class
 
     Public Enum ScriptResults
