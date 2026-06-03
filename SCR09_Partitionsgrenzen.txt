@@ -28,6 +28,8 @@ Imports Microsoft.SqlServer.Dts.Runtime
 ' FIXES  : - CCI/CI Index detection for temp tables in SWITCH operations
 '          - APPEND loads ALL missing values (not just > MAX)
 '          - Compact logging (no individual partition lines)
+'          - Direct PF boundary check to prevent duplicate SPLIT on HEAP tables
+'          - MSSQL table existence check (missing table = FULL LOAD)
 '
 ' Status: PARTITIONSGRENZEN → PARTITIONSGRENZEN_ERSTELLT
 ' =============================================================================
@@ -80,9 +82,6 @@ Partial Public Class ScriptMain
                 Try
                     StatusSetzen(connStr, v.ID, "PARTITIONSGRENZEN")
 
-                    ' ═════════════════════════════════════════════════════════
-                    ' SCHRITT 1: Versuche partition_wert aus CSV zu lesen
-                    ' ═════════════════════════════════════════════════════════
                     Dim benutzerWerte As List(Of Integer) = PartitionWerteLaden(connStr, v.Verfahren)
 
                     Dim zuVerarbeiten As New List(Of PartitionsEintrag)()
@@ -91,9 +90,6 @@ Partial Public Class ScriptMain
                     Dim mssqlWerte As List(Of Integer) = Nothing
 
                     If benutzerWerte.Count > 0 Then
-                        ' ═════════════════════════════════════════════════════
-                        ' MODE 1: MANUAL (partition_wert aus CSV)
-                        ' ═════════════════════════════════════════════════════
                         modus = "MANUAL"
                         Log("  ══════════════════════════════════════════════════")
                         Log("  MODE: MANUAL (partition_wert aus CSV)")
@@ -101,11 +97,9 @@ Partial Public Class ScriptMain
                         Log("  Benutzer partition_wert: " & benutzerWerte.Count.ToString() & " Werte")
                         Log("  MIN: " & benutzerWerte.Min().ToString() & " | MAX: " & benutzerWerte.Max().ToString())
 
-                        ' Alle Oracle-Werte laden
                         oracleAlleWerte = OracleAlleWerteLaden(connStr, v)
                         Log("  Oracle Werte gesamt: " & oracleAlleWerte.Count.ToString())
 
-                        ' Validierung - Benutzer-Werte muessen in Oracle existieren
                         Dim nichtInOracle As List(Of Integer) = benutzerWerte.Where(Function(w) Not oracleAlleWerte.Contains(w)).ToList()
                         If nichtInOracle.Count > 0 Then
                             Dim fehlermeldung As String =
@@ -121,11 +115,9 @@ Partial Public Class ScriptMain
                         End If
                         Log("  → Alle Benutzer-Werte in Oracle vorhanden ✓")
 
-                        ' MSSQL Status pruefen
                         mssqlWerte = MssqlWerteLaden(connStr, v)
                         Log("  MSSQL Werte gesamt: " & mssqlWerte.Count.ToString())
 
-                        ' Klassifizierung - AKTUALISIERUNG vs NEU
                         Dim cntAktualisierung As Integer = 0
                         Dim cntNeu As Integer = 0
 
@@ -142,15 +134,11 @@ Partial Public Class ScriptMain
                         Log("  Klassifizierung: AKTUALISIERUNG=" & cntAktualisierung.ToString() & " | NEU=" & cntNeu.ToString())
 
                     Else
-                        ' ═════════════════════════════════════════════════════
-                        ' MODE 2: AUTOMATIC (kein partition_wert in CSV)
-                        ' ═════════════════════════════════════════════════════
                         modus = "AUTOMATIC"
                         Log("  ══════════════════════════════════════════════════")
                         Log("  MODE: AUTOMATIC (partition_wert aus Oracle)")
                         Log("  ══════════════════════════════════════════════════")
 
-                        ' Alle Oracle-Werte laden
                         oracleAlleWerte = OracleAlleWerteLaden(connStr, v)
                         Log("  Oracle Werte gesamt: " & oracleAlleWerte.Count.ToString())
 
@@ -164,12 +152,10 @@ Partial Public Class ScriptMain
 
                         Log("  Oracle MIN: " & oracleAlleWerte.Min().ToString() & " | MAX: " & oracleAlleWerte.Max().ToString())
 
-                        ' MSSQL Status pruefen
                         mssqlWerte = MssqlWerteLaden(connStr, v)
                         Log("  MSSQL Werte gesamt: " & mssqlWerte.Count.ToString())
 
                         If mssqlWerte.Count = 0 Then
-                            ' ─── FULL LOAD: MSSQL ist leer ───
                             Log("  ──────────────────────────────────────────────")
                             Log("  → Entscheidung: FULL LOAD (MSSQL leer)")
                             Log("  → Lade alle " & oracleAlleWerte.Count.ToString() & " Oracle-Werte")
@@ -180,7 +166,6 @@ Partial Public Class ScriptMain
                             Next
 
                         Else
-                            ' ─── APPEND: Lade ALLE fehlenden Oracle-Werte ───
                             Log("  MSSQL MIN: " & mssqlWerte.Min().ToString() & " | MAX: " & mssqlWerte.Max().ToString())
                             Log("  ──────────────────────────────────────────────")
                             Log("  → Entscheidung: APPEND (alle fehlenden Werte)")
@@ -215,9 +200,6 @@ Partial Public Class ScriptMain
                         End If
                     End If
 
-                    ' ═════════════════════════════════════════════════════════
-                    ' ZUSAMMENFASSUNG (COMPACT)
-                    ' ═════════════════════════════════════════════════════════
                     zuVerarbeiten = zuVerarbeiten.OrderBy(Function(z) z.Wert).ToList()
 
                     Log("  ══════════════════════════════════════════════════")
@@ -246,9 +228,6 @@ Partial Public Class ScriptMain
                         Continue For
                     End If
 
-                    ' ═════════════════════════════════════════════════════════
-                    ' PARTITIONSGRENZEN ERSTELLEN (nur fuer NEU Werte)
-                    ' ═════════════════════════════════════════════════════════
                     Dim dateigruppe As String = Convert.ToString(SqlSkalar(connStr,
                         "SELECT name FROM sys.filegroups WHERE is_default=1", "Dateigruppe"))
                     Dim pf As String = "PF_" & v.PartitionsSpalte & "_" & v.Faktentabelle
@@ -290,9 +269,6 @@ Partial Public Class ScriptMain
                 End Try
             Next
 
-            ' ═════════════════════════════════════════════════════════
-            ' BA::objPartitionValues SETZEN
-            ' ═════════════════════════════════════════════════════════
             Dim gesamtAnzahl As Integer = 0
             For Each kvp As KeyValuePair(Of String, List(Of PartitionsEintrag)) In gesamtErgebnis
                 gesamtAnzahl += kvp.Value.Count
@@ -480,7 +456,6 @@ Partial Public Class ScriptMain
         Dim leer As Integer = 0
         Dim partName As Integer = 0
         Dim partId As Integer = 0
-        Dim rowsFound As Boolean = False
 
         Dim versuch As Integer = 0
         While versuch < MAX_VERSUCHE
@@ -494,7 +469,6 @@ Partial Public Class ScriptMain
                         cmd.Parameters.AddWithValue("@ft", v.Faktentabelle)
                         Using rdr As SqlDataReader = cmd.ExecuteReader()
                             If rdr.Read() Then
-                                rowsFound = True
                                 treffer = If(rdr.IsDBNull(0), 0, rdr.GetInt32(0))
                                 leer = If(rdr.IsDBNull(1), 0, rdr.GetInt32(1))
                                 partName = If(rdr.IsDBNull(2), 0, rdr.GetInt32(2))
@@ -509,39 +483,38 @@ Partial Public Class ScriptMain
             End Try
         End While
 
-        ' Always check PF directly - works for both partitioned and HEAP tables
-        Dim pfBoundaryExists As Integer = 0
-        Try
-            Dim sqlBoundaryCheck As String =
-                "SELECT COUNT(*) FROM sys.partition_functions spf " &
-                "JOIN sys.partition_range_values sprv ON sprv.function_id=spf.function_id " &
-                "WHERE spf.name='" & pf & "' AND CONVERT(INT,sprv.value)=" & partWert
-            pfBoundaryExists = Convert.ToInt32(SqlSkalar(connStr, sqlBoundaryCheck, "PF Boundary Check"))
-        Catch
-        End Try
-
-        If pfBoundaryExists > 0 Then
-            Return  ' Boundary already exists in partition function
-        End If
-
         If treffer = 1 Then
             Return  ' Boundary already exists (via table partition info)
         End If
 
-        ' No rows = table is HEAP or not yet partitioned → treat as empty → direct SPLIT
-        If Not rowsFound OrElse leer = 1 Then
+        ' Direct PF check: catches HEAP tables where treffer=0 but boundary already in PF
+        Dim pfBoundaryExists As Integer = 0
+        Try
+            pfBoundaryExists = Convert.ToInt32(SqlSkalar(connStr,
+                "SELECT COUNT(*) FROM sys.partition_functions spf " &
+                "JOIN sys.partition_range_values sprv ON sprv.function_id=spf.function_id " &
+                "WHERE spf.name='" & pf & "' AND CONVERT(INT,sprv.value)=" & partWert,
+                "PF Boundary Check"))
+        Catch
+        End Try
+        If pfBoundaryExists > 0 Then Return  ' Boundary already in PF
+
+        If leer = 1 Then
             ' Direct SPLIT - partition is empty
             SqlAusfuehren(connStr,
                 "ALTER PARTITION SCHEME [" & ps & "] NEXT USED [" & dateigruppe & "];" &
                 "ALTER PARTITION FUNCTION [" & pf & "]() SPLIT RANGE(" & partWert & ");",
                 "SPLIT direkt")
         Else
+            ' ═════════════════════════════════════════════════════════════
             ' SWITCH OUT / SPLIT / SWITCH IN (WITH CCI/CI FIX)
+            ' ═════════════════════════════════════════════════════════════
             Dim tmpTabelle As String = v.Faktentabelle & "_tmp_" & partName.ToString()
             SqlAusfuehren(connStr, "IF OBJECT_ID('dbo.[" & tmpTabelle & "]','U') IS NOT NULL DROP TABLE dbo.[" & tmpTabelle & "];", "Tmp loeschen")
 
             Dim spaltenDef As String = HoleSpaltendefinition(connStr, v.Faktentabelle)
 
+            ' Get compression
             Dim komprimierung As String = Convert.ToString(SqlSkalar(connStr,
                 "SELECT TOP 1 p.data_compression_desc FROM sys.partitions p JOIN sys.indexes i ON p.object_id=i.object_id AND p.index_id=i.index_id JOIN sys.tables t ON t.object_id=p.object_id WHERE t.name='" & v.Faktentabelle & "' AND p.partition_number=1",
                 "Komprimierung"))
@@ -578,8 +551,10 @@ Partial Public Class ScriptMain
                 End Try
             End While
 
-            Dim sqlTmpCreate As String = "CREATE TABLE dbo.[" & tmpTabelle & "] (" & spaltenDef & ")" & kompStr & ";"
-            SqlAusfuehren(connStr, sqlTmpCreate, "Tmp erstellen")
+            ' Create temp table (HEAP first)
+            SqlAusfuehren(connStr,
+                "CREATE TABLE dbo.[" & tmpTabelle & "] (" & spaltenDef & ")" & kompStr & ";",
+                "Tmp erstellen")
 
             If indexType = "CLUSTERED COLUMNSTORE" Then
                 SqlAusfuehren(connStr,
@@ -632,7 +607,6 @@ Partial Public Class ScriptMain
     ' Spaltendefinition
     ' =========================================================================
     Private Function HoleSpaltendefinition(connStr As String, faktentabelle As String) As String
-        ' Use sys.tables lookup (case-insensitive) instead of OBJECT_ID string (case-sensitive)
         Dim sql As String =
 "SELECT STUFF((SELECT ', '+QUOTENAME(c.name)+' '+
     CASE WHEN y.name IN ('char','nchar','binary') THEN y.name+'('+LTRIM(STR(c.max_length))+')'
