@@ -1,172 +1,202 @@
+Option Explicit On
+Option Strict On
+
 Imports System
 Imports System.Data.SqlClient
 Imports System.Collections.Generic
-Imports System.Text
 Imports Microsoft.SqlServer.Dts.Runtime
 
-' =====================================================
-' SCR09 : Ext_Tabelle_Erstellen
-' Zweck : Externe PolyBase-Tabellen anhand Schemadaten erstellen
-' Version: 1.0
-' =====================================================
+' =============================================================================
+' PAKET  : Fakten Laden
+' SKRIPT : SCR09_Ext_Tabelle_Erstellen (v2 - using tm_polybase_struktur)
+' ZWECK  : Pro Verfahren: externe Tabelle aus tm_polybase_struktur.columns_ext erstellen
+'          Oracle LOCATION → UPPER CASE
+'          Status: TEMPLATE_ERSTELLT → EXT_TABELLE_ERSTELLT
+' =============================================================================
 <Microsoft.SqlServer.Dts.Tasks.ScriptTask.SSISScriptTaskEntryPointAttribute()>
 <CLSCompliant(False)>
 Partial Public Class ScriptMain
     Inherits Microsoft.SqlServer.Dts.Tasks.ScriptTask.VSTARTScriptObjectModelBase
 
-    Private Const SKRIPT_NAME As String = "SCR09_ExtTabelleErstellen"
+    Private Const SKRIPT_NAME As String = "SCR09_Ext_Tabelle_Erstellen"
     Private Const CONN_NAME As String = "Verbindung"
     Private Const MAX_VERSUCHE As Integer = 10
     Private Const WARTE_SEK As Integer = 30
 
     Private _runID As Integer = 0
-    Private _datenbank As String = String.Empty
-    Private _extTableSchema As String = String.Empty
+    Private _parameterDB As String = String.Empty
+    Private _parametertab As String = String.Empty
+    Private _extSchema As String = String.Empty
     Private _extSourceName As String = String.Empty
-    Private _extSourceLocation As String = String.Empty
-    Private _credUser As String = String.Empty
-    Private _credPass As String = String.Empty
+    Private _extTableLocation As String = String.Empty
 
     Public Sub Main()
-        Log("SCR09 Start: " & DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss"))
+        Log("════════════════════════════════════════════════════════")
+        Log("SCR07_Ext_Tabelle_Erstellen – Start (v2: tm_polybase_struktur)")
+        Log("Zeitpunkt: " & DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss"))
+        Log("════════════════════════════════════════════════════════")
+
         Try
             _runID = Convert.ToInt32(Dts.Variables("BA::RunID").Value)
-            _datenbank = Dts.Variables("BA::Datenbank").Value.ToString().Trim()
-            _extTableSchema = Dts.Variables("BA::ExtTableSchema").Value.ToString().Trim()
+            _parameterDB = Dts.Variables("BA::ParameterDB").Value.ToString().Trim()
+            _parametertab = Dts.Variables("BA::Parametertabelle").Value.ToString().Trim()
+            _extSchema = Dts.Variables("BA::ExtTableSchema").Value.ToString().Trim()
             _extSourceName = Dts.Variables("BA::ExtSourceName").Value.ToString().Trim()
-            _extSourceLocation = Dts.Variables("BA::ExtSourceLocation").Value.ToString().Trim()
-            _credUser = Dts.Variables("BA::CredBenutzername").Value.ToString().Trim()
-            _credPass = Dts.Variables("BA::CredKennwort").Value.ToString().Trim()
-            Log("Datenbank      : " & _datenbank)
-            Log("Ext. Schema    : " & _extTableSchema)
-            Log("ExtSourceName  : " & _extSourceName)
-            Log("ExtSourceLoc   : " & _extSourceLocation)
+            _extTableLocation = Dts.Variables("BA::ExtTableLocation").Value.ToString().Trim()
+
+            Log("RunID              : " & _runID.ToString())
+            Log("ParameterDB        : " & _parameterDB)
+            Log("Parametertabelle   : " & _parametertab)
+            Log("ExtSchema          : " & _extSchema)
+            Log("ExtSourceName      : " & _extSourceName)
+            Log("ExtTableLocation   : " & _extTableLocation)
+
             Dim connStr As String = HoleVerbindungszeichenfolge()
-            EnsureExternalDataSource(connStr)
             Dim verfahren As List(Of VerfahrenInfo) = VerfahrenLaden(connStr)
-            Log("Verfahren: " & verfahren.Count.ToString())
-            If verfahren.Count = 0 Then
-                Log("Keine Verfahren zur Verarbeitung.")
-                Dts.TaskResult = ScriptResults.Success
-                Return
-            End If
+
+            Log("Verfahren zur Verarbeitung: " & verfahren.Count.ToString())
+
             Dim cntOK As Integer = 0
             Dim cntFehler As Integer = 0
+
             For Each v As VerfahrenInfo In verfahren
+                Log("────────────────────────────────────────────────────────")
+                Log("Verfahren: " & v.Verfahren & " | Themengebiet: " & v.Themengebiet)
+
                 If v.LetzterSchritt = "EXT_TABELLE_ERSTELLT" Then
+                    Log("  → bereits abgeschlossen → übersprungen ✓")
                     Continue For
                 End If
+
                 Try
                     StatusSetzen(connStr, v.ID, "EXT_TABELLE_ERSTELLEN")
-                    ExtTabelleDrop(connStr, v.Themengebiet, v.Verfahren)
-                    ExtTabelleErstellen(connStr, v.Themengebiet, v.Verfahren)
+                    ExtTabelleErstellen(connStr, v)
                     StatusSetzen(connStr, v.ID, "EXT_TABELLE_ERSTELLT")
-                    LogSchreiben(connStr, v.Verfahren, "SCHRITT_9", "Externe Tabelle erfolgreich erstellt")
+                    LogSchreiben(connStr, v.Verfahren, "SCHRITT_2",
+                        "Externe Tabelle erstellt: " & _extSchema & "." & v.Faktentabelle.ToLower())
                     cntOK += 1
+                    Log("  → Externe Tabelle erstellt ✓")
                 Catch ex As Exception
                     cntFehler += 1
                     FehlerSetzen(connStr, v.ID, ex.Message)
-                    LogSchreiben(connStr, v.Verfahren, "FEHLER_SCR09", ex.Message)
-                    LogFehler("FEHLER bei '" & v.Verfahren & "': " & ex.Message)
+                    LogSchreiben(connStr, v.Verfahren, "FEHLER_SCR07", ex.Message)
+                    LogFehler("FEHLER '" & v.Verfahren & "': " & ex.Message)
                 End Try
             Next
-            Log("Abschluss: " & cntOK.ToString() & " OK, " & cntFehler.ToString() & " Fehler")
+
+            Log("════════════════════════════════════════════════════════")
+            Log("Erfolgreich: " & cntOK.ToString() & " | Fehler: " & cntFehler.ToString())
+            Log("════════════════════════════════════════════════════════")
+
             Dts.TaskResult = If(cntFehler > 0, ScriptResults.Failure, ScriptResults.Success)
+
         Catch ex As Exception
             LogFehler("Kritischer Fehler: " & ex.Message)
             Dts.TaskResult = ScriptResults.Failure
         End Try
     End Sub
 
-    Private Sub EnsureExternalDataSource(connStr As String)
-        ' Check if external data source already exists
-        Dim sqlCheck As String =
-"SELECT COUNT(*) FROM sys.external_data_sources WHERE name = '" & _extSourceName & "';"
-        Dim cnt As Integer = 0
-        Using conn As New SqlConnection(connStr)
-            conn.Open()
-            Using cmd As New SqlCommand(sqlCheck, conn)
-                cmd.CommandTimeout = 0
-                cnt = Convert.ToInt32(cmd.ExecuteScalar())
-            End Using
-        End Using
+    ' =============================================================================
+    ' EXTERNE TABELLE ERSTELLEN - using columns_ext from tm_polybase_struktur
+    ' =============================================================================
+    Private Sub ExtTabelleErstellen(connStr As String, v As VerfahrenInfo)
+        Dim extName As String = v.Faktentabelle.ToLower()
+        Dim extFullName As String = _extSchema & ".[" & extName & "]"
 
-        If cnt > 0 Then
-            Log("External Data Source [" & _extSourceName & "] bereits vorhanden.")
-            Return
+        Log("  Erstelle externe Tabelle: " & extFullName)
+
+        ' Extract Oracle environment from ExtTableLocation
+        ' Example: "ISTAT.STATRT.VM_DDL_SQL_SERVER" → "ISTAT"
+        Dim oracleEnvironment As String = _extTableLocation.Split("."c)(0).ToUpper()
+
+        ' Oracle LOCATION: <ENVIRONMENT>.<THEMENGEBIET>.<FAKTENTABELLE> (all UPPER)
+        Dim location As String = oracleEnvironment & "." & v.Themengebiet.ToUpper() & "." & v.Faktentabelle.ToUpper()
+
+        Log("  Oracle Location: " & location)
+
+        ' Build dynamic SQL using columns_ext from tm_polybase_struktur
+        Dim sqlBuild As String =
+"DECLARE @drop nvarchar(max), @crt nvarchar(max);
+
+SELECT
+    @drop = CONCAT(N'IF EXISTS(SELECT 1 FROM sys.external_tables WHERE schema_id=SCHEMA_ID(''',
+                   '" & _extSchema & "', ''') AND name=''', '" & extName & "', ''') ',
+                   'DROP EXTERNAL TABLE " & extFullName & ";'),
+    @crt  = CONCAT(N'CREATE EXTERNAL TABLE " & extFullName & " (', CHAR(13), CHAR(10),
+                   STRING_AGG(CAST(columns_ext AS nvarchar(max)), CONCAT(N',',CHAR(13),CHAR(10))) WITHIN GROUP (ORDER BY colno),
+                   CHAR(13), CHAR(10), N') WITH (DATA_SOURCE=[" & _extSourceName & "], LOCATION=''',
+                   '" & location & "', ''');')
+FROM dbo.tm_polybase_struktur
+WHERE themengebiet COLLATE Latin1_General_100_CI_AS_SC_UTF8 = @thema COLLATE Latin1_General_100_CI_AS_SC_UTF8
+  AND tabname COLLATE Latin1_General_100_CI_AS_SC_UTF8 = @tab COLLATE Latin1_General_100_CI_AS_SC_UTF8;
+
+IF @crt IS NULL
+BEGIN
+    DECLARE @msg nvarchar(500);
+    SET @msg = 'Keine Schemadaten in tm_polybase_struktur fuer Theme=' + @thema + ', Tabelle=' + @tab;
+    THROW 50002, @msg, 1;
+END
+
+EXEC(@drop);
+EXEC(@crt);"
+
+        ' Execute the dynamic SQL
+        Dim versuch As Integer = 0
+        While versuch < MAX_VERSUCHE
+            versuch += 1
+            Try
+                Using conn As New SqlConnection(connStr)
+                    conn.Open()
+                    Using cmd As New SqlCommand(sqlBuild, conn)
+                        cmd.CommandTimeout = 0
+                        cmd.Parameters.AddWithValue("@thema", v.Themengebiet.Trim().ToLower())
+                        cmd.Parameters.AddWithValue("@tab", v.Verfahren.Trim().ToLower())
+                        cmd.ExecuteNonQuery()
+                    End Using
+                End Using
+                Exit While
+            Catch ex As Exception
+                Log(String.Format("WARNUNG [Ext Tabelle erstellen] Versuch {0}/{1}: {2}", versuch, MAX_VERSUCHE, ex.Message))
+                If versuch < MAX_VERSUCHE Then
+                    System.Threading.Thread.Sleep(WARTE_SEK * 1000)
+                Else
+                    Throw
+                End If
+            End Try
+        End While
+
+        ' Validate
+        Dim checkSQL As String =
+"SELECT COUNT(*)
+FROM sys.external_tables
+WHERE schema_id = SCHEMA_ID('" & _extSchema & "')
+  AND name = '" & extName & "';"
+
+        Dim exists As Integer = Convert.ToInt32(SqlSkalar(connStr, checkSQL, "Ext Tabelle prüfen"))
+
+        If exists = 0 Then
+            Throw New Exception("Externe Tabelle wurde nicht erstellt!")
         End If
 
-        Log("External Data Source [" & _extSourceName & "] nicht gefunden -> wird erstellt.")
-
-        ' Create database scoped credential if not exists
-        Dim credName As String = "cred_" & _extSourceName
-        Dim sqlCred As String =
-"IF NOT EXISTS (SELECT 1 FROM sys.database_scoped_credentials WHERE name='" & credName & "')
-    CREATE DATABASE SCOPED CREDENTIAL [" & credName & "]
-    WITH IDENTITY = '" & _credUser & "', SECRET = '" & _credPass & "';"
-        SqlAusfuehren(connStr, sqlCred, "Credential sicherstellen")
-        Log("Credential [" & credName & "] geprüft/erstellt.")
-
-        ' Create external data source
-        Dim sqlDS As String =
-"CREATE EXTERNAL DATA SOURCE [" & _extSourceName & "]
-WITH (LOCATION = '" & _extSourceLocation & "', CREDENTIAL = [" & credName & "]);"
-        Log("SQL: " & sqlDS)
-        SqlAusfuehren(connStr, sqlDS, "External Data Source CREATE")
-        Log("External Data Source [" & _extSourceName & "] erstellt.")
+        Log("  ✓ Externe Tabelle erfolgreich: " & extFullName)
     End Sub
 
-    Private Sub ExtTabelleDrop(connStr As String, thema As String, tab As String)
-        Dim sqlDrop As String =
-"IF EXISTS (SELECT 1 FROM sys.external_tables WHERE name=@tab AND schema_id=SCHEMA_ID(@schema))
-    DROP EXTERNAL TABLE [" & _extTableSchema & "].[" & tab.Trim().ToUpper() & "];"
-        Using conn As New SqlConnection(connStr)
-            conn.Open()
-            Using cmd As New SqlCommand(sqlDrop, conn)
-                cmd.CommandTimeout = 0
-                cmd.Parameters.AddWithValue("@tab", tab.Trim().ToUpper())
-                cmd.Parameters.AddWithValue("@schema", _extTableSchema)
-                Log("SQL: " & cmd.CommandText.Substring(0, Math.Min(150, cmd.CommandText.Length)).Replace(vbCrLf, " "))
-                cmd.ExecuteNonQuery()
-            End Using
-        End Using
-    End Sub
-
-    Private Sub ExtTabelleErstellen(connStr As String, thema As String, tab As String)
-        Dim sbCols As New StringBuilder()
-        Dim sqlCols As String =
-"SELECT columns_ext FROM dbo.tm_polybase_struktur
- WHERE themengebiet=@thema AND tabname=@tab ORDER BY colno;"
-        Using conn As New SqlConnection(connStr)
-            conn.Open()
-            Using cmd As New SqlCommand(sqlCols, conn)
-                cmd.CommandTimeout = 0
-                cmd.Parameters.AddWithValue("@thema", thema.Trim().ToLower())
-                cmd.Parameters.AddWithValue("@tab", tab.Trim().ToLower())
-                Log("SQL: " & cmd.CommandText.Substring(0, Math.Min(150, cmd.CommandText.Length)).Replace(vbCrLf, " "))
-                Using rdr As SqlDataReader = cmd.ExecuteReader()
-                    While rdr.Read()
-                        If sbCols.Length > 0 Then sbCols.Append("," & Environment.NewLine)
-                        sbCols.Append(rdr(0).ToString())
-                    End While
-                End Using
-            End Using
-        End Using
-        If sbCols.Length = 0 Then Throw New Exception("Keine Spalten in tm_polybase_struktur für " & thema & "." & tab)
-        Dim sqlCreate As String =
-"CREATE EXTERNAL TABLE [" & _extTableSchema & "].[" & tab.Trim().ToUpper() & "] (" & Environment.NewLine &
-sbCols.ToString() & Environment.NewLine &
-") WITH (DATA_SOURCE = [" & _extSourceName & "], LOCATION = N'" & thema.Trim().ToUpper() & "." & tab.Trim().ToUpper() & "');"
-        Log("SQL (vollständig):" & Environment.NewLine & sqlCreate)
-        SqlAusfuehren(connStr, sqlCreate, "Ext Tabelle CREATE")
-        Log("Externe Tabelle [" & _extTableSchema & "].[" & tab.Trim().ToUpper() & "] erstellt.")
-    End Sub
-
+    ' =============================================================================
+    ' VERFAHREN LADEN
+    ' =============================================================================
     Private Function VerfahrenLaden(connStr As String) As List(Of VerfahrenInfo)
         Dim liste As New List(Of VerfahrenInfo)()
         Dim sql As String =
-"SELECT ID, Verfahren, Themengebiet, LetzterSchritt FROM dbo.ETL_Fkt_Arbeitsliste
- WHERE Status IN ('TEMPLATE_ERSTELLT','EXT_TABELLE_ERSTELLEN') AND RunID=" & _runID.ToString() & " ORDER BY Verfahren"
+"SELECT a.ID, a.Verfahren, a.Themengebiet, a.LetzterSchritt,
+        pf.Wert AS Faktentabelle
+ FROM   dbo.ETL_Fkt_Arbeitsliste a
+ JOIN   " & _parameterDB & ".dbo." & _parametertab & " pf
+        ON pf.Verfahren = a.Verfahren
+        AND pf.Parameter = 'Faktentabelle'
+ WHERE  a.Status IN ('TEMPLATE_ERSTELLT','EXT_TABELLE_ERSTELLEN')
+ AND    a.RunID = " & _runID.ToString() & "
+ ORDER  BY a.Verfahren"
+
         Dim versuch As Integer = 0
         While versuch < MAX_VERSUCHE
             versuch += 1
@@ -175,13 +205,15 @@ sbCols.ToString() & Environment.NewLine &
                     conn.Open()
                     Using cmd As New SqlCommand(sql, conn)
                         cmd.CommandTimeout = 0
-                        Log("SQL: " & cmd.CommandText.Substring(0, Math.Min(150, cmd.CommandText.Length)).Replace(vbCrLf, " "))
                         Using rdr As SqlDataReader = cmd.ExecuteReader()
                             While rdr.Read()
                                 liste.Add(New VerfahrenInfo With {
-                                    .ID = rdr.GetInt32(0), .Verfahren = rdr(1).ToString().Trim(),
+                                    .ID = rdr.GetInt32(0),
+                                    .Verfahren = rdr(1).ToString().Trim(),
                                     .Themengebiet = rdr(2).ToString().Trim(),
-                                    .LetzterSchritt = If(rdr.IsDBNull(3), "", rdr(3).ToString().Trim())})
+                                    .LetzterSchritt = If(rdr.IsDBNull(3), "", rdr(3).ToString().Trim()),
+                                    .Faktentabelle = rdr(4).ToString().Trim()
+                                })
                             End While
                         End Using
                     End Using
@@ -189,22 +221,33 @@ sbCols.ToString() & Environment.NewLine &
                 Return liste
             Catch ex As Exception
                 Log(String.Format("WARNUNG [Verfahren laden] Versuch {0}/{1}: {2}", versuch, MAX_VERSUCHE, ex.Message))
-                If versuch < MAX_VERSUCHE Then System.Threading.Thread.Sleep(WARTE_SEK * 1000) Else Throw
+                If versuch < MAX_VERSUCHE Then
+                    System.Threading.Thread.Sleep(WARTE_SEK * 1000)
+                Else
+                    Throw
+                End If
             End Try
         End While
         Return liste
     End Function
 
+    ' =============================================================================
+    ' STATUS MANAGEMENT
+    ' =============================================================================
     Private Sub StatusSetzen(connStr As String, id As Integer, status As String)
-        SqlAusfuehren(connStr, "UPDATE dbo.ETL_Fkt_Arbeitsliste SET Status='" & status & "',LetzterSchritt='" & status & "',AktualisiertAm=GETDATE() WHERE ID=" & id.ToString(), "Status setzen")
+        SqlAusfuehren(connStr,
+            "UPDATE dbo.ETL_Fkt_Arbeitsliste SET Status='" & status & "',LetzterSchritt='" & status & "',AktualisiertAm=GETDATE() WHERE ID=" & id.ToString(),
+            "Status setzen")
     End Sub
 
     Private Sub FehlerSetzen(connStr As String, id As Integer, msg As String)
+        Dim kurz As String = If(msg.Length > 3900, msg.Substring(0, 3900), msg)
         Try
             Using conn As New SqlConnection(connStr)
                 conn.Open()
-                Using cmd As New SqlCommand("UPDATE dbo.ETL_Fkt_Arbeitsliste SET Status='FEHLER',Fehlermeldung=@m,AktualisiertAm=GETDATE() WHERE ID=@id", conn)
-                    cmd.Parameters.AddWithValue("@m", If(msg.Length > 3900, msg.Substring(0, 3900), msg))
+                Using cmd As New SqlCommand(
+                    "UPDATE dbo.ETL_Fkt_Arbeitsliste SET Status='FEHLER',Fehlermeldung=@m,AktualisiertAm=GETDATE() WHERE ID=@id", conn)
+                    cmd.Parameters.AddWithValue("@m", kurz)
                     cmd.Parameters.AddWithValue("@id", id)
                     cmd.ExecuteNonQuery()
                 End Using
@@ -213,11 +256,15 @@ sbCols.ToString() & Environment.NewLine &
         End Try
     End Sub
 
+    ' =============================================================================
+    ' LOGGING
+    ' =============================================================================
     Private Sub LogSchreiben(connStr As String, verfahren As String, schritt As String, meldung As String)
         Try
             Using conn As New SqlConnection(connStr)
                 conn.Open()
-                Using cmd As New SqlCommand("INSERT INTO dbo.tm_fakten_load_log(verfahren,schritt,meldung) VALUES(@v,@s,@m)", conn)
+                Using cmd As New SqlCommand(
+                    "INSERT INTO dbo.tm_fakten_load_log(verfahren,schritt,meldung) VALUES(@v,@s,@m)", conn)
                     cmd.Parameters.AddWithValue("@v", verfahren)
                     cmd.Parameters.AddWithValue("@s", schritt)
                     cmd.Parameters.AddWithValue("@m", meldung)
@@ -228,9 +275,13 @@ sbCols.ToString() & Environment.NewLine &
         End Try
     End Sub
 
+    ' =============================================================================
+    ' SQL HELPER FUNCTIONS
+    ' =============================================================================
     Private Function SqlAusfuehren(connStr As String, sql As String, beschreibung As String) As Integer
         Dim versuch As Integer = 0
         Dim letzterFehler As Exception = Nothing
+
         While versuch < MAX_VERSUCHE
             versuch += 1
             Try
@@ -238,17 +289,44 @@ sbCols.ToString() & Environment.NewLine &
                     conn.Open()
                     Using cmd As New SqlCommand(sql, conn)
                         cmd.CommandTimeout = 0
-                        Log("SQL: " & cmd.CommandText.Substring(0, Math.Min(150, cmd.CommandText.Length)).Replace(vbCrLf, " "))
                         Return cmd.ExecuteNonQuery()
                     End Using
                 End Using
             Catch ex As Exception
                 letzterFehler = ex
                 Log(String.Format("WARNUNG [{0}] Versuch {1}/{2}: {3}", beschreibung, versuch, MAX_VERSUCHE, ex.Message))
-                If versuch < MAX_VERSUCHE Then System.Threading.Thread.Sleep(WARTE_SEK * 1000)
+                If versuch < MAX_VERSUCHE Then
+                    System.Threading.Thread.Sleep(WARTE_SEK * 1000)
+                End If
             End Try
         End While
-        Throw New Exception(String.Format("[{0}] fehlgeschlagen: {1}", beschreibung, If(letzterFehler IsNot Nothing, letzterFehler.Message, "Unbekannt")))
+
+        Throw New Exception(String.Format("[{0}] fehlgeschlagen: {1}", beschreibung,
+            If(letzterFehler IsNot Nothing, letzterFehler.Message, "Unbekannt")))
+    End Function
+
+    Private Function SqlSkalar(connStr As String, sql As String, beschreibung As String) As Object
+        Dim versuch As Integer = 0
+        While versuch < MAX_VERSUCHE
+            versuch += 1
+            Try
+                Using conn As New SqlConnection(connStr)
+                    conn.Open()
+                    Using cmd As New SqlCommand(sql, conn)
+                        cmd.CommandTimeout = 0
+                        Return cmd.ExecuteScalar()
+                    End Using
+                End Using
+            Catch ex As Exception
+                Log(String.Format("WARNUNG [{0}] Versuch {1}/{2}: {3}", beschreibung, versuch, MAX_VERSUCHE, ex.Message))
+                If versuch < MAX_VERSUCHE Then
+                    System.Threading.Thread.Sleep(WARTE_SEK * 1000)
+                Else
+                    Throw
+                End If
+            End Try
+        End While
+        Return Nothing
     End Function
 
     Private Function HoleVerbindungszeichenfolge() As String
@@ -264,11 +342,15 @@ sbCols.ToString() & Environment.NewLine &
         Dts.Events.FireError(0, SKRIPT_NAME, n, "", 0)
     End Sub
 
+    ' =============================================================================
+    ' DATA CLASSES
+    ' =============================================================================
     Private Class VerfahrenInfo
         Public Property ID As Integer
         Public Property Verfahren As String
         Public Property Themengebiet As String
         Public Property LetzterSchritt As String
+        Public Property Faktentabelle As String
     End Class
 
     Public Enum ScriptResults
