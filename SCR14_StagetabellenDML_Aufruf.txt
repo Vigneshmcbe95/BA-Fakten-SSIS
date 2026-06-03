@@ -73,6 +73,23 @@ Partial Public Class ScriptMain
     End Sub
 
     Private Sub StagetabellenDMLAufrufen(connStr As String, thema As String, tab As String)
+        ' Check if procedure exists - if not, skip silently
+        Dim procExists As Integer = 0
+        Try
+            Using conn As New SqlConnection(connStr)
+                conn.Open()
+                Using cmd As New SqlCommand(
+                    "SELECT COUNT(*) FROM sys.objects WHERE object_id=OBJECT_ID('dbo.usp_Faktenladen_StagetabellenDML') AND type IN ('P','PC')", conn)
+                    procExists = Convert.ToInt32(cmd.ExecuteScalar())
+                End Using
+            End Using
+        Catch
+        End Try
+        If procExists = 0 Then
+            Log("  INFO: dbo.usp_Faktenladen_StagetabellenDML nicht vorhanden → uebersprungen")
+            Return
+        End If
+
         Dim versuch As Integer = 0
         Dim letzterFehler As Exception = Nothing
         While versuch < MAX_VERSUCHE
