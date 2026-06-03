@@ -509,8 +509,23 @@ Partial Public Class ScriptMain
             End Try
         End While
 
+        ' Always check PF directly - works for both partitioned and HEAP tables
+        Dim pfBoundaryExists As Integer = 0
+        Try
+            Dim sqlBoundaryCheck As String =
+                "SELECT COUNT(*) FROM sys.partition_functions spf " &
+                "JOIN sys.partition_range_values sprv ON sprv.function_id=spf.function_id " &
+                "WHERE spf.name='" & pf & "' AND CONVERT(INT,sprv.value)=" & partWert
+            pfBoundaryExists = Convert.ToInt32(SqlSkalar(connStr, sqlBoundaryCheck, "PF Boundary Check"))
+        Catch
+        End Try
+
+        If pfBoundaryExists > 0 Then
+            Return  ' Boundary already exists in partition function
+        End If
+
         If treffer = 1 Then
-            Return  ' Boundary already exists
+            Return  ' Boundary already exists (via table partition info)
         End If
 
         ' No rows = table is HEAP or not yet partitioned → treat as empty → direct SPLIT
@@ -563,9 +578,8 @@ Partial Public Class ScriptMain
                 End Try
             End While
 
-            SqlAusfuehren(connStr,
-                "CREATE TABLE dbo.[" & tmpTabelle & "] (" & spaltenDef & ")" & kompStr & ";",
-                "Tmp erstellen")
+            Dim sqlTmpCreate As String = "CREATE TABLE dbo.[" & tmpTabelle & "] (" & spaltenDef & ")" & kompStr & ";"
+            SqlAusfuehren(connStr, sqlTmpCreate, "Tmp erstellen")
 
             If indexType = "CLUSTERED COLUMNSTORE" Then
                 SqlAusfuehren(connStr,
