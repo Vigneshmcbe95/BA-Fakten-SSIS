@@ -618,6 +618,7 @@ Partial Public Class ScriptMain
     ' Spaltendefinition
     ' =========================================================================
     Private Function HoleSpaltendefinition(connStr As String, faktentabelle As String) As String
+        ' Use sys.tables lookup (case-insensitive) instead of OBJECT_ID string (case-sensitive)
         Dim sql As String =
 "SELECT STUFF((SELECT ', '+QUOTENAME(c.name)+' '+
     CASE WHEN y.name IN ('char','nchar','binary') THEN y.name+'('+LTRIM(STR(c.max_length))+')'
@@ -626,9 +627,14 @@ Partial Public Class ScriptMain
          WHEN y.name IN ('datetime2','datetimeoffset','time') THEN y.name+'('+LTRIM(STR(c.scale))+')'
          ELSE y.name END+' '+CASE WHEN c.is_nullable=1 THEN 'NULL' ELSE 'NOT NULL' END
     FROM sys.columns c JOIN sys.types y ON c.user_type_id=y.user_type_id
-    WHERE c.object_id=OBJECT_ID('dbo." & faktentabelle & "') AND c.is_computed=0
+    WHERE c.object_id = (SELECT object_id FROM sys.tables WHERE name='" & faktentabelle & "' AND schema_id=SCHEMA_ID('dbo'))
+      AND c.is_computed=0
     ORDER BY c.column_id FOR XML PATH(''),TYPE).value('.','nvarchar(max)'),1,2,'')"
-        Return Convert.ToString(SqlSkalar(connStr, sql, "Spaltendefinition"))
+        Dim result As String = Convert.ToString(SqlSkalar(connStr, sql, "Spaltendefinition"))
+        If String.IsNullOrEmpty(result) Then
+            Throw New Exception("Spaltendefinition leer fuer dbo.[" & faktentabelle & "] - Tabelle existiert nicht oder hat keine Spalten")
+        End If
+        Return result
     End Function
 
     ' =========================================================================
