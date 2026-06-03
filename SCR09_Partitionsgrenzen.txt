@@ -124,7 +124,7 @@ Partial Public Class ScriptMain
     ISNULL(pp.Wert,'') AS Partitionsspalte
  FROM dbo.ETL_Fkt_Arbeitsliste a
  LEFT JOIN " & _parameterDB & ".dbo." & _parametertab & " pp
-        ON pp.Verfahren = a.Verfahren AND pp.Parameter = 'Faktenpartitionsspalte'
+        ON LOWER(pp.Verfahren) = LOWER(a.Verfahren) AND pp.Parameter = 'Faktenpartitionsspalte'
  WHERE a.Status IN ('FAKTENTABELLE_ERSTELLT','PARTITIONSGRENZEN_ERSTELLEN')
  AND   a.RunID = " & _runID.ToString() & "
  ORDER BY a.Verfahren"
