@@ -87,9 +87,9 @@ Partial Public Class ScriptMain
                         Dim lowerBound As Long = Convert.ToInt64(lbObj)
                         SqlAusfuehren(connStr,
                             "ALTER TABLE dbo.[" & inTable & "] ADD CONSTRAINT [" & ckName & "] " &
-                            "CHECK([" & v.PartitionColumn & "] > " & lowerBound.ToString() & " AND [" & v.PartitionColumn & "] <= " & pvStr & ");",
+                            "CHECK([" & v.PartitionColumn & "] IS NOT NULL AND [" & v.PartitionColumn & "] > " & lowerBound.ToString() & " AND [" & v.PartitionColumn & "] <= " & pvStr & ");",
                             "CK setzen")
-                        Log("  → CHECK Constraint: " & ckName & " (" & v.PartitionColumn & " > " & lowerBound.ToString() & " AND <= " & pvStr & ") ✓")
+                        Log("  → CHECK Constraint: " & ckName & " (" & v.PartitionColumn & " IS NOT NULL AND > " & lowerBound.ToString() & " AND <= " & pvStr & ") ✓")
                         ' SWITCH IN
                         SqlAusfuehren(connStr, "ALTER TABLE dbo.[" & inTable & "] SWITCH TO dbo.[" & v.Faktentabelle & "] PARTITION " & pnrVal & ";", "SWITCH IN")
                         Log("  → SWITCH IN → " & v.Faktentabelle & " Partition " & pnrVal.ToString() & " ✓")
