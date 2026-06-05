@@ -464,6 +464,17 @@ Partial Public Class ScriptMain
                                             pf As String, ps As String,
                                             dateigruppe As String, partWert As Integer)
 
+        ' Direct check: is this boundary already in the partition function?
+        Dim sqlBoundExists As String =
+            "SELECT COUNT(*) FROM sys.partition_range_values prv " &
+            "JOIN sys.partition_functions pfn ON prv.function_id=pfn.function_id " &
+            "WHERE pfn.name='" & pf & "' AND CONVERT(int,prv.value)=" & partWert
+        Dim boundCount As Object = SqlSkalar(connStr, sqlBoundExists, "Boundary prüfen")
+        If Convert.ToInt32(If(boundCount, 0)) > 0 Then
+            Log("    â Boundary " & partWert & " bereits vorhanden â uebersprungen")
+            Return
+        End If
+
         Dim sqlInfo As String =
 "SELECT MAX(CASE WHEN CONVERT(int,r.value)=@pv THEN 1 ELSE 0 END) AS treffer,
         MAX(CASE WHEN p.rows=0 THEN 1 ELSE 0 END) AS leer,
