@@ -167,28 +167,35 @@ Partial Public Class ScriptMain
             Log("  PF/PS bereits vorhanden und in Benutzung -> wiederverwendet: " & pf & " / " & ps)
         End If
 
-        ' Spaltenliste (columns_dbo) aus Template (via INFORMATION_SCHEMA) + Metadaten holen
-        Dim selectList As String = Nothing
-        Dim sqlCols As String = "
-        SELECT STRING_AGG(CAST(m.columns_dbo AS nvarchar(max)), ',' + CHAR(13) + CHAR(10)) WITHIN GROUP (ORDER BY m.colno)
-        FROM [" & _datenbank & "].INFORMATION_SCHEMA.COLUMNS c
-        JOIN dbo.tm_polybase_struktur m ON UPPER(LTRIM(RTRIM(m.colname))) = UPPER(LTRIM(RTRIM(c.COLUMN_NAME)))
-        WHERE c.TABLE_SCHEMA = 'dbo' 
-          AND c.TABLE_NAME = '" & v.Faktentabelle.ToLower() & "_template'
-          AND m.tabname = @tab
-          AND m.themengebiet = @thema"
-        
+        ' Spaltendefinitionen als CREATE TABLE DDL aus Template (INFORMATION_SCHEMA)
+        Dim colDDL As String = Nothing
+        Dim sqlColDDL As String =
+            "SELECT STRING_AGG(CAST(" &
+            "    QUOTENAME(c.COLUMN_NAME) + ' ' + " &
+            "    CASE " &
+            "        WHEN c.DATA_TYPE IN ('varchar','nvarchar','char','nchar') " &
+            "            THEN c.DATA_TYPE + '(' + CASE WHEN c.CHARACTER_MAXIMUM_LENGTH = -1 THEN 'MAX' ELSE CAST(c.CHARACTER_MAXIMUM_LENGTH AS varchar(10)) END + ')' " &
+            "        WHEN c.DATA_TYPE IN ('decimal','numeric') " &
+            "            THEN c.DATA_TYPE + '(' + CAST(c.NUMERIC_PRECISION AS varchar(5)) + ',' + CAST(c.NUMERIC_SCALE AS varchar(5)) + ')' " &
+            "        WHEN c.DATA_TYPE IN ('datetime2','time','datetimeoffset') " &
+            "            THEN c.DATA_TYPE + '(' + CAST(c.DATETIME_PRECISION AS varchar(5)) + ')' " &
+            "        ELSE c.DATA_TYPE " &
+            "    END + ' ' + " &
+            "    CASE c.IS_NULLABLE WHEN 'YES' THEN 'NULL' ELSE 'NOT NULL' END " &
+            "AS nvarchar(max)), ',' + CHAR(13) + CHAR(10)) WITHIN GROUP (ORDER BY c.ORDINAL_POSITION) " &
+            "FROM [" & _datenbank & "].INFORMATION_SCHEMA.COLUMNS c " &
+            "WHERE c.TABLE_SCHEMA = 'dbo' AND c.TABLE_NAME = '" & v.Faktentabelle.ToLower() & "_template'"
+
         Dim versuch As Integer = 0
         While versuch < MAX_VERSUCHE
             versuch += 1
             Try
                 Using conn As New SqlConnection(connStr)
                     conn.Open()
-                    Using cmd As New SqlCommand(sqlCols, conn)
-                        cmd.Parameters.AddWithValue("@tab", v.Verfahren.ToLower())
-                        cmd.Parameters.AddWithValue("@thema", v.Themengebiet.ToLower())
+                    Using cmd As New SqlCommand(sqlColDDL, conn)
+                        cmd.CommandTimeout = 0
                         Dim r As Object = cmd.ExecuteScalar()
-                        If r IsNot Nothing AndAlso r IsNot DBNull.Value Then selectList = r.ToString()
+                        If r IsNot Nothing AndAlso r IsNot DBNull.Value Then colDDL = r.ToString()
                     End Using
                 End Using
                 Exit While
@@ -198,24 +205,23 @@ Partial Public Class ScriptMain
             End Try
         End While
 
-        If String.IsNullOrEmpty(selectList) Then
-            Throw New Exception("Spaltenliste aus Template " & templateTable & " konnte nicht geladen werden.")
+        If String.IsNullOrEmpty(colDDL) Then
+            Throw New Exception("Spaltendefinitionen aus Template " & templateTable & " konnte nicht geladen werden.")
         End If
 
-        ' Faktentabelle mit SELECT TOP 0 INTO erstellen (übernimmt Typen/Nullability vom Mapping)
-        ' Quelle ist die External Table, Ziel die Faktentabelle
-        Dim sqlCreate As String = "SELECT TOP 0 " & selectList & " INTO dbo.[" & v.Faktentabelle.ToLower() & "] FROM ext.[" & v.Faktentabelle.ToLower() & "];"
+        ' Faktentabelle direkt auf Partitionsschema erstellen (nicht SELECT INTO - das wuerde HEAP auf default FG erzeugen)
+        Dim sqlCreate As String = "CREATE TABLE dbo.[" & v.Faktentabelle.ToLower() & "] (" & colDDL & ") ON [" & ps & "]([" & v.PartitionColumn & "]);"
         SqlAusfuehren(connStr, sqlCreate, "Faktentabelle erstellen")
-        
+
         SqlAusfuehren(connStr, "ALTER TABLE dbo.[" & v.Faktentabelle.ToLower() & "] SET (LOCK_ESCALATION=AUTO);", "LOCK_ESCALATION")
         Log("  Faktentabelle erstellt: dbo." & v.Faktentabelle.ToLower())
 
-        ' CCI auf Partitionsschema anlegen (konvertiert HEAP zu partitionierter CCI-Tabelle)
+        ' CCI anlegen - kein ON clause: erbt Partition vom Partitionsschema der Tabelle
         If v.IndexType = "CCI" Then
             SqlAusfuehren(connStr,
-                "CREATE CLUSTERED COLUMNSTORE INDEX [CCI_" & v.Faktentabelle & "] ON dbo.[" & v.Faktentabelle.ToLower() & "] ON [" & ps & "]([" & v.PartitionColumn & "]);",
+                "CREATE CLUSTERED COLUMNSTORE INDEX [CCI_" & v.Faktentabelle & "] ON dbo.[" & v.Faktentabelle.ToLower() & "];",
                 "CCI erstellen")
-            Log("  CCI angelegt (partitioniert auf " & ps & ")")
+            Log("  CCI angelegt (partitioniert)")
         End If
 
         ' NCCI
