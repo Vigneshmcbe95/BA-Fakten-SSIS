@@ -1,4 +1,4 @@
-Imports System
+﻿Imports System
 Imports System.Data.SqlClient
 Imports System.Collections.Generic
 Imports System.Text
@@ -70,11 +70,11 @@ Partial Public Class ScriptMain
     Private Function TemplateErstellen(connStr As String, thema As String, tab As String) As Boolean
         Dim templateName As String = tab.Trim().ToLower() & "_template"
 
-        ' Load column names + ext DDL from tm_polybase_struktur
+        ' Load column names + dbo mapping from tm_polybase_struktur
         Dim quelleCols As New List(Of String)()
-        Dim sbExt As New StringBuilder()
+        Dim sbDbo As New StringBuilder()
         Dim sqlCols As String =
-"SELECT UPPER(colname), columns_ext FROM dbo.tm_polybase_struktur
+"SELECT UPPER(colname), columns_dbo FROM dbo.tm_polybase_struktur
  WHERE themengebiet=@thema AND tabname=@tab ORDER BY colno;"
         Using conn As New SqlConnection(connStr)
             conn.Open()
@@ -86,8 +86,8 @@ Partial Public Class ScriptMain
                 Using rdr As SqlDataReader = cmd.ExecuteReader()
                     While rdr.Read()
                         quelleCols.Add(rdr(0).ToString().Trim())
-                        If sbExt.Length > 0 Then sbExt.Append("," & Environment.NewLine)
-                        sbExt.Append(rdr(1).ToString())
+                        If sbDbo.Length > 0 Then sbDbo.Append("," & Environment.NewLine)
+                        sbDbo.Append(rdr(1).ToString())
                     End While
                 End Using
             End Using
@@ -134,20 +134,24 @@ Partial Public Class ScriptMain
             End If
 
             If match Then
-                Log("Template dbo.[" & templateName & "] stimmt überein → wird unverändert verwendet.")
+                Log("Template dbo.[" & templateName & "] stimmt Ã¼berein â†’ wird unverÃ¤ndert verwendet.")
                 Return True
             End If
 
             ' Columns differ: drop old physical table, recreate
-            Log("INFO: Template dbo.[" & templateName & "] hat geänderte Spalten → altes Template gelöscht, neues wird erstellt.")
-            LogSchreiben(connStr, tab, "SCHRITT_8", "Template aktualisiert (Spaltenänderung erkannt): " & thema & "." & tab)
-            SqlAusfuehren(connStr, "DROP TABLE dbo.[" & templateName & "];", "Template DROP (Spalten geändert)")
+            Log("INFO: Template dbo.[" & templateName & "] hat geÃ¤nderte Spalten â†’ altes Template gelÃ¶scht, neues wird erstellt.")
+            LogSchreiben(connStr, tab, "SCHRITT_8", "Template aktualisiert (SpaltenÃ¤nderung erkannt): " & thema & "." & tab)
+            SqlAusfuehren(connStr, "DROP TABLE dbo.[" & templateName & "];", "Template DROP (Spalten geÃ¤ndert)")
         End If
 
-        ' Create physical template table from columns_ext DDL
+        ' Create physical template table via SELECT INTO (TOP 0) from external table
+        Dim extTabName As String = tab.Trim().ToUpper()
+        Dim extTableSchema As String = "ext"
         Dim sqlCreate As String =
-"CREATE TABLE dbo.[" & templateName & "] (" & Environment.NewLine &
-sbExt.ToString() & Environment.NewLine & ");"
+"SELECT TOP 0 " & Environment.NewLine &
+sbDbo.ToString() & Environment.NewLine &
+"INTO dbo.[" & templateName & "]" & Environment.NewLine &
+"FROM [" & extTableSchema & "].[" & extTabName & "];"
         SqlAusfuehren(connStr, sqlCreate, "Template CREATE")
         Log("Template dbo.[" & templateName & "] erstellt.")
         Return True
@@ -268,3 +272,4 @@ sbExt.ToString() & Environment.NewLine & ");"
     End Enum
 
 End Class
+
