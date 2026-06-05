@@ -97,31 +97,39 @@ Partial Public Class ScriptMain
 
     ' =============================================================================
     ' TEMPLATE ERSTELLEN
-    ' Gleiche Dynamik wie SCR09 ErstelleExternalTable — aber columns_dbo statt columns_ext
-    ' Ergebnis: dbo.[tabelle_template] mit echten Spalten (aam_id, jhw_id ...)
+    ' Gleiche Dynamik wie SCR07: STRING_AGG(columns_dbo) -> @cols -> SET @sql -> EXEC sp_executesql
+    ' SELECT TOP 0 (nur Struktur, keine Daten) — Template nur wenn noch nicht vorhanden
+    ' Ergebnis: [db].dbo.[tabelle_template] mit echten Spalten (aam_id, jhw_id ...)
     ' =============================================================================
     Private Sub TemplateErstellen(connStr As String, v As VerfahrenInfo)
         Dim sql As String =
             "DECLARE @t  nvarchar(128) = N'" & v.Faktentabelle.ToLower() & "';" & vbCrLf &
             "DECLARE @s  nvarchar(128) = N'" & v.Themengebiet.Trim().ToLower() & "';" & vbCrLf &
-            "DECLARE @db nvarchar(128) = N'" & _datenbank & "';" & vbCrLf & vbCrLf &
-            "DECLARE @drop nvarchar(max), @crt nvarchar(max);" & vbCrLf & vbCrLf &
-            "SELECT" & vbCrLf &
-            "    @drop = CONCAT(N'IF OBJECT_ID(''[', @db, N'].dbo.[', @t, N'_template]'',''U'') IS NOT NULL DROP TABLE [', @db, N'].dbo.[', @t, N'_template];')," & vbCrLf &
-            "    @crt  = CONCAT(N'SELECT TOP 0 '," & vbCrLf &
-            "                   STRING_AGG(CAST(columns_dbo AS nvarchar(max)), CONCAT(N',',CHAR(13),CHAR(10))) WITHIN GROUP (ORDER BY colno)," & vbCrLf &
-            "                   N' INTO [', @db, N'].dbo.[', @t, N'_template] FROM ext.[', @t, N'];')" & vbCrLf &
+            "DECLARE @db nvarchar(128) = N'" & _datenbank & "';" & vbCrLf &
+            "DECLARE @cols nvarchar(max), @sql nvarchar(max);" & vbCrLf & vbCrLf &
+            "-- columns_dbo aus tm_polybase_struktur laden" & vbCrLf &
+            "SELECT @cols = STRING_AGG(" & vbCrLf &
+            "    CAST(columns_dbo AS nvarchar(max))," & vbCrLf &
+            "    CONCAT(N',', CHAR(13), CHAR(10))" & vbCrLf &
+            ") WITHIN GROUP (ORDER BY colno)" & vbCrLf &
             "FROM dbo.tm_polybase_struktur" & vbCrLf &
-            "WHERE tabname = @t" & vbCrLf &
+            "WHERE tabname = LOWER(@t)" & vbCrLf &
             "  AND themengebiet = @s;" & vbCrLf & vbCrLf &
-            "IF @crt IS NULL THROW 50001, 'Keine Metadaten in tm_polybase_struktur', 1;" & vbCrLf & vbCrLf &
-            "EXEC(@drop);" & vbCrLf &
-            "EXEC(@crt);"
+            "-- Validierung" & vbCrLf &
+            "IF @cols IS NULL" & vbCrLf &
+            "    THROW 50001, 'Keine columns_dbo Metadaten gefunden', 1;" & vbCrLf & vbCrLf &
+            "-- Template nur erstellen wenn noch nicht vorhanden" & vbCrLf &
+            "IF OBJECT_ID(CONCAT('[', @db, '].dbo.[', @t, '_template]'), 'U') IS NULL" & vbCrLf &
+            "BEGIN" & vbCrLf &
+            "    SET @sql = N'SELECT TOP 0 ' + @cols +" & vbCrLf &
+            "               N' INTO [' + @db + N'].dbo.[' + @t + N'_template]' +" & vbCrLf &
+            "               N' FROM ext.[' + @t + N'];';" & vbCrLf &
+            "    EXEC sp_executesql @sql;" & vbCrLf &
+            "END"
 
-        Log("  Erstelle Template fuer: " & v.Faktentabelle.ToLower())
-        Log("SQL:" & vbCrLf & sql)
+        Log("  Template fuer: " & v.Faktentabelle.ToLower())
         SqlAusfuehren(connStr, sql, "Template erstellen")
-        Log("  Template erstellt ✓")
+        Log("  Template erstellt / bereits vorhanden ✓")
     End Sub
 
     ' =============================================================================
