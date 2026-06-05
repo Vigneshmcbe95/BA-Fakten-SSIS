@@ -78,10 +78,7 @@ Partial Public Class ScriptMain
                             "JOIN sys.partition_schemes ps ON i.data_space_id=ps.data_space_id " &
                             "WHERE i.object_id=OBJECT_ID('dbo.[" & v.Faktentabelle & "]')",
                             "Partition pruefen")) > 0
-                        Dim hatNotNullSpalten As Boolean = Convert.ToInt32(SqlSkalar(connStr,
-                            "SELECT COUNT(*) FROM sys.columns WHERE object_id=OBJECT_ID('dbo.[" & v.Faktentabelle & "]') AND is_nullable=0",
-                            "NOT NULL pruefen")) > 0
-                        Dim strukturOK As Boolean = (v.IndexType <> "CCI" OrElse hatCCI) AndAlso istPartitioniert AndAlso Not hatNotNullSpalten
+                        Dim strukturOK As Boolean = (v.IndexType <> "CCI" OrElse hatCCI) AndAlso istPartitioniert
                         If strukturOK Then
                             Log("  Faktentabelle dbo." & v.Faktentabelle & " existiert bereits (Struktur OK) -> uebersprungen")
                             LogSchreiben(connStr, v.Verfahren, "SCHRITT_3",
@@ -168,12 +165,12 @@ Partial Public Class ScriptMain
             Log("  PF/PS bereits vorhanden und in Benutzung -> wiederverwendet: " & pf & " / " & ps)
         End If
 
-        ' Spaltendefinitionen: colname (Kleinbuchstaben) + Typ aus columns_ext → z.B. 'jhw_id int NULL'
-        Dim colDDL As String = Nothing
-        Dim sqlColExt As String =
-            "SELECT STRING_AGG(CAST(m.colname + ' ' + LTRIM(SUBSTRING(m.columns_ext, CHARINDEX(' ', m.columns_ext), LEN(m.columns_ext))) AS nvarchar(max)), ',' + CHAR(13) + CHAR(10)) WITHIN GROUP (ORDER BY m.colno) " &
-            "FROM dbo.tm_polybase_struktur m " &
-            "WHERE m.tabname = @tab AND m.themengebiet = @thema"
+        ' columns_dbo aus Template-Tabelle lesen (von SCR08 befuellt)
+        Dim selectList As String = Nothing
+        Dim templateTable As String = "[" & _datenbank & "].dbo.[" & v.Faktentabelle.ToLower() & "_template]"
+        Dim sqlCols As String =
+            "SELECT STRING_AGG(CAST(t.columns_dbo AS nvarchar(max)), ',' + CHAR(13) + CHAR(10)) WITHIN GROUP (ORDER BY t.colno) " &
+            "FROM " & templateTable & " t"
 
         Dim versuch As Integer = 0
         While versuch < MAX_VERSUCHE
@@ -181,23 +178,72 @@ Partial Public Class ScriptMain
             Try
                 Using conn As New SqlConnection(connStr)
                     conn.Open()
-                    Using cmd As New SqlCommand(sqlColExt, conn)
+                    Using cmd As New SqlCommand(sqlCols, conn)
                         cmd.CommandTimeout = 0
-                        cmd.Parameters.AddWithValue("@tab", v.Verfahren.ToLower())
-                        cmd.Parameters.AddWithValue("@thema", v.Themengebiet.ToLower())
+                        Dim r As Object = cmd.ExecuteScalar()
+                        If r IsNot Nothing AndAlso r IsNot DBNull.Value Then selectList = r.ToString()
+                    End Using
+                End Using
+                Exit While
+            Catch ex As Exception
+                Log(String.Format("WARNUNG [columns_dbo laden] Versuch {0}/{1}: {2}", versuch, MAX_VERSUCHE, ex.Message))
+                If versuch < MAX_VERSUCHE Then System.Threading.Thread.Sleep(WARTE_SEK * 1000) Else Throw
+            End Try
+        End While
+
+        If String.IsNullOrEmpty(selectList) Then
+            Throw New Exception("columns_dbo konnte nicht aus Template geladen werden: " & templateTable)
+        End If
+
+        ' Temp-Tabelle per SELECT TOP 0 erstellen um Spaltenstruktur zu ermitteln
+        Dim tmpTable As String = v.Faktentabelle.ToLower() & "_STRUCTTMP_"
+        SqlAusfuehren(connStr, "IF OBJECT_ID('dbo.[" & tmpTable & "]') IS NOT NULL DROP TABLE dbo.[" & tmpTable & "];", "STRUCTTMP droppen")
+        SqlAusfuehren(connStr, "SELECT TOP 0 " & selectList & " INTO dbo.[" & tmpTable & "] FROM ext.[" & v.Faktentabelle.ToLower() & "];", "STRUCTTMP erstellen")
+
+        ' DDL aus sys.columns lesen (Nullability aus columns_dbo beibehalten)
+        Dim colDDL As String = Nothing
+        Dim sqlColDDL As String =
+            "SELECT STRING_AGG(CAST(" &
+            "    QUOTENAME(c.name) + ' ' + tp.name + " &
+            "    CASE " &
+            "        WHEN tp.name IN ('varchar','char') " &
+            "            THEN '(' + CASE WHEN c.max_length = -1 THEN 'MAX' ELSE CAST(c.max_length AS varchar(10)) END + ')' " &
+            "        WHEN tp.name IN ('nvarchar','nchar') " &
+            "            THEN '(' + CASE WHEN c.max_length = -1 THEN 'MAX' ELSE CAST(c.max_length/2 AS varchar(10)) END + ')' " &
+            "        WHEN tp.name IN ('decimal','numeric') " &
+            "            THEN '(' + CAST(c.precision AS varchar(5)) + ',' + CAST(c.scale AS varchar(5)) + ')' " &
+            "        WHEN tp.name IN ('datetime2','time','datetimeoffset') " &
+            "            THEN '(' + CAST(c.scale AS varchar(5)) + ')' " &
+            "        ELSE '' " &
+            "    END + CASE WHEN c.is_nullable = 0 THEN ' NOT NULL' ELSE ' NULL' END" &
+            "AS nvarchar(max)), ',' + CHAR(13) + CHAR(10)) WITHIN GROUP (ORDER BY c.column_id) " &
+            "FROM sys.columns c " &
+            "JOIN sys.types tp ON c.user_type_id = tp.user_type_id " &
+            "WHERE c.object_id = OBJECT_ID('dbo.[" & tmpTable & "]')"
+
+        versuch = 0
+        While versuch < MAX_VERSUCHE
+            versuch += 1
+            Try
+                Using conn As New SqlConnection(connStr)
+                    conn.Open()
+                    Using cmd As New SqlCommand(sqlColDDL, conn)
+                        cmd.CommandTimeout = 0
                         Dim r As Object = cmd.ExecuteScalar()
                         If r IsNot Nothing AndAlso r IsNot DBNull.Value Then colDDL = r.ToString()
                     End Using
                 End Using
                 Exit While
             Catch ex As Exception
-                Log(String.Format("WARNUNG [columns_ext laden] Versuch {0}/{1}: {2}", versuch, MAX_VERSUCHE, ex.Message))
+                Log(String.Format("WARNUNG [DDL lesen] Versuch {0}/{1}: {2}", versuch, MAX_VERSUCHE, ex.Message))
                 If versuch < MAX_VERSUCHE Then System.Threading.Thread.Sleep(WARTE_SEK * 1000) Else Throw
             End Try
         End While
 
+        SqlAusfuehren(connStr, "DROP TABLE dbo.[" & tmpTable & "];", "STRUCTTMP droppen")
+
         If String.IsNullOrEmpty(colDDL) Then
-            Throw New Exception("columns_ext DDL fuer " & v.Faktentabelle & " konnte nicht geladen werden.")
+            Throw New Exception("DDL fuer Faktentabelle konnte nicht aus Temp-Tabelle geladen werden.")
         End If
 
         ' Faktentabelle auf Partitionsschema erstellen

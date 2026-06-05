@@ -106,8 +106,8 @@ Partial Public Class ScriptMain
                 Try
                     StatusSetzen(connStr, v.ID, "STAGING_ERSTELLEN")
 
-                    ' Spaltendefinitionen direkt aus tm_polybase_struktur (columns_ext = exakte DDL)
-                    Dim colDDL As String = HoleSpaltendefinitionen(connStr, v)
+                    ' columns_dbo SELECT-Liste direkt aus tm_polybase_struktur
+                    Dim selectList As String = HoleDboSpaltenliste(connStr, v)
 
                     ' _out pro Partitionswert erstellen
                     Dim cntStaging As Integer = 0
@@ -115,10 +115,10 @@ Partial Public Class ScriptMain
                         Dim pvStr As String = pe.Wert
                         Dim outTabelle As String = v.Faktentabelle.ToLower() & "_out_" & pvStr
 
-                        ' _out Tabelle mit exakter Spaltendefinition aus columns_ext erstellen
+                        ' _out Tabelle per SELECT TOP 0 mit columns_dbo erstellen
                         SqlAusfuehren(connStr, "IF OBJECT_ID('dbo.[" & outTabelle & "]','U') IS NOT NULL DROP TABLE dbo.[" & outTabelle & "];", "_out loeschen")
 
-                        SqlAusfuehren(connStr, "CREATE TABLE dbo.[" & outTabelle & "] (" & colDDL & ");", "_out erstellen")
+                        SqlAusfuehren(connStr, "SELECT TOP 0 " & selectList & " INTO dbo.[" & outTabelle & "] FROM ext.[" & v.Faktentabelle.ToLower() & "];", "_out erstellen")
 
                         Log("  _out erstellt: " & pvStr & " | Modus: " & pe.Modus)
                         cntStaging += 1
@@ -152,15 +152,15 @@ Partial Public Class ScriptMain
     End Sub
 
     ' =========================================================================
-    ' Spaltendefinitionen direkt aus tm_polybase_struktur (columns_ext = exakte DDL)
+    ' columns_dbo SELECT-Liste direkt aus tm_polybase_struktur
     ' =========================================================================
-    Private Function HoleSpaltendefinitionen(connStr As String, v As VerfahrenInfo) As String
-        Log("  Lade Spaltendefinitionen aus tm_polybase_struktur (colname + Typ aus columns_ext)")
+    Private Function HoleDboSpaltenliste(connStr As String, v As VerfahrenInfo) As String
+        Log("  Lade columns_dbo aus tm_polybase_struktur")
 
-        Dim sqlColExt As String =
-            "SELECT STRING_AGG(CAST(m.colname + ' ' + LTRIM(SUBSTRING(m.columns_ext, CHARINDEX(' ', m.columns_ext), LEN(m.columns_ext))) AS nvarchar(max)), ',' + CHAR(13) + CHAR(10)) WITHIN GROUP (ORDER BY m.colno)" &
-            " FROM dbo.tm_polybase_struktur m" &
-            " WHERE m.tabname = @tab AND m.themengebiet = @thema"
+        Dim templateTable As String = "[" & _datenbank & "].dbo.[" & v.Faktentabelle.ToLower() & "_template]"
+        Dim sqlCols As String =
+            "SELECT STRING_AGG(CAST(t.columns_dbo AS nvarchar(max)), ',' + CHAR(13) + CHAR(10)) WITHIN GROUP (ORDER BY t.colno)" &
+            " FROM " & templateTable & " t"
 
         Dim versuch As Integer = 0
         While versuch < MAX_VERSUCHE
@@ -168,20 +168,18 @@ Partial Public Class ScriptMain
             Try
                 Using conn As New SqlConnection(connStr)
                     conn.Open()
-                    Using cmd As New SqlCommand(sqlColExt, conn)
-                        cmd.Parameters.AddWithValue("@tab", v.Verfahren.ToLower())
-                        cmd.Parameters.AddWithValue("@thema", v.Themengebiet.ToLower())
+                    Using cmd As New SqlCommand(sqlCols, conn)
                         Dim r As Object = cmd.ExecuteScalar()
                         If r IsNot Nothing AndAlso r IsNot DBNull.Value Then Return r.ToString()
                     End Using
                 End Using
             Catch ex As Exception
-                Log(String.Format("WARNUNG [Spaltendefinitionen] Versuch {0}/{1}: {2}", versuch, MAX_VERSUCHE, ex.Message))
+                Log(String.Format("WARNUNG [columns_dbo laden] Versuch {0}/{1}: {2}", versuch, MAX_VERSUCHE, ex.Message))
                 If versuch < MAX_VERSUCHE Then System.Threading.Thread.Sleep(WARTE_SEK * 1000) Else Throw
             End Try
         End While
 
-        Throw New Exception("columns_ext DDL konnte nicht fuer '" & v.Faktentabelle & "' geladen werden.")
+        Throw New Exception("columns_dbo konnte nicht aus Template geladen werden: " & templateTable)
     End Function
 
     ' =========================================================================
