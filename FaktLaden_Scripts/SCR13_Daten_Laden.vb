@@ -287,7 +287,7 @@ Partial Public Class ScriptMain
 
         Dim sqlMeta As String =
             "SELECT" &
-            "  STRING_AGG(CAST(m.columns_ext AS nvarchar(max)), ',' + CHAR(13) + CHAR(10)) WITHIN GROUP (ORDER BY m.colno) AS colDDL," &
+            "  STRING_AGG(CAST(m.colname + ' ' + LTRIM(SUBSTRING(m.columns_ext, CHARINDEX(' ', m.columns_ext), LEN(m.columns_ext))) AS nvarchar(max)), ',' + CHAR(13) + CHAR(10)) WITHIN GROUP (ORDER BY m.colno) AS colDDL," &
             "  STRING_AGG(CAST(m.columns_dbo AS nvarchar(max)), ',' + CHAR(13) + CHAR(10)) WITHIN GROUP (ORDER BY m.colno) AS selectList" &
             " FROM dbo.tm_polybase_struktur m" &
             " WHERE m.tabname = @tab AND m.themengebiet = @thema"

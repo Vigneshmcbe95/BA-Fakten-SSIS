@@ -168,10 +168,10 @@ Partial Public Class ScriptMain
             Log("  PF/PS bereits vorhanden und in Benutzung -> wiederverwendet: " & pf & " / " & ps)
         End If
 
-        ' Spaltendefinitionen direkt aus tm_polybase_struktur (columns_ext = exakte DDL: 'JHW_ID int NULL')
+        ' Spaltendefinitionen: colname (Kleinbuchstaben) + Typ aus columns_ext → z.B. 'jhw_id int NULL'
         Dim colDDL As String = Nothing
         Dim sqlColExt As String =
-            "SELECT STRING_AGG(CAST(m.columns_ext AS nvarchar(max)), ',' + CHAR(13) + CHAR(10)) WITHIN GROUP (ORDER BY m.colno) " &
+            "SELECT STRING_AGG(CAST(m.colname + ' ' + LTRIM(SUBSTRING(m.columns_ext, CHARINDEX(' ', m.columns_ext), LEN(m.columns_ext))) AS nvarchar(max)), ',' + CHAR(13) + CHAR(10)) WITHIN GROUP (ORDER BY m.colno) " &
             "FROM dbo.tm_polybase_struktur m " &
             "WHERE m.tabname = @tab AND m.themengebiet = @thema"
 

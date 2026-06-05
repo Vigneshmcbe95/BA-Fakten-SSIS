@@ -155,10 +155,10 @@ Partial Public Class ScriptMain
     ' Spaltendefinitionen direkt aus tm_polybase_struktur (columns_ext = exakte DDL)
     ' =========================================================================
     Private Function HoleSpaltendefinitionen(connStr As String, v As VerfahrenInfo) As String
-        Log("  Lade Spaltendefinitionen aus tm_polybase_struktur (columns_ext)")
+        Log("  Lade Spaltendefinitionen aus tm_polybase_struktur (colname + Typ aus columns_ext)")
 
         Dim sqlColExt As String =
-            "SELECT STRING_AGG(CAST(m.columns_ext AS nvarchar(max)), ',' + CHAR(13) + CHAR(10)) WITHIN GROUP (ORDER BY m.colno)" &
+            "SELECT STRING_AGG(CAST(m.colname + ' ' + LTRIM(SUBSTRING(m.columns_ext, CHARINDEX(' ', m.columns_ext), LEN(m.columns_ext))) AS nvarchar(max)), ',' + CHAR(13) + CHAR(10)) WITHIN GROUP (ORDER BY m.colno)" &
             " FROM dbo.tm_polybase_struktur m" &
             " WHERE m.tabname = @tab AND m.themengebiet = @thema"
 
