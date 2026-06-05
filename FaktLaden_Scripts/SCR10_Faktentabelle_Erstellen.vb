@@ -165,12 +165,13 @@ Partial Public Class ScriptMain
             Log("  PF/PS bereits vorhanden und in Benutzung -> wiederverwendet: " & pf & " / " & ps)
         End If
 
-        ' columns_dbo aus Template-Tabelle lesen (von SCR08 befuellt)
+        ' Spaltenliste aus INFORMATION_SCHEMA der Template-Tabelle
         Dim selectList As String = Nothing
-        Dim templateTable As String = "[" & _datenbank & "].dbo.[" & v.Faktentabelle.ToLower() & "_template]"
+        Dim templateName As String = v.Faktentabelle.ToLower() & "_template"
         Dim sqlCols As String =
-            "SELECT STRING_AGG(CAST(t.columns_dbo AS nvarchar(max)), ',' + CHAR(13) + CHAR(10)) WITHIN GROUP (ORDER BY t.colno) " &
-            "FROM " & templateTable & " t"
+            "SELECT STRING_AGG(CAST(c.COLUMN_NAME AS nvarchar(max)), ',' + CHAR(13) + CHAR(10)) WITHIN GROUP (ORDER BY c.ORDINAL_POSITION) " &
+            "FROM [" & _datenbank & "].INFORMATION_SCHEMA.COLUMNS c " &
+            "WHERE c.TABLE_SCHEMA = 'dbo' AND c.TABLE_NAME = '" & templateName & "'"
 
         Dim versuch As Integer = 0
         While versuch < MAX_VERSUCHE
@@ -186,13 +187,13 @@ Partial Public Class ScriptMain
                 End Using
                 Exit While
             Catch ex As Exception
-                Log(String.Format("WARNUNG [columns_dbo laden] Versuch {0}/{1}: {2}", versuch, MAX_VERSUCHE, ex.Message))
+                Log(String.Format("WARNUNG [Template Spalten] Versuch {0}/{1}: {2}", versuch, MAX_VERSUCHE, ex.Message))
                 If versuch < MAX_VERSUCHE Then System.Threading.Thread.Sleep(WARTE_SEK * 1000) Else Throw
             End Try
         End While
 
         If String.IsNullOrEmpty(selectList) Then
-            Throw New Exception("columns_dbo konnte nicht aus Template geladen werden: " & templateTable)
+            Throw New Exception("Spaltenliste konnte nicht aus Template geladen werden: " & templateName)
         End If
 
         ' Temp-Tabelle per SELECT TOP 0 erstellen um Spaltenstruktur zu ermitteln
