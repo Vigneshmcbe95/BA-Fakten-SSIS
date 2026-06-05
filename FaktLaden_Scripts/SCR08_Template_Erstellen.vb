@@ -20,7 +20,7 @@ Partial Public Class ScriptMain
 
     Private Const SKRIPT_NAME As String = "SCR08_Template_Erstellen"
     Private Const CONN_NAME As String = "Verbindung"
-    Private Const MAX_VERSUCHE As Integer = 10
+    Private Const MAX_VERSUCHE As Integer = 3
     Private Const WARTE_SEK As Integer = 30
 
     Private _runID As Integer = 0
@@ -32,10 +32,7 @@ Partial Public Class ScriptMain
 
     Public Sub Main()
 
-        Log("════════════════════════════════════════════════════════")
-        Log("SCR06_Template_Erstellen – Start (v5: Direct from Oracle)")
-        Log("Zeitpunkt: " & DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss"))
-        Log("════════════════════════════════════════════════════════")
+        Log("SCR08_Template_Erstellen - Start")
 
         Try
             _runID = Convert.ToInt32(Dts.Variables("BA::RunID").Value)
@@ -45,11 +42,6 @@ Partial Public Class ScriptMain
             _extTableSchema = Dts.Variables("BA::ExtTableSchema").Value.ToString().Trim()
             _extTableName = Dts.Variables("BA::ExtTableName").Value.ToString().Trim()
 
-            Log("Parameter DB       : " & _parameterDB)
-            Log("Parameter Tabelle  : " & _parametertab)
-            Log("Datenbank          : " & _datenbank)
-            Log("Ext Schema         : " & _extTableSchema)
-            Log("Ext Tabelle        : " & _extTableName)
 
             Dim connStr As String = HoleVerbindungszeichenfolge()
             Dim verfahren As List(Of VerfahrenInfo) = VerfahrenLaden(connStr)
@@ -59,11 +51,10 @@ Partial Public Class ScriptMain
             Dim cntFehler As Integer = 0
 
             For Each v As VerfahrenInfo In verfahren
-                Log("────────────────────────────────────────────────────────")
                 Log("Verfahren: " & v.Verfahren & " | Themengebiet: " & v.Themengebiet)
 
                 If v.LetzterSchritt = "TEMPLATE_ERSTELLT" Then
-                    Log("  → bereits abgeschlossen → übersprungen ✓")
+                    Log("  bereits abgeschlossen uebersprungen OK")
                     Continue For
                 End If
 
@@ -74,7 +65,7 @@ Partial Public Class ScriptMain
                     LogSchreiben(connStr, v.Verfahren, "SCHRITT_1",
                         "Template erstellt: dwh.dbo." & v.Faktentabelle.ToLower() & "_template")
                     cntOK += 1
-                    Log("  → Template erstellt ✓")
+                    Log("  Template erstellt OK")
                 Catch ex As Exception
                     cntFehler += 1
                     FehlerSetzen(connStr, v.ID, ex.Message)
@@ -83,9 +74,7 @@ Partial Public Class ScriptMain
                 End Try
             Next
 
-            Log("════════════════════════════════════════════════════════")
             Log("Erfolgreich: " & cntOK.ToString() & " | Fehler: " & cntFehler.ToString())
-            Log("════════════════════════════════════════════════════════")
             Dts.TaskResult = If(cntFehler > 0, ScriptResults.Failure, ScriptResults.Success)
 
         Catch ex As Exception
@@ -129,7 +118,7 @@ Partial Public Class ScriptMain
 
         Log("  Template fuer: " & v.Faktentabelle.ToLower())
         SqlAusfuehren(connStr, sql, "Template erstellen")
-        Log("  Template erstellt / bereits vorhanden ✓")
+        Log("  Template erstellt / bereits vorhanden OK")
     End Sub
 
     ' =============================================================================
@@ -238,6 +227,7 @@ Partial Public Class ScriptMain
             Catch ex As Exception
                 letzterFehler = ex
                 Log(String.Format("WARNUNG [{0}] Versuch {1}/{2}: {3}", beschreibung, versuch, MAX_VERSUCHE, ex.Message))
+                If versuch = 1 Then Log("SQL Statement [" & beschreibung & "]: " & sql)
                 If versuch < MAX_VERSUCHE Then
                     System.Threading.Thread.Sleep(WARTE_SEK * 1000)
                 End If
@@ -260,6 +250,7 @@ Partial Public Class ScriptMain
                 End Using
             Catch ex As Exception
                 Log(String.Format("WARNUNG [{0}] Versuch {1}/{2}: {3}", beschreibung, versuch, MAX_VERSUCHE, ex.Message))
+                If versuch = 1 Then Log("SQL Statement [" & beschreibung & "]: " & sql)
                 If versuch < MAX_VERSUCHE Then
                     System.Threading.Thread.Sleep(WARTE_SEK * 1000)
                 Else

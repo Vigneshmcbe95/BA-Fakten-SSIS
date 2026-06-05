@@ -40,7 +40,7 @@ Partial Public Class ScriptMain
 
     Private Const SKRIPT_NAME As String = "SCR13_Daten_Laden"
     Private Const CONN_NAME As String = "Verbindung"
-    Private Const MAX_VERSUCHE As Integer = 10
+    Private Const MAX_VERSUCHE As Integer = 3
     Private Const WARTE_SEK As Integer = 30
 
     Private _runID As Integer = 0
@@ -59,10 +59,7 @@ Partial Public Class ScriptMain
     ' ==========================================================================================
     Public Sub Main()
 
-        Log("════════════════════════════════════════════════════════")
-        Log("SCR13_Daten_Laden → Start")
-        Log("Zeitpunkt: " & DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss"))
-        Log("════════════════════════════════════════════════════════")
+        Log("SCR13_Daten_Laden - Start")
 
         Try
             _runID = Convert.ToInt32(Dts.Variables("BA::RunID").Value)
@@ -71,8 +68,6 @@ Partial Public Class ScriptMain
             _datenbank = Dts.Variables("BA::Datenbank").Value.ToString().Trim()
             _maxparallel = CInt(Dts.Variables("BA::Maxparallel").Value)
 
-            Log("Maximale Parallelitaet: " & _maxparallel.ToString())
-            Log("Datenbank             : " & _datenbank)
 
             ' ─────────────────────────────────────────────────────────────────
             ' Partitionswerte aus BA::objPartitionValues lesen
@@ -103,17 +98,13 @@ Partial Public Class ScriptMain
                     End Try
                 End Sub)
 
-            Log("════════════════════════════════════════════════════════")
             Log("Erfolgreich: " & _cntOK.ToString() & " | Fehler: " & _cntFehler.ToString())
 
             If _fehlerListe.Count > 0 Then
-                Log("════════════════════════════════════════════════════════")
                 Log("FEHLER-DETAILS:")
-                Log("────────────────────────────────────────────────────────")
                 For Each f As String In _fehlerListe.OrderBy(Function(x) x)
-                    Log("  → " & f)
+                    Log("  " & f)
                 Next
-                Log("════════════════════════════════════════════════════════")
             End If
 
             Dts.TaskResult = If(_cntFehler > 0, ScriptResults.Failure, ScriptResults.Success)
@@ -152,13 +143,12 @@ Partial Public Class ScriptMain
                                     partDict As Dictionary(Of String, List(Of String)))
 
         SyncLock _logSperre
-            Log("────────────────────────────────────────────────────────")
             Log("Verfahren: " & v.Verfahren & " | Spalte: " & v.PartitionColumn)
         End SyncLock
 
         If v.LetzterSchritt = "DATEN_GELADEN" Then
             SyncLock _logSperre
-                Log("  → bereits abgeschlossen → uebersprungen ✓")
+                Log("  bereits abgeschlossen uebersprungen OK")
             End SyncLock
             Return
         End If
@@ -167,7 +157,7 @@ Partial Public Class ScriptMain
         Dim partWerte As List(Of String) = Nothing
         If Not partDict.TryGetValue(v.Verfahren, partWerte) OrElse partWerte.Count = 0 Then
             SyncLock _logSperre
-                Log("  WARNUNG: Keine Partitionswerte in BA::objPartitionValues fuer '" & v.Verfahren & "' → uebersprungen")
+                Log("  WARNUNG: Keine Partitionswerte in BA::objPartitionValues fuer '" & v.Verfahren & "' uebersprungen")
             End SyncLock
             Return
         End If
@@ -199,7 +189,7 @@ Partial Public Class ScriptMain
                             "rows check"))
                         If zeilenCount > 0 Then
                             SyncLock _logSperre
-                                Log("  → " & inTable & " bereits gefuellt (" & zeilenCount.ToString() & " Zeilen) → uebersprungen ✓")
+                                Log("  " & inTable & " bereits gefuellt (" & zeilenCount.ToString() & " Zeilen) uebersprungen OK")
                             End SyncLock
                             Interlocked.Add(cntGesamtZeilen, CLng(zeilenCount))
                             Return
@@ -224,7 +214,7 @@ Partial Public Class ScriptMain
 
                     If Not extExists Then
                         SyncLock _logSperre
-                            Log("  WARNUNG: ext." & extTable & " nicht gefunden → uebersprungen")
+                            Log("  WARNUNG: ext." & extTable & " nicht gefunden uebersprungen")
                         End SyncLock
                         Return
                     End If
@@ -238,7 +228,7 @@ Partial Public Class ScriptMain
                         "RENAME " & pv)
 
                     SyncLock _logSperre
-                        Log("  → Zeilen geladen (" & inTable & "): " & zeilen.ToString())
+                        Log("  Zeilen geladen (" & inTable & "): " & zeilen.ToString())
                     End SyncLock
 
                     LogSchreiben(connStr, v.Verfahren, "LOAD_" & pv,
@@ -260,7 +250,7 @@ Partial Public Class ScriptMain
 
             Interlocked.Increment(_cntOK)
             SyncLock _logSperre
-                Log("  → Schritt 6 abgeschlossen ✓")
+                Log("  Schritt 6 abgeschlossen OK")
             End SyncLock
 
         Catch ex As Exception
@@ -323,7 +313,7 @@ Partial Public Class ScriptMain
             "WHERE [" & v.PartitionColumn & "] = " & partitionValue & ";"
 
         SyncLock _logSperre
-            Log("  SELECT INTO [" & loadingTable & "] WHERE " & v.PartitionColumn & " = " & partitionValue & " (→ wird zu _in_ umbenannt)")
+            Log("  SELECT INTO [" & loadingTable & "] WHERE " & v.PartitionColumn & " = " & partitionValue & " (wird zu _in_ umbenannt)")
         End SyncLock
 
         SqlAusfuehren(connStr, sql, "SELECT INTO " & loadingTable)
@@ -436,6 +426,7 @@ Partial Public Class ScriptMain
                 letzterFehler = ex
                 SyncLock _logSperre
                     Log(String.Format("WARNUNG [{0}] Versuch {1}/{2}: {3}", beschreibung, versuch, MAX_VERSUCHE, ex.Message))
+                If versuch = 1 Then Log("SQL Statement [" & beschreibung & "]: " & sql)
                 End SyncLock
                 If versuch < MAX_VERSUCHE Then Thread.Sleep(WARTE_SEK * 1000)
             End Try
@@ -459,6 +450,7 @@ Partial Public Class ScriptMain
             Catch ex As Exception
                 SyncLock _logSperre
                     Log(String.Format("WARNUNG [{0}] Versuch {1}/{2}: {3}", beschreibung, versuch, MAX_VERSUCHE, ex.Message))
+                If versuch = 1 Then Log("SQL Statement [" & beschreibung & "]: " & sql)
                 End SyncLock
                 If versuch < MAX_VERSUCHE Then Thread.Sleep(WARTE_SEK * 1000) Else Throw
             End Try

@@ -19,13 +19,9 @@ Partial Public Class ScriptMain
     Public Sub Main()
         Dim sqlConn As SqlConnection = Nothing
         Try
-            Log("════════════════════════════════════════════════════════")
-            Log("PaketEnd – Start")
-            Log("Zeitpunkt: " & DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss"))
-            Log("════════════════════════════════════════════════════════")
+        Log("PaketEnd - Start")
 
             Dim runID As Integer = CInt(Dts.Variables("BA::RunID").Value)
-            Log("RunID: " & runID.ToString())
 
             Dim cm As ConnectionManager = Dts.Connections(ConnectionName)
             Dim builder As New SqlConnectionStringBuilder(cm.ConnectionString)
@@ -101,19 +97,16 @@ SELECT
                 cmd.Parameters.Add("@RunID", SqlDbType.Int).Value = runID
                 Using rdr As SqlDataReader = cmd.ExecuteReader()
                     If rdr.Read() Then
-                        Log("LaufHistorie aktualisiert ✓")
-                        Log("════════════════════════════════════════════════════════")
-                        Log("ZUSAMMENFASSUNG RunID " & runID.ToString())
+                        Log("LaufHistorie aktualisiert OK")
                         Log("Gesamt      : " & rdr.GetInt32(0).ToString())
                         Log("Erfolgreich : " & rdr.GetInt32(1).ToString())
                         Log("Fehler      : " & rdr.GetInt32(2).ToString())
                         Log("Laufzeit    : " & If(rdr.IsDBNull(3), "unbekannt", rdr.GetInt32(3).ToString() & " Sekunden"))
-                        Log("════════════════════════════════════════════════════════")
                     End If
                 End Using
             End Using
 
-            Log("PaketEnd abgeschlossen ✓")
+            Log("PaketEnd abgeschlossen OK")
             Dts.TaskResult = ScriptResults.Success
 
         Catch ex As Exception

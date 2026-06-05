@@ -21,9 +21,9 @@ Imports Microsoft.SqlServer.Dts.Runtime
 Partial Public Class ScriptMain
     Inherits Microsoft.SqlServer.Dts.Tasks.ScriptTask.VSTARTScriptObjectModelBase
 
-    Private Const SKRIPT_NAME As String = "SCR17_Nachlauf_Verfahren"
+    Private Const SKRIPT_NAME As String = "SCR21_usp_Faktenladen_Nachlauf"
     Private Const CONN_NAME As String = "Verbindung"
-    Private Const MAX_VERSUCHE As Integer = 10
+    Private Const MAX_VERSUCHE As Integer = 3
     Private Const WARTE_SEK As Integer = 30
 
     Private Const STATUS_START As String = "NACHLAUF_PART_ERFOLG"
@@ -44,10 +44,7 @@ Partial Public Class ScriptMain
 
     Public Sub Main()
 
-        Log("════════════════════════════════════════════════════════")
-        Log("SCR17_Nachlauf_Verfahren – Start")
-        Log("Zeitpunkt: " & DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss"))
-        Log("════════════════════════════════════════════════════════")
+        Log("SCR21_usp_Faktenladen_Nachlauf - Start")
 
         Try
             _runID = Convert.ToInt32(Dts.Variables("BA::RunID").Value)
@@ -62,14 +59,6 @@ Partial Public Class ScriptMain
             _userName = System.Environment.UserName
             _packageName = System.Environment.MachineName
 
-            Log("Server           : " & _server)
-            Log("Datenbank        : " & _datenbank)
-            Log("Datamart         : " & _datamart)
-            Log("ProtokollDB      : " & _protokollDB)
-            Log("Protokolltabelle : " & _protokolltabelle)
-            Log("ProtokollSP      : " & _protokollSP)
-            Log("UserName         : " & _userName)
-            Log("PackageName      : " & _packageName)
 
             ' BA::objPartitionValues lesen
             Dim partObjekt As Object = Dts.Variables("BA::objPartitionValues").Value
@@ -93,7 +82,6 @@ Partial Public Class ScriptMain
                     verfahrenWerte(verf) = New List(Of String)()
                 End If
                 verfahrenWerte(verf).Add(wert)
-                Log("  Gelesen: " & verf & " | " & wert & " | " & modus)
             Next
 
             Dim connStr As String = HoleVerbindungszeichenfolge()
@@ -112,7 +100,6 @@ Partial Public Class ScriptMain
             Dim cntFehler As Integer = 0
 
             For Each v As VerfahrenInfo In verfahren
-                Log("────────────────────────────────────────────────────────")
                 Log("Verfahren: " & v.Verfahren)
 
                 Dim meineWerte As List(Of String) = Nothing
@@ -180,9 +167,7 @@ Partial Public Class ScriptMain
                 End Try
             Next
 
-            Log("════════════════════════════════════════════════════════")
             Log("Erfolgreich: " & cntOK.ToString() & " | Fehler: " & cntFehler.ToString())
-            Log("════════════════════════════════════════════════════════")
             Dts.TaskResult = If(cntFehler > 0, ScriptResults.Failure, ScriptResults.Success)
 
         Catch ex As Exception
@@ -282,6 +267,7 @@ Partial Public Class ScriptMain
             Catch ex As Exception
                 letzterFehler = ex
                 Log(String.Format("WARNUNG [{0}] Versuch {1}/{2}: {3}", beschreibung, versuch, MAX_VERSUCHE, ex.Message))
+                If versuch = 1 Then Log("SQL Statement [" & beschreibung & "]: " & sql)
                 If versuch < MAX_VERSUCHE Then System.Threading.Thread.Sleep(WARTE_SEK * 1000)
             End Try
         End While

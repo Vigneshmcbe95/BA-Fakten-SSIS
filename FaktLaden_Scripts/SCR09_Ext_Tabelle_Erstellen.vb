@@ -20,7 +20,7 @@ Partial Public Class ScriptMain
 
     Private Const SKRIPT_NAME As String = "SCR09_Ext_Tabelle_Erstellen"
     Private Const CONN_NAME As String = "Verbindung"
-    Private Const MAX_VERSUCHE As Integer = 10
+    Private Const MAX_VERSUCHE As Integer = 3
     Private Const WARTE_SEK As Integer = 30
 
     Private _runID As Integer = 0
@@ -31,10 +31,7 @@ Partial Public Class ScriptMain
     Private _extTableLocation As String = String.Empty
 
     Public Sub Main()
-        Log("════════════════════════════════════════════════════════")
-        Log("SCR07_Ext_Tabelle_Erstellen – Start (v2: tm_polybase_struktur)")
-        Log("Zeitpunkt: " & DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss"))
-        Log("════════════════════════════════════════════════════════")
+        Log("SCR09_Ext_Tabelle_Erstellen - Start")
 
         Try
             _runID = Convert.ToInt32(Dts.Variables("BA::RunID").Value)
@@ -44,12 +41,6 @@ Partial Public Class ScriptMain
             _extSourceName = Dts.Variables("BA::ExtSourceName").Value.ToString().Trim()
             _extTableLocation = Dts.Variables("BA::ExtTableLocation").Value.ToString().Trim()
 
-            Log("RunID              : " & _runID.ToString())
-            Log("ParameterDB        : " & _parameterDB)
-            Log("Parametertabelle   : " & _parametertab)
-            Log("ExtSchema          : " & _extSchema)
-            Log("ExtSourceName      : " & _extSourceName)
-            Log("ExtTableLocation   : " & _extTableLocation)
 
             Dim connStr As String = HoleVerbindungszeichenfolge()
             Dim verfahren As List(Of VerfahrenInfo) = VerfahrenLaden(connStr)
@@ -60,11 +51,10 @@ Partial Public Class ScriptMain
             Dim cntFehler As Integer = 0
 
             For Each v As VerfahrenInfo In verfahren
-                Log("────────────────────────────────────────────────────────")
                 Log("Verfahren: " & v.Verfahren & " | Themengebiet: " & v.Themengebiet)
 
                 If v.LetzterSchritt = "EXT_TABELLE_ERSTELLT" Then
-                    Log("  → bereits abgeschlossen → Ã¼bersprungen ✓")
+                    Log("  bereits abgeschlossen uebersprungen OK")
                     Continue For
                 End If
 
@@ -75,7 +65,7 @@ Partial Public Class ScriptMain
                     LogSchreiben(connStr, v.Verfahren, "SCHRITT_2",
                         "Externe Tabelle erstellt: " & _extSchema & "." & v.Faktentabelle.ToLower())
                     cntOK += 1
-                    Log("  → Externe Tabelle erstellt ✓")
+                    Log("  Externe Tabelle erstellt OK")
                 Catch ex As Exception
                     cntFehler += 1
                     FehlerSetzen(connStr, v.ID, ex.Message)
@@ -84,9 +74,7 @@ Partial Public Class ScriptMain
                 End Try
             Next
 
-            Log("════════════════════════════════════════════════════════")
             Log("Erfolgreich: " & cntOK.ToString() & " | Fehler: " & cntFehler.ToString())
-            Log("════════════════════════════════════════════════════════")
 
             Dts.TaskResult = If(cntFehler > 0, ScriptResults.Failure, ScriptResults.Success)
 
@@ -178,7 +166,7 @@ WHERE schema_id = SCHEMA_ID('" & _extSchema & "')
             Throw New Exception("Externe Tabelle wurde nicht erstellt!")
         End If
 
-        Log("  ✓ Externe Tabelle erfolgreich: " & extFullName)
+        Log("  OK Externe Tabelle erfolgreich: " & extFullName)
     End Sub
 
     ' =============================================================================
@@ -289,6 +277,7 @@ WHERE schema_id = SCHEMA_ID('" & _extSchema & "')
             Catch ex As Exception
                 letzterFehler = ex
                 Log(String.Format("WARNUNG [{0}] Versuch {1}/{2}: {3}", beschreibung, versuch, MAX_VERSUCHE, ex.Message))
+                If versuch = 1 Then Log("SQL Statement [" & beschreibung & "]: " & sql)
                 If versuch < MAX_VERSUCHE Then
                     System.Threading.Thread.Sleep(WARTE_SEK * 1000)
                 End If
@@ -313,6 +302,7 @@ WHERE schema_id = SCHEMA_ID('" & _extSchema & "')
                 End Using
             Catch ex As Exception
                 Log(String.Format("WARNUNG [{0}] Versuch {1}/{2}: {3}", beschreibung, versuch, MAX_VERSUCHE, ex.Message))
+                If versuch = 1 Then Log("SQL Statement [" & beschreibung & "]: " & sql)
                 If versuch < MAX_VERSUCHE Then
                     System.Threading.Thread.Sleep(WARTE_SEK * 1000)
                 Else

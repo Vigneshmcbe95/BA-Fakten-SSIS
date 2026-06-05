@@ -23,7 +23,7 @@ Partial Public Class ScriptMain
     ' -------------------------------------------------------------------------
     Private Const SKRIPT_NAME As String = "SCR_PaketStart"
     Private Const CONN_NAME As String = "Verbindung"
-    Private Const MAX_VERSUCHE As Integer = 10
+    Private Const MAX_VERSUCHE As Integer = 3
     Private Const WARTE_SEK As Integer = 30
 
     ' -------------------------------------------------------------------------
@@ -31,35 +31,29 @@ Partial Public Class ScriptMain
     ' -------------------------------------------------------------------------
     Public Sub Main()
 
-        Log("════════════════════════════════════════════════════════")
-        Log("Fakten Laden – Paketstart")
-        Log("Zeitpunkt: " & DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss"))
-        Log("════════════════════════════════════════════════════════")
+        Log("Fakten Laden - Paketstart")
 
         Try
             Dim connStr As String = HoleVerbindungszeichenfolge()
 
             ' -- Schritt 1: ETL_Fakt_LaufHistorie sicherstellen -------------------
-            Log("── Schritt 1: ETL_Fakt_LaufHistorie sicherstellen")
+            Log("Schritt 1: ETL_Fakt_LaufHistorie sicherstellen")
             LaufHistorieSicherstellen(connStr)
 
             ' -- Schritt 2: Verwaiste Läufe abschliessen ---------------------
-            Log("── Schritt 2: Verwaiste Läufe (LAUFEND) auf ABGEBROCHEN setzen")
+            Log("Schritt 2: Verwaiste Laeufe (LAUFEND) auf ABGEBROCHEN setzen")
             VerwaistelaeufeAbschliessen(connStr)
 
             ' -- Schritt 3: Fehlgeschlagene Verfahren zurücksetzen -----------
-            Log("── Schritt 3: ETL_Fkt_ArbeitslisteFEHLER → AUSSTEHEND")
+            Log("Schritt 3: ETL_Fkt_ArbeitslisteFEHLER AUSSTEHEND")
             FehlerZuruecksetzen(connStr)
 
             ' -- Schritt 4: Neuen Lauf anlegen -------------------------------
-            Log("── Schritt 4: Neuen Lauf anlegen")
+            Log("Schritt 4: Neuen Lauf anlegen")
             Dim runID As Integer = NeuenLaufAnlegen(connStr)
             Dts.Variables("BA::RunID").Value = runID
-            Log("RunID gesetzt: " & runID.ToString())
 
-            Log("════════════════════════════════════════════════════════")
             Log("Paketstart erfolgreich abgeschlossen.")
-            Log("════════════════════════════════════════════════════════")
 
             Dts.TaskResult = ScriptResults.Success
 
@@ -112,7 +106,7 @@ ELSE
     PRINT 'ETL_Fakt_LaufHistorie bereits vorhanden.';"
 
         SqlAusfuehren(connStr, sql, "ETL_Fakt_LaufHistorie sicherstellen")
-        Log("ETL_Fakt_LaufHistorie: geprüft/angelegt.")
+        Log("ETL_Fakt_LaufHistorie: geprueft/angelegt.")
 
     End Sub
 
@@ -128,7 +122,7 @@ SET    RunStatus       = 'ABGEBROCHEN',
 WHERE  RunStatus = 'LAUFEND';"
 
         Dim betroffene As Integer = SqlAusfuehren(connStr, sql, "Verwaiste Läufe abschliessen")
-        Log("Verwaiste Läufe auf ABGEBROCHEN gesetzt: " & betroffene.ToString())
+        Log("Verwaiste Laeufe auf ABGEBROCHEN gesetzt: " & betroffene.ToString())
 
     End Sub
 
@@ -152,7 +146,7 @@ BEGIN
 END;"
 
         Dim betroffene As Integer = SqlAusfuehren(connStr, sql, "FEHLER → AUSSTEHEND")
-        Log("Verfahren auf AUSSTEHEND zurückgesetzt: " & betroffene.ToString())
+        Log("Verfahren auf AUSSTEHEND zurueckgesetzt: " & betroffene.ToString())
 
     End Sub
 
@@ -198,6 +192,7 @@ SELECT SCOPE_IDENTITY();"
             Catch ex As Exception
                 letzterFehler = ex
                 Log(String.Format("WARNUNG [{0}] Versuch {1}/{2}: {3}",
+                If versuch = 1 Then Log("SQL Statement [" & beschreibung & "]: " & sql)
                     beschreibung, versuch, MAX_VERSUCHE, ex.Message))
                 If versuch < MAX_VERSUCHE Then
                     System.Threading.Thread.Sleep(WARTE_SEK * 1000)

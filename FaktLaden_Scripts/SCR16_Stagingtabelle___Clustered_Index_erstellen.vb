@@ -14,19 +14,16 @@ Imports Microsoft.SqlServer.Dts.Runtime
 Partial Public Class ScriptMain
     Inherits Microsoft.SqlServer.Dts.Tasks.ScriptTask.VSTARTScriptObjectModelBase
 
-    Private Const SKRIPT_NAME As String = "SCR12_Index_InOut"
+    Private Const SKRIPT_NAME As String = "SCR16_Stagingtabelle___Clustered_Index_erstellen"
     Private Const CONN_NAME As String = "Verbindung"
-    Private Const MAX_VERSUCHE As Integer = 10
+    Private Const MAX_VERSUCHE As Integer = 3
     Private Const WARTE_SEK As Integer = 30
     Private _runID As Integer = 0
     Private _parameterDB As String = String.Empty
     Private _parametertab As String = String.Empty
 
     Public Sub Main()
-        Log("════════════════════════════════════════════════════════")
-        Log("SCR12_Index_InOut – Start")
-        Log("Zeitpunkt: " & DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss"))
-        Log("════════════════════════════════════════════════════════")
+        Log("SCR16_Stagingtabelle___Clustered_Index_erstellen - Start")
         Try
             _runID = Convert.ToInt32(Dts.Variables("BA::RunID").Value)
             _parameterDB = Dts.Variables("BA::ParameterDB").Value.ToString().Trim()
@@ -37,10 +34,9 @@ Partial Public Class ScriptMain
             Dim cntOK As Integer = 0
             Dim cntFehler As Integer = 0
             For Each v As VerfahrenInfo In verfahren
-                Log("────────────────────────────────────────────────────────")
                 Log("Verfahren: " & v.Verfahren & " | IndexTyp: " & v.IndexType)
                 If v.LetzterSchritt = "INDEX_IN_OUT_ERSTELLT" Then
-                    Log("  → bereits abgeschlossen → Ã¼bersprungen ✓")
+                    Log("  bereits abgeschlossen uebersprungen OK")
                     Continue For
                 End If
                 Try
@@ -56,27 +52,27 @@ Partial Public Class ScriptMain
                     ' Alle _in und _out Tabellen
                     Dim tabellen As List(Of String) = InOutTabellenLaden(connStr, v.Faktentabelle)
                     For Each tbl As String In tabellen
-                        Log("  → Index auf: " & tbl)
+                        Log("  Index auf: " & tbl)
                         If v.IndexType = "TRUE" Then
                             If Not IndexVorhanden(connStr, tbl, "CI_" & tbl) Then
                                 SqlAusfuehren(connStr, "CREATE CLUSTERED INDEX [CI_" & tbl & "] ON dbo.[" & tbl & "] (" & ciCols & ") WITH (FILLFACTOR=100,SORT_IN_TEMPDB=ON);", "CI " & tbl)
-                                Log("    CI angelegt ✓")
+                                Log("    CI angelegt OK")
                             Else
-                                Log("    CI bereits vorhanden → Ã¼bersprungen")
+                                Log("    CI bereits vorhanden uebersprungen")
                             End If
                         ElseIf v.IndexType = "CCI" Then
                             If Not IndexVorhanden(connStr, tbl, "CCI_" & tbl) Then
                                 SqlAusfuehren(connStr, "CREATE CLUSTERED COLUMNSTORE INDEX [CCI_" & tbl & "] ON dbo.[" & tbl & "];", "CCI " & tbl)
-                                Log("    CCI angelegt ✓")
+                                Log("    CCI angelegt OK")
                             Else
-                                Log("    CCI bereits vorhanden → Ã¼bersprungen")
+                                Log("    CCI bereits vorhanden uebersprungen")
                             End If
                         End If
                     Next
                     StatusSetzen(connStr, v.ID, "INDEX_IN_OUT_ERSTELLT")
                     LogSchreiben(connStr, v.Verfahren, "SCHRITT_7A", "Index _in/_out erstellt: " & tabellen.Count.ToString() & " Tabellen")
                     cntOK += 1
-                    Log("  → Schritt 7a abgeschlossen ✓")
+                    Log("  Schritt 7a abgeschlossen OK")
                 Catch ex As Exception
                     cntFehler += 1
                     FehlerSetzen(connStr, v.ID, ex.Message)
@@ -206,6 +202,7 @@ Partial Public Class ScriptMain
             Catch ex As Exception
                 letzterFehler = ex
                 Log(String.Format("WARNUNG [{0}] Versuch {1}/{2}: {3}", beschreibung, versuch, MAX_VERSUCHE, ex.Message))
+                If versuch = 1 Then Log("SQL Statement [" & beschreibung & "]: " & sql)
                 If versuch < MAX_VERSUCHE Then System.Threading.Thread.Sleep(WARTE_SEK * 1000)
             End Try
         End While
@@ -226,6 +223,7 @@ Partial Public Class ScriptMain
                 End Using
             Catch ex As Exception
                 Log(String.Format("WARNUNG [{0}] Versuch {1}/{2}: {3}", beschreibung, versuch, MAX_VERSUCHE, ex.Message))
+                If versuch = 1 Then Log("SQL Statement [" & beschreibung & "]: " & sql)
                 If versuch < MAX_VERSUCHE Then System.Threading.Thread.Sleep(WARTE_SEK * 1000) Else Throw
             End Try
         End While

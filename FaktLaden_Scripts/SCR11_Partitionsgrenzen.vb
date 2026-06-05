@@ -38,7 +38,7 @@ Partial Public Class ScriptMain
 
     Private Const SKRIPT_NAME As String = "SCR11_Partitionsgrenzen"
     Private Const CONN_NAME As String = "Verbindung"
-    Private Const MAX_VERSUCHE As Integer = 10
+    Private Const MAX_VERSUCHE As Integer = 3
     Private Const WARTE_SEK As Integer = 30
 
     Private _runID As Integer = 0
@@ -48,10 +48,7 @@ Partial Public Class ScriptMain
 
     Public Sub Main()
 
-        Log("════════════════════════════════════════════════════════")
-        Log("SCR09_Partitionsgrenzen – Start (v6: FINAL - All Fixes)")
-        Log("Zeitpunkt: " & DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss"))
-        Log("════════════════════════════════════════════════════════")
+        Log("SCR11_Partitionsgrenzen - Start")
 
         Try
             _runID = Convert.ToInt32(Dts.Variables("BA::RunID").Value)
@@ -69,11 +66,10 @@ Partial Public Class ScriptMain
             Dim cntFehler As Integer = 0
 
             For Each v As VerfahrenInfo In verfahren
-                Log("────────────────────────────────────────────────────────")
                 Log("Verfahren: " & v.Verfahren & " | Tabelle: " & v.Faktentabelle & " | Spalte: " & v.PartitionsSpalte)
 
                 If v.LetzterSchritt = "PARTITIONSGRENZEN_ERSTELLT" Then
-                    Log("  → bereits abgeschlossen → uebersprungen ✓")
+                    Log("  bereits abgeschlossen uebersprungen OK")
                     Continue For
                 End If
 
@@ -95,9 +91,7 @@ Partial Public Class ScriptMain
                         ' MODE 1: MANUAL (partition_wert aus CSV)
                         ' ═════════════════════════════════════════════════════
                         modus = "MANUAL"
-                        Log("  ══════════════════════════════════════════════════")
                         Log("  MODE: MANUAL (partition_wert aus CSV)")
-                        Log("  ══════════════════════════════════════════════════")
                         Log("  Benutzer partition_wert: " & benutzerWerte.Count.ToString() & " Werte")
                         Log("  MIN: " & benutzerWerte.Min().ToString() & " | MAX: " & benutzerWerte.Max().ToString())
 
@@ -119,7 +113,7 @@ Partial Public Class ScriptMain
                             Dts.TaskResult = ScriptResults.Failure
                             Return
                         End If
-                        Log("  → Alle Benutzer-Werte in Oracle vorhanden ✓")
+                        Log("  Alle Benutzer-Werte in Oracle vorhanden OK")
 
                         ' MSSQL Status pruefen
                         mssqlWerte = MssqlWerteLaden(connStr, v)
@@ -146,16 +140,14 @@ Partial Public Class ScriptMain
                         ' MODE 2: AUTOMATIC (kein partition_wert in CSV)
                         ' ═════════════════════════════════════════════════════
                         modus = "AUTOMATIC"
-                        Log("  ══════════════════════════════════════════════════")
                         Log("  MODE: AUTOMATIC (partition_wert aus Oracle)")
-                        Log("  ══════════════════════════════════════════════════")
 
                         ' Alle Oracle-Werte laden
                         oracleAlleWerte = OracleAlleWerteLaden(connStr, v)
                         Log("  Oracle Werte gesamt: " & oracleAlleWerte.Count.ToString())
 
                         If oracleAlleWerte.Count = 0 Then
-                            Log("  WARNUNG: Keine Daten in Oracle → uebersprungen")
+                            Log("  WARNUNG: Keine Daten in Oracle uebersprungen")
                             ProtokollSchreiben(connStr, v.Verfahren, "WARNUNG_SCR09", "Keine Daten in Oracle")
                             StatusSetzen(connStr, v.ID, "PARTITIONSGRENZEN_ERSTELLT")
                             cntOK += 1
@@ -170,10 +162,8 @@ Partial Public Class ScriptMain
 
                         If mssqlWerte.Count = 0 Then
                             ' ─── FULL LOAD: MSSQL ist leer ───
-                            Log("  ──────────────────────────────────────────────")
-                            Log("  → Entscheidung: FULL LOAD (MSSQL leer)")
-                            Log("  → Lade alle " & oracleAlleWerte.Count.ToString() & " Oracle-Werte")
-                            Log("  ──────────────────────────────────────────────")
+                            Log("  Entscheidung: FULL LOAD (MSSQL leer)")
+                            Log("  Lade alle " & oracleAlleWerte.Count.ToString() & " Oracle-Werte")
 
                             For Each ow As Integer In oracleAlleWerte
                                 zuVerarbeiten.Add(New PartitionsEintrag With {.Wert = ow, .Modus = "NEU"})
@@ -182,9 +172,7 @@ Partial Public Class ScriptMain
                         Else
                             ' ─── APPEND: Lade ALLE fehlenden Oracle-Werte ───
                             Log("  MSSQL MIN: " & mssqlWerte.Min().ToString() & " | MAX: " & mssqlWerte.Max().ToString())
-                            Log("  ──────────────────────────────────────────────")
-                            Log("  → Entscheidung: APPEND (alle fehlenden Werte)")
-                            Log("  ──────────────────────────────────────────────")
+                            Log("  Entscheidung: APPEND (alle fehlenden Werte)")
 
                             ' ═════════════════════════════════════════════════════════
                             ' FIX: Load ALL Oracle values NOT in MSSQL
@@ -200,7 +188,7 @@ Partial Public Class ScriptMain
                             Log("  Fehlende Werte: " & neueWerte.Count.ToString())
 
                             If neueWerte.Count = 0 Then
-                                Log("  → Keine fehlenden Werte → uebersprungen")
+                                Log("  Keine fehlenden Werte uebersprungen")
                                 StatusSetzen(connStr, v.ID, "PARTITIONSGRENZEN_ERSTELLT")
                                 cntOK += 1
                                 Continue For
@@ -229,9 +217,7 @@ Partial Public Class ScriptMain
                     ' ═════════════════════════════════════════════════════════
                     zuVerarbeiten = zuVerarbeiten.OrderBy(Function(z) z.Wert).ToList()
 
-                    Log("  ══════════════════════════════════════════════════")
                     Log("  ZUSAMMENFASSUNG: " & v.Verfahren)
-                    Log("  ──────────────────────────────────────────────────")
                     Log("  Modus: " & modus)
                     Log("  Gesamt zu verarbeiten: " & zuVerarbeiten.Count.ToString())
 
@@ -247,10 +233,9 @@ Partial Public Class ScriptMain
                         Log("  Werte-Bereich: " & minVal.ToString() & " bis " & maxVal.ToString() &
                             " (" & zuVerarbeiten.Count.ToString() & " Partitionen)")
                     End If
-                    Log("  ══════════════════════════════════════════════════")
 
                     If zuVerarbeiten.Count = 0 Then
-                        Log("  → Keine Partitionswerte zu verarbeiten → uebersprungen")
+                        Log("  Keine Partitionswerte zu verarbeiten uebersprungen")
                         StatusSetzen(connStr, v.ID, "PARTITIONSGRENZEN_ERSTELLT")
                         cntOK += 1
                         Continue For
@@ -276,7 +261,7 @@ Partial Public Class ScriptMain
                         End If
                     Next
 
-                    Log("  → SPLIT ausgefuehrt: " & cntSplit.ToString() & " | Uebersprungen: " & cntSkip.ToString())
+                    Log("  SPLIT ausgefuehrt: " & cntSplit.ToString() & " | Uebersprungen: " & cntSkip.ToString())
 
                     ' ═════════════════════════════════════════════════════════
                     ' ERGEBNIS SPEICHERN
@@ -294,7 +279,7 @@ Partial Public Class ScriptMain
 
                     ProtokollSchreiben(connStr, v.Verfahren, "SCHRITT_4", protMsg)
                     cntOK += 1
-                    Log("  → Schritt 4 abgeschlossen ✓")
+                    Log("  Schritt 4 abgeschlossen OK")
 
                 Catch ex As Exception
                     cntFehler += 1
@@ -325,7 +310,6 @@ Partial Public Class ScriptMain
                 Next
                 Dts.Variables("BA::objPartitionValues").Value = partArray
 
-                Log("════════════════════════════════════════════════════════")
                 Log("BA::objPartitionValues gesetzt: " & gesamtAnzahl.ToString() & " Eintraege")
 
                 ' Show summary by Verfahren (compact)
@@ -335,15 +319,12 @@ Partial Public Class ScriptMain
                     Log("  " & kvp.Key & ": " & kvp.Value.Count.ToString() & " Partitionen (" & minV.ToString() & "-" & maxV.ToString() & ")")
                 Next
 
-                Log("════════════════════════════════════════════════════════")
             Else
                 Dts.Variables("BA::objPartitionValues").Value = Nothing
                 Log("BA::objPartitionValues: leer (Nothing)")
             End If
 
-            Log("════════════════════════════════════════════════════════")
             Log("Erfolgreich: " & cntOK.ToString() & " | Fehler: " & cntFehler.ToString())
-            Log("════════════════════════════════════════════════════════")
             Dts.TaskResult = If(cntFehler > 0, ScriptResults.Failure, ScriptResults.Success)
 
         Catch ex As Exception
@@ -471,7 +452,7 @@ Partial Public Class ScriptMain
             "WHERE pfn.name='" & pf & "' AND CONVERT(int,prv.value)=" & partWert
         Dim boundCount As Object = SqlSkalar(connStr, sqlBoundExists, "Boundary prüfen")
         If Convert.ToInt32(If(boundCount, 0)) > 0 Then
-            Log("    → Boundary " & partWert & " bereits vorhanden → uebersprungen")
+            Log("    Boundary " & partWert & " bereits vorhanden uebersprungen")
             Return
         End If
 
@@ -753,6 +734,7 @@ Partial Public Class ScriptMain
             Catch ex As Exception
                 letzterFehler = ex
                 Log(String.Format("WARNUNG [{0}] Versuch {1}/{2}: {3}", beschreibung, versuch, MAX_VERSUCHE, ex.Message))
+                If versuch = 1 Then Log("SQL Statement [" & beschreibung & "]: " & sql)
                 If versuch < MAX_VERSUCHE Then System.Threading.Thread.Sleep(WARTE_SEK * 1000)
             End Try
         End While
@@ -772,6 +754,8 @@ Partial Public Class ScriptMain
                     End Using
                 End Using
             Catch ex As Exception
+                Log(String.Format("WARNUNG [{0}] Versuch {1}/{2}: {3}", beschreibung, versuch, MAX_VERSUCHE, ex.Message))
+                If versuch = 1 Then Log("SQL Statement [" & beschreibung & "]: " & sql)
                 If versuch < MAX_VERSUCHE Then System.Threading.Thread.Sleep(WARTE_SEK * 1000) Else Throw
             End Try
         End While

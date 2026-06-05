@@ -14,19 +14,16 @@ Imports Microsoft.SqlServer.Dts.Runtime
 Partial Public Class ScriptMain
     Inherits Microsoft.SqlServer.Dts.Tasks.ScriptTask.VSTARTScriptObjectModelBase
 
-    Private Const SKRIPT_NAME As String = "SCR14_NCCI_Out"
+    Private Const SKRIPT_NAME As String = "SCR18_NCCI_Out"
     Private Const CONN_NAME As String = "Verbindung"
-    Private Const MAX_VERSUCHE As Integer = 10
+    Private Const MAX_VERSUCHE As Integer = 3
     Private Const WARTE_SEK As Integer = 30
     Private _runID As Integer = 0
     Private _parameterDB As String = String.Empty
     Private _parametertab As String = String.Empty
 
     Public Sub Main()
-        Log("════════════════════════════════════════════════════════")
-        Log("SCR14_NCCI_Out – Start")
-        Log("Zeitpunkt: " & DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss"))
-        Log("════════════════════════════════════════════════════════")
+        Log("SCR18_NCCI_Out - Start")
         Try
             _runID = Convert.ToInt32(Dts.Variables("BA::RunID").Value)
             _parameterDB = Dts.Variables("BA::ParameterDB").Value.ToString().Trim()
@@ -37,18 +34,17 @@ Partial Public Class ScriptMain
             Dim cntOK As Integer = 0
             Dim cntFehler As Integer = 0
             For Each v As VerfahrenInfo In verfahren
-                Log("────────────────────────────────────────────────────────")
                 Log("Verfahren: " & v.Verfahren & " | NCCI: " & v.NcciFlag & " | IndexTyp: " & v.IndexType)
                 If v.LetzterSchritt = "NCCI_OUT_ERSTELLT" Then
-                    Log("  → bereits abgeschlossen → Ã¼bersprungen ✓")
+                    Log("  bereits abgeschlossen uebersprungen OK")
                     Continue For
                 End If
                 Try
                     StatusSetzen(connStr, v.ID, "NCCI_OUT")
                     If v.NcciFlag <> "TRUE" OrElse v.IndexType = "CCI" Then
-                        Log("  → NCCI nicht anwendbar → Ã¼bersprungen")
+                        Log("  NCCI nicht anwendbar uebersprungen")
                         StatusSetzen(connStr, v.ID, "NCCI_OUT_ERSTELLT")
-                        LogSchreiben(connStr, v.Verfahren, "SCHRITT_7C", "NCCI nicht anwendbar → Ã¼bersprungen")
+                        LogSchreiben(connStr, v.Verfahren, "SCHRITT_7C", "NCCI nicht anwendbar uebersprungen")
                         cntOK += 1
                         Continue For
                     End If
@@ -70,9 +66,9 @@ Partial Public Class ScriptMain
                                                 "NCCI Spalten"))
                                             If Not IndexVorhanden(connStr, tbl, "NCCI_" & tbl) Then
                                                 SqlAusfuehren(connStr, "CREATE NONCLUSTERED COLUMNSTORE INDEX [NCCI_" & tbl & "] ON dbo.[" & tbl & "] (" & allCols & ");", "NCCI " & tbl)
-                                                Log("  → NCCI angelegt: " & tbl & " ✓")
+                                                Log("  NCCI angelegt: " & tbl & " OK")
                                             Else
-                                                Log("  → NCCI bereits vorhanden: " & tbl)
+                                                Log("  NCCI bereits vorhanden: " & tbl)
                                             End If
                                             cntTbl += 1
                                         End While
@@ -87,7 +83,7 @@ Partial Public Class ScriptMain
                     StatusSetzen(connStr, v.ID, "NCCI_OUT_ERSTELLT")
                     LogSchreiben(connStr, v.Verfahren, "SCHRITT_7C", "NCCI auf " & cntTbl.ToString() & " _out Tabellen")
                     cntOK += 1
-                    Log("  → Schritt 7c abgeschlossen ✓")
+                    Log("  Schritt 7c abgeschlossen OK")
                 Catch ex As Exception
                     cntFehler += 1
                     FehlerSetzen(connStr, v.ID, ex.Message)
@@ -189,6 +185,7 @@ Partial Public Class ScriptMain
             Catch ex As Exception
                 letzterFehler = ex
                 Log(String.Format("WARNUNG [{0}] Versuch {1}/{2}: {3}", beschreibung, versuch, MAX_VERSUCHE, ex.Message))
+                If versuch = 1 Then Log("SQL Statement [" & beschreibung & "]: " & sql)
                 If versuch < MAX_VERSUCHE Then System.Threading.Thread.Sleep(WARTE_SEK * 1000)
             End Try
         End While
@@ -208,6 +205,8 @@ Partial Public Class ScriptMain
                     End Using
                 End Using
             Catch ex As Exception
+                Log(String.Format("WARNUNG [{0}] Versuch {1}/{2}: {3}", beschreibung, versuch, MAX_VERSUCHE, ex.Message))
+                If versuch = 1 Then Log("SQL Statement [" & beschreibung & "]: " & sql)
                 If versuch < MAX_VERSUCHE Then System.Threading.Thread.Sleep(WARTE_SEK * 1000) Else Throw
             End Try
         End While

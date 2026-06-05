@@ -31,10 +31,7 @@ Partial Public Class ScriptMain
     Public Sub Main()
 
         Try
-            Log("════════════════════════════════════════════════════════")
-            Log("SCR_Arbeitsliste_Aufbauen_Fakten – Start")
-            Log("Zeitpunkt: " & DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss"))
-            Log("════════════════════════════════════════════════════════")
+        Log("SCR_06_Arbeitsliste_Aufbauen_Fakten - Start")
 
             ' Variablen laden
             VariablenLaden()
@@ -50,7 +47,7 @@ Partial Public Class ScriptMain
             ' ┌─────────────────────────────────────────────────────────┐
             ' │ SCHRITT 1: Neue Verfahren aus Steuerliste eintragen     │
             ' └─────────────────────────────────────────────────────────┘
-            Log("── Schritt 1: Neue Verfahren aus Steuerliste eintragen")
+            Log("Schritt 1: Neue Verfahren aus Steuerliste eintragen")
             Dim neueVerfahren As Integer = NeueVerfahrenEintragen()
             Log("Neue Verfahren eingetragen: " & neueVerfahren.ToString())
 
@@ -59,27 +56,21 @@ Partial Public Class ScriptMain
             ' │           KEINE RunID-Filterung!                       │
             ' │           Betrachtet ALLE Verfahren aus Steuerliste     │
             ' └─────────────────────────────────────────────────────────┘
-            Log("── Schritt 2: Status analysieren und zurücksetzen")
+            Log("Schritt 2: Status analysieren und zuruecksetzen")
             Dim resetResult As String = StatusAnalysierenUndZuruecksetzen()
             Log(resetResult)
 
             ' ┌─────────────────────────────────────────────────────────┐
             ' │ SCHRITT 3: Aktuelle RunID für alle Verfahren setzen     │
             ' └─────────────────────────────────────────────────────────┘
-            Log("── Schritt 3: RunID für alle Verfahren aktualisieren")
             Dim updatedRunID As Integer = RunIDAktualisieren()
-            Log("RunID aktualisiert für: " & updatedRunID.ToString() & " Verfahren")
 
             ' ┌─────────────────────────────────────────────────────────┐
             ' │ SCHRITT 4: Zusammenfassung                              │
             ' └─────────────────────────────────────────────────────────┘
-            Log("════════════════════════════════════════════════════════")
             Log("ZUSAMMENFASSUNG")
-            Log("════════════════════════════════════════════════════════")
             Log("Neue Verfahren : " & neueVerfahren.ToString())
-            Log("RunID          : " & _runID.ToString())
-            Log("════════════════════════════════════════════════════════")
-            Log("SCR_Arbeitsliste_Aufbauen_Fakten erfolgreich abgeschlossen ✓")
+            Log("SCR_Arbeitsliste_Aufbauen_Fakten erfolgreich abgeschlossen OK")
 
             Dts.TaskResult = ScriptResults.Success
 
@@ -100,12 +91,6 @@ Partial Public Class ScriptMain
         _parametertabelle = Dts.Variables("BA::Parametertabelle").Value.ToString().Trim()
         _steuerlistenTabelle = Dts.Variables("BA::SteuerlistenTabelle").Value.ToString().Trim()
 
-        Log("────────────────────────────────────────────────────────")
-        Log("RunID                : " & _runID.ToString())
-        Log("ParameterDB          : " & _parameterDB)
-        Log("Parametertabelle     : " & _parametertabelle)
-        Log("Steuerlisten-Tabelle : " & _steuerlistenTabelle)
-        Log("────────────────────────────────────────────────────────")
     End Sub
 
     ' =========================================================================
@@ -121,7 +106,7 @@ Partial Public Class ScriptMain
             LogFehler("Pflichtfelder fehlen:" & Environment.NewLine & fehlend.ToString())
             Return False
         End If
-        Log("Pflichtfelder-Prüfung: alle Variablen vorhanden ✓")
+        Log("Pflichtfelder-Pruefung: alle Variablen vorhanden OK")
         Return True
     End Function
 
@@ -289,7 +274,7 @@ WHERE a.Status NOT IN ('ERFOLG', 'AUSSTEHEND')
                 End Using
             End Using
         Catch ex As Exception
-            LogFehler("FEHLER beim Zurücksetzen: " & ex.Message)
+            LogFehler("FEHLER beim Zuruecksetzen: " & ex.Message)
             Throw New Exception("Reset fehlgeschlagen: " & ex.Message, ex)
         End Try
 

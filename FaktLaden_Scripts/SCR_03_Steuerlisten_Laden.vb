@@ -24,9 +24,9 @@ Partial Public Class ScriptMain
     ' -------------------------------------------------------------------------
     ' Konstanten
     ' -------------------------------------------------------------------------
-    Private Const SKRIPT_NAME As String = "SCR_02_Steuerlisten_Laden"
+    Private Const SKRIPT_NAME As String = "SCR_03_Steuerlisten_Laden"
     Private Const CONN_NAME As String = "Verbindung"
-    Private Const MAX_VERSUCHE As Integer = 10
+    Private Const MAX_VERSUCHE As Integer = 3
     Private Const WARTE_SEK As Integer = 30
 
     ' -------------------------------------------------------------------------
@@ -42,10 +42,7 @@ Partial Public Class ScriptMain
     ' -------------------------------------------------------------------------
     Public Sub Main()
 
-        Log("════════════════════════════════════════════════════════")
-        Log("SCR_02_Steuerlisten_Laden – Start")
-        Log("Zeitpunkt: " & DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss"))
-        Log("════════════════════════════════════════════════════════")
+        Log("SCR_03_Steuerlisten_Laden - Start")
 
         Try
             VariablenLaden()
@@ -58,10 +55,7 @@ Partial Public Class ScriptMain
             ' Ordnerpfad normalisieren
             If Not _stlOrdner.EndsWith("\") Then _stlOrdner &= "\"
 
-            Log("Quellordner        : " & _stlOrdner)
-            Log("Zieldatei          : " & _stlDateiname)
             Log("Steuerlisten-Tabelle: dbo." & _steuerlistenTabelle)
-            Log("Bearbeiter         : " & _bearbeiter)
 
             ' Spalten sicherstellen
             Dim connStr As String = HoleVerbindungszeichenfolge()
@@ -69,7 +63,7 @@ Partial Public Class ScriptMain
 
             ' Exakte Datei aus BA::STLDateiname
             Dim dateipfad As String = Path.Combine(_stlOrdner, _stlDateiname)
-            Log("Vollständiger Pfad : " & dateipfad)
+            Log("Vollstaendiger Pfad : " & dateipfad)
 
             If Not File.Exists(dateipfad) Then
                 LogFehler("Datei nicht gefunden: " & dateipfad)
@@ -87,12 +81,11 @@ Partial Public Class ScriptMain
 
             For Each dp As String In alleDateien
                 Dim dateiname As String = Path.GetFileName(dp)
-                Log("────────────────────────────────────────────────────────")
                 Log(String.Format("Verarbeite Datei 1/1: {0}", dateiname))
                 Try
                     VerarbeiteDatei(dp, dateiname, connStr)
                     cntErfolgreich += 1
-                    Log("Datei erfolgreich verarbeitet: " & dateiname & " ✓")
+                    Log("Datei erfolgreich verarbeitet: " & dateiname & " OK")
                 Catch ex As Exception
                     cntFehlerhaft += 1
                     LogFehler(String.Format("FEHLER in Datei '{0}': {1}", dateiname, ex.Message))
@@ -100,19 +93,16 @@ Partial Public Class ScriptMain
             Next
 
             ' Zusammenfassung
-            Log("════════════════════════════════════════════════════════")
             Log("ZUSAMMENFASSUNG SCR_02_Steuerlisten_Laden")
-            Log("════════════════════════════════════════════════════════")
             Log("Dateien gesamt      : " & gesamt.ToString())
             Log("Erfolgreich         : " & cntErfolgreich.ToString())
             Log("Fehlerhaft          : " & cntFehlerhaft.ToString())
-            Log("════════════════════════════════════════════════════════")
 
             If cntFehlerhaft > 0 Then
                 LogFehler(cntFehlerhaft.ToString() & " Datei(en) konnten nicht verarbeitet werden.")
                 Dts.TaskResult = ScriptResults.Failure
             Else
-                Log("Datei erfolgreich verarbeitet ✓")
+                Log("Datei erfolgreich verarbeitet OK")
                 Dts.TaskResult = ScriptResults.Success
             End If
 
@@ -145,7 +135,7 @@ Partial Public Class ScriptMain
             LogFehler("Pflichtfelder fehlen:" & Environment.NewLine & fehlend.ToString())
             Return False
         End If
-        Log("Pflichtfelder-Prüfung: alle Variablen vorhanden ✓")
+        Log("Pflichtfelder-Pruefung: alle Variablen vorhanden OK")
         Return True
     End Function
 
@@ -193,7 +183,7 @@ IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('dbo." & _s
     ALTER TABLE dbo." & _steuerlistenTabelle & " ADD ref_datum DATETIME NULL;"
 
         SqlAusfuehren(connStr, sql, "Spalten sicherstellen")
-        Log("Tabelle und Spalten geprüft/angelegt ✓")
+        Log("Tabelle und Spalten geprueft/angelegt OK")
 
     End Sub
 
@@ -303,7 +293,7 @@ IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('dbo." & _s
             End Try
         Next
 
-        Log(String.Format("  Zeilen gesamt: {0} | INSERT: {1} | UPDATE: {2} | Übersprungen: {3}",
+        Log(String.Format("  Zeilen gesamt: {0} | INSERT: {1} | UPDATE: {2} | Uebersprungen: {3}",
             zeilenNr, cntInsert, cntUpdate, cntUebersp))
 
     End Sub
@@ -351,6 +341,7 @@ IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('dbo." & _s
             Catch ex As Exception
                 letzterFehler = ex
                 Log(String.Format("WARNUNG [{0}] Versuch {1}/{2}: {3}",
+                If versuch = 1 Then Log("SQL Statement [" & beschreibung & "]: " & sql)
                     beschreibung, versuch, MAX_VERSUCHE, ex.Message))
                 If versuch < MAX_VERSUCHE Then
                     System.Threading.Thread.Sleep(WARTE_SEK * 1000)

@@ -20,9 +20,9 @@ Imports Microsoft.SqlServer.Dts.Runtime
 Partial Public Class ScriptMain
     Inherits Microsoft.SqlServer.Dts.Tasks.ScriptTask.VSTARTScriptObjectModelBase
 
-    Private Const SKRIPT_NAME As String = "SCR08_Faktentabelle_Erstellen"
+    Private Const SKRIPT_NAME As String = "SCR10_Faktentabelle_Erstellen"
     Private Const CONN_NAME As String = "Verbindung"
-    Private Const MAX_VERSUCHE As Integer = 10
+    Private Const MAX_VERSUCHE As Integer = 3
     Private Const WARTE_SEK As Integer = 30
 
     Private _runID As Integer = 0
@@ -32,10 +32,7 @@ Partial Public Class ScriptMain
 
     Public Sub Main()
 
-        Log("════════════════════════════════════════════════════════")
-        Log("SCR08_Faktentabelle_Erstellen – Start (v2: kein DROP, nur CREATE wenn nicht vorhanden)")
-        Log("Zeitpunkt: " & DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss"))
-        Log("════════════════════════════════════════════════════════")
+        Log("SCR10_Faktentabelle_Erstellen - Start")
 
         Try
             _runID = Convert.ToInt32(Dts.Variables("BA::RunID").Value)
@@ -51,7 +48,6 @@ Partial Public Class ScriptMain
             Dim cntFehler As Integer = 0
 
             For Each v As VerfahrenInfo In verfahren
-                Log("────────────────────────────────────────────────────────")
                 Log("Verfahren: " & v.Verfahren & " | Faktentabelle: " & v.Faktentabelle)
                 Log("Partitionsspalte: " & v.PartitionColumn & " | IndexTyp: " & v.IndexType & " | Komprimierung: " & v.Compression)
 
@@ -371,6 +367,7 @@ Partial Public Class ScriptMain
             Catch ex As Exception
                 letzterFehler = ex
                 Log(String.Format("WARNUNG [{0}] Versuch {1}/{2}: {3}", beschreibung, versuch, MAX_VERSUCHE, ex.Message))
+                If versuch = 1 Then Log("SQL Statement [" & beschreibung & "]: " & sql)
                 If versuch < MAX_VERSUCHE Then System.Threading.Thread.Sleep(WARTE_SEK * 1000)
             End Try
         End While
@@ -391,6 +388,7 @@ Partial Public Class ScriptMain
                 End Using
             Catch ex As Exception
                 Log(String.Format("WARNUNG [{0}] Versuch {1}/{2}: {3}", beschreibung, versuch, MAX_VERSUCHE, ex.Message))
+                If versuch = 1 Then Log("SQL Statement [" & beschreibung & "]: " & sql)
                 If versuch < MAX_VERSUCHE Then System.Threading.Thread.Sleep(WARTE_SEK * 1000) Else Throw
             End Try
         End While

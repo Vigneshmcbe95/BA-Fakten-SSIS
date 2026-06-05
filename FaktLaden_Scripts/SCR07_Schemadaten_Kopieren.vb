@@ -20,7 +20,7 @@ Partial Public Class ScriptMain
 
     Private Const SKRIPT_NAME As String = "SCR07_Schemadaten_Kopieren"
     Private Const CONN_NAME As String = "Verbindung"
-    Private Const MAX_VERSUCHE As Integer = 10
+    Private Const MAX_VERSUCHE As Integer = 3
     Private Const WARTE_SEK As Integer = 30
 
     Private _runID As Integer = 0
@@ -30,10 +30,7 @@ Partial Public Class ScriptMain
 
     Public Sub Main()
 
-        Log("════════════════════════════════════════════════════════")
-        Log("SCR05_Schemadaten_Kopieren – Start")
-        Log("Zeitpunkt: " & DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss"))
-        Log("════════════════════════════════════════════════════════")
+        Log("SCR07_Schemadaten_Kopieren - Start")
 
         Try
             _runID = Convert.ToInt32(Dts.Variables("BA::RunID").Value)
@@ -41,9 +38,6 @@ Partial Public Class ScriptMain
             _extTableSchema = Dts.Variables("BA::ExtTableSchema").Value.ToString().Trim()
             _extTableName = Dts.Variables("BA::ExtTableName").Value.ToString().Trim()
 
-            Log("Datenbank          : " & _datenbank)
-            Log("Ext. Schema        : " & _extTableSchema)
-            Log("Ext. Tabelle       : " & _extTableName)
 
             Dim connStr As String = HoleVerbindungszeichenfolge()
 
@@ -68,11 +62,10 @@ Partial Public Class ScriptMain
             Dim cntFehler As Integer = 0
 
             For Each v As VerfahrenInfo In verfahren
-                Log("────────────────────────────────────────────────────────")
                 Log("Verfahren: " & v.Verfahren & " | Themengebiet: " & v.Themengebiet)
 
                 If v.LetzterSchritt = "SCHEMADATEN_KOPIERT" Then
-                    Log("  → bereits abgeschlossen → übersprungen ✓")
+                    Log("  bereits abgeschlossen uebersprungen OK")
                     Continue For
                 End If
 
@@ -82,7 +75,7 @@ Partial Public Class ScriptMain
                     Dim rows As Integer = InsertTabelle(connStr, v.Themengebiet, v.Verfahren)
 
                     If rows = 0 Then
-                        Log("  WARNUNG: Keine Schemadaten für " & v.Themengebiet & "." & v.Verfahren)
+                        Log("  WARNUNG: Keine Schemadaten fuer " & v.Themengebiet & "." & v.Verfahren)
                         FehlerSetzen(connStr, v.ID, "Keine Schemadaten in Oracle DDL gefunden")
                         LogSchreiben(connStr, v.Verfahren, "WARNUNG_SCR05",
                             "Keine Schemadaten in Oracle DDL gefunden")
@@ -92,7 +85,7 @@ Partial Public Class ScriptMain
                         LogSchreiben(connStr, v.Verfahren, "SCHRITT_5",
                             "Schemadaten kopiert: " & rows.ToString() & " Spalten")
                         cntOK += 1
-                        Log("  → " & rows.ToString() & " Spalten kopiert ✓")
+                        Log("  " & rows.ToString() & " Spalten kopiert OK")
                     End If
 
                 Catch ex As Exception
@@ -104,13 +97,9 @@ Partial Public Class ScriptMain
             Next
 
             ' 5. STAGING BLEIBT ERHALTEN - nicht löschen!
-            Log("════════════════════════════════════════════════════════")
-            Log("Staging-Tabelle dbo.ddl_staging bleibt für Debugging erhalten")
-            Log("════════════════════════════════════════════════════════")
+            Log("Staging-Tabelle dbo.ddl_staging bleibt fuer Debugging erhalten")
 
-            Log("════════════════════════════════════════════════════════")
             Log("Erfolgreich: " & cntOK.ToString() & " | Fehler: " & cntFehler.ToString())
-            Log("════════════════════════════════════════════════════════")
             Dts.TaskResult = If(cntFehler > 0, ScriptResults.Failure, ScriptResults.Success)
 
         Catch ex As Exception
@@ -146,7 +135,7 @@ Partial Public Class ScriptMain
             End If
         End If
 
-        Log("Oracle-Abfrage läuft (kann 20-60 Sekunden dauern)...")
+        Log("Oracle-Abfrage laeuft (kann 20-60 Sekunden dauern)...")
 
         Dim sqlSelect As String =
 "SELECT
@@ -350,7 +339,7 @@ BEGIN
 END;"
 
         SqlAusfuehren(connStr, sql, "tm_polybase_struktur CREATE")
-        Log("Ziel-Tabelle tm_polybase_struktur geprüft/erstellt.")
+        Log("Ziel-Tabelle tm_polybase_struktur geprueft/erstellt.")
     End Sub
 
     ' ==========================================================================================
@@ -406,6 +395,7 @@ END;"
             Catch ex As Exception
                 letzterFehler = ex
                 Log(String.Format("WARNUNG [{0}] Versuch {1}/{2}: {3}", beschreibung, versuch, MAX_VERSUCHE, ex.Message))
+                If versuch = 1 Then Log("SQL Statement [" & beschreibung & "]: " & sql)
                 If versuch < MAX_VERSUCHE Then
                     System.Threading.Thread.Sleep(WARTE_SEK * 1000)
                 End If
@@ -428,6 +418,7 @@ END;"
                 End Using
             Catch ex As Exception
                 Log(String.Format("WARNUNG [{0}] Versuch {1}/{2}: {3}", beschreibung, versuch, MAX_VERSUCHE, ex.Message))
+                If versuch = 1 Then Log("SQL Statement [" & beschreibung & "]: " & sql)
                 If versuch < MAX_VERSUCHE Then
                     System.Threading.Thread.Sleep(WARTE_SEK * 1000)
                 Else

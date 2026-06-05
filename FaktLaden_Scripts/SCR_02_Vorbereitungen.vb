@@ -24,9 +24,9 @@ Partial Public Class ScriptMain
     ' -------------------------------------------------------------------------
     ' Konstanten
     ' -------------------------------------------------------------------------
-    Private Const SKRIPT_NAME As String = "SCR_01_Vorbereitungen"
+    Private Const SKRIPT_NAME As String = "SCR_02_Vorbereitungen"
     Private Const CONN_NAME As String = "Verbindung"
-    Private Const MAX_VERSUCHE As Integer = 10
+    Private Const MAX_VERSUCHE As Integer = 3
     Private Const WARTE_SEK As Integer = 30
 
     ' -------------------------------------------------------------------------
@@ -49,10 +49,7 @@ Partial Public Class ScriptMain
     ' -------------------------------------------------------------------------
     Public Sub Main()
 
-        Log("════════════════════════════════════════════════════════")
-        Log("SCR_01_Vorbereitungen – Start")
-        Log("Zeitpunkt: " & DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss"))
-        Log("════════════════════════════════════════════════════════")
+        Log("SCR_02_Vorbereitungen - Start")
 
         Try
             ' Variablen laden
@@ -67,40 +64,38 @@ Partial Public Class ScriptMain
             Dim connStr As String = HoleVerbindungszeichenfolge()
 
             ' -- Schritt 1: ETL_Fkt_Arbeitsliste sicherstellen -------------------
-            Log("── Schritt 1: ETL_Fkt_Arbeitsliste sicherstellen")
+            Log("Schritt 1: ETL_Fkt_Arbeitsliste sicherstellen")
             ArbeitslisteSicherstellen(connStr)
 
             ' -- Schritt 2: ETL_Fkt_FehlerHistorie sicherstellen -----------------
-            Log("── Schritt 2: ETL_Fkt_FehlerHistorie sicherstellen")
+            Log("Schritt 2: ETL_Fkt_FehlerHistorie sicherstellen")
             FehlerHistorieSicherstellen(connStr)
 
             ' -- Schritt 3: PolyBase Master Key ------------------------------
-            Log("── Schritt 3: PolyBase Master Key prüfen")
+            Log("Schritt 3: PolyBase Master Key pruefen")
             MasterKeyPruefen(connStr)
 
             ' -- Schritt 4: PolyBase Credential ------------------------------
-            Log("── Schritt 4: PolyBase Credential prüfen")
+            Log("Schritt 4: PolyBase Credential pruefen")
             CredentialPruefen(connStr)
 
             ' -- Schritt 5: External Data Source -----------------------------
-            Log("── Schritt 5: External Data Source prüfen")
+            Log("Schritt 5: External Data Source pruefen")
             ExtDataSourcePruefen(connStr)
 
             ' -- Schritt 6: ext Schema ---------------------------------------
-            Log("── Schritt 6: Schema [" & _extTabSchema & "] prüfen")
+            Log("Schritt 6: Schema [" & _extTabSchema & "] pruefen")
             SchemaPruefen(connStr)
 
             ' -- Schritt 7: Externe DDL-Tabelle ------------------------------
-            Log("── Schritt 7: Externe DDL-Tabelle [" & _extTabSchema & "." & _extTabDDLName & "] prüfen")
+            Log("Schritt 7: Externe DDL-Tabelle [" & _extTabSchema & "." & _extTabDDLName & "] pruefen")
             ExtDDLTabellePruefen(connStr)
 
             ' -- Schritt 8: Lokale DBO-Kopie der DDL-Tabelle erstellen -------
-            Log("── Schritt 8: Lokale dbo-Kopie [dbo." & _extTabDDLName & "] erstellen")
+            Log("Schritt 8: Lokale dbo-Kopie [dbo." & _extTabDDLName & "] erstellen")
             DboKopieErstellen(connStr)
 
-            Log("════════════════════════════════════════════════════════")
             Log("SCR_01_Vorbereitungen erfolgreich abgeschlossen.")
-            Log("════════════════════════════════════════════════════════")
 
             Dts.TaskResult = ScriptResults.Success
 
@@ -128,7 +123,7 @@ Partial Public Class ScriptMain
             "IF OBJECT_ID(N'" & zielTabelle & "', N'U') IS NOT NULL " &
             "    DROP TABLE " & zielTabelle & ";"
         SqlAusfuehren(connStr, sqlDrop, "dbo-Kopie löschen")
-        Log("  Alte dbo-Kopie gelöscht (falls vorhanden)")
+        Log("  Alte dbo-Kopie geloescht (falls vorhanden)")
 
         ' Neu befüllen per SELECT INTO — COLNAME lowercase für Vergleich in SCR04
         Dim sqlSelectInto As String =
@@ -173,16 +168,7 @@ Partial Public Class ScriptMain
         _steuerlistenTabelle = Dts.Variables("BA::SteuerlistenTabelle").Value.ToString().Trim()
         _credName = _server & "_" & _credBenutzer
 
-        Log("────────────────────────────────────────────────────────")
-        Log("Server              : " & _server)
-        Log("Datenbank           : " & _datenbank)
-        Log("Credential-Name     : " & _credName)
-        Log("Ext. Source Name    : " & _extSourceName)
-        Log("Ext. Source Loc     : " & _extSourceLocation)
-        Log("Ext. DDL Tabelle    : " & _extTabSchema & "." & _extTabDDLName)
-        Log("Ext. DDL Location   : " & _extTabDDLLocation)
         Log("Steuerlisten-Tabelle: dbo." & _steuerlistenTabelle)
-        Log("────────────────────────────────────────────────────────")
 
     End Sub
 
@@ -208,7 +194,7 @@ Partial Public Class ScriptMain
             Return False
         End If
 
-        Log("Pflichtfelder-Prüfung: alle Variablen vorhanden ")
+        Log("Pflichtfelder-Pruefung: alle Variablen vorhanden ")
         Return True
 
     End Function
@@ -243,7 +229,7 @@ ELSE
     PRINT 'ETL_Fkt_Arbeitsliste bereits vorhanden.';"
 
         SqlAusfuehren(connStr, sql, "ETL_Fkt_Arbeitsliste sicherstellen")
-        Log("ETL_Fkt_Arbeitsliste: geprüft/angelegt ")
+        Log("ETL_Fkt_Arbeitsliste: geprueft/angelegt ")
 
     End Sub
 
@@ -272,7 +258,7 @@ ELSE
     PRINT 'ETL_Fkt_FehlerHistorie bereits vorhanden.';"
 
         SqlAusfuehren(connStr, sql, "ETL_Fkt_FehlerHistorie sicherstellen")
-        Log("ETL_Fkt_FehlerHistorie: geprüft/angelegt ")
+        Log("ETL_Fkt_FehlerHistorie: geprueft/angelegt ")
 
     End Sub
 
@@ -292,11 +278,11 @@ ELSE
             Convert.ToInt32(SqlSkalarAusfuehren(connStr, sqlPruefen, "Master Key prüfen")) = 1
 
         If vorhanden Then
-            Log("Master Key: bereits vorhanden → übersprungen ")
+            Log("Master Key: bereits vorhanden uebersprungen ")
             Return
         End If
 
-        Log("Master Key: nicht vorhanden → wird angelegt")
+        Log("Master Key: nicht vorhanden wird angelegt")
         Dim sqlErstellen As String =
             "CREATE MASTER KEY ENCRYPTION BY PASSWORD = '" & _credKennwort & "';"
         SqlAusfuehren(connStr, sqlErstellen, "Master Key anlegen")
@@ -317,11 +303,11 @@ ELSE
             Convert.ToInt32(SqlSkalarAusfuehren(connStr, sqlPruefen, "Credential prüfen")) > 0
 
         If vorhanden Then
-            Log("Credential [" & _credName & "]: bereits vorhanden → übersprungen ")
+            Log("Credential [" & _credName & "]: bereits vorhanden uebersprungen ")
             Return
         End If
 
-        Log("Credential [" & _credName & "]: nicht vorhanden → wird angelegt")
+        Log("Credential [" & _credName & "]: nicht vorhanden wird angelegt")
         Dim sqlErstellen As String =
 "CREATE DATABASE SCOPED CREDENTIAL [" & _credName & "]
  WITH IDENTITY = '" & _credBenutzer & "',
@@ -344,11 +330,11 @@ ELSE
             Convert.ToInt32(SqlSkalarAusfuehren(connStr, sqlPruefen, "Data Source prüfen")) > 0
 
         If vorhanden Then
-            Log("External Data Source [" & _extSourceName & "]: bereits vorhanden → übersprungen ")
+            Log("External Data Source [" & _extSourceName & "]: bereits vorhanden uebersprungen ")
             Return
         End If
 
-        Log("External Data Source [" & _extSourceName & "]: nicht vorhanden → wird angelegt")
+        Log("External Data Source [" & _extSourceName & "]: nicht vorhanden wird angelegt")
         Dim sqlErstellen As String =
 "CREATE EXTERNAL DATA SOURCE [" & _extSourceName & "]
  WITH (
@@ -373,11 +359,11 @@ ELSE
             Convert.ToInt32(SqlSkalarAusfuehren(connStr, sqlPruefen, "Schema prüfen")) > 0
 
         If vorhanden Then
-            Log("Schema [" & _extTabSchema & "]: bereits vorhanden → übersprungen ")
+            Log("Schema [" & _extTabSchema & "]: bereits vorhanden uebersprungen ")
             Return
         End If
 
-        Log("Schema [" & _extTabSchema & "]: nicht vorhanden → wird angelegt")
+        Log("Schema [" & _extTabSchema & "]: nicht vorhanden wird angelegt")
         SqlAusfuehren(connStr, "CREATE SCHEMA [" & _extTabSchema & "];", "Schema anlegen")
         Log("Schema [" & _extTabSchema & "]: erfolgreich angelegt ")
 
@@ -399,11 +385,11 @@ ELSE
             Convert.ToInt32(SqlSkalarAusfuehren(connStr, sqlPruefen, "DDL-Tabelle prüfen")) > 0
 
         If vorhanden Then
-            Log("Externe DDL-Tabelle [" & vollName & "]: bereits vorhanden → übersprungen ")
+            Log("Externe DDL-Tabelle [" & vollName & "]: bereits vorhanden uebersprungen ")
             Return
         End If
 
-        Log("Externe DDL-Tabelle [" & vollName & "]: nicht vorhanden → wird angelegt")
+        Log("Externe DDL-Tabelle [" & vollName & "]: nicht vorhanden wird angelegt")
 
         Dim sqlErstellen As String =
 "CREATE EXTERNAL TABLE " & vollName & "
@@ -450,6 +436,7 @@ WITH (
             Catch ex As Exception
                 letzterFehler = ex
                 Log(String.Format("WARNUNG [{0}] Versuch {1}/{2}: {3}",
+                If versuch = 1 Then Log("SQL Statement [" & beschreibung & "]: " & sql)
                     beschreibung, versuch, MAX_VERSUCHE, ex.Message))
                 If versuch < MAX_VERSUCHE Then
                     System.Threading.Thread.Sleep(WARTE_SEK * 1000)

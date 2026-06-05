@@ -21,7 +21,7 @@ Partial Public Class ScriptMain
 
     Private Const SKRIPT_NAME As String = "SCR12_Staging_Erstellen"
     Private Const CONN_NAME As String = "Verbindung"
-    Private Const MAX_VERSUCHE As Integer = 10
+    Private Const MAX_VERSUCHE As Integer = 3
     Private Const WARTE_SEK As Integer = 30
 
     Private _runID As Integer = 0
@@ -33,10 +33,7 @@ Partial Public Class ScriptMain
 
     Public Sub Main()
 
-        Log("════════════════════════════════════════════════════════")
-        Log("SCR10_Staging_Erstellen – Start (v2: BA::objPartitionValues gesteuert)")
-        Log("Zeitpunkt: " & DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss"))
-        Log("════════════════════════════════════════════════════════")
+        Log("SCR12_Staging_Erstellen - Start")
 
         Try
             _runID = Convert.ToInt32(Dts.Variables("BA::RunID").Value)
@@ -45,17 +42,13 @@ Partial Public Class ScriptMain
             _extTableSchema = Dts.Variables("BA::ExtTableSchema").Value.ToString().Trim()
             _datenbank = Dts.Variables("BA::Datenbank").Value.ToString().Trim()
 
-            Log("ParameterDB        : " & _parameterDB)
-            Log("Parametertabelle   : " & _parametertab)
-            Log("ExtTableSchema     : " & _extTableSchema)
-            Log("Datenbank          : " & _datenbank)
 
             ' ─────────────────────────────────────────────────────
             ' 1. Partitionswerte aus BA::objPartitionValues lesen
             ' ─────────────────────────────────────────────────────
             Dim partObjekt As Object = Dts.Variables("BA::objPartitionValues").Value
             If partObjekt Is Nothing Then
-                Log("BA::objPartitionValues ist leer (Nothing) → keine Staging-Tabellen zu erstellen")
+                Log("BA::objPartitionValues ist leer (Nothing) keine Staging-Tabellen zu erstellen")
                 Dts.TaskResult = ScriptResults.Success
                 Return
             End If
@@ -74,7 +67,6 @@ Partial Public Class ScriptMain
                     verfahrenWerte(verf) = New List(Of PartitionsEintrag)()
                 End If
                 verfahrenWerte(verf).Add(New PartitionsEintrag With {.Wert = wert, .Modus = modus})
-                Log("  Gelesen: " & verf & " | " & wert & " | " & modus)
             Next
 
             Dim connStr As String = HoleVerbindungszeichenfolge()
@@ -85,18 +77,17 @@ Partial Public Class ScriptMain
             Dim cntFehler As Integer = 0
 
             For Each v As VerfahrenInfo In verfahren
-                Log("────────────────────────────────────────────────────────")
                 Log("Verfahren: " & v.Verfahren)
 
                 If v.LetzterSchritt = "STAGING_ERSTELLT" Then
-                    Log("  → bereits abgeschlossen → uebersprungen ✓")
+                    Log("  bereits abgeschlossen uebersprungen OK")
                     Continue For
                 End If
 
                 ' Partitionswerte fuer dieses Verfahren suchen
                 Dim meineWerte As List(Of PartitionsEintrag) = Nothing
                 If Not verfahrenWerte.TryGetValue(v.Verfahren, meineWerte) OrElse meineWerte.Count = 0 Then
-                    Log("  WARNUNG: Keine Partitionswerte fuer dieses Verfahren → uebersprungen")
+                    Log("  WARNUNG: Keine Partitionswerte fuer dieses Verfahren uebersprungen")
                     ProtokollSchreiben(connStr, v.Verfahren, "WARNUNG_SCR10", "Keine Partitionswerte in BA::objPartitionValues")
                     StatusSetzen(connStr, v.ID, "STAGING_ERSTELLT")
                     cntOK += 1
@@ -130,7 +121,7 @@ Partial Public Class ScriptMain
                         " | NEU: " & meineWerte.FindAll(Function(p) p.Modus = "NEU").Count.ToString() &
                         " | AKTUALISIERUNG: " & meineWerte.FindAll(Function(p) p.Modus = "AKTUALISIERUNG").Count.ToString())
                     cntOK += 1
-                    Log("  → Schritt 5 abgeschlossen ✓")
+                    Log("  Schritt 5 abgeschlossen OK")
 
                 Catch ex As Exception
                     cntFehler += 1
@@ -140,7 +131,6 @@ Partial Public Class ScriptMain
                 End Try
             Next
 
-            Log("════════════════════════════════════════════════════════")
             Log("Erfolgreich: " & cntOK.ToString() & " | Fehler: " & cntFehler.ToString())
             Dts.TaskResult = If(cntFehler > 0, ScriptResults.Failure, ScriptResults.Success)
 
@@ -273,6 +263,7 @@ Partial Public Class ScriptMain
             Catch ex As Exception
                 letzterFehler = ex
                 Log(String.Format("WARNUNG [{0}] Versuch {1}/{2}: {3}", beschreibung, versuch, MAX_VERSUCHE, ex.Message))
+                If versuch = 1 Then Log("SQL Statement [" & beschreibung & "]: " & sql)
                 If versuch < MAX_VERSUCHE Then System.Threading.Thread.Sleep(WARTE_SEK * 1000)
             End Try
         End While
@@ -293,6 +284,7 @@ Partial Public Class ScriptMain
                 End Using
             Catch ex As Exception
                 Log(String.Format("WARNUNG [{0}] Versuch {1}/{2}: {3}", beschreibung, versuch, MAX_VERSUCHE, ex.Message))
+                If versuch = 1 Then Log("SQL Statement [" & beschreibung & "]: " & sql)
                 If versuch < MAX_VERSUCHE Then System.Threading.Thread.Sleep(WARTE_SEK * 1000) Else Throw
             End Try
         End While

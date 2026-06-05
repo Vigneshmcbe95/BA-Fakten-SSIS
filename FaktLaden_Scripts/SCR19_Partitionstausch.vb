@@ -19,19 +19,16 @@ Imports Microsoft.SqlServer.Dts.Runtime
 Partial Public Class ScriptMain
     Inherits Microsoft.SqlServer.Dts.Tasks.ScriptTask.VSTARTScriptObjectModelBase
 
-    Private Const SKRIPT_NAME As String = "SCR15_Partitionstausch"
+    Private Const SKRIPT_NAME As String = "SCR19_Partitionstausch"
     Private Const CONN_NAME As String = "Verbindung"
-    Private Const MAX_VERSUCHE As Integer = 10
+    Private Const MAX_VERSUCHE As Integer = 3
     Private Const WARTE_SEK As Integer = 30
     Private _runID As Integer = 0
     Private _parameterDB As String = String.Empty
     Private _parametertab As String = String.Empty
 
     Public Sub Main()
-        Log("════════════════════════════════════════════════════════")
-        Log("SCR15_Partitionstausch – Start")
-        Log("Zeitpunkt: " & DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss"))
-        Log("════════════════════════════════════════════════════════")
+        Log("SCR19_Partitionstausch - Start")
         Try
             _runID = Convert.ToInt32(Dts.Variables("BA::RunID").Value)
             _parameterDB = Dts.Variables("BA::ParameterDB").Value.ToString().Trim()
@@ -42,10 +39,9 @@ Partial Public Class ScriptMain
             Dim cntOK As Integer = 0
             Dim cntFehler As Integer = 0
             For Each v As VerfahrenInfo In verfahren
-                Log("────────────────────────────────────────────────────────")
                 Log("Verfahren: " & v.Verfahren & " | Tabelle: " & v.Faktentabelle)
                 If v.LetzterSchritt = "PARTITIONSTAUSCH_ERFOLG" Then
-                    Log("  → bereits abgeschlossen → Ã¼bersprungen ✓")
+                    Log("  bereits abgeschlossen uebersprungen OK")
                     Continue For
                 End If
                 Try
@@ -57,7 +53,7 @@ Partial Public Class ScriptMain
                     For Each inTable As String In inTables
                         Dim pvStr As String = inTable.Replace(v.Faktentabelle.ToLower() & "_in_", "")
                         Dim outTable As String = v.Faktentabelle.ToLower() & "_out_" & pvStr
-                        Log("  → Partition: " & pvStr)
+                        Log("  Partition: " & pvStr)
                         ' Partitionsnummer per $partition-Funktion — gibt direkt die korrekte Nummer zurueck
                         Dim pnr As Object = SqlSkalar(connStr,
                             "SELECT $partition.[" & pf & "](" & pvStr & ")",
@@ -71,7 +67,7 @@ Partial Public Class ScriptMain
                         Log("  Partitionsnummer: " & pnrVal.ToString())
                         ' SWITCH OUT
                         SqlAusfuehren(connStr, "ALTER TABLE dbo.[" & v.Faktentabelle & "] SWITCH PARTITION " & pnrVal & " TO dbo.[" & outTable & "];", "SWITCH OUT")
-                        Log("  → SWITCH OUT → " & outTable & " ✓")
+                        Log("  SWITCH OUT " & outTable & " OK")
                         ' CHECK Constraint auf _in — beide Grenzen explizit (RANGE LEFT benoetigt > untere Grenze)
                         Dim ckName As String = v.PartitionColumn & "_" & pvStr & "_" & v.Faktentabelle & "_CK"
                         If Convert.ToInt32(SqlSkalar(connStr, "SELECT COUNT(*) FROM sys.check_constraints WHERE parent_object_id=OBJECT_ID('dbo." & inTable & "') AND name='" & ckName & "'", "CK pruefen")) > 0 Then
@@ -89,38 +85,36 @@ Partial Public Class ScriptMain
                             "ALTER TABLE dbo.[" & inTable & "] ADD CONSTRAINT [" & ckName & "] " &
                             "CHECK([" & v.PartitionColumn & "] IS NOT NULL AND [" & v.PartitionColumn & "] > " & lowerBound.ToString() & " AND [" & v.PartitionColumn & "] <= " & pvStr & ");",
                             "CK setzen")
-                        Log("  → CHECK Constraint: " & ckName & " (" & v.PartitionColumn & " IS NOT NULL AND > " & lowerBound.ToString() & " AND <= " & pvStr & ") ✓")
+                        Log("  CHECK Constraint: " & ckName & " (" & v.PartitionColumn & " IS NOT NULL AND > " & lowerBound.ToString() & " AND <= " & pvStr & ") OK")
                         ' SWITCH IN
                         SqlAusfuehren(connStr, "ALTER TABLE dbo.[" & inTable & "] SWITCH TO dbo.[" & v.Faktentabelle & "] PARTITION " & pnrVal & ";", "SWITCH IN")
-                        Log("  → SWITCH IN → " & v.Faktentabelle & " Partition " & pnrVal.ToString() & " ✓")
+                        Log("  SWITCH IN " & v.Faktentabelle & " Partition " & pnrVal.ToString() & " OK")
                         ' Cleanup
                         If Convert.ToInt32(SqlSkalar(connStr, "SELECT CASE WHEN OBJECT_ID('dbo." & outTable & "','U') IS NOT NULL THEN 1 ELSE 0 END", "out prÃ¼fen")) = 1 Then
                             SqlAusfuehren(connStr, "DROP TABLE dbo.[" & outTable & "];", "drop _out")
-                            Log("  → _out gelÃ¶scht ✓")
+                            Log("  _out geloescht OK")
                         End If
                         If Convert.ToInt32(SqlSkalar(connStr, "SELECT CASE WHEN OBJECT_ID('dbo." & inTable & "','U') IS NOT NULL THEN 1 ELSE 0 END", "in prÃ¼fen")) = 1 Then
                             SqlAusfuehren(connStr, "DROP TABLE dbo.[" & inTable & "];", "drop _in")
-                            Log("  → _in gelÃ¶scht ✓")
+                            Log("  _in geloescht OK")
                         End If
-                        LogSchreiben(connStr, v.Verfahren, "SWITCH_" & pvStr, "SWITCH IN erfolgreich → " & v.Faktentabelle & " Partition " & pnrVal.ToString())
+                        LogSchreiben(connStr, v.Verfahren, "SWITCH_" & pvStr, "SWITCH IN erfolgreich " & v.Faktentabelle & " Partition " & pnrVal.ToString())
                     Next
                     ' Abschlussstatus MSSQL
                     Dim finalMin As Object = SqlSkalar(connStr, "SELECT MIN([" & v.PartitionColumn & "]) FROM dbo.[" & v.Faktentabelle & "]", "Final MIN")
                     Dim finalMax As Object = SqlSkalar(connStr, "SELECT MAX([" & v.PartitionColumn & "]) FROM dbo.[" & v.Faktentabelle & "]", "Final MAX")
                     Dim finalCnt As Object = SqlSkalar(connStr, "SELECT COUNT(*) FROM dbo.[" & v.Faktentabelle & "]", "Final COUNT")
-                    Log("  →─────────────────────────────────────────────────────→")
-                    Log("  →  ABSCHLUSSSTATUS: " & v.Faktentabelle)
-                    Log("  →  Zeilen: " & Convert.ToString(finalCnt))
-                    Log("  →  MIN:    " & If(finalMin Is Nothing OrElse finalMin Is DBNull.Value, "NULL", Convert.ToString(finalMin)))
-                    Log("  →  MAX:    " & If(finalMax Is Nothing OrElse finalMax Is DBNull.Value, "NULL", Convert.ToString(finalMax)))
-                    Log("  →─────────────────────────────────────────────────────→")
+                    Log("  ABSCHLUSSSTATUS: " & v.Faktentabelle)
+                    Log("  Zeilen: " & Convert.ToString(finalCnt))
+                    Log("  MIN:    " & If(finalMin Is Nothing OrElse finalMin Is DBNull.Value, "NULL", Convert.ToString(finalMin)))
+                    Log("  MAX:    " & If(finalMax Is Nothing OrElse finalMax Is DBNull.Value, "NULL", Convert.ToString(finalMax)))
                     LogSchreiben(connStr, v.Verfahren, "ABSCHLUSS",
                         "Fertig. Zeilen: " & Convert.ToString(finalCnt) &
                         " | MIN: " & If(finalMin Is Nothing OrElse finalMin Is DBNull.Value, "NULL", Convert.ToString(finalMin)) &
                         " | MAX: " & If(finalMax Is Nothing OrElse finalMax Is DBNull.Value, "NULL", Convert.ToString(finalMax)))
                     StatusSetzenErfolg(connStr, v.ID)
                     cntOK += 1
-                    Log("  → Verfahren erfolgreich abgeschlossen ✓")
+                    Log("  Verfahren erfolgreich abgeschlossen OK")
                 Catch ex As Exception
                     cntFehler += 1
                     FehlerSetzen(connStr, v.ID, ex.Message)
@@ -128,9 +122,7 @@ Partial Public Class ScriptMain
                     LogFehler("FEHLER '" & v.Verfahren & "': " & ex.Message)
                 End Try
             Next
-            Log("════════════════════════════════════════════════════════")
             Log("Erfolgreich: " & cntOK.ToString() & " | Fehler: " & cntFehler.ToString())
-            Log("════════════════════════════════════════════════════════")
             Dts.TaskResult = If(cntFehler > 0, ScriptResults.Failure, ScriptResults.Success)
         Catch ex As Exception
             LogFehler("Kritischer Fehler: " & ex.Message)
@@ -247,6 +239,7 @@ Partial Public Class ScriptMain
             Catch ex As Exception
                 letzterFehler = ex
                 Log(String.Format("WARNUNG [{0}] Versuch {1}/{2}: {3}", beschreibung, versuch, MAX_VERSUCHE, ex.Message))
+                If versuch = 1 Then Log("SQL Statement [" & beschreibung & "]: " & sql)
                 If versuch < MAX_VERSUCHE Then System.Threading.Thread.Sleep(WARTE_SEK * 1000)
             End Try
         End While
@@ -266,6 +259,8 @@ Partial Public Class ScriptMain
                     End Using
                 End Using
             Catch ex As Exception
+                Log(String.Format("WARNUNG [{0}] Versuch {1}/{2}: {3}", beschreibung, versuch, MAX_VERSUCHE, ex.Message))
+                If versuch = 1 Then Log("SQL Statement [" & beschreibung & "]: " & sql)
                 If versuch < MAX_VERSUCHE Then System.Threading.Thread.Sleep(WARTE_SEK * 1000) Else Throw
             End Try
         End While

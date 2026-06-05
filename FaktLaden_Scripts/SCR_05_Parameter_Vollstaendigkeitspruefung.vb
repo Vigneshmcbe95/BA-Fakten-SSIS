@@ -27,7 +27,7 @@ Partial Public Class ScriptMain
     ' -------------------------------------------------------------------------
     Private Const SKRIPT_NAME As String = "SCR_05_Parameter_Vollstaendigkeitspruefung"
     Private Const CONN_NAME As String = "Verbindung"
-    Private Const MAX_VERSUCHE As Integer = 10
+    Private Const MAX_VERSUCHE As Integer = 3
     Private Const WARTE_SEK As Integer = 30
 
     ' -------------------------------------------------------------------------
@@ -56,10 +56,7 @@ Partial Public Class ScriptMain
     ' =========================================================================
     Public Sub Main()
 
-        Log("════════════════════════════════════════════════════════")
-        Log("SCR_04b_Parameter_Vollstaendigkeitspruefung – Start")
-        Log("Zeitpunkt: " & DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss"))
-        Log("════════════════════════════════════════════════════════")
+        Log("SCR_05_Parameter_Vollstaendigkeitspruefung - Start")
 
         Try
             ' -- SSIS-Variablen laden
@@ -74,14 +71,14 @@ Partial Public Class ScriptMain
             Dim connStr As String = HoleVerbindungszeichenfolge()
 
             ' ── Schritt 1: Steuerlisten-Tabelle prüfen ───────────────────────
-            Log("── Schritt 1: Steuerlisten-Tabelle prüfen")
+            Log("Schritt 1: Steuerlisten-Tabelle pruefen")
             If Not SteuerlistenTabellePruefen(connStr) Then
                 Dts.TaskResult = ScriptResults.Failure
                 Return
             End If
 
             ' ── Schritt 2: Verfahren aus Steuerliste lesen ───────────────────
-            Log("── Schritt 2: Verfahren aus Steuerliste laden")
+            Log("Schritt 2: Verfahren aus Steuerliste laden")
             Dim verfahrenListe As List(Of String) = VerfahrenAusSteuerlisteHolen(connStr)
 
             If verfahrenListe.Count = 0 Then
@@ -107,15 +104,14 @@ Partial Public Class ScriptMain
             Log("Verfahren in Steuerliste gefunden: " & verfahrenListe.Count.ToString())
 
             ' ── Schritt 3: Pro Verfahren Parametertabelle prüfen ─────────────
-            Log("── Schritt 3: Parametertabelle vollständig prüfen")
+            Log("Schritt 3: Parametertabelle vollstaendig pruefen")
             Dim gesamtFehler As Boolean = False
             Dim cntOK As Integer = 0
             Dim cntFehler As Integer = 0
 
             For Each verfahren As String In verfahrenListe
 
-                Log("────────────────────────────────────────────────────────")
-                Log("Prüfe Verfahren: " & verfahren)
+                Log("Pruefe Verfahren: " & verfahren)
 
                 ' 3a: Existiert das Verfahren überhaupt in der Parametertabelle?
                 If Not VerfahrenExistiertInParametertabelle(connStr, verfahren) Then
@@ -163,7 +159,7 @@ Partial Public Class ScriptMain
                                 verfahren & "' in die Parametertabelle [" &
                                 _parameterDB & "].[dbo].[" & _parametertabelle & "] ein."
                             LogFehler(fehler)
-                            Log("  [FEHLEND] " & param & "  ← Zeile in Parametertabelle fehlt komplett")
+                            Log("  [FEHLEND] " & param & "  <- Zeile in Parametertabelle fehlt komplett")
                             verfahrenHatFehler = True
                             gesamtFehler = True
 
@@ -182,19 +178,19 @@ Partial Public Class ScriptMain
                                 "' beim Verfahren '" & verfahren & "' in der Parametertabelle [" &
                                 _parameterDB & "].[dbo].[" & _parametertabelle & "] ein."
                             LogFehler(fehler)
-                            Log("  [LEER]    " & param & "  ← Wert ist NULL oder leer string")
+                            Log("  [LEER]    " & param & "  <- Wert ist NULL oder leer string")
                             verfahrenHatFehler = True
                             gesamtFehler = True
 
                         Case Else
-                            Log("  [UNBEKANNT] " & param & " → Prüfergebnis: " & pruefErgebnis)
+                            Log("  [UNBEKANNT] " & param & " Pruefergebnis: " & pruefErgebnis)
 
                     End Select
 
                 Next
 
                 If Not verfahrenHatFehler Then
-                    Log("  ✓ Alle Pflichtparameter für '" & verfahren & "' vorhanden und befüllt.")
+                    Log("  OK Alle Pflichtparameter fuer '" & verfahren & "' vorhanden und befuellt.")
                     cntOK += 1
                 Else
                     cntFehler += 1
@@ -203,16 +199,13 @@ Partial Public Class ScriptMain
             Next
 
             ' ── Schritt 4: Zusammenfassung und Gesamtergebnis ────────────────
-            Log("════════════════════════════════════════════════════════")
             Log("ZUSAMMENFASSUNG SCR_04b_Parameter_Vollstaendigkeitspruefung")
-            Log("════════════════════════════════════════════════════════")
-            Log("Verfahren geprüft        : " & verfahrenListe.Count.ToString())
-            Log("Vollständig (OK)         : " & cntOK.ToString())
+            Log("Verfahren geprueft        : " & verfahrenListe.Count.ToString())
+            Log("Vollstaendig (OK)         : " & cntOK.ToString())
             Log("Mit Fehlern              : " & cntFehler.ToString())
 
             If gesamtFehler Then
-                Log("ERGEBNIS: FEHLGESCHLAGEN – Pflichtparameter unvollständig.")
-                Log("════════════════════════════════════════════════════════")
+                Log("ERGEBNIS: FEHLGESCHLAGEN - Pflichtparameter unvollstaendig.")
                 LogFehler(
                     "SCR_04b: Parameterprüfung fehlgeschlagen – " & cntFehler.ToString() &
                     " Verfahren haben fehlende oder leere Pflichtparameter. " &
@@ -222,11 +215,10 @@ Partial Public Class ScriptMain
                     "bzw. laden Sie die Steuerliste in [dbo].[" & _steuerlistenTabelle & "] hoch.")
                 Dts.TaskResult = ScriptResults.Failure
             Else
-                Log("ERGEBNIS: BESTANDEN – Alle Parameter vollständig und befüllt ✓")
-                Log("════════════════════════════════════════════════════════")
+                Log("ERGEBNIS: BESTANDEN - Alle Parameter vollstaendig und befuellt OK")
 
                 ' ── Schritt 4: where_klausel mit echter Partitionsspalte befüllen ──
-                Log("── Schritt 4: where_klausel in Steuerliste befüllen")
+                Log("Schritt 4: where_klausel in Steuerliste befuellen")
                 Dim cntWhereOK As Integer = 0
                 Dim cntWhereNull As Integer = 0
 
@@ -236,7 +228,7 @@ Partial Public Class ScriptMain
                     Dim partCol As String = PartitionsspalteHolen(connStr, verfahren)
 
                     If String.IsNullOrEmpty(partCol) Then
-                        Log("  WARNUNG: Faktenpartitionsspalte leer für '" & verfahren & "' → where_klausel bleibt unverändert")
+                        Log("  WARNUNG: Faktenpartitionsspalte leer fuer '" & verfahren & "' where_klausel bleibt unveraendert")
                         cntWhereNull += 1
                         Continue For
                     End If
@@ -244,15 +236,13 @@ Partial Public Class ScriptMain
                     ' where_klausel = "WHERE <partCol> = '<partition_wert>'"
                     ' nur für Zeilen wo partition_wert bereits gesetzt ist (durch SCR04)
                     WhereKlauselFuellen(connStr, verfahren, partCol)
-                    Log("  where_klausel gefüllt: " & verfahren & " | Spalte: " & partCol)
+                    Log("  where_klausel gefuellt: " & verfahren & " | Spalte: " & partCol)
                     cntWhereOK += 1
 
                 Next
 
-                Log("════════════════════════════════════════════════════════")
-                Log("where_klausel gefüllt : " & cntWhereOK.ToString())
+                Log("where_klausel gefuellt : " & cntWhereOK.ToString())
                 Log("Ohne Partitionsspalte : " & cntWhereNull.ToString())
-                Log("════════════════════════════════════════════════════════")
                 Dts.TaskResult = ScriptResults.Success
             End If
 
@@ -271,12 +261,7 @@ Partial Public Class ScriptMain
         _parametertabelle = Dts.Variables("BA::Parametertabelle").Value.ToString().Trim()
         _steuerlistenTabelle = Dts.Variables("BA::SteuerlistenTabelle").Value.ToString().Trim()
 
-        Log("────────────────────────────────────────────────────────")
-        Log("ParameterDB          : " & _parameterDB)
-        Log("Parametertabelle     : " & _parametertabelle)
-        Log("Steuerlisten-Tabelle : " & _steuerlistenTabelle)
         Log("Pflichtparameter     : " & String.Join(", ", PFLICHT_PARAMETER))
-        Log("────────────────────────────────────────────────────────")
     End Sub
 
     ' =========================================================================
@@ -291,7 +276,7 @@ Partial Public Class ScriptMain
             LogFehler("SSIS-Pflichtfelder fehlen:" & Environment.NewLine & fehlend.ToString())
             Return False
         End If
-        Log("SSIS-Variablen-Prüfung: alle vorhanden ✓")
+        Log("SSIS-Variablen-Pruefung: alle vorhanden OK")
         Return True
     End Function
 
@@ -350,7 +335,7 @@ Partial Public Class ScriptMain
                         cmd.CommandTimeout = 0
                         cmd.Parameters.AddWithValue("@v", verfahren.ToLower())
                         Dim rows As Integer = cmd.ExecuteNonQuery()
-                        Log("    → " & rows.ToString() & " Zeile(n) aktualisiert")
+                        Log("    " & rows.ToString() & " Zeile(n) aktualisiert")
                         Return
                     End Using
                 End Using
@@ -391,7 +376,7 @@ Partial Public Class ScriptMain
             Return False
         End If
 
-        Log("Steuerlisten-Tabelle [dbo." & _steuerlistenTabelle & "] vorhanden ✓")
+        Log("Steuerlisten-Tabelle [dbo." & _steuerlistenTabelle & "] vorhanden OK")
 
         ' 1b: Enthält die Tabelle überhaupt Zeilen?
         Dim sqlAnzahl As String =
@@ -411,7 +396,7 @@ Partial Public Class ScriptMain
             Return False
         End If
 
-        Log("Steuerlisten-Tabelle enthält " & anzahlZeilen.ToString() & " Zeile(n) ✓")
+        Log("Steuerlisten-Tabelle enthaelt " & anzahlZeilen.ToString() & " Zeile(n) OK")
         Return True
 
     End Function
@@ -548,7 +533,7 @@ Partial Public Class ScriptMain
                 End Using
             Catch ex As Exception
                 letzterFehler = ex
-                Log(String.Format("WARNUNG [Parameter prüfen '{0}'] Versuch {1}/{2}: {3}",
+                Log(String.Format("WARNUNG [Parameter pruefen '{0}'] Versuch {1}/{2}: {3}",
                     parameter, versuch, MAX_VERSUCHE, ex.Message))
                 If versuch < MAX_VERSUCHE Then System.Threading.Thread.Sleep(WARTE_SEK * 1000)
             End Try
@@ -583,6 +568,7 @@ Partial Public Class ScriptMain
             Catch ex As Exception
                 letzterFehler = ex
                 Log(String.Format("WARNUNG [{0}] Versuch {1}/{2}: {3}",
+                If versuch = 1 Then Log("SQL Statement [" & beschreibung & "]: " & sql)
                     beschreibung, versuch, MAX_VERSUCHE, ex.Message))
                 If versuch < MAX_VERSUCHE Then System.Threading.Thread.Sleep(WARTE_SEK * 1000)
             End Try

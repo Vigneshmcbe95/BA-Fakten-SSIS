@@ -28,17 +28,14 @@ Partial Public Class ScriptMain
     ' -------------------------------------------------------------------------
     Public Sub Main()
 
-        Log("════════════════════════════════════════════════════════")
-        Log("SCR01_Parameter_Einlesen – Start")
-        Log("Zeitpunkt: " & DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss"))
-        Log("════════════════════════════════════════════════════════")
+        Log("SCR01_Parameter_Einlesen - Start")
 
         Dim validierungOK As Boolean = True
 
         ' ─────────────────────────────────────────────────────────
         ' ABSCHNITT 1 – Verbindung / Server
         ' ─────────────────────────────────────────────────────────
-        Log("── Verbindung / Server")
+        Log("Verbindung / Server")
         validierungOK = PruefeParam("BA::Server", "PARAM_SERVER", False) And validierungOK
         validierungOK = PruefeParam("BA::ConnectionServerName", "PARAM_CONNECTION_SERVER", False) And validierungOK
         validierungOK = PruefeParam("BA::Datenbank", "PARAM_DATENBANK", False) And validierungOK
@@ -48,14 +45,14 @@ Partial Public Class ScriptMain
         ' ─────────────────────────────────────────────────────────
         ' ABSCHNITT 2 – Oracle Credentials
         ' ─────────────────────────────────────────────────────────
-        Log("── Oracle Credentials")
+        Log("Oracle Credentials")
         validierungOK = PruefeParam("BA::CredBenutzername", "ATOMIC_ORACLE_USERNAME", False) And validierungOK
         validierungOK = PruefeParam("BA::CredKennwort", "ATOMIC_ORACLE_PASSWORD", True) And validierungOK  ' Wert verborgen
 
         ' ─────────────────────────────────────────────────────────
         ' ABSCHNITT 3 – Steuerlisten
         ' ─────────────────────────────────────────────────────────
-        Log("── Steuerlisten")
+        Log("Steuerlisten")
         validierungOK = PruefeParam("BA::STLOrdner", "PARAM_STL_ORDNER", False) And validierungOK
         validierungOK = PruefeParam("BA::SteuerlistenTabelle", "PARAM_STEUERLISTEN_TABELLE", False) And validierungOK
         'validierungOK = PruefeParam("BA::PartitionCacheTabelle", "PARAM_PARTITION_CACHE_TAB", False) And validierungOK
@@ -63,14 +60,14 @@ Partial Public Class ScriptMain
         ' ─────────────────────────────────────────────────────────
         ' ABSCHNITT 4 – Parametertabelle
         ' ─────────────────────────────────────────────────────────
-        Log("── Parametertabelle")
+        Log("Parametertabelle")
         validierungOK = PruefeParam("BA::ParameterDB", "PARAM_PARAMETER_DB", False) And validierungOK
         validierungOK = PruefeParam("BA::Parametertabelle", "PARAM_PARAMETERTABELLE", False) And validierungOK
 
         ' ─────────────────────────────────────────────────────────
         ' ABSCHNITT 5 – PolyBase / External Source
         ' ─────────────────────────────────────────────────────────
-        Log("── PolyBase / External Source")
+        Log("PolyBase / External Source")
         validierungOK = PruefeParam("BA::ExtSourceName", "PARAM_EXT_SOURCE_NAME", False) And validierungOK
         validierungOK = PruefeParam("BA::ExtSourceLocation", "PARAM_EXT_SOURCE_LOCATION", False) And validierungOK
         validierungOK = PruefeParam("BA::ExtTableLocation", "PARAM_EXT_TABLE_LOCATION", False) And validierungOK
@@ -80,13 +77,13 @@ Partial Public Class ScriptMain
         ' ─────────────────────────────────────────────────────────
         ' ABSCHNITT 6 – Verarbeitung
         ' ─────────────────────────────────────────────────────────
-        Log("── Verarbeitung")
+        Log("Verarbeitung")
         validierungOK = PruefeParam("BA::Maxparallel", "PARAM_MAXPARALLEL", False) And validierungOK
 
         ' ─────────────────────────────────────────────────────────
         ' ABSCHNITT 7 – Protokollierung
         ' ─────────────────────────────────────────────────────────
-        Log("── Protokollierung")
+        Log("Protokollierung")
         validierungOK = PruefeParam("BA::ProtokollDB", "PARAM_PROTOKOLL_DB", False) And validierungOK
         validierungOK = PruefeParam("BA::ProtokollSP", "PARAM_PROTOKOLL_SP", False) And validierungOK
         validierungOK = PruefeParam("BA::Protokolltabelle", "PARAM_PROTOKOLL_TABELLE", False) And validierungOK
@@ -94,17 +91,14 @@ Partial Public Class ScriptMain
         ' ─────────────────────────────────────────────────────────
         ' ERGEBNIS
         ' ─────────────────────────────────────────────────────────
-        Log("════════════════════════════════════════════════════════")
         If Not validierungOK Then
             Log("VALIDATION_FAILED = 1")
-            Log("[ABGEBROCHEN] Pflichtparameter fehlen → Paket wird nicht gestartet.")
-            Log("════════════════════════════════════════════════════════")
-            LogFehler("SCR01: Pflichtparameter fehlen → Paket abgebrochen.")
+            Log("[ABGEBROCHEN] Pflichtparameter fehlen Paket wird nicht gestartet.")
+            LogFehler("SCR01: Pflichtparameter fehlen Paket abgebrochen.")
             Dts.TaskResult = ScriptResults.Failure
         Else
             Log("VALIDATION_FAILED = 0")
-            Log("VORABPRUEFUNG BESTANDEN → Paket wird fortgesetzt.")
-            Log("════════════════════════════════════════════════════════")
+            Log("VORABPRUEFUNG BESTANDEN Paket wird fortgesetzt.")
             Dts.TaskResult = ScriptResults.Success
         End If
 
@@ -136,7 +130,7 @@ Partial Public Class ScriptMain
             Return True
 
         Catch ex As Exception
-            Log(String.Format("[FEHLEND]  {0,-40} ({1}) → Variable nicht gefunden: {2}",
+            Log(String.Format("[FEHLEND]  {0,-40} ({1}) Variable nicht gefunden: {2}",
                 paramLabel, variableName, ex.Message))
             Return False
         End Try

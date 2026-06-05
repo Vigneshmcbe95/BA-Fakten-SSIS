@@ -13,9 +13,9 @@ Imports Microsoft.SqlServer.Dts.Runtime
 Partial Public Class ScriptMain
     Inherits Microsoft.SqlServer.Dts.Tasks.ScriptTask.VSTARTScriptObjectModelBase
 
-    Private Const SKRIPT_NAME As String = "SCR04_WhereKlausel_Aufbauen"
+    Private Const SKRIPT_NAME As String = "SC04_Whereclasuse"
     Private Const CONN_NAME As String = "Verbindung"
-    Private Const MAX_VERSUCHE As Integer = 10
+    Private Const MAX_VERSUCHE As Integer = 3
     Private Const WARTE_SEK As Integer = 30
 
     Private ReadOnly _refDatum As DateTime = New Date(2026, 3, 1)
@@ -26,24 +26,21 @@ Partial Public Class ScriptMain
     ' =========================================================================
     Public Sub Main()
 
-        Log("════════════════════════════════════════════════════════")
-        Log("SCR04_WhereKlausel_Aufbauen – Start (v2: vollstaendige Ziffernerfassung)")
+        Log("SC04_Whereclasuse - Start")
         Log("Referenzdatum: " & _refDatum.ToString("dd.MM.yyyy HH:mm:ss"))
-        Log("════════════════════════════════════════════════════════")
 
         Try
             _stlTabelle = Dts.Variables("BA::SteuerlistenTabelle").Value.ToString().Trim()
             _parameterDB = Dts.Variables("BA::ParameterDB").Value.ToString().Trim()
             _parametertab = Dts.Variables("BA::Parametertabelle").Value.ToString().Trim()
             Log("Steuerlisten-Tabelle : dbo." & _stlTabelle)
-            Log("Parametertabelle     : " & _parameterDB & ".dbo." & _parametertab)
 
             Dim connStr As String = HoleVerbindungszeichenfolge()
 
             SpaltenSicherstellen(connStr)
 
             ' ── Partitionsspalte direkt aus Parametertabelle (vom Benutzer gepflegt)
-            Log("── Partitionsspalte aus Parametertabelle laden ...")
+            Log("Partitionsspalte aus Parametertabelle laden ...")
             Dim partLookup As Dictionary(Of String, String) = PartitionsspalteAusParameterLaden(connStr)
             Log("Partitionsspalten geladen: " & partLookup.Count.ToString() & " Verfahren")
 
@@ -79,11 +76,9 @@ Partial Public Class ScriptMain
                 ZurueckSchreiben(connStr, z.TabnameFilter, z.FileName, where, wert)
             Next
 
-            Log("════════════════════════════════════════════════════════")
             Log("where_klausel gefuellt       : " & cntMit.ToString())
             Log("partition_wert NULL          : " & cntOhne.ToString())
             Log("kein Partitionsspalte-Eintrag: " & cntNull.ToString())
-            Log("════════════════════════════════════════════════════════")
             Dts.TaskResult = ScriptResults.Success
 
         Catch ex As Exception
@@ -144,7 +139,7 @@ Partial Public Class ScriptMain
     ' =========================================================================
     ' Partitionsspalte EINMALIG aus Parametertabelle laden
     ' Dictionary: Verfahren (lower) → Faktenpartitionsspalte
-    ' Direkt vom Benutzer gepflegter Wert → kein vm_ddl benoetigt
+    ' Direkt vom Benutzer gepflegter Wert → kein vm_ddl benoetigt
     ' =========================================================================
     Private Function PartitionsspalteAusParameterLaden(connStr As String) As Dictionary(Of String, String)
         Dim dict As New Dictionary(Of String, String)()
