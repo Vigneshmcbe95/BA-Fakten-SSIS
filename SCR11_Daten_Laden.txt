@@ -1,4 +1,4 @@
-Option Explicit On
+﻿Option Explicit On
 Option Strict On
 
 Imports System
@@ -117,7 +117,7 @@ Partial Public Class ScriptMain
             Dim totalRows As Long = 0
             
             ' Process each partition
-            For Each inTable In inTables
+            For Each inTable As String In inTables
                 Dim rows As Integer = PartitionLaden(connStr, v, inTable)
                 totalRows += rows
             Next
@@ -354,3 +354,4 @@ sbCols.ToString() & Environment.NewLine &
     End Enum
 
 End Class
+
