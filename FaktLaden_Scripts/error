@@ -1,72 +1,9 @@
-Task	Meldungstyp	Meldung
-SCR10_Faktentabelle_Erstellen	info	WARNUNG [CCI erstellen] Versuch 1/10: The statement failed because a columnstore index must be partition-aligned with the base table. Create the columnstore index using the same partition function and same (or equivalent) partition scheme as the base table. If the base table is not partitioned, create a nonpartitioned columnstore index.
-SCR10_Faktentabelle_Erstellen	info	  Faktentabelle erstellt: dbo.tf_bsbm_arbnehm
-SCR10_Faktentabelle_Erstellen	info	  PF und PS erstellt: PF_mon_id_tf_bsbm_arbnehm / PS_mon_id_tf_bsbm_arbnehm
-SCR10_Faktentabelle_Erstellen	info	  Faktentabelle dbo.tf_bsbm_arbnehm falsche Struktur (leer) -> DROP + neu erstellen
-SCR10_Faktentabelle_Erstellen	info	Partitionsspalte: mon_id | IndexTyp: CCI | Komprimierung: NONE
-SCR10_Faktentabelle_Erstellen	info	────────────────────────────────────────────────────────
-SCR10_Faktentabelle_Erstellen	info	Verfahren: tf_bsbm_arbnehm | Faktentabelle: tf_bsbm_arbnehm
-SCR10_Faktentabelle_Erstellen	info	Verfahren: 1
-SCR10_Faktentabelle_Erstellen	info	Zeitpunkt: 05.06.2026 16:01:23
-SCR10_Faktentabelle_Erstellen	info	════════════════════════════════════════════════════════
-SCR10_Faktentabelle_Erstellen	info	SCR08_Faktentabelle_Erstellen – Start (v2: kein DROP, nur CREATE wenn nicht vorhanden)
-SCR10_Faktentabelle_Erstellen	info	════════════════════════════════════════════════════════
-SCR09_Ext_Tabelle_Erstellen	info	ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
-SCR09_Ext_Tabelle_Erstellen	info	Erfolgreich: 1 | Fehler: 0
-SCR09_Ext_Tabelle_Erstellen	info	ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
-SCR09_Ext_Tabelle_Erstellen	info	  â Externe Tabelle erstellt â
-SCR09_Ext_Tabelle_Erstellen	info	  â Externe Tabelle erfolgreich: ext.[tf_bsbm_arbnehm]
-SCR09_Ext_Tabelle_Erstellen	info	  Oracle Location: ESTAT.THM_DM_STAT_BSBM.TF_BSBM_ARBNEHM
-SCR09_Ext_Tabelle_Erstellen	info	  Erstelle externe Tabelle: ext.[tf_bsbm_arbnehm]
-SCR09_Ext_Tabelle_Erstellen	info	Verfahren: tf_bsbm_arbnehm | Themengebiet: thm_dm_stat_bsbm
-SCR09_Ext_Tabelle_Erstellen	info	ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
-SCR09_Ext_Tabelle_Erstellen	info	Verfahren zur Verarbeitung: 1
-SCR09_Ext_Tabelle_Erstellen	info	ExtTableLocation   : ESTAT.STATRT.VM_DDL_SQL_SERVER
-SCR09_Ext_Tabelle_Erstellen	info	ExtSourceName      : Oracle-ESTAT
-SCR09_Ext_Tabelle_Erstellen	info	ExtSchema          : ext
-SCR09_Ext_Tabelle_Erstellen	info	ParameterDB        : msi_dm_lst_sgbii
-SCR09_Ext_Tabelle_Erstellen	info	Parametertabelle   : tm_msi_dm_lst_sgbii_param
-SCR09_Ext_Tabelle_Erstellen	info	ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
-SCR09_Ext_Tabelle_Erstellen	info	RunID              : 55
-SCR09_Ext_Tabelle_Erstellen	info	Zeitpunkt: 05.06.2026 16:01:22
-SCR09_Ext_Tabelle_Erstellen	info	ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
-SCR09_Ext_Tabelle_Erstellen	info	SCR07_Ext_Tabelle_Erstellen â Start (v2: tm_polybase_struktur)
-SCR08_Template_Erstellen	info	════════════════════════════════════════════════════════
-SCR08_Template_Erstellen	info	Erfolgreich: 1 | Fehler: 0
-SCR08_Template_Erstellen	info	════════════════════════════════════════════════════════
-SCR08_Template_Erstellen	info	  → Template erstellt ✓
-SCR08_Template_Erstellen	info	  ✓ Spaltenliste identisch. Bestehendes Template wird wiederverwendet.
-SCR08_Template_Erstellen	info	  Template existiert bereits. Vergleiche Spaltenliste mit tm_polybase_struktur...
-SCR08_Template_Erstellen	info	  Prüfe/Erstelle Template: [msi_dm_lst_sgbii].dbo.tf_bsbm_arbnehm_template
-SCR08_Template_Erstellen	info	Verfahren: tf_bsbm_arbnehm | Themengebiet: thm_dm_stat_bsbm
-SCR08_Template_Erstellen	info	────────────────────────────────────────────────────────
-SCR08_Template_Erstellen	info	Verfahren zur Verarbeitung: 1
-SCR08_Template_Erstellen	info	Ext Tabelle        : vm_ddl_sql_server
-SCR08_Template_Erstellen	info	Ext Schema         : ext
-SCR08_Template_Erstellen	info	Datenbank          : msi_dm_lst_sgbii
-SCR08_Template_Erstellen	info	Parameter Tabelle  : tm_msi_dm_lst_sgbii_param
-SCR08_Template_Erstellen	info	Parameter DB       : msi_dm_lst_sgbii
-SCR08_Template_Erstellen	info	════════════════════════════════════════════════════════
-SCR08_Template_Erstellen	info	SCR06_Template_Erstellen – Start (v5: Direct from Oracle)
-SCR08_Template_Erstellen	info	Zeitpunkt: 05.06.2026 16:01:21
-SCR08_Template_Erstellen	info	════════════════════════════════════════════════════════
-SCR07_Schemadaten_Kopieren	info	════════════════════════════════════════════════════════
-SCR07_Schemadaten_Kopieren	info	Erfolgreich: 1 | Fehler: 0
-SCR07_Schemadaten_Kopieren	info	════════════════════════════════════════════════════════
-SCR07_Schemadaten_Kopieren	info	════════════════════════════════════════════════════════
-SCR07_Schemadaten_Kopieren	info	Staging-Tabelle dbo.ddl_staging bleibt für Debugging erhalten
-SCR07_Schemadaten_Kopieren	info	  → 18 Spalten kopiert ✓
-SCR07_Schemadaten_Kopieren	info	════════════════════════════════════════════════════════
-SCR07_Schemadaten_Kopieren	info	────────────────────────────────────────────────────────
-SCR07_Schemadaten_Kopieren	info	Verfahren: tf_bsbm_arbnehm | Themengebiet: thm_dm_stat_bsbm
-SCR07_Schemadaten_Kopieren	info	Staging-Tabelle existiert bereits mit 836676 Zeilen - wird wiederverwendet
-SCR07_Schemadaten_Kopieren	info	Oracle-Daten werden in Staging-Tabelle geladen...
-SCR07_Schemadaten_Kopieren	info	Quelle: [msi_dm_lst_sgbii].[ext].[vm_ddl_sql_server]
-SCR07_Schemadaten_Kopieren	info	Verfahren zur Verarbeitung: 1
-SCR07_Schemadaten_Kopieren	info	Ziel-Tabelle tm_polybase_struktur geprüft/erstellt.
-SCR07_Schemadaten_Kopieren	info	Ext. Schema        : ext
-SCR07_Schemadaten_Kopieren	info	Ext. Tabelle       : vm_ddl_sql_server
-SCR07_Schemadaten_Kopieren	info	════════════════════════════════════════════════════════
-SCR07_Schemadaten_Kopieren	info	Datenbank          : msi_dm_lst_sgbii
-SCR07_Schemadaten_Kopieren	info	Zeitpunkt: 05.06.2026 16:01:21
-SCR07_Schemadaten_Kopieren	info	════════════════════════════════════════════════════════
+- SQL-Retry-Mechanismus (10x, 30s Wartezeit) für alle DB-Operationen implementiert — verhindert Paketabbruch bei transienten Fehlern
+  - ETL-Schrittprotokollierung in ETL_Fkt_Arbeitsliste aufgebaut — jedes Skript schreibt Status vor und nach jedem Schritt
+  - Skip-Logik für bereits abgeschlossene Verfahren über LetzterSchritt-Prüfung entwickelt
+  - Doppelte Partitionsgrenze in SCR11 verhindert — Prüfung via sys.partition_range_values vor SPLIT RANGE
+  - Atomares Lademuster entwickelt — Daten werden in _LOADING-Tabelle geschrieben, bei Erfolg per sp_rename in _in_YYYYMM umbenannt
+  - Resume-Logik in SCR13 implementiert — erkennt gefüllte, teilweise geladene und fehlende _in_-Tabellen und behandelt jeden Fall korrekt
+  - SCR10 Struktur-Selbstreparatur entwickelt — prüft CCI, Partitionierung und Nullability; baut Tabelle bei falscher Struktur automatisch neu auf
+  - DDL für Fakten-, _out_- und _in_-Tabellen aus einheitlicher Quelle (tm_polybase_struktur) abgeleitet — SWITCH-Fehler durch strukturelle Abweichungen beseitigt
+  - Vollständigen Fakten-Ladezyklus auf mig 2022 getestet — ext → Staging → Datenladen → Partition-SWITCH erfolgreich verifiziert
