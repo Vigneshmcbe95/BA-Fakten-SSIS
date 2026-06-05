@@ -4,14 +4,18 @@ Option Strict On
 Imports System
 Imports System.Data.SqlClient
 Imports System.Collections.Generic
+Imports System.Collections.Concurrent
 Imports System.Text
+Imports System.Threading
+Imports System.Threading.Tasks
+Imports System.Linq
 Imports Microsoft.SqlServer.Dts.Runtime
 
 ' =============================================================================
 ' PAKET  : Fakten Laden
 ' SKRIPT : SCR11_Daten_Laden
-' ZWECK  : Paralleles Datenladen mit SELECT INTO
-'          Status: STAGING_ERSTELLT  DATEN_GELADEN
+' ZWECK  : PARALLELES Datenladen aller _in Partitionen mit SELECT INTO
+'          Status: STAGING_ERSTELLT -> DATEN_GELADEN
 ' =============================================================================
 <Microsoft.SqlServer.Dts.Tasks.ScriptTask.SSISScriptTaskEntryPointAttribute()>
 <CLSCompliant(False)>
@@ -25,139 +29,142 @@ Partial Public Class ScriptMain
 
     Private _runID As Integer = 0
     Private _extTableSchema As String = String.Empty
+    Private _maxParallel As Integer = 4
+
+    Private ReadOnly _logSperre As New Object()
+    Private ReadOnly _fehlerListe As New ConcurrentBag(Of String)()
+    Private _cntOK As Integer = 0
+    Private _cntFehler As Integer = 0
 
     Public Sub Main()
-        Log("")
-        Log("SCR11_Daten_Laden  Start")
+        Log("=============================================================================")
+        Log("SCR11_Daten_Laden (Parallel Partition Load) - Start")
         Log("Zeitpunkt: " & DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss"))
-        Log("")
+        Log("=============================================================================")
+
         Try
             _runID = Convert.ToInt32(Dts.Variables("BA::RunID").Value)
             _extTableSchema = Dts.Variables("BA::ExtTableSchema").Value.ToString().Trim()
-            Log("Ext. Schema  : " & _extTableSchema)
+            
+            ' Try to get MaxParallel from variable, fallback to 4
+            Try
+                _maxParallel = Convert.ToInt32(Dts.Variables("BA::MaxParallel").Value)
+            Catch
+                _maxParallel = 4
+            End Try
+
+            Log("Ext. Schema: " & _extTableSchema)
+            Log("Parallelitaet: " & _maxParallel.ToString())
+
             Dim connStr As String = HoleVerbindungszeichenfolge()
             Dim verfahren As List(Of VerfahrenInfo) = VerfahrenLaden(connStr)
             Log("Verfahren zur Verarbeitung: " & verfahren.Count.ToString())
+
             If verfahren.Count = 0 Then
                 Log("Keine Verfahren zur Verarbeitung vorhanden.")
                 Dts.TaskResult = ScriptResults.Success
                 Return
             End If
-            Dim cntOK As Integer = 0
-            Dim cntFehler As Integer = 0
-            For Each v As VerfahrenInfo In verfahren
-                Log("")
-                Log("Verfahren: " & v.Verfahren & " | Themengebiet: " & v.Themengebiet)
-                If v.LetzterSchritt = "DATEN_GELADEN" Then
-                    Log("   bereits abgeschlossen  bersprungen ")
-                    Continue For
-                End If
+
+            ' Parallel loop over Verfahren
+            Dim opts As New ParallelOptions With {.MaxDegreeOfParallelism = _maxParallel}
+            Parallel.ForEach(verfahren, opts, Sub(v)
                 Try
-                    StatusSetzen(connStr, v.ID, "DATEN_LADEN")
-                    Dim rows As Integer = DatenLaden(connStr, v.Themengebiet, v.Verfahren)
-                    StatusSetzen(connStr, v.ID, "DATEN_GELADEN")
-                    LogSchreiben(connStr, v.Verfahren, "SCHRITT_11", "Daten geladen: " & rows.ToString() & " Zeilen")
-                    cntOK += 1
-                    Log("   " & rows.ToString() & " Zeilen geladen ")
+                    VerarbeiteVerfahren(v, connStr)
                 Catch ex As Exception
-                    cntFehler += 1
-                    FehlerSetzen(connStr, v.ID, ex.Message)
-                    LogSchreiben(connStr, v.Verfahren, "FEHLER_SCR11", ex.Message)
-                    LogFehler("FEHLER bei '" & v.Verfahren & "': " & ex.Message)
+                    _fehlerListe.Add("KRITISCHER FEHLER [" & v.Verfahren & "]: " & ex.Message)
+                    Interlocked.Increment(_cntFehler)
                 End Try
-            Next
-            Log("")
-            Log("Erfolgreich: " & cntOK.ToString() & " | Fehler: " & cntFehler.ToString())
-            Log("")
-            Dts.TaskResult = If(cntFehler > 0, ScriptResults.Failure, ScriptResults.Success)
+            End Sub)
+
+            Log("=============================================================================")
+            Log("Erfolgreich: " & _cntOK.ToString() & " | Fehler: " & _cntFehler.ToString())
+            
+            If _fehlerListe.Count > 0 Then
+                Log("FEHLERLISTE:")
+                For Each msg As String In _fehlerListe.OrderBy(Function(x) x)
+                    Log("  - " & msg)
+                Next
+            End If
+            Log("=============================================================================")
+
+            Dts.TaskResult = If(_cntFehler > 0, ScriptResults.Failure, ScriptResults.Success)
         Catch ex As Exception
-            LogFehler("Kritischer Fehler: " & ex.Message)
+            LogFehler("Kritischer Fehler in Main: " & ex.Message)
             Dts.TaskResult = ScriptResults.Failure
         End Try
     End Sub
 
-    Private Function DatenLaden(connStr As String, thema As String, tab As String) As Integer
-        Dim stgInName As String = tab.Trim().ToLower() & "_in"
-        Dim extTabName As String = tab.Trim().ToUpper()
+    Private Sub VerarbeiteVerfahren(v As VerfahrenInfo, connStr As String)
+        SyncLock _logSperre
+            Log("------------------------------------------------------------")
+            Log("Verfahren: " & v.Verfahren & " | Themengebiet: " & v.Themengebiet)
+        End SyncLock
 
-        '  COMPLETION TRACKING CHECK 
-        ' Check ETL_Fakt_Laden_Abschluss  this is written ONLY when loading
-        ' fully completes for this _in table. COUNT(*) alone is not reliable
-        ' because a crashed load can leave _in partially filled.
-        '
-        ' Entry exists    fully loaded previously  SKIP
-        ' No entry        never loaded OR partially loaded  TRUNCATE + RELOAD
-        ' 
-        Dim abgeschlossenZeilen As Integer = 0
+        If v.LetzterSchritt = "DATEN_GELADEN" Then
+            Log("  -> bereits abgeschlossen -> uebersprungen ok")
+            Interlocked.Increment(_cntOK)
+            Return
+        End If
+
         Try
-            Dim sqlAbschluss As String =
-                "SELECT TOP 1 Zeilen FROM dbo.ETL_Fakt_Laden_Abschluss " &
-                "WHERE InTabelle = @tbl ORDER BY AbgeschlossenAm DESC"
+            StatusSetzen(connStr, v.ID, "DATEN_LADEN")
+
+            ' Find all _in tables for this fact table
+            Dim inTables As List(Of String) = InTabellenSuchen(connStr, v.Verfahren)
+            Log("  Gefundene Partitionen (_in): " & inTables.Count.ToString())
+
+            Dim totalRows As Long = 0
+            
+            ' Process each partition
+            For Each inTable In inTables
+                Dim rows As Integer = PartitionLaden(connStr, v, inTable)
+                totalRows += rows
+            Next
+
+            StatusSetzen(connStr, v.ID, "DATEN_GELADEN")
+            LogSchreiben(connStr, v.Verfahren, "SCHRITT_11", "Daten geladen: " & totalRows.ToString() & " Zeilen in " & inTables.Count.ToString() & " Partitionen")
+            
+            Interlocked.Increment(_cntOK)
+            Log("  -> " & totalRows.ToString() & " Zeilen geladen ok")
+
+        Catch ex As Exception
+            Interlocked.Increment(_cntFehler)
+            _fehlerListe.Add("FEHLER [" & v.Verfahren & "]: " & ex.Message)
+            FehlerSetzen(connStr, v.ID, ex.Message)
+            LogSchreiben(connStr, v.Verfahren, "FEHLER_SCR11", ex.Message)
+            LogFehler("FEHLER bei '" & v.Verfahren & "': " & ex.Message)
+        End Try
+    End Sub
+
+    Private Function PartitionLaden(connStr As String, v As VerfahrenInfo, inTable As String) As Integer
+        Dim extTabName As String = v.Verfahren.Trim().ToUpper()
+        Dim partitionValue As String = inTable.Split("_"c).Last()
+        
+        ' 1. Check if already loaded
+        Dim abgeschlossenZeilen As Integer = -1
+        Try
             Dim result As Object = SqlSkalar(connStr,
-                sqlAbschluss.Replace("@tbl", "'" & stgInName & "'"),
+                "SELECT TOP 1 Zeilen FROM dbo.ETL_Fakt_Laden_Abschluss WHERE InTabelle = '" & inTable & "' ORDER BY AbgeschlossenAm DESC",
                 "Abschluss Check")
             If result IsNot Nothing AndAlso result IsNot DBNull.Value Then
                 abgeschlossenZeilen = Convert.ToInt32(result)
             End If
         Catch
-            abgeschlossenZeilen = 0
         End Try
 
-        If abgeschlossenZeilen > 0 Then
-            ' Also verify _in table actually still exists (PARTITIONSTAUSCH may have dropped it)
-            Dim tabelleExistiert As Integer = 0
-            Try
-                tabelleExistiert = Convert.ToInt32(SqlSkalar(connStr,
-                    "SELECT CASE WHEN OBJECT_ID('dbo." & stgInName & "','U') IS NOT NULL THEN 1 ELSE 0 END",
-                    "Tabelle existiert"))
-            Catch
-            End Try
-
-            If tabelleExistiert = 1 Then
-                Log("  CHECKPOINT: dbo.[" & stgInName & "] vollstndig geladen " &
-                    "(" & abgeschlossenZeilen.ToString() & " Zeilen)  DATEN_LADEN bersprungen ")
-                Return abgeschlossenZeilen
-            Else
-                ' Table was dropped by PARTITIONSTAUSCH  clear record and reload
-                Log("  HINWEIS: Abschluss-Eintrag vorhanden, aber _in Tabelle gelscht " &
-                    "(PARTITIONSTAUSCH)  Abschluss-Eintrag lschen + neu laden")
-                Try
-                    SqlAusfuehren(connStr,
-                        "DELETE FROM dbo.ETL_Fakt_Laden_Abschluss WHERE InTabelle='" & stgInName & "'",
-                        "Abschluss lschen")
-                Catch
-                End Try
-                abgeschlossenZeilen = 0  ' Fall through to reload
-            End If
+        If abgeschlossenZeilen >= 0 Then
+            Log("    " & inTable & ": bereits geladen (" & abgeschlossenZeilen.ToString() & ") ok")
+            Return abgeschlossenZeilen
         End If
 
-        ' No completion record  table might be partially filled  TRUNCATE first
-        Log("  Kein Abschluss-Eintrag  truncate _in (falls partial) + lade neu")
-        Try
-            If Convert.ToInt32(SqlSkalar(connStr,
-                "SELECT CASE WHEN OBJECT_ID('dbo." & stgInName & "','U') IS NOT NULL THEN 1 ELSE 0 END",
-                "exist check")) = 1 Then
-                SqlAusfuehren(connStr, "TRUNCATE TABLE dbo.[" & stgInName & "];", "TRUNCATE partial _in")
-                Log("  _in truncated (war mglicherweise teilweise befllt)")
-            End If
-        Catch
-        End Try
-        ' 
-
-        ' Load fresh from Oracle
-        Log("  Lade Daten aus Oracle...")
-
-        ' Build column mapping from tm_polybase_struktur (ISNULL/CONVERT expressions needed for OracleSQL Server casting)
+        ' 2. Build Mapping
         Dim sbCols As New StringBuilder()
-        Dim sqlCols As String =
-"SELECT columns_dbo FROM dbo.tm_polybase_struktur
- WHERE themengebiet=@thema AND tabname=@tab ORDER BY colno;"
         Using conn As New SqlConnection(connStr)
             conn.Open()
-            Using cmd As New SqlCommand(sqlCols, conn)
-                cmd.CommandTimeout = 0
-                cmd.Parameters.AddWithValue("@thema", thema.Trim().ToLower())
-                cmd.Parameters.AddWithValue("@tab", tab.Trim().ToLower())
+            Using cmd As New SqlCommand("SELECT columns_dbo FROM dbo.tm_polybase_struktur WHERE themengebiet=@thema AND tabname=@tab ORDER BY colno;", conn)
+                cmd.Parameters.AddWithValue("@thema", v.Themengebiet.Trim().ToLower())
+                cmd.Parameters.AddWithValue("@tab", v.Verfahren.Trim().ToLower())
                 Using rdr As SqlDataReader = cmd.ExecuteReader()
                     While rdr.Read()
                         If sbCols.Length > 0 Then sbCols.Append("," & Environment.NewLine)
@@ -166,79 +173,80 @@ Partial Public Class ScriptMain
                 End Using
             End Using
         End Using
-        If sbCols.Length = 0 Then Throw New Exception("Keine Spalten in tm_polybase_struktur fr " & thema & "." & tab)
 
-        ' SELECT INTO staging _in from external table
-        ' Drop table if exists because SELECT INTO creates it
-        SqlAusfuehren(connStr, "IF OBJECT_ID('dbo.[" & stgInName & "]','U') IS NOT NULL DROP TABLE dbo.[" & stgInName & "];", "DROP " & stgInName)
+        If sbCols.Length = 0 Then Throw New Exception("Keine Spalten-Truth in tm_polybase_struktur fuer " & v.Verfahren)
+
+        ' 3. Drop and SELECT INTO
+        SqlAusfuehren(connStr, "IF OBJECT_ID('dbo.[" & inTable & "]','U') IS NOT NULL DROP TABLE dbo.[" & inTable & "];", "DROP " & inTable)
 
         Dim sqlSelectInto As String =
 "SELECT" & Environment.NewLine &
 sbCols.ToString() & Environment.NewLine &
-"INTO dbo.[" & stgInName & "]" & Environment.NewLine &
-"FROM [" & _extTableSchema & "].[" & extTabName & "];"
+"INTO dbo.[" & inTable & "]" & Environment.NewLine &
+"FROM [" & _extTableSchema & "].[" & extTabName & "]" & Environment.NewLine &
+"WHERE [" & v.PartitionColumn & "] = " & partitionValue & ";"
 
-        Dim affectedRows As Integer = SqlAusfuehren(connStr, sqlSelectInto, "Daten SELECT INTO")
+        Dim affectedRows As Integer = SqlAusfuehren(connStr, sqlSelectInto, "SELECT INTO " & inTable)
+        
+        ' If SELECT INTO returns -1 (common for DDL), count manually
         If affectedRows < 0 Then
-            affectedRows = Convert.ToInt32(SqlSkalar(connStr,
-                "SELECT COUNT(*) FROM dbo.[" & stgInName & "];", "Staging _in COUNT"))
+            affectedRows = Convert.ToInt32(SqlSkalar(connStr, "SELECT COUNT(*) FROM dbo.[" & inTable & "];", "Count " & inTable))
         End If
 
-        '  WRITE COMPLETION RECORD 
-        ' Only written AFTER full successful load.
-        ' Crash during load = no record = retry will TRUNCATE + RELOAD this _in.
+        ' 4. Log completion
+        Try
+            SqlAusfuehren(connStr, 
+                "INSERT INTO dbo.ETL_Fakt_Laden_Abschluss (RunID, Verfahren, InTabelle, Zeilen) VALUES (" & _runID & ", '" & v.Verfahren & "', '" & inTable & "', " & affectedRows & ")",
+                "Abschluss schreiben")
+        Catch
+        End Try
+
+        Log("    " & inTable & ": " & affectedRows.ToString() & " Zeilen geladen ok")
+        Return affectedRows
+    End Function
+
+    Private Function InTabellenSuchen(connStr As String, verfahren As String) As List(Of String)
+        Dim liste As New List(Of String)()
         Try
             Using conn As New SqlConnection(connStr)
                 conn.Open()
-                Using cmd As New SqlCommand(
-"INSERT INTO dbo.ETL_Fakt_Laden_Abschluss (RunID, Verfahren, InTabelle, Zeilen)
- VALUES (@runID, @verf, @tbl, @zeilen)", conn)
-                    cmd.Parameters.AddWithValue("@runID",  _runID)
-                    cmd.Parameters.AddWithValue("@verf",   thema.Trim().ToLower() & "." & tab.Trim().ToLower())
-                    cmd.Parameters.AddWithValue("@tbl",    stgInName)
-                    cmd.Parameters.AddWithValue("@zeilen", affectedRows)
-                    cmd.ExecuteNonQuery()
+                Using cmd As New SqlCommand("SELECT name FROM sys.tables WHERE schema_id=SCHEMA_ID('dbo') AND name LIKE '" & verfahren.ToLower() & "_in_%' ORDER BY name", conn)
+                    Using rdr As SqlDataReader = cmd.ExecuteReader()
+                        While rdr.Read()
+                            liste.Add(rdr(0).ToString())
+                        End While
+                    End Using
                 End Using
             End Using
-            Log("  Abschluss-Eintrag geschrieben: " & stgInName & " (" & affectedRows.ToString() & " Zeilen) ")
-        Catch ex As Exception
-            Log("  WARNUNG: Abschluss-Eintrag konnte nicht geschrieben werden: " & ex.Message)
+        Catch
         End Try
-        ' 
-
-        Log("  " & affectedRows.ToString() & " Zeilen in dbo.[" & stgInName & "] geladen.")
-        Return affectedRows
+        Return liste
     End Function
 
     Private Function VerfahrenLaden(connStr As String) As List(Of VerfahrenInfo)
         Dim liste As New List(Of VerfahrenInfo)()
+        ' Note: Using ETL_Fkt_Arbeitsliste as driver, but need partition col from parameters
+        ' If ETL_Fkt_Parameter table doesn't exist, we fallback or join appropriately
         Dim sql As String =
-"SELECT ID, Verfahren, Themengebiet, LetzterSchritt FROM dbo.ETL_Fkt_Arbeitsliste
- WHERE Status IN ('STAGING_ERSTELLT','DATEN_LADEN') AND RunID=" & _runID.ToString() & " ORDER BY Verfahren"
-        Dim versuch As Integer = 0
-        While versuch < MAX_VERSUCHE
-            versuch += 1
-            Try
-                Using conn As New SqlConnection(connStr)
-                    conn.Open()
-                    Using cmd As New SqlCommand(sql, conn)
-                        cmd.CommandTimeout = 0
-                        Using rdr As SqlDataReader = cmd.ExecuteReader()
-                            While rdr.Read()
-                                liste.Add(New VerfahrenInfo With {
-                                    .ID = rdr.GetInt32(0), .Verfahren = rdr(1).ToString().Trim(),
-                                    .Themengebiet = rdr(2).ToString().Trim(),
-                                    .LetzterSchritt = If(rdr.IsDBNull(3), "", rdr(3).ToString().Trim())})
-                            End While
-                        End Using
-                    End Using
+"SELECT a.ID, a.Verfahren, a.Themengebiet, a.LetzterSchritt, 
+        (SELECT TOP 1 Wert FROM dbo.ETL_Fkt_Parameter WHERE Verfahren = a.Verfahren AND Parameter = 'Faktenpartitionsspalte') as PartitionColumn
+ FROM dbo.ETL_Fkt_Arbeitsliste a
+ WHERE a.Status IN ('STAGING_ERSTELLT','DATEN_LADEN') AND a.RunID=" & _runID.ToString() & " ORDER BY a.Verfahren"
+        
+        Using conn As New SqlConnection(connStr)
+            conn.Open()
+            Using cmd As New SqlCommand(sql, conn)
+                Using rdr As SqlDataReader = cmd.ExecuteReader()
+                    While rdr.Read()
+                        liste.Add(New VerfahrenInfo With {
+                            .ID = rdr.GetInt32(0), .Verfahren = rdr(1).ToString().Trim(),
+                            .Themengebiet = rdr(2).ToString().Trim(),
+                            .LetzterSchritt = If(rdr.IsDBNull(3), "", rdr(3).ToString().Trim()),
+                            .PartitionColumn = If(rdr.IsDBNull(4), "partition_id", rdr(4).ToString().Trim())})
+                    End While
                 End Using
-                Return liste
-            Catch ex As Exception
-                Log(String.Format("WARNUNG [Verfahren laden] Versuch {0}/{1}: {2}", versuch, MAX_VERSUCHE, ex.Message))
-                If versuch < MAX_VERSUCHE Then System.Threading.Thread.Sleep(WARTE_SEK * 1000) Else Throw
-            End Try
-        End While
+            End Using
+        End Using
         Return liste
     End Function
 
@@ -290,7 +298,6 @@ sbCols.ToString() & Environment.NewLine &
                 End Using
             Catch ex As Exception
                 letzterFehler = ex
-                Log(String.Format("WARNUNG [{0}] Versuch {1}/{2}: {3}", beschreibung, versuch, MAX_VERSUCHE, ex.Message))
                 If versuch < MAX_VERSUCHE Then System.Threading.Thread.Sleep(WARTE_SEK * 1000)
             End Try
         End While
@@ -310,7 +317,6 @@ sbCols.ToString() & Environment.NewLine &
                     End Using
                 End Using
             Catch ex As Exception
-                Log(String.Format("WARNUNG [{0}] Versuch {1}/{2}: {3}", beschreibung, versuch, MAX_VERSUCHE, ex.Message))
                 If versuch < MAX_VERSUCHE Then System.Threading.Thread.Sleep(WARTE_SEK * 1000) Else Throw
             End Try
         End While
@@ -322,12 +328,16 @@ sbCols.ToString() & Environment.NewLine &
     End Function
 
     Private Sub Log(n As String)
-        Dim f As Boolean = False
-        Dts.Events.FireInformation(0, SKRIPT_NAME, n, "", 0, f)
+        SyncLock _logSperre
+            Dim f As Boolean = False
+            Dts.Events.FireInformation(0, SKRIPT_NAME, n, "", 0, f)
+        End SyncLock
     End Sub
 
     Private Sub LogFehler(n As String)
-        Dts.Events.FireError(0, SKRIPT_NAME, n, "", 0)
+        SyncLock _logSperre
+            Dts.Events.FireError(0, SKRIPT_NAME, n, "", 0)
+        End SyncLock
     End Sub
 
     Private Class VerfahrenInfo
@@ -335,6 +345,7 @@ sbCols.ToString() & Environment.NewLine &
         Public Property Verfahren As String
         Public Property Themengebiet As String
         Public Property LetzterSchritt As String
+        Public Property PartitionColumn As String
     End Class
 
     Public Enum ScriptResults
@@ -343,4 +354,3 @@ sbCols.ToString() & Environment.NewLine &
     End Enum
 
 End Class
-

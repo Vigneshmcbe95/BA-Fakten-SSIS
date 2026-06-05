@@ -10,14 +10,14 @@ Imports Microsoft.SqlServer.Dts.Runtime
 ' PAKET  : Fakten Laden
 ' SKRIPT : SCR14_StagetabellenDML_Aufruf
 ' ZWECK  : usp_Faktenladen_StagetabellenDML aufrufen
-'          Status: DATEN_GELADEN → STAGETABELLEN_DML_AUSGEFUEHRT
+'          Status: DATEN_GELADEN -> STAGETABELLEN_DML_AUSGEFUEHRT
 ' =============================================================================
 <Microsoft.SqlServer.Dts.Tasks.ScriptTask.SSISScriptTaskEntryPointAttribute()>
 <CLSCompliant(False)>
 Partial Public Class ScriptMain
     Inherits Microsoft.SqlServer.Dts.Tasks.ScriptTask.VSTARTScriptObjectModelBase
 
-    Private Const SKRIPT_NAME As String = "SCR11b_StagetabellenDML_Aufruf"
+    Private Const SKRIPT_NAME As String = "SCR14_StagetabellenDML_Aufruf"
     Private Const CONN_NAME As String = "Verbindung"
     Private Const MAX_VERSUCHE As Integer = 10
     Private Const WARTE_SEK As Integer = 30
@@ -25,36 +25,43 @@ Partial Public Class ScriptMain
     Private _runID As Integer = 0
 
     Public Sub Main()
-        Log("════════════════════════════════════════════════════════")
-        Log("SCR14_StagetabellenDML_Aufruf – Start")
+        Log("=============================================================================")
+        Log("SCR14_StagetabellenDML_Aufruf - Start")
         Log("Zeitpunkt: " & DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss"))
-        Log("════════════════════════════════════════════════════════")
+        Log("=============================================================================")
         Try
             _runID = Convert.ToInt32(Dts.Variables("BA::RunID").Value)
             Dim connStr As String = HoleVerbindungszeichenfolge()
             Dim verfahren As List(Of VerfahrenInfo) = VerfahrenLaden(connStr)
             Log("Verfahren zur Verarbeitung: " & verfahren.Count.ToString())
+            
             If verfahren.Count = 0 Then
                 Log("Keine Verfahren zur Verarbeitung vorhanden.")
                 Dts.TaskResult = ScriptResults.Success
                 Return
             End If
+
             Dim cntOK As Integer = 0
             Dim cntFehler As Integer = 0
+            
             For Each v As VerfahrenInfo In verfahren
-                Log("────────────────────────────────────────────────────────")
+                Log("------------------------------------------------------------")
                 Log("Verfahren: " & v.Verfahren & " | Themengebiet: " & v.Themengebiet)
+                
                 If v.LetzterSchritt = "STAGETABELLEN_DML_AUSGEFUEHRT" Then
-                    Log("  → bereits abgeschlossen → übersprungen ✓")
+                    Log("  -> bereits abgeschlossen -> uebersprungen ok")
+                    cntOK += 1
                     Continue For
                 End If
+                
                 Try
                     StatusSetzen(connStr, v.ID, "STAGETABELLEN_DML_AUSFUEHREN")
-                    StagetabellenDMLAufrufen(connStr, v.Themengebiet, v.Verfahren)
+                    Dim ok As Boolean = StagetabellenDMLAufrufen(connStr, v.Themengebiet, v.Verfahren)
+                    
                     StatusSetzen(connStr, v.ID, "STAGETABELLEN_DML_AUSGEFUEHRT")
-                    LogSchreiben(connStr, v.Verfahren, "SCHRITT_14", "usp_Faktenladen_StagetabellenDML erfolgreich ausgeführt")
+                    LogSchreiben(connStr, v.Verfahren, "SCHRITT_14", "DML erfolgreich (oder uebersprungen)")
                     cntOK += 1
-                    Log("  → usp_Faktenladen_StagetabellenDML ausgeführt ✓")
+                    Log("  -> usp_Faktenladen_StagetabellenDML ausgefuehrt ok")
                 Catch ex As Exception
                     cntFehler += 1
                     FehlerSetzen(connStr, v.ID, ex.Message)
@@ -62,9 +69,12 @@ Partial Public Class ScriptMain
                     LogFehler("FEHLER bei '" & v.Verfahren & "': " & ex.Message)
                 End Try
             Next
-            Log("════════════════════════════════════════════════════════")
+            
+            Log("=============================================================================")
             Log("Erfolgreich: " & cntOK.ToString() & " | Fehler: " & cntFehler.ToString())
-            Log("════════════════════════════════════════════════════════")
+            Log("=============================================================================")
+            
+            ' Task succeeds even if some procedures were missing (already handled in function)
             Dts.TaskResult = If(cntFehler > 0, ScriptResults.Failure, ScriptResults.Success)
         Catch ex As Exception
             LogFehler("Kritischer Fehler: " & ex.Message)
@@ -72,26 +82,10 @@ Partial Public Class ScriptMain
         End Try
     End Sub
 
-    Private Sub StagetabellenDMLAufrufen(connStr As String, thema As String, tab As String)
-        ' Check if procedure exists - if not, skip silently
-        Dim procExists As Integer = 0
-        Try
-            Using conn As New SqlConnection(connStr)
-                conn.Open()
-                Using cmd As New SqlCommand(
-                    "SELECT COUNT(*) FROM sys.objects WHERE object_id=OBJECT_ID('dbo.usp_Faktenladen_StagetabellenDML') AND type IN ('P','PC')", conn)
-                    procExists = Convert.ToInt32(cmd.ExecuteScalar())
-                End Using
-            End Using
-        Catch
-        End Try
-        If procExists = 0 Then
-            Log("  INFO: dbo.usp_Faktenladen_StagetabellenDML nicht vorhanden → uebersprungen")
-            Return
-        End If
-
+    Private Function StagetabellenDMLAufrufen(connStr As String, thema As String, tab As String) As Boolean
         Dim versuch As Integer = 0
         Dim letzterFehler As Exception = Nothing
+        
         While versuch < MAX_VERSUCHE
             versuch += 1
             Try
@@ -105,16 +99,27 @@ Partial Public Class ScriptMain
                         cmd.ExecuteNonQuery()
                     End Using
                 End Using
-                Log("  usp_Faktenladen_StagetabellenDML für " & thema & "." & tab & " erfolgreich.")
-                Return
-            Catch ex As Exception
+                Log("  usp_Faktenladen_StagetabellenDML fuer " & thema & "." & tab & " erfolgreich.")
+                Return True
+            Catch ex As SqlException
+                ' Error 2812: "Could not find stored procedure..."
+                If ex.Number = 2812 Then
+                    Log("  INFO: Prozedur dbo.usp_Faktenladen_StagetabellenDML nicht gefunden -> uebersprungen")
+                    Return True ' Return success to continue
+                End If
+                
                 letzterFehler = ex
                 Log(String.Format("WARNUNG [StagetabellenDML] Versuch {0}/{1}: {2}", versuch, MAX_VERSUCHE, ex.Message))
                 If versuch < MAX_VERSUCHE Then System.Threading.Thread.Sleep(WARTE_SEK * 1000)
+            Catch ex As Exception
+                letzterFehler = ex
+                Log(String.Format("WARNUNG [StagetabellenDML] Versuch {0}/{1}: {2}", versuch, MAX_VERSUCHE, ex.Message))
+                if versuch < MAX_VERSUCHE Then System.Threading.Thread.Sleep(WARTE_SEK * 1000)
             End Try
         End While
+        
         Throw New Exception(String.Format("[StagetabellenDML] fehlgeschlagen: {0}", If(letzterFehler IsNot Nothing, letzterFehler.Message, "Unbekannt")))
-    End Sub
+    End Function
 
     Private Function VerfahrenLaden(connStr As String) As List(Of VerfahrenInfo)
         Dim liste As New List(Of VerfahrenInfo)()
