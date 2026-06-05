@@ -202,10 +202,17 @@ Partial Public Class ScriptMain
                                           inTable As String, extTable As String,
                                           partitionValue As String) As Integer
 
-        ' SELECT-Liste aus Template laden
-        Dim templateTable As String = "[" & _datenbank & "].dbo." & v.Faktentabelle.ToLower() & "_template"
+        ' SELECT-Liste aus Template (via INFORMATION_SCHEMA) + Metadaten laden
+        Dim templateName As String = v.Faktentabelle.ToLower() & "_template"
         
-        Dim sqlSelectList As String = "SELECT STRING_AGG(CAST(columns_dbo AS nvarchar(max)), ',' + CHAR(13) + CHAR(10)) WITHIN GROUP (ORDER BY colno) FROM " & templateTable
+        Dim sqlSelectList As String = "
+        SELECT STRING_AGG(CAST(m.columns_dbo AS nvarchar(max)), ',' + CHAR(13) + CHAR(10)) WITHIN GROUP (ORDER BY m.colno)
+        FROM [" & _datenbank & "].INFORMATION_SCHEMA.COLUMNS c
+        JOIN dbo.tm_polybase_struktur m ON UPPER(LTRIM(RTRIM(m.colname))) = UPPER(LTRIM(RTRIM(c.COLUMN_NAME)))
+        WHERE c.TABLE_SCHEMA = 'dbo' 
+          AND c.TABLE_NAME = '" & templateName & "'
+          AND m.tabname = @tab
+          AND m.themengebiet = @thema"
 
         Dim selectList As String = Nothing
         Dim versuch As Integer = 0
@@ -216,6 +223,8 @@ Partial Public Class ScriptMain
                 Using conn As New SqlConnection(connStr)
                     conn.Open()
                     Using cmd As New SqlCommand(sqlSelectList, conn)
+                        cmd.Parameters.AddWithValue("@tab", v.Verfahren.ToLower())
+                        cmd.Parameters.AddWithValue("@thema", v.Themengebiet.ToLower())
                         Dim result As Object = cmd.ExecuteScalar()
                         If result IsNot Nothing AndAlso result IsNot DBNull.Value Then
                             selectList = result.ToString()
@@ -230,7 +239,7 @@ Partial Public Class ScriptMain
         End While
 
         If String.IsNullOrEmpty(selectList) Then
-            Throw New Exception("SELECT-Liste konnte nicht aus " & templateTable & " geladen werden.")
+            Throw New Exception("SELECT-Liste konnte nicht für Template " & templateName & " geladen werden.")
         End If
 
         ' SELECT INTO aufbauen

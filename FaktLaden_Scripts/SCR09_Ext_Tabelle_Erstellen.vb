@@ -114,7 +114,7 @@ Partial Public Class ScriptMain
 
         Log("  Oracle Location: " & location)
 
-        ' Build dynamic SQL using columns_ext from tm_polybase_struktur
+        ' Build dynamic SQL using columns_ext from template (via INFORMATION_SCHEMA) + Metadaten
         Dim sqlBuild As String =
 "DECLARE @drop nvarchar(max), @crt nvarchar(max);
 
@@ -123,17 +123,20 @@ SELECT
                    '" & _extSchema & "', ''') AND name=''', '" & extName & "', ''') ',
                    'DROP EXTERNAL TABLE " & extFullName & ";'),
     @crt  = CONCAT(N'CREATE EXTERNAL TABLE " & extFullName & " (', CHAR(13), CHAR(10),
-                   STRING_AGG(CAST(columns_ext AS nvarchar(max)), CONCAT(N',',CHAR(13),CHAR(10))) WITHIN GROUP (ORDER BY colno),
+                   STRING_AGG(CAST(m.columns_ext AS nvarchar(max)), CONCAT(N',',CHAR(13),CHAR(10))) WITHIN GROUP (ORDER BY m.colno),
                    CHAR(13), CHAR(10), N') WITH (DATA_SOURCE=[" & _extSourceName & "], LOCATION=''', 
                    '" & location & "', ''');')
-FROM dbo.tm_polybase_struktur
-WHERE themengebiet COLLATE Latin1_General_100_CI_AS_SC_UTF8 = @thema COLLATE Latin1_General_100_CI_AS_SC_UTF8
-  AND tabname COLLATE Latin1_General_100_CI_AS_SC_UTF8 = @tab COLLATE Latin1_General_100_CI_AS_SC_UTF8;
+FROM [" & _datenbank & "].INFORMATION_SCHEMA.COLUMNS c
+JOIN dbo.tm_polybase_struktur m ON UPPER(LTRIM(RTRIM(m.colname))) = UPPER(LTRIM(RTRIM(c.COLUMN_NAME)))
+WHERE c.TABLE_SCHEMA = 'dbo' 
+  AND c.TABLE_NAME = '" & extName & "_template'
+  AND m.tabname = @tab
+  AND m.themengebiet = @thema;
 
 IF @crt IS NULL 
 BEGIN
     DECLARE @msg nvarchar(500);
-    SET @msg = 'Keine Schemadaten in tm_polybase_struktur fuer Theme=' + @thema + ', Tabelle=' + @tab;
+    SET @msg = 'Keine Schemadaten für Template " & extName & "_template gefunden';
     THROW 50002, @msg, 1;
 END
 

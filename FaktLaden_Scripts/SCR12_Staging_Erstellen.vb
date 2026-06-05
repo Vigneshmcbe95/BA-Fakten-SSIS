@@ -153,14 +153,20 @@ Partial Public Class ScriptMain
     End Sub
 
     ' =========================================================================
-    ' Spaltenliste (Mapping) aus Template holen
+    ' Spaltenliste (Mapping) aus Template (via INFORMATION_SCHEMA) + Metadaten holen
     ' =========================================================================
     Private Function HoleMappingAusTemplate(connStr As String, v As VerfahrenInfo) As String
-        Dim templateTable As String = "[" & _datenbank & "].dbo." & v.Faktentabelle.ToLower() & "_template"
+        Dim templateName As String = v.Faktentabelle.ToLower() & "_template"
+        Log("  Lade Mapping von Template (via InfoSchema): " & templateName)
 
-        Log("  Lade Mapping von: " & templateTable)
-
-        Dim sqlCols As String = "SELECT STRING_AGG(CAST(columns_dbo AS nvarchar(max)), ',' + CHAR(13) + CHAR(10)) WITHIN GROUP (ORDER BY colno) FROM " & templateTable
+        Dim sqlCols As String = "
+        SELECT STRING_AGG(CAST(m.columns_dbo AS nvarchar(max)), ',' + CHAR(13) + CHAR(10)) WITHIN GROUP (ORDER BY m.colno)
+        FROM [" & _datenbank & "].INFORMATION_SCHEMA.COLUMNS c
+        JOIN dbo.tm_polybase_struktur m ON UPPER(LTRIM(RTRIM(m.colname))) = UPPER(LTRIM(RTRIM(c.COLUMN_NAME)))
+        WHERE c.TABLE_SCHEMA = 'dbo' 
+          AND c.TABLE_NAME = '" & templateName & "'
+          AND m.tabname = @tab
+          AND m.themengebiet = @thema"
         
         Dim versuch As Integer = 0
         While versuch < MAX_VERSUCHE
@@ -169,6 +175,8 @@ Partial Public Class ScriptMain
                 Using conn As New SqlConnection(connStr)
                     conn.Open()
                     Using cmd As New SqlCommand(sqlCols, conn)
+                        cmd.Parameters.AddWithValue("@tab", v.Verfahren.ToLower())
+                        cmd.Parameters.AddWithValue("@thema", v.Themengebiet.ToLower())
                         Dim r As Object = cmd.ExecuteScalar()
                         If r IsNot Nothing AndAlso r IsNot DBNull.Value Then Return r.ToString()
                     End Using
@@ -179,7 +187,7 @@ Partial Public Class ScriptMain
             End Try
         End While
 
-        Throw New Exception("Spaltenliste aus Template " & templateTable & " konnte nicht geladen werden.")
+        Throw New Exception("Spaltenliste konnte nicht für Template " & templateName & " geladen werden.")
     End Function
 
     ' =========================================================================

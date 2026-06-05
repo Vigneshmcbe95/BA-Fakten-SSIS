@@ -128,9 +128,16 @@ Partial Public Class ScriptMain
         SqlAusfuehren(connStr, "CREATE PARTITION FUNCTION [" & pf & "](INT) AS RANGE LEFT FOR VALUES(0);", "PF erstellen")
         SqlAusfuehren(connStr, "CREATE PARTITION SCHEME [" & ps & "] AS PARTITION [" & pf & "] ALL TO ([" & filegroup & "]);", "PS erstellen")
 
-        ' Spaltenliste (columns_dbo) aus Template holen
+        ' Spaltenliste (columns_dbo) aus Template (via INFORMATION_SCHEMA) + Metadaten holen
         Dim selectList As String = Nothing
-        Dim sqlCols As String = "SELECT STRING_AGG(CAST(columns_dbo AS nvarchar(max)), ',' + CHAR(13) + CHAR(10)) WITHIN GROUP (ORDER BY colno) FROM " & templateTable
+        Dim sqlCols As String = "
+        SELECT STRING_AGG(CAST(m.columns_dbo AS nvarchar(max)), ',' + CHAR(13) + CHAR(10)) WITHIN GROUP (ORDER BY m.colno)
+        FROM [" & _datenbank & "].INFORMATION_SCHEMA.COLUMNS c
+        JOIN dbo.tm_polybase_struktur m ON UPPER(LTRIM(RTRIM(m.colname))) = UPPER(LTRIM(RTRIM(c.COLUMN_NAME)))
+        WHERE c.TABLE_SCHEMA = 'dbo' 
+          AND c.TABLE_NAME = '" & v.Faktentabelle.ToLower() & "_template'
+          AND m.tabname = @tab
+          AND m.themengebiet = @thema"
         
         Dim versuch As Integer = 0
         While versuch < MAX_VERSUCHE
@@ -139,6 +146,8 @@ Partial Public Class ScriptMain
                 Using conn As New SqlConnection(connStr)
                     conn.Open()
                     Using cmd As New SqlCommand(sqlCols, conn)
+                        cmd.Parameters.AddWithValue("@tab", v.Verfahren.ToLower())
+                        cmd.Parameters.AddWithValue("@thema", v.Themengebiet.ToLower())
                         Dim r As Object = cmd.ExecuteScalar()
                         If r IsNot Nothing AndAlso r IsNot DBNull.Value Then selectList = r.ToString()
                     End Using
