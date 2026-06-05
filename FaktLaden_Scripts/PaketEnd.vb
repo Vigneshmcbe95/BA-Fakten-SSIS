@@ -1,4 +1,4 @@
-﻿Imports System
+Imports System
 Imports System.Data
 Imports System.Data.SqlClient
 Imports Microsoft.SqlServer.Dts.Runtime
@@ -8,6 +8,7 @@ Imports Microsoft.SqlServer.Dts.Runtime
 Partial Public Class ScriptMain
     Inherits Microsoft.SqlServer.Dts.Tasks.ScriptTask.VSTARTScriptObjectModelBase
 
+    Private Const SKRIPT_NAME As String = "PaketEnd"
     Private ReadOnly ConnectionName As String = "Verbindung"
 
     Enum ScriptResults
@@ -18,7 +19,13 @@ Partial Public Class ScriptMain
     Public Sub Main()
         Dim sqlConn As SqlConnection = Nothing
         Try
+            Log("════════════════════════════════════════════════════════")
+            Log("PaketEnd – Start")
+            Log("Zeitpunkt: " & DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss"))
+            Log("════════════════════════════════════════════════════════")
+
             Dim runID As Integer = CInt(Dts.Variables("BA::RunID").Value)
+            Log("RunID: " & runID.ToString())
 
             Dim cm As ConnectionManager = Dts.Connections(ConnectionName)
             Dim builder As New SqlConnectionStringBuilder(cm.ConnectionString)
@@ -61,12 +68,11 @@ SELECT
     @AnzahlNcciOut           = SUM(CASE WHEN Status = 'NCCI_OUT'                   THEN 1 ELSE 0 END),
     @AnzahlPartitionstausch  = SUM(CASE WHEN Status = 'PARTITIONSTAUSCH'           THEN 1 ELSE 0 END)
 FROM dbo.ETL_Fkt_Arbeitsliste
-ETL_Arbeitsliste
 WHERE RunID = @ID;
 
 UPDATE dbo.ETL_Fakt_LaufHistorie
 SET
-    RunStatus                   = 'ERFOLG',
+    RunStatus                   = CASE WHEN ISNULL(@FehlerAnzahl, 0) > 0 THEN 'FEHLER' ELSE 'ERFOLG' END,
     PaketEndzeit                = @End,
     PaketLaufgestamzeitSekunden = DATEDIFF(SECOND, @Start, @End),
     GesamtAnzahl                = @GesamtAnzahl,
@@ -82,24 +88,51 @@ SET
     AnzahlKomprimierung         = @AnzahlKomprimierung,
     AnzahlNcciOut               = @AnzahlNcciOut,
     AnzahlPartitionstausch      = @AnzahlPartitionstausch
-WHERE ID = @ID;"
+WHERE ID = @ID;
+
+SELECT
+    ISNULL(@GesamtAnzahl, 0)        AS GesamtAnzahl,
+    ISNULL(@ErfolgreichAnzahl, 0)   AS ErfolgreichAnzahl,
+    ISNULL(@FehlerAnzahl, 0)        AS FehlerAnzahl,
+    DATEDIFF(SECOND, @Start, @End)  AS LaufzeitSekunden;"
 
             Using cmd As New SqlCommand(sql, sqlConn)
                 cmd.CommandTimeout = 0
                 cmd.Parameters.Add("@RunID", SqlDbType.Int).Value = runID
-                cmd.ExecuteNonQuery()
+                Using rdr As SqlDataReader = cmd.ExecuteReader()
+                    If rdr.Read() Then
+                        Log("LaufHistorie aktualisiert ✓")
+                        Log("════════════════════════════════════════════════════════")
+                        Log("ZUSAMMENFASSUNG RunID " & runID.ToString())
+                        Log("Gesamt      : " & rdr.GetInt32(0).ToString())
+                        Log("Erfolgreich : " & rdr.GetInt32(1).ToString())
+                        Log("Fehler      : " & rdr.GetInt32(2).ToString())
+                        Log("Laufzeit    : " & If(rdr.IsDBNull(3), "unbekannt", rdr.GetInt32(3).ToString() & " Sekunden"))
+                        Log("════════════════════════════════════════════════════════")
+                    End If
+                End Using
             End Using
 
+            Log("PaketEnd abgeschlossen ✓")
             Dts.TaskResult = ScriptResults.Success
 
         Catch ex As Exception
-            Dts.Events.FireError(0, "PaketEnd_Success", ex.Message, "", 0)
+            LogFehler("PaketEnd FEHLER: " & ex.Message)
             Dts.TaskResult = ScriptResults.Failure
         Finally
             If sqlConn IsNot Nothing AndAlso sqlConn.State <> ConnectionState.Closed Then
                 sqlConn.Close()
             End If
         End Try
+    End Sub
+
+    Private Sub Log(n As String)
+        Dim f As Boolean = False
+        Dts.Events.FireInformation(0, SKRIPT_NAME, n, "", 0, f)
+    End Sub
+
+    Private Sub LogFehler(n As String)
+        Dts.Events.FireError(0, SKRIPT_NAME, n, "", 0)
     End Sub
 
 End Class
