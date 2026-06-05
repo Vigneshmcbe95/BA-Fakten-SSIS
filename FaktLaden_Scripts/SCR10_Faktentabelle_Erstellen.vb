@@ -216,7 +216,7 @@ Partial Public Class ScriptMain
             "        WHEN tp.name IN ('datetime2','time','datetimeoffset') " &
             "            THEN '(' + CAST(c.scale AS varchar(5)) + ')' " &
             "        ELSE '' " &
-            "    END + CASE WHEN c.is_nullable = 0 THEN ' NOT NULL' ELSE ' NULL' END" &
+            "    END + CASE WHEN c.is_nullable = 0 THEN ' NOT NULL' ELSE ' NULL' END " &
             "AS nvarchar(max)), ',' + CHAR(13) + CHAR(10)) WITHIN GROUP (ORDER BY c.column_id) " &
             "FROM sys.columns c " &
             "JOIN sys.types tp ON c.user_type_id = tp.user_type_id " &
