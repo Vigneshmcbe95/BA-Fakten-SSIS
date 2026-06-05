@@ -1,404 +1,72 @@
-Paket	Task	Meldungstyp	Meldung
-Package	SCR19_Partitionstausch	info	WARNUNG [SWITCH OUT] Versuch 2/10: ALTER TABLE SWITCH statement failed. The table 'msi_dm_lst_sgbii.dbo.tf_bsbm_arbnehm_out_202301' has clustered index 'CCI_tf_bsbm_arbnehm_out_202301' while the table 'msi_dm_lst_sgbii.dbo.tf_bsbm_arbnehm' does not have clustered index.
-Warning: The specified partition 2 for the table 'msi_dm_lst_sgbii.dbo.tf_bsbm_arbnehm' was ignored in ALTER TABLE SWITCH statement because the table is not partitioned.
-Package	SCR19_Partitionstausch	info	  Partitionsnummer: 2
-Package	SCR19_Partitionstausch	info	WARNUNG [SWITCH OUT] Versuch 1/10: ALTER TABLE SWITCH statement failed. The table 'msi_dm_lst_sgbii.dbo.tf_bsbm_arbnehm_out_202301' has clustered index 'CCI_tf_bsbm_arbnehm_out_202301' while the table 'msi_dm_lst_sgbii.dbo.tf_bsbm_arbnehm' does not have clustered index.
-Warning: The specified partition 2 for the table 'msi_dm_lst_sgbii.dbo.tf_bsbm_arbnehm' was ignored in ALTER TABLE SWITCH statement because the table is not partitioned.
-Package	SCR19_Partitionstausch	info	  â Partition: 202301
-Package	SCR19_Partitionstausch	info	  _in Tabellen: 12
-Package	SCR19_Partitionstausch	info	Verfahren: tf_bsbm_arbnehm | Tabelle: tf_bsbm_arbnehm
-Package	SCR19_Partitionstausch	info	Verfahren: 1
-Package	SCR19_Partitionstausch	info	Zeitpunkt: 05.06.2026 15:49:37
-Package	SCR19_Partitionstausch	info	SCR15_Partitionstausch â Start
-Package	SCR18_Stagingtabelle - NCCI erstellen	info	Erfolgreich: 1 | Fehler: 0
-Package	SCR18_Stagingtabelle - NCCI erstellen	info	  â NCCI nicht anwendbar â Ã¼bersprungen
-Package	SCR18_Stagingtabelle - NCCI erstellen	info	Verfahren: 1
-Package	SCR18_Stagingtabelle - NCCI erstellen	info	Verfahren: tf_bsbm_arbnehm | NCCI: FALSE | IndexTyp: CCI
-Package	SCR18_Stagingtabelle - NCCI erstellen	info	Zeitpunkt: 05.06.2026 15:49:37
-Package	SCR18_Stagingtabelle - NCCI erstellen	info	SCR14_NCCI_Out â Start
-Package	SCR17_Stagingtabelle komprimieren	info	Erfolgreich: 1 | Fehler: 0
-Package	SCR17_Stagingtabelle komprimieren	info	  â CCI aktiv â PAGE/ROW nicht anwendbar â Ã¼bersprungen
-Package	SCR17_Stagingtabelle komprimieren	info	Verfahren: tf_bsbm_arbnehm | Komprimierung: NONE | IndexTyp: CCI
-Package	SCR17_Stagingtabelle komprimieren	info	Verfahren: 1
-Package	SCR17_Stagingtabelle komprimieren	info	Zeitpunkt: 05.06.2026 15:49:37
-Package	SCR17_Stagingtabelle komprimieren	info	SCR13_Komprimierung_Out â Start
-Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	  â Schritt 7a abgeschlossen â
-Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	Erfolgreich: 1 | Fehler: 0
-Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt â
-Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt â
-Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	  â Index auf: tf_bsbm_arbnehm_out_202312
-Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	  â Index auf: tf_bsbm_arbnehm_out_202311
-Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt â
-Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	  â Index auf: tf_bsbm_arbnehm_out_202310
-Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt â
-Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt â
-Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	  â Index auf: tf_bsbm_arbnehm_out_202309
-Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	  â Index auf: tf_bsbm_arbnehm_out_202308
-Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt â
-Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt â
-Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	  â Index auf: tf_bsbm_arbnehm_out_202307
-Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	  â Index auf: tf_bsbm_arbnehm_out_202306
-Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt â
-Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	  â Index auf: tf_bsbm_arbnehm_out_202305
-Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt â
-Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt â
-Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	  â Index auf: tf_bsbm_arbnehm_out_202304
-Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	  â Index auf: tf_bsbm_arbnehm_out_202303
-Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt â
-Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	  â Index auf: tf_bsbm_arbnehm_out_202302
-Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt â
-Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	  â Index auf: tf_bsbm_arbnehm_out_202301
-Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt â
-Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	  â Index auf: tf_bsbm_arbnehm_in_202312
-Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt â
-Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt â
-Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	  â Index auf: tf_bsbm_arbnehm_in_202311
-Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	  â Index auf: tf_bsbm_arbnehm_in_202310
-Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt â
-Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	  â Index auf: tf_bsbm_arbnehm_in_202309
-Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt â
-Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	  â Index auf: tf_bsbm_arbnehm_in_202308
-Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt â
-Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	  â Index auf: tf_bsbm_arbnehm_in_202307
-Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt â
-Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	  â Index auf: tf_bsbm_arbnehm_in_202306
-Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt â
-Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	  â Index auf: tf_bsbm_arbnehm_in_202305
-Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt â
-Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	  â Index auf: tf_bsbm_arbnehm_in_202304
-Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt â
-Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt â
-Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	  â Index auf: tf_bsbm_arbnehm_in_202303
-Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	  â Index auf: tf_bsbm_arbnehm_in_202302
-Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt â
-Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	  â Index auf: tf_bsbm_arbnehm_in_202301
-Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	Verfahren: tf_bsbm_arbnehm | IndexTyp: CCI
-Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	Verfahren: 1
-Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	SCR12_Index_InOut â Start
-Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	Zeitpunkt: 05.06.2026 15:47:59
-Package	SCR15_usp_Faktenladen_Partitionladen	info	Keine Verfahren zu verarbeiten
-Package	SCR15_usp_Faktenladen_Partitionladen	info	Verfahren mit Status 'ERFOLG': 0
-Package	SCR15_usp_Faktenladen_Partitionladen	info	  Gelesen: tf_bsbm_arbnehm | 202311 | NEU
-Package	SCR15_usp_Faktenladen_Partitionladen	info	  Gelesen: tf_bsbm_arbnehm | 202312 | NEU
-Package	SCR15_usp_Faktenladen_Partitionladen	info	  Gelesen: tf_bsbm_arbnehm | 202310 | NEU
-Package	SCR15_usp_Faktenladen_Partitionladen	info	  Gelesen: tf_bsbm_arbnehm | 202308 | NEU
-Package	SCR15_usp_Faktenladen_Partitionladen	info	  Gelesen: tf_bsbm_arbnehm | 202309 | NEU
-Package	SCR15_usp_Faktenladen_Partitionladen	info	  Gelesen: tf_bsbm_arbnehm | 202306 | NEU
-Package	SCR15_usp_Faktenladen_Partitionladen	info	  Gelesen: tf_bsbm_arbnehm | 202307 | NEU
-Package	SCR15_usp_Faktenladen_Partitionladen	info	  Gelesen: tf_bsbm_arbnehm | 202305 | NEU
-Package	SCR15_usp_Faktenladen_Partitionladen	info	  Gelesen: tf_bsbm_arbnehm | 202303 | NEU
-Package	SCR15_usp_Faktenladen_Partitionladen	info	  Gelesen: tf_bsbm_arbnehm | 202304 | NEU
-Package	SCR15_usp_Faktenladen_Partitionladen	info	  Gelesen: tf_bsbm_arbnehm | 202301 | NEU
-Package	SCR15_usp_Faktenladen_Partitionladen	info	  Gelesen: tf_bsbm_arbnehm | 202302 | NEU
-Package	SCR15_usp_Faktenladen_Partitionladen	info	Partitionswerte: 12 Eintraege
-Package	SCR15_usp_Faktenladen_Partitionladen	info	PackageName      : Q0010106
-Package	SCR15_usp_Faktenladen_Partitionladen	info	Protokolltabelle : tm_msi_dm_lst_sgbii_master_meta_prot
-Package	SCR15_usp_Faktenladen_Partitionladen	info	UserName         : ruemmelinD1
-Package	SCR15_usp_Faktenladen_Partitionladen	info	ProtokollSP      : usp_SSIS_Protokoll
-Package	SCR15_usp_Faktenladen_Partitionladen	info	ProtokollDB      : msi_dm_lst_sgbii
-Package	SCR15_usp_Faktenladen_Partitionladen	info	Datamart         : msi_dm_lst_sgbii
-Package	SCR15_usp_Faktenladen_Partitionladen	info	Server           : Q0010106
-Package	SCR15_usp_Faktenladen_Partitionladen	info	Datenbank        : msi_dm_lst_sgbii
-Package	SCR15_usp_Faktenladen_Partitionladen	info	ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
-Package	SCR15_usp_Faktenladen_Partitionladen	info	SCR16_Partitionladen_Nachlauf â Start
-Package	SCR15_usp_Faktenladen_Partitionladen	info	Zeitpunkt: 05.06.2026 15:47:59
-Package	SCR15_usp_Faktenladen_Partitionladen	info	ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
-Package	SCR14_usp_Faktenladen_StagetabellenDML	info	SCR11b_StagetabellenDML_Aufruf erfolgreich abgeschlossen
-Package	SCR14_usp_Faktenladen_StagetabellenDML	info	Erfolgreich: 1
-Package	SCR14_usp_Faktenladen_StagetabellenDML	info	Fehler:      0
-Package	SCR14_usp_Faktenladen_StagetabellenDML	info	ZUSAMMENFASSUNG SCR11b_StagetabellenDML_Aufruf
-Package	SCR14_usp_Faktenladen_StagetabellenDML	info	  Info: Prozedur [usp_Faktenladen_StagetabellenDML_tf_bsbm_arbnehm] existiert nicht -> uebersprungen
-Package	SCR14_usp_Faktenladen_StagetabellenDML	info	  Prozedur: usp_Faktenladen_StagetabellenDML_tf_bsbm_arbnehm
-Package	SCR14_usp_Faktenladen_StagetabellenDML	info	ClusteredIndex   : CCI
-Package	SCR14_usp_Faktenladen_StagetabellenDML	info	Komprimierung    : NONE
-Package	SCR14_usp_Faktenladen_StagetabellenDML	info	Faktentabelle    : tf_bsbm_arbnehm
-Package	SCR14_usp_Faktenladen_StagetabellenDML	info	Partitionsspalte : mon_id
-Package	SCR14_usp_Faktenladen_StagetabellenDML	info	Verfahren        : tf_bsbm_arbnehm
-Package	SCR14_usp_Faktenladen_StagetabellenDML	info	Verfahren mit Status 'DATEN_GELADEN': 1
-Package	SCR14_usp_Faktenladen_StagetabellenDML	info	  Gelesen: tf_bsbm_arbnehm | 202311 | NEU
-Package	SCR14_usp_Faktenladen_StagetabellenDML	info	  Gelesen: tf_bsbm_arbnehm | 202312 | NEU
-Package	SCR14_usp_Faktenladen_StagetabellenDML	info	  Gelesen: tf_bsbm_arbnehm | 202310 | NEU
-Package	SCR14_usp_Faktenladen_StagetabellenDML	info	  Gelesen: tf_bsbm_arbnehm | 202308 | NEU
-Package	SCR14_usp_Faktenladen_StagetabellenDML	info	  Gelesen: tf_bsbm_arbnehm | 202309 | NEU
-Package	SCR14_usp_Faktenladen_StagetabellenDML	info	  Gelesen: tf_bsbm_arbnehm | 202306 | NEU
-Package	SCR14_usp_Faktenladen_StagetabellenDML	info	  Gelesen: tf_bsbm_arbnehm | 202307 | NEU
-Package	SCR14_usp_Faktenladen_StagetabellenDML	info	  Gelesen: tf_bsbm_arbnehm | 202305 | NEU
-Package	SCR14_usp_Faktenladen_StagetabellenDML	info	  Gelesen: tf_bsbm_arbnehm | 202303 | NEU
-Package	SCR14_usp_Faktenladen_StagetabellenDML	info	  Gelesen: tf_bsbm_arbnehm | 202304 | NEU
-Package	SCR14_usp_Faktenladen_StagetabellenDML	info	  Gelesen: tf_bsbm_arbnehm | 202301 | NEU
-Package	SCR14_usp_Faktenladen_StagetabellenDML	info	  Gelesen: tf_bsbm_arbnehm | 202302 | NEU
-Package	SCR14_usp_Faktenladen_StagetabellenDML	info	Partitionswerte aus SCR09: 12 Eintraege
-Package	SCR14_usp_Faktenladen_StagetabellenDML	info	PackageName      : Package
-Package	SCR14_usp_Faktenladen_StagetabellenDML	info	ProtokollSP      : usp_SSIS_Protokoll
-Package	SCR14_usp_Faktenladen_StagetabellenDML	info	UserName         : SDST\ruemmelinD1
-Package	SCR14_usp_Faktenladen_StagetabellenDML	info	Protokolltabelle : tm_msi_dm_lst_sgbii_master_meta_prot
-Package	SCR14_usp_Faktenladen_StagetabellenDML	info	Verfahren (BA)   : AST
-Package	SCR14_usp_Faktenladen_StagetabellenDML	info	ProtokollDB      : msi_dm_lst_sgbii
-Package	SCR14_usp_Faktenladen_StagetabellenDML	info	Datamart         : msi_dm_lst_sgbii
-Package	SCR14_usp_Faktenladen_StagetabellenDML	info	Server           : Q0010106
-Package	SCR14_usp_Faktenladen_StagetabellenDML	info	Datenbank        : msi_dm_lst_sgbii
-Package	SCR14_usp_Faktenladen_StagetabellenDML	info	SCR11b_StagetabellenDML_Aufruf â Start (v2: BA::objPartitionValues gesteuert)
-Package	SCR14_usp_Faktenladen_StagetabellenDML	info	Zeitpunkt: 05.06.2026 15:47:59
-Package	SCR13_Daten_Laden	info	Erfolgreich: 1 | Fehler: 0
-Package	SCR13_Daten_Laden	info	════════════════════════════════════════════════════════
-Package	SCR13_Daten_Laden	info	  → Schritt 6 abgeschlossen ✓
-Package	SCR13_Daten_Laden	info	  → Zeilen geladen (tf_bsbm_arbnehm_in_202312): 1108137
-Package	SCR13_Daten_Laden	info	  → Zeilen geladen (tf_bsbm_arbnehm_in_202311): 1115309
-Package	SCR13_Daten_Laden	info	  → Zeilen geladen (tf_bsbm_arbnehm_in_202310): 1119814
-Package	SCR13_Daten_Laden	info	  → Zeilen geladen (tf_bsbm_arbnehm_in_202309): 1124086
-Package	SCR13_Daten_Laden	info	  → Zeilen geladen (tf_bsbm_arbnehm_in_202305): 1128730
-Package	SCR13_Daten_Laden	info	  → Zeilen geladen (tf_bsbm_arbnehm_in_202303): 1130256
-Package	SCR13_Daten_Laden	info	  → Zeilen geladen (tf_bsbm_arbnehm_in_202307): 1126245
-Package	SCR13_Daten_Laden	info	  → Zeilen geladen (tf_bsbm_arbnehm_in_202304): 1128256
-Package	SCR13_Daten_Laden	info	  SQL SELECT INTO [tf_bsbm_arbnehm_in_202312_LOADING] WHERE mon_id = 202312 (→ wird zu _in_ umbenannt)
-Package	SCR13_Daten_Laden	info	  → Zeilen geladen (tf_bsbm_arbnehm_in_202302): 1125859
-Package	SCR13_Daten_Laden	info	  SQL SELECT INTO [tf_bsbm_arbnehm_in_202311_LOADING] WHERE mon_id = 202311 (→ wird zu _in_ umbenannt)
-Package	SCR13_Daten_Laden	info	  → Zeilen geladen (tf_bsbm_arbnehm_in_202308): 1124810
-Package	SCR13_Daten_Laden	info	  SQL SELECT INTO [tf_bsbm_arbnehm_in_202310_LOADING] WHERE mon_id = 202310 (→ wird zu _in_ umbenannt)
-Package	SCR13_Daten_Laden	info	  → Zeilen geladen (tf_bsbm_arbnehm_in_202306): 1129061
-Package	SCR13_Daten_Laden	info	  SQL SELECT INTO [tf_bsbm_arbnehm_in_202309_LOADING] WHERE mon_id = 202309 (→ wird zu _in_ umbenannt)
-Package	SCR13_Daten_Laden	info	  → Zeilen geladen (tf_bsbm_arbnehm_in_202301): 1123917
-Package	SCR13_Daten_Laden	info	  SQL SELECT INTO [tf_bsbm_arbnehm_in_202306_LOADING] WHERE mon_id = 202306 (→ wird zu _in_ umbenannt)
-Package	SCR13_Daten_Laden	info	  SQL SELECT INTO [tf_bsbm_arbnehm_in_202305_LOADING] WHERE mon_id = 202305 (→ wird zu _in_ umbenannt)
-Package	SCR13_Daten_Laden	info	  SQL SELECT INTO [tf_bsbm_arbnehm_in_202308_LOADING] WHERE mon_id = 202308 (→ wird zu _in_ umbenannt)
-Package	SCR13_Daten_Laden	info	  SQL SELECT INTO [tf_bsbm_arbnehm_in_202304_LOADING] WHERE mon_id = 202304 (→ wird zu _in_ umbenannt)
-Package	SCR13_Daten_Laden	info	  SQL SELECT INTO [tf_bsbm_arbnehm_in_202302_LOADING] WHERE mon_id = 202302 (→ wird zu _in_ umbenannt)
-Package	SCR13_Daten_Laden	info	  SQL SELECT INTO [tf_bsbm_arbnehm_in_202301_LOADING] WHERE mon_id = 202301 (→ wird zu _in_ umbenannt)
-Package	SCR13_Daten_Laden	info	  SQL SELECT INTO [tf_bsbm_arbnehm_in_202307_LOADING] WHERE mon_id = 202307 (→ wird zu _in_ umbenannt)
-Package	SCR13_Daten_Laden	info	  SQL SELECT INTO [tf_bsbm_arbnehm_in_202303_LOADING] WHERE mon_id = 202303 (→ wird zu _in_ umbenannt)
-Package	SCR13_Daten_Laden	info	  Partitionswerte: 12
-Package	SCR13_Daten_Laden	info	Verfahren: tf_bsbm_arbnehm | Spalte: mon_id
-Package	SCR13_Daten_Laden	info	────────────────────────────────────────────────────────
-Package	SCR13_Daten_Laden	info	Verfahren: 1
-Package	SCR13_Daten_Laden	info	Partitionswerte gesamt: 12 Eintraege
-Package	SCR13_Daten_Laden	info	Datenbank             : msi_dm_lst_sgbii
-Package	SCR13_Daten_Laden	info	Maximale Parallelitaet: 8
-Package	SCR13_Daten_Laden	info	Zeitpunkt: 05.06.2026 15:47:36
-Package	SCR13_Daten_Laden	info	════════════════════════════════════════════════════════
-Package	SCR13_Daten_Laden	info	════════════════════════════════════════════════════════
-Package	SCR13_Daten_Laden	info	SCR13_Daten_Laden → Start
-Package	SCR12_Staging_Erstellen	info	ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
-Package	SCR12_Staging_Erstellen	info	Erfolgreich: 1 | Fehler: 0
-Package	SCR12_Staging_Erstellen	info	  â Schritt 5 abgeschlossen â
-Package	SCR12_Staging_Erstellen	info	  _out erstellt: 202312 | Modus: NEU
-Package	SCR12_Staging_Erstellen	info	  _out erstellt: 202311 | Modus: NEU
-Package	SCR12_Staging_Erstellen	info	  _out erstellt: 202310 | Modus: NEU
-Package	SCR12_Staging_Erstellen	info	  _out erstellt: 202309 | Modus: NEU
-Package	SCR12_Staging_Erstellen	info	  _out erstellt: 202308 | Modus: NEU
-Package	SCR12_Staging_Erstellen	info	  _out erstellt: 202307 | Modus: NEU
-Package	SCR12_Staging_Erstellen	info	  _out erstellt: 202306 | Modus: NEU
-Package	SCR12_Staging_Erstellen	info	  _out erstellt: 202305 | Modus: NEU
-Package	SCR12_Staging_Erstellen	info	  _out erstellt: 202304 | Modus: NEU
-Package	SCR12_Staging_Erstellen	info	  _out erstellt: 202303 | Modus: NEU
-Package	SCR12_Staging_Erstellen	info	  _out erstellt: 202302 | Modus: NEU
-Package	SCR12_Staging_Erstellen	info	  _out erstellt: 202301 | Modus: NEU
-Package	SCR12_Staging_Erstellen	info	  Lade Mapping von Template (via InfoSchema): tf_bsbm_arbnehm_template
-Package	SCR12_Staging_Erstellen	info	ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
-Package	SCR12_Staging_Erstellen	info	Verfahren: tf_bsbm_arbnehm
-Package	SCR12_Staging_Erstellen	info	Verfahren aus Arbeitsliste: 1
-Package	SCR12_Staging_Erstellen	info	  Gelesen: tf_bsbm_arbnehm | 202311 | NEU
-Package	SCR12_Staging_Erstellen	info	  Gelesen: tf_bsbm_arbnehm | 202312 | NEU
-Package	SCR12_Staging_Erstellen	info	  Gelesen: tf_bsbm_arbnehm | 202309 | NEU
-Package	SCR12_Staging_Erstellen	info	  Gelesen: tf_bsbm_arbnehm | 202310 | NEU
-Package	SCR12_Staging_Erstellen	info	  Gelesen: tf_bsbm_arbnehm | 202308 | NEU
-Package	SCR12_Staging_Erstellen	info	  Gelesen: tf_bsbm_arbnehm | 202306 | NEU
-Package	SCR12_Staging_Erstellen	info	  Gelesen: tf_bsbm_arbnehm | 202307 | NEU
-Package	SCR12_Staging_Erstellen	info	  Gelesen: tf_bsbm_arbnehm | 202304 | NEU
-Package	SCR12_Staging_Erstellen	info	  Gelesen: tf_bsbm_arbnehm | 202305 | NEU
-Package	SCR12_Staging_Erstellen	info	  Gelesen: tf_bsbm_arbnehm | 202303 | NEU
-Package	SCR12_Staging_Erstellen	info	  Gelesen: tf_bsbm_arbnehm | 202301 | NEU
-Package	SCR12_Staging_Erstellen	info	  Gelesen: tf_bsbm_arbnehm | 202302 | NEU
-Package	SCR12_Staging_Erstellen	info	Datenbank          : msi_dm_lst_sgbii
-Package	SCR12_Staging_Erstellen	info	Partitionswerte aus SCR09: 12 Eintraege
-Package	SCR12_Staging_Erstellen	info	Parametertabelle   : tm_msi_dm_lst_sgbii_param
-Package	SCR12_Staging_Erstellen	info	ExtTableSchema     : ext
-Package	SCR12_Staging_Erstellen	info	ParameterDB        : msi_dm_lst_sgbii
-Package	SCR12_Staging_Erstellen	info	Zeitpunkt: 05.06.2026 15:47:35
-Package	SCR12_Staging_Erstellen	info	ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
-Package	SCR12_Staging_Erstellen	info	SCR10_Staging_Erstellen â Start (v2: BA::objPartitionValues gesteuert)
-Package	SCR12_Staging_Erstellen	info	ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
-Package	SCR11_Partitionsgrenzen	info	ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
-Package	SCR11_Partitionsgrenzen	info	Erfolgreich: 1 | Fehler: 0
-Package	SCR11_Partitionsgrenzen	info	ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
-Package	SCR11_Partitionsgrenzen	info	ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
-Package	SCR11_Partitionsgrenzen	info	BA::objPartitionValues gesetzt: 12 Eintraege
-Package	SCR11_Partitionsgrenzen	info	  tf_bsbm_arbnehm: 12 Partitionen (202301-202312)
-Package	SCR11_Partitionsgrenzen	info	ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
-Package	SCR11_Partitionsgrenzen	info	  â Schritt 4 abgeschlossen â
-Package	SCR11_Partitionsgrenzen	info	    â Boundary 202312 bereits vorhanden â uebersprungen
-Package	SCR11_Partitionsgrenzen	info	  â SPLIT ausgefuehrt: 12 | Uebersprungen: 0
-Package	SCR11_Partitionsgrenzen	info	    â Boundary 202311 bereits vorhanden â uebersprungen
-Package	SCR11_Partitionsgrenzen	info	    â Boundary 202310 bereits vorhanden â uebersprungen
-Package	SCR11_Partitionsgrenzen	info	    â Boundary 202309 bereits vorhanden â uebersprungen
-Package	SCR11_Partitionsgrenzen	info	    â Boundary 202307 bereits vorhanden â uebersprungen
-Package	SCR11_Partitionsgrenzen	info	    â Boundary 202308 bereits vorhanden â uebersprungen
-Package	SCR11_Partitionsgrenzen	info	    â Boundary 202306 bereits vorhanden â uebersprungen
-Package	SCR11_Partitionsgrenzen	info	    â Boundary 202304 bereits vorhanden â uebersprungen
-Package	SCR11_Partitionsgrenzen	info	    â Boundary 202305 bereits vorhanden â uebersprungen
-Package	SCR11_Partitionsgrenzen	info	    â Boundary 202303 bereits vorhanden â uebersprungen
-Package	SCR11_Partitionsgrenzen	info	    â Boundary 202301 bereits vorhanden â uebersprungen
-Package	SCR11_Partitionsgrenzen	info	    â Boundary 202302 bereits vorhanden â uebersprungen
-Package	SCR11_Partitionsgrenzen	info	  Werte-Bereich: 202301 bis 202312 (12 Partitionen)
-Package	SCR11_Partitionsgrenzen	info	  ââââââââââââââââââââââââââââââââââââââââââââââââââ
-Package	SCR11_Partitionsgrenzen	info	  Gesamt zu verarbeiten: 12
-Package	SCR11_Partitionsgrenzen	info	  NEU: 12
-Package	SCR11_Partitionsgrenzen	info	  Modus: AUTOMATIC
-Package	SCR11_Partitionsgrenzen	info	  ZUSAMMENFASSUNG: tf_bsbm_arbnehm
-Package	SCR11_Partitionsgrenzen	info	  ââââââââââââââââââââââââââââââââââââââââââââââââââ
-Package	SCR11_Partitionsgrenzen	info	  ââââââââââââââââââââââââââââââââââââââââââââââââââ
-Package	SCR11_Partitionsgrenzen	info	  â Lade alle 12 Oracle-Werte
-Package	SCR11_Partitionsgrenzen	info	  ââââââââââââââââââââââââââââââââââââââââââââââ
-Package	SCR11_Partitionsgrenzen	info	  ââââââââââââââââââââââââââââââââââââââââââââââ
-Package	SCR11_Partitionsgrenzen	info	  â Entscheidung: FULL LOAD (MSSQL leer)
-Package	SCR11_Partitionsgrenzen	info	  MSSQL Werte gesamt: 0
-Package	SCR11_Partitionsgrenzen	info	  Oracle MIN: 202301 | MAX: 202312
-Package	SCR11_Partitionsgrenzen	info	  Oracle Werte gesamt: 12
-Package	SCR11_Partitionsgrenzen	info	  MODE: AUTOMATIC (partition_wert aus Oracle)
-Package	SCR11_Partitionsgrenzen	info	  ââââââââââââââââââââââââââââââââââââââââââââââââââ
-Package	SCR11_Partitionsgrenzen	info	  ââââââââââââââââââââââââââââââââââââââââââââââââââ
-Package	SCR11_Partitionsgrenzen	info	Verfahren: tf_bsbm_arbnehm | Tabelle: tf_bsbm_arbnehm | Spalte: mon_id
-Package	SCR11_Partitionsgrenzen	info	ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
-Package	SCR11_Partitionsgrenzen	info	Verfahren: 1
-Package	SCR11_Partitionsgrenzen	info	ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
-Package	SCR11_Partitionsgrenzen	info	Zeitpunkt: 05.06.2026 15:47:34
-Package	SCR11_Partitionsgrenzen	info	ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
-Package	SCR11_Partitionsgrenzen	info	SCR09_Partitionsgrenzen â Start (v6: FINAL - All Fixes)
-Package	SCR10_Faktentabelle_Erstellen	info	Erfolgreich: 1 | Fehler: 0
-Package	SCR10_Faktentabelle_Erstellen	info	  -> Schritt 3 abgeschlossen
-Package	SCR10_Faktentabelle_Erstellen	info	  Faktentabelle dbo.tf_bsbm_arbnehm existiert bereits -> uebersprungen
-Package	SCR10_Faktentabelle_Erstellen	info	Partitionsspalte: mon_id | IndexTyp: CCI | Komprimierung: NONE
-Package	SCR10_Faktentabelle_Erstellen	info	Verfahren: tf_bsbm_arbnehm | Faktentabelle: tf_bsbm_arbnehm
-Package	SCR10_Faktentabelle_Erstellen	info	ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
-Package	SCR10_Faktentabelle_Erstellen	info	Verfahren: 1
-Package	SCR10_Faktentabelle_Erstellen	info	ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
-Package	SCR10_Faktentabelle_Erstellen	info	Zeitpunkt: 05.06.2026 15:47:34
-Package	SCR10_Faktentabelle_Erstellen	info	SCR08_Faktentabelle_Erstellen â Start (v2: kein DROP, nur CREATE wenn nicht vorhanden)
-Package	SCR09_Ext_Tabelle_Erstellen	info	ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
-Package	SCR09_Ext_Tabelle_Erstellen	info	Erfolgreich: 1 | Fehler: 0
-Package	SCR09_Ext_Tabelle_Erstellen	info	ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
-Package	SCR09_Ext_Tabelle_Erstellen	info	  â Externe Tabelle erstellt â
-Package	SCR09_Ext_Tabelle_Erstellen	info	  â Externe Tabelle erfolgreich: ext.[tf_bsbm_arbnehm]
-Package	SCR09_Ext_Tabelle_Erstellen	info	  Oracle Location: ESTAT.THM_DM_STAT_BSBM.TF_BSBM_ARBNEHM
-Package	SCR09_Ext_Tabelle_Erstellen	info	  Erstelle externe Tabelle: ext.[tf_bsbm_arbnehm]
-Package	SCR09_Ext_Tabelle_Erstellen	info	ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
-Package	SCR09_Ext_Tabelle_Erstellen	info	Verfahren: tf_bsbm_arbnehm | Themengebiet: thm_dm_stat_bsbm
-Package	SCR09_Ext_Tabelle_Erstellen	info	Verfahren zur Verarbeitung: 1
-Package	SCR09_Ext_Tabelle_Erstellen	info	ExtTableLocation   : ESTAT.STATRT.VM_DDL_SQL_SERVER
-Package	SCR09_Ext_Tabelle_Erstellen	info	ExtSchema          : ext
-Package	SCR09_Ext_Tabelle_Erstellen	info	ExtSourceName      : Oracle-ESTAT
-Package	SCR09_Ext_Tabelle_Erstellen	info	Parametertabelle   : tm_msi_dm_lst_sgbii_param
-Package	SCR09_Ext_Tabelle_Erstellen	info	RunID              : 53
-Package	SCR09_Ext_Tabelle_Erstellen	info	ParameterDB        : msi_dm_lst_sgbii
-Package	SCR09_Ext_Tabelle_Erstellen	info	ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
-Package	SCR09_Ext_Tabelle_Erstellen	info	Zeitpunkt: 05.06.2026 15:47:33
-Package	SCR09_Ext_Tabelle_Erstellen	info	SCR07_Ext_Tabelle_Erstellen â Start (v2: tm_polybase_struktur)
-Package	SCR09_Ext_Tabelle_Erstellen	info	ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
-Package	SCR08_Template_Erstellen	info	════════════════════════════════════════════════════════
-Package	SCR08_Template_Erstellen	info	Erfolgreich: 1 | Fehler: 0
-Package	SCR08_Template_Erstellen	info	════════════════════════════════════════════════════════
-Package	SCR08_Template_Erstellen	info	  → Template erstellt ✓
-Package	SCR08_Template_Erstellen	info	  ✓ Spaltenliste identisch. Bestehendes Template wird wiederverwendet.
-Package	SCR08_Template_Erstellen	info	  Template existiert bereits. Vergleiche Spaltenliste mit tm_polybase_struktur...
-Package	SCR08_Template_Erstellen	info	  Prüfe/Erstelle Template: [msi_dm_lst_sgbii].dbo.tf_bsbm_arbnehm_template
-Package	SCR08_Template_Erstellen	info	────────────────────────────────────────────────────────
-Package	SCR08_Template_Erstellen	info	Verfahren: tf_bsbm_arbnehm | Themengebiet: thm_dm_stat_bsbm
-Package	SCR08_Template_Erstellen	info	Verfahren zur Verarbeitung: 1
-Package	SCR08_Template_Erstellen	info	Ext Tabelle        : vm_ddl_sql_server
-Package	SCR08_Template_Erstellen	info	Datenbank          : msi_dm_lst_sgbii
-Package	SCR08_Template_Erstellen	info	Ext Schema         : ext
-Package	SCR08_Template_Erstellen	info	Parameter Tabelle  : tm_msi_dm_lst_sgbii_param
-Package	SCR08_Template_Erstellen	info	════════════════════════════════════════════════════════
-Package	SCR08_Template_Erstellen	info	Parameter DB       : msi_dm_lst_sgbii
-Package	SCR08_Template_Erstellen	info	SCR06_Template_Erstellen – Start (v5: Direct from Oracle)
-Package	SCR08_Template_Erstellen	info	Zeitpunkt: 05.06.2026 15:47:33
-Package	SCR08_Template_Erstellen	info	════════════════════════════════════════════════════════
-Package	SCR07_Schemadaten_Kopieren	info	════════════════════════════════════════════════════════
-Package	SCR07_Schemadaten_Kopieren	info	Erfolgreich: 1 | Fehler: 0
-Package	SCR07_Schemadaten_Kopieren	info	════════════════════════════════════════════════════════
-Package	SCR07_Schemadaten_Kopieren	info	════════════════════════════════════════════════════════
-Package	SCR07_Schemadaten_Kopieren	info	════════════════════════════════════════════════════════
-Package	SCR07_Schemadaten_Kopieren	info	Staging-Tabelle dbo.ddl_staging bleibt für Debugging erhalten
-Package	SCR07_Schemadaten_Kopieren	info	  → 18 Spalten kopiert ✓
-Package	SCR07_Schemadaten_Kopieren	info	Verfahren: tf_bsbm_arbnehm | Themengebiet: thm_dm_stat_bsbm
-Package	SCR07_Schemadaten_Kopieren	info	────────────────────────────────────────────────────────
-Package	SCR07_Schemadaten_Kopieren	info	Staging-Tabelle existiert bereits mit 836676 Zeilen - wird wiederverwendet
-Package	SCR07_Schemadaten_Kopieren	info	Quelle: [msi_dm_lst_sgbii].[ext].[vm_ddl_sql_server]
-Package	SCR07_Schemadaten_Kopieren	info	Verfahren zur Verarbeitung: 1
-Package	SCR07_Schemadaten_Kopieren	info	Oracle-Daten werden in Staging-Tabelle geladen...
-Package	SCR07_Schemadaten_Kopieren	info	Ziel-Tabelle tm_polybase_struktur geprüft/erstellt.
-Package	SCR07_Schemadaten_Kopieren	info	Ext. Schema        : ext
-Package	SCR07_Schemadaten_Kopieren	info	Ext. Tabelle       : vm_ddl_sql_server
-Package	SCR07_Schemadaten_Kopieren	info	Datenbank          : msi_dm_lst_sgbii
-Package	SCR07_Schemadaten_Kopieren	info	Zeitpunkt: 05.06.2026 15:47:32
-Package	SCR07_Schemadaten_Kopieren	info	════════════════════════════════════════════════════════
-Package	SCR07_Schemadaten_Kopieren	info	════════════════════════════════════════════════════════
-Package	SCR07_Schemadaten_Kopieren	info	SCR05_Schemadaten_Kopieren – Start
-Package	SCR06 Arbeitsliste Aufbauen	info	════════════════════════════════════════════════════════
-Package	SCR06 Arbeitsliste Aufbauen	info	SCR_Arbeitsliste_Aufbauen_Fakten erfolgreich abgeschlossen ✓
-Package	SCR06 Arbeitsliste Aufbauen	info	Neue Verfahren : 0
-Package	SCR06 Arbeitsliste Aufbauen	info	RunID          : 53
-Package	SCR06 Arbeitsliste Aufbauen	info	════════════════════════════════════════════════════════
-Package	SCR06 Arbeitsliste Aufbauen	info	════════════════════════════════════════════════════════
-Package	SCR06 Arbeitsliste Aufbauen	info	ZUSAMMENFASSUNG
-Package	SCR06 Arbeitsliste Aufbauen	info	RunID aktualisiert für: 1 Verfahren
-Package	SCR06 Arbeitsliste Aufbauen	info	── Schritt 3: RunID für alle Verfahren aktualisieren
-Package	SCR06 Arbeitsliste Aufbauen	info	ANDERE Status vorhanden → Alle NICHT-ERFOLG zu AUSSTEHEND → 1 Zeilen zurückgesetzt
-Package	SCR06 Arbeitsliste Aufbauen	info	  - ANDERE   : 7
-Package	SCR06 Arbeitsliste Aufbauen	info	  - ERFOLG   : 0
-Package	SCR06 Arbeitsliste Aufbauen	info	  - FEHLER   : 0
-Package	SCR06 Arbeitsliste Aufbauen	info	  - Total    : 7
-Package	SCR06 Arbeitsliste Aufbauen	info	Status-Analyse (alle Verfahren aus Steuerliste):
-Package	SCR06 Arbeitsliste Aufbauen	info	── Schritt 2: Status analysieren und zurücksetzen
-Package	SCR06 Arbeitsliste Aufbauen	info	Neue Verfahren eingetragen: 0
-Package	SCR06 Arbeitsliste Aufbauen	info	── Schritt 1: Neue Verfahren aus Steuerliste eintragen
-Package	SCR06 Arbeitsliste Aufbauen	info	Pflichtfelder-Prüfung: alle Variablen vorhanden ✓
-Package	SCR06 Arbeitsliste Aufbauen	info	────────────────────────────────────────────────────────
-Package	SCR06 Arbeitsliste Aufbauen	info	Steuerlisten-Tabelle : tm_steuerlistenfile_Fakten
-Package	SCR06 Arbeitsliste Aufbauen	info	ParameterDB          : msi_dm_lst_sgbii
-Package	SCR06 Arbeitsliste Aufbauen	info	Parametertabelle     : tm_msi_dm_lst_sgbii_param
-Package	SCR06 Arbeitsliste Aufbauen	info	RunID                : 53
-Package	SCR06 Arbeitsliste Aufbauen	info	════════════════════════════════════════════════════════
-Package	SCR06 Arbeitsliste Aufbauen	info	────────────────────────────────────────────────────────
-Package	SCR06 Arbeitsliste Aufbauen	info	Zeitpunkt: 05.06.2026 15:47:32
-Package	SCR06 Arbeitsliste Aufbauen	info	SCR_Arbeitsliste_Aufbauen_Fakten – Start
-Package	SCR06 Arbeitsliste Aufbauen	info	════════════════════════════════════════════════════════
-Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	════════════════════════════════════════════════════════
-Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	where_klausel gefüllt : 1
-Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	Ohne Partitionsspalte : 0
-Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	════════════════════════════════════════════════════════
-Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  where_klausel gefüllt: tf_bsbm_arbnehm | Spalte: mon_id
-Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	    → 1 Zeile(n) aktualisiert
-Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	════════════════════════════════════════════════════════
-Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	── Schritt 4: where_klausel in Steuerliste befüllen
-Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	ERGEBNIS: BESTANDEN – Alle Parameter vollständig und befüllt ✓
-Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	Vollständig (OK)         : 1
-Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	Mit Fehlern              : 0
-Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	Verfahren geprüft        : 1
-Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	════════════════════════════════════════════════════════
-Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	ZUSAMMENFASSUNG SCR_04b_Parameter_Vollstaendigkeitspruefung
-Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  ✓ Alle Pflichtparameter für 'tf_bsbm_arbnehm' vorhanden und befüllt.
-Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	════════════════════════════════════════════════════════
-Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      Anzahl_ParallelTasks
-Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      DateFormat
-Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      Faktenkomprimierung
-Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      FaktenClusteredIndex
-Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      Faktenpartitionsspalte
-Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      Faktentabelle
-Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      FaktentabelleTemplate
-Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	────────────────────────────────────────────────────────
-Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	Prüfe Verfahren: tf_bsbm_arbnehm
-Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	Verfahren in Steuerliste gefunden: 1
-Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	── Schritt 3: Parametertabelle vollständig prüfen
-Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	── Schritt 2: Verfahren aus Steuerliste laden
-Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	Steuerlisten-Tabelle [dbo.tm_steuerlistenfile_Fakten] vorhanden ✓
-Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	Steuerlisten-Tabelle enthält 1 Zeile(n) ✓
-Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	── Schritt 1: Steuerlisten-Tabelle prüfen
-Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	SSIS-Variablen-Prüfung: alle vorhanden ✓
-Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	Pflichtparameter     : FaktentabelleTemplate, Faktentabelle, Faktenpartitionsspalte, Faktenkomprimierung, FaktenClusteredIndex, DateFormat, Anzahl_ParallelTasks
-Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	────────────────────────────────────────────────────────
-Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	Steuerlisten-Tabelle : tm_steuerlistenfile_Fakten
-Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	ParameterDB          : msi_dm_lst_sgbii
-Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	Parametertabelle     : tm_msi_dm_lst_sgbii_param
-Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	────────────────────────────────────────────────────────
-Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	Zeitpunkt: 05.06.2026 15:47:32
-Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	════════════════════════════════════════════════════════
+Task	Meldungstyp	Meldung
+SCR10_Faktentabelle_Erstellen	info	WARNUNG [CCI erstellen] Versuch 1/10: The statement failed because a columnstore index must be partition-aligned with the base table. Create the columnstore index using the same partition function and same (or equivalent) partition scheme as the base table. If the base table is not partitioned, create a nonpartitioned columnstore index.
+SCR10_Faktentabelle_Erstellen	info	  Faktentabelle erstellt: dbo.tf_bsbm_arbnehm
+SCR10_Faktentabelle_Erstellen	info	  PF und PS erstellt: PF_mon_id_tf_bsbm_arbnehm / PS_mon_id_tf_bsbm_arbnehm
+SCR10_Faktentabelle_Erstellen	info	  Faktentabelle dbo.tf_bsbm_arbnehm falsche Struktur (leer) -> DROP + neu erstellen
+SCR10_Faktentabelle_Erstellen	info	Partitionsspalte: mon_id | IndexTyp: CCI | Komprimierung: NONE
+SCR10_Faktentabelle_Erstellen	info	────────────────────────────────────────────────────────
+SCR10_Faktentabelle_Erstellen	info	Verfahren: tf_bsbm_arbnehm | Faktentabelle: tf_bsbm_arbnehm
+SCR10_Faktentabelle_Erstellen	info	Verfahren: 1
+SCR10_Faktentabelle_Erstellen	info	Zeitpunkt: 05.06.2026 16:01:23
+SCR10_Faktentabelle_Erstellen	info	════════════════════════════════════════════════════════
+SCR10_Faktentabelle_Erstellen	info	SCR08_Faktentabelle_Erstellen – Start (v2: kein DROP, nur CREATE wenn nicht vorhanden)
+SCR10_Faktentabelle_Erstellen	info	════════════════════════════════════════════════════════
+SCR09_Ext_Tabelle_Erstellen	info	ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+SCR09_Ext_Tabelle_Erstellen	info	Erfolgreich: 1 | Fehler: 0
+SCR09_Ext_Tabelle_Erstellen	info	ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+SCR09_Ext_Tabelle_Erstellen	info	  â Externe Tabelle erstellt â
+SCR09_Ext_Tabelle_Erstellen	info	  â Externe Tabelle erfolgreich: ext.[tf_bsbm_arbnehm]
+SCR09_Ext_Tabelle_Erstellen	info	  Oracle Location: ESTAT.THM_DM_STAT_BSBM.TF_BSBM_ARBNEHM
+SCR09_Ext_Tabelle_Erstellen	info	  Erstelle externe Tabelle: ext.[tf_bsbm_arbnehm]
+SCR09_Ext_Tabelle_Erstellen	info	Verfahren: tf_bsbm_arbnehm | Themengebiet: thm_dm_stat_bsbm
+SCR09_Ext_Tabelle_Erstellen	info	ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+SCR09_Ext_Tabelle_Erstellen	info	Verfahren zur Verarbeitung: 1
+SCR09_Ext_Tabelle_Erstellen	info	ExtTableLocation   : ESTAT.STATRT.VM_DDL_SQL_SERVER
+SCR09_Ext_Tabelle_Erstellen	info	ExtSourceName      : Oracle-ESTAT
+SCR09_Ext_Tabelle_Erstellen	info	ExtSchema          : ext
+SCR09_Ext_Tabelle_Erstellen	info	ParameterDB        : msi_dm_lst_sgbii
+SCR09_Ext_Tabelle_Erstellen	info	Parametertabelle   : tm_msi_dm_lst_sgbii_param
+SCR09_Ext_Tabelle_Erstellen	info	ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+SCR09_Ext_Tabelle_Erstellen	info	RunID              : 55
+SCR09_Ext_Tabelle_Erstellen	info	Zeitpunkt: 05.06.2026 16:01:22
+SCR09_Ext_Tabelle_Erstellen	info	ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+SCR09_Ext_Tabelle_Erstellen	info	SCR07_Ext_Tabelle_Erstellen â Start (v2: tm_polybase_struktur)
+SCR08_Template_Erstellen	info	════════════════════════════════════════════════════════
+SCR08_Template_Erstellen	info	Erfolgreich: 1 | Fehler: 0
+SCR08_Template_Erstellen	info	════════════════════════════════════════════════════════
+SCR08_Template_Erstellen	info	  → Template erstellt ✓
+SCR08_Template_Erstellen	info	  ✓ Spaltenliste identisch. Bestehendes Template wird wiederverwendet.
+SCR08_Template_Erstellen	info	  Template existiert bereits. Vergleiche Spaltenliste mit tm_polybase_struktur...
+SCR08_Template_Erstellen	info	  Prüfe/Erstelle Template: [msi_dm_lst_sgbii].dbo.tf_bsbm_arbnehm_template
+SCR08_Template_Erstellen	info	Verfahren: tf_bsbm_arbnehm | Themengebiet: thm_dm_stat_bsbm
+SCR08_Template_Erstellen	info	────────────────────────────────────────────────────────
+SCR08_Template_Erstellen	info	Verfahren zur Verarbeitung: 1
+SCR08_Template_Erstellen	info	Ext Tabelle        : vm_ddl_sql_server
+SCR08_Template_Erstellen	info	Ext Schema         : ext
+SCR08_Template_Erstellen	info	Datenbank          : msi_dm_lst_sgbii
+SCR08_Template_Erstellen	info	Parameter Tabelle  : tm_msi_dm_lst_sgbii_param
+SCR08_Template_Erstellen	info	Parameter DB       : msi_dm_lst_sgbii
+SCR08_Template_Erstellen	info	════════════════════════════════════════════════════════
+SCR08_Template_Erstellen	info	SCR06_Template_Erstellen – Start (v5: Direct from Oracle)
+SCR08_Template_Erstellen	info	Zeitpunkt: 05.06.2026 16:01:21
+SCR08_Template_Erstellen	info	════════════════════════════════════════════════════════
+SCR07_Schemadaten_Kopieren	info	════════════════════════════════════════════════════════
+SCR07_Schemadaten_Kopieren	info	Erfolgreich: 1 | Fehler: 0
+SCR07_Schemadaten_Kopieren	info	════════════════════════════════════════════════════════
+SCR07_Schemadaten_Kopieren	info	════════════════════════════════════════════════════════
+SCR07_Schemadaten_Kopieren	info	Staging-Tabelle dbo.ddl_staging bleibt für Debugging erhalten
+SCR07_Schemadaten_Kopieren	info	  → 18 Spalten kopiert ✓
+SCR07_Schemadaten_Kopieren	info	════════════════════════════════════════════════════════
+SCR07_Schemadaten_Kopieren	info	────────────────────────────────────────────────────────
+SCR07_Schemadaten_Kopieren	info	Verfahren: tf_bsbm_arbnehm | Themengebiet: thm_dm_stat_bsbm
+SCR07_Schemadaten_Kopieren	info	Staging-Tabelle existiert bereits mit 836676 Zeilen - wird wiederverwendet
+SCR07_Schemadaten_Kopieren	info	Oracle-Daten werden in Staging-Tabelle geladen...
+SCR07_Schemadaten_Kopieren	info	Quelle: [msi_dm_lst_sgbii].[ext].[vm_ddl_sql_server]
+SCR07_Schemadaten_Kopieren	info	Verfahren zur Verarbeitung: 1
+SCR07_Schemadaten_Kopieren	info	Ziel-Tabelle tm_polybase_struktur geprüft/erstellt.
+SCR07_Schemadaten_Kopieren	info	Ext. Schema        : ext
+SCR07_Schemadaten_Kopieren	info	Ext. Tabelle       : vm_ddl_sql_server
+SCR07_Schemadaten_Kopieren	info	════════════════════════════════════════════════════════
+SCR07_Schemadaten_Kopieren	info	Datenbank          : msi_dm_lst_sgbii
+SCR07_Schemadaten_Kopieren	info	Zeitpunkt: 05.06.2026 16:01:21
+SCR07_Schemadaten_Kopieren	info	════════════════════════════════════════════════════════
