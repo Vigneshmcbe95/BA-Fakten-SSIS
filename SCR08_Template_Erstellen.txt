@@ -1,4 +1,4 @@
-﻿Imports System
+Imports System
 Imports System.Data.SqlClient
 Imports System.Collections.Generic
 Imports System.Text
@@ -134,14 +134,14 @@ Partial Public Class ScriptMain
             End If
 
             If match Then
-                Log("Template dbo.[" & templateName & "] stimmt Ã¼berein â†’ wird unverÃ¤ndert verwendet.")
+                Log("Template dbo.[" & templateName & "] stimmt berein  wird unverndert verwendet.")
                 Return True
             End If
 
             ' Columns differ: drop old physical table, recreate
-            Log("INFO: Template dbo.[" & templateName & "] hat geÃ¤nderte Spalten â†’ altes Template gelÃ¶scht, neues wird erstellt.")
-            LogSchreiben(connStr, tab, "SCHRITT_8", "Template aktualisiert (SpaltenÃ¤nderung erkannt): " & thema & "." & tab)
-            SqlAusfuehren(connStr, "DROP TABLE dbo.[" & templateName & "];", "Template DROP (Spalten geÃ¤ndert)")
+            Log("INFO: Template dbo.[" & templateName & "] hat genderte Spalten  altes Template gelscht, neues wird erstellt.")
+            LogSchreiben(connStr, tab, "SCHRITT_8", "Template aktualisiert (Spaltennderung erkannt): " & thema & "." & tab)
+            SqlAusfuehren(connStr, "DROP TABLE dbo.[" & templateName & "];", "Template DROP (Spalten gendert)")
         End If
 
         ' Create physical template table via SELECT INTO (TOP 0) from external table

@@ -1,4 +1,4 @@
-﻿Option Explicit On
+Option Explicit On
 Option Strict On
 
 Imports System
@@ -11,7 +11,7 @@ Imports Microsoft.SqlServer.Dts.Runtime
 ' PAKET  : Fakten Laden
 ' SKRIPT : SCR11_Daten_Laden
 ' ZWECK  : Paralleles Datenladen mit SELECT INTO
-'          Status: STAGING_ERSTELLT â†’ DATEN_GELADEN
+'          Status: STAGING_ERSTELLT  DATEN_GELADEN
 ' =============================================================================
 <Microsoft.SqlServer.Dts.Tasks.ScriptTask.SSISScriptTaskEntryPointAttribute()>
 <CLSCompliant(False)>
@@ -27,10 +27,10 @@ Partial Public Class ScriptMain
     Private _extTableSchema As String = String.Empty
 
     Public Sub Main()
-        Log("â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•")
-        Log("SCR11_Daten_Laden â€“ Start")
+        Log("")
+        Log("SCR11_Daten_Laden  Start")
         Log("Zeitpunkt: " & DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss"))
-        Log("â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•")
+        Log("")
         Try
             _runID = Convert.ToInt32(Dts.Variables("BA::RunID").Value)
             _extTableSchema = Dts.Variables("BA::ExtTableSchema").Value.ToString().Trim()
@@ -46,10 +46,10 @@ Partial Public Class ScriptMain
             Dim cntOK As Integer = 0
             Dim cntFehler As Integer = 0
             For Each v As VerfahrenInfo In verfahren
-                Log("â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€")
+                Log("")
                 Log("Verfahren: " & v.Verfahren & " | Themengebiet: " & v.Themengebiet)
                 If v.LetzterSchritt = "DATEN_GELADEN" Then
-                    Log("  â†’ bereits abgeschlossen â†’ Ã¼bersprungen âœ“")
+                    Log("   bereits abgeschlossen  bersprungen ")
                     Continue For
                 End If
                 Try
@@ -58,7 +58,7 @@ Partial Public Class ScriptMain
                     StatusSetzen(connStr, v.ID, "DATEN_GELADEN")
                     LogSchreiben(connStr, v.Verfahren, "SCHRITT_11", "Daten geladen: " & rows.ToString() & " Zeilen")
                     cntOK += 1
-                    Log("  â†’ " & rows.ToString() & " Zeilen geladen âœ“")
+                    Log("   " & rows.ToString() & " Zeilen geladen ")
                 Catch ex As Exception
                     cntFehler += 1
                     FehlerSetzen(connStr, v.ID, ex.Message)
@@ -66,9 +66,9 @@ Partial Public Class ScriptMain
                     LogFehler("FEHLER bei '" & v.Verfahren & "': " & ex.Message)
                 End Try
             Next
-            Log("â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•")
+            Log("")
             Log("Erfolgreich: " & cntOK.ToString() & " | Fehler: " & cntFehler.ToString())
-            Log("â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•")
+            Log("")
             Dts.TaskResult = If(cntFehler > 0, ScriptResults.Failure, ScriptResults.Success)
         Catch ex As Exception
             LogFehler("Kritischer Fehler: " & ex.Message)
@@ -80,14 +80,14 @@ Partial Public Class ScriptMain
         Dim stgInName As String = tab.Trim().ToLower() & "_in"
         Dim extTabName As String = tab.Trim().ToUpper()
 
-        ' â”€â”€ COMPLETION TRACKING CHECK â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-        ' Check ETL_Fakt_Laden_Abschluss â€” this is written ONLY when loading
+        '  COMPLETION TRACKING CHECK 
+        ' Check ETL_Fakt_Laden_Abschluss  this is written ONLY when loading
         ' fully completes for this _in table. COUNT(*) alone is not reliable
         ' because a crashed load can leave _in partially filled.
         '
-        ' Entry exists   â†’ fully loaded previously â†’ SKIP
-        ' No entry       â†’ never loaded OR partially loaded â†’ TRUNCATE + RELOAD
-        ' â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        ' Entry exists    fully loaded previously  SKIP
+        ' No entry        never loaded OR partially loaded  TRUNCATE + RELOAD
+        ' 
         Dim abgeschlossenZeilen As Integer = 0
         Try
             Dim sqlAbschluss As String =
@@ -114,40 +114,40 @@ Partial Public Class ScriptMain
             End Try
 
             If tabelleExistiert = 1 Then
-                Log("  CHECKPOINT: dbo.[" & stgInName & "] vollstÃ¤ndig geladen " &
-                    "(" & abgeschlossenZeilen.ToString() & " Zeilen) â†’ DATEN_LADEN Ã¼bersprungen âœ“")
+                Log("  CHECKPOINT: dbo.[" & stgInName & "] vollstndig geladen " &
+                    "(" & abgeschlossenZeilen.ToString() & " Zeilen)  DATEN_LADEN bersprungen ")
                 Return abgeschlossenZeilen
             Else
-                ' Table was dropped by PARTITIONSTAUSCH â€” clear record and reload
-                Log("  HINWEIS: Abschluss-Eintrag vorhanden, aber _in Tabelle gelÃ¶scht " &
-                    "(PARTITIONSTAUSCH) â†’ Abschluss-Eintrag lÃ¶schen + neu laden")
+                ' Table was dropped by PARTITIONSTAUSCH  clear record and reload
+                Log("  HINWEIS: Abschluss-Eintrag vorhanden, aber _in Tabelle gelscht " &
+                    "(PARTITIONSTAUSCH)  Abschluss-Eintrag lschen + neu laden")
                 Try
                     SqlAusfuehren(connStr,
                         "DELETE FROM dbo.ETL_Fakt_Laden_Abschluss WHERE InTabelle='" & stgInName & "'",
-                        "Abschluss lÃ¶schen")
+                        "Abschluss lschen")
                 Catch
                 End Try
                 abgeschlossenZeilen = 0  ' Fall through to reload
             End If
         End If
 
-        ' No completion record â†’ table might be partially filled â†’ TRUNCATE first
-        Log("  Kein Abschluss-Eintrag â†’ truncate _in (falls partial) + lade neu")
+        ' No completion record  table might be partially filled  TRUNCATE first
+        Log("  Kein Abschluss-Eintrag  truncate _in (falls partial) + lade neu")
         Try
             If Convert.ToInt32(SqlSkalar(connStr,
                 "SELECT CASE WHEN OBJECT_ID('dbo." & stgInName & "','U') IS NOT NULL THEN 1 ELSE 0 END",
                 "exist check")) = 1 Then
                 SqlAusfuehren(connStr, "TRUNCATE TABLE dbo.[" & stgInName & "];", "TRUNCATE partial _in")
-                Log("  _in truncated (war mÃ¶glicherweise teilweise befÃ¼llt)")
+                Log("  _in truncated (war mglicherweise teilweise befllt)")
             End If
         Catch
         End Try
-        ' â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        ' 
 
         ' Load fresh from Oracle
         Log("  Lade Daten aus Oracle...")
 
-        ' Build column mapping from tm_polybase_struktur (ISNULL/CONVERT expressions needed for Oracleâ†’SQL Server casting)
+        ' Build column mapping from tm_polybase_struktur (ISNULL/CONVERT expressions needed for OracleSQL Server casting)
         Dim sbCols As New StringBuilder()
         Dim sqlCols As String =
 "SELECT columns_dbo FROM dbo.tm_polybase_struktur
@@ -166,7 +166,7 @@ Partial Public Class ScriptMain
                 End Using
             End Using
         End Using
-        If sbCols.Length = 0 Then Throw New Exception("Keine Spalten in tm_polybase_struktur fÃ¼r " & thema & "." & tab)
+        If sbCols.Length = 0 Then Throw New Exception("Keine Spalten in tm_polybase_struktur fr " & thema & "." & tab)
 
         ' SELECT INTO staging _in from external table
         ' Drop table if exists because SELECT INTO creates it
@@ -184,7 +184,7 @@ sbCols.ToString() & Environment.NewLine &
                 "SELECT COUNT(*) FROM dbo.[" & stgInName & "];", "Staging _in COUNT"))
         End If
 
-        ' â”€â”€ WRITE COMPLETION RECORD â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        '  WRITE COMPLETION RECORD 
         ' Only written AFTER full successful load.
         ' Crash during load = no record = retry will TRUNCATE + RELOAD this _in.
         Try
@@ -200,11 +200,11 @@ sbCols.ToString() & Environment.NewLine &
                     cmd.ExecuteNonQuery()
                 End Using
             End Using
-            Log("  Abschluss-Eintrag geschrieben: " & stgInName & " (" & affectedRows.ToString() & " Zeilen) âœ“")
+            Log("  Abschluss-Eintrag geschrieben: " & stgInName & " (" & affectedRows.ToString() & " Zeilen) ")
         Catch ex As Exception
             Log("  WARNUNG: Abschluss-Eintrag konnte nicht geschrieben werden: " & ex.Message)
         End Try
-        ' â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        ' 
 
         Log("  " & affectedRows.ToString() & " Zeilen in dbo.[" & stgInName & "] geladen.")
         Return affectedRows
