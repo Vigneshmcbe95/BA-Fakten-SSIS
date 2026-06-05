@@ -78,7 +78,10 @@ Partial Public Class ScriptMain
                             "JOIN sys.partition_schemes ps ON i.data_space_id=ps.data_space_id " &
                             "WHERE i.object_id=OBJECT_ID('dbo.[" & v.Faktentabelle & "]')",
                             "Partition pruefen")) > 0
-                        Dim strukturOK As Boolean = (v.IndexType <> "CCI" OrElse hatCCI) AndAlso istPartitioniert
+                        Dim hatNotNullSpalten As Boolean = Convert.ToInt32(SqlSkalar(connStr,
+                            "SELECT COUNT(*) FROM sys.columns WHERE object_id=OBJECT_ID('dbo.[" & v.Faktentabelle & "]') AND is_nullable=0",
+                            "NOT NULL pruefen")) > 0
+                        Dim strukturOK As Boolean = (v.IndexType <> "CCI" OrElse hatCCI) AndAlso istPartitioniert AndAlso Not hatNotNullSpalten
                         If strukturOK Then
                             Log("  Faktentabelle dbo." & v.Faktentabelle & " existiert bereits (Struktur OK) -> uebersprungen")
                             LogSchreiben(connStr, v.Verfahren, "SCHRITT_3",
