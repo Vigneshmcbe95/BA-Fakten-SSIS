@@ -228,8 +228,7 @@ sbCols.ToString() & Environment.NewLine &
         ' Note: Using ETL_Fkt_Arbeitsliste as driver, but need partition col from parameters
         ' If ETL_Fkt_Parameter table doesn't exist, we fallback or join appropriately
         Dim sql As String =
-"SELECT a.ID, a.Verfahren, a.Themengebiet, a.LetzterSchritt, 
-        (SELECT TOP 1 Wert FROM dbo.ETL_Fkt_Parameter WHERE Verfahren = a.Verfahren AND Parameter = 'Faktenpartitionsspalte') as PartitionColumn
+"SELECT a.ID, a.Verfahren, a.Themengebiet, a.LetzterSchritt, 'partition_id' as PartitionColumn
  FROM dbo.ETL_Fkt_Arbeitsliste a
  WHERE a.Status IN ('STAGING_ERSTELLT','DATEN_LADEN') AND a.RunID=" & _runID.ToString() & " ORDER BY a.Verfahren"
         
@@ -354,4 +353,5 @@ sbCols.ToString() & Environment.NewLine &
     End Enum
 
 End Class
+
 
