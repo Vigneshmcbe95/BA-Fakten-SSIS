@@ -72,13 +72,24 @@ Partial Public Class ScriptMain
                         ' SWITCH OUT
                         SqlAusfuehren(connStr, "ALTER TABLE dbo.[" & v.Faktentabelle & "] SWITCH PARTITION " & pnrVal & " TO dbo.[" & outTable & "];", "SWITCH OUT")
                         Log("  → SWITCH OUT → " & outTable & " ✓")
-                        ' CHECK Constraint auf _in
+                        ' CHECK Constraint auf _in — beide Grenzen explizit (RANGE LEFT benoetigt > untere Grenze)
                         Dim ckName As String = v.PartitionColumn & "_" & pvStr & "_" & v.Faktentabelle & "_CK"
-                        If Convert.ToInt32(SqlSkalar(connStr, "SELECT COUNT(*) FROM sys.check_constraints WHERE parent_object_id=OBJECT_ID('dbo." & inTable & "') AND name='" & ckName & "'", "CK prÃ¼fen")) > 0 Then
-                            SqlAusfuehren(connStr, "ALTER TABLE dbo.[" & inTable & "] DROP CONSTRAINT [" & ckName & "];", "CK lÃ¶schen")
+                        If Convert.ToInt32(SqlSkalar(connStr, "SELECT COUNT(*) FROM sys.check_constraints WHERE parent_object_id=OBJECT_ID('dbo." & inTable & "') AND name='" & ckName & "'", "CK pruefen")) > 0 Then
+                            SqlAusfuehren(connStr, "ALTER TABLE dbo.[" & inTable & "] DROP CONSTRAINT [" & ckName & "];", "CK loeschen")
                         End If
-                        SqlAusfuehren(connStr, "ALTER TABLE dbo.[" & inTable & "] ADD CONSTRAINT [" & ckName & "] CHECK([" & v.PartitionColumn & "]=" & pvStr & ");", "CK setzen")
-                        Log("  → CHECK Constraint: " & ckName & " ✓")
+                        ' Untere Partitionsgrenze aus PF lesen (groesster Grenzwert der kleiner ist als pvStr)
+                        Dim lbObj As Object = SqlSkalar(connStr,
+                            "SELECT ISNULL(MAX(CAST(sprv.value AS bigint)), -2147483648) " &
+                            "FROM sys.partition_functions spf " &
+                            "JOIN sys.partition_range_values sprv ON sprv.function_id=spf.function_id " &
+                            "WHERE spf.name='" & pf & "' AND CAST(sprv.value AS bigint) < " & pvStr,
+                            "Untere Grenze")
+                        Dim lowerBound As Long = Convert.ToInt64(lbObj)
+                        SqlAusfuehren(connStr,
+                            "ALTER TABLE dbo.[" & inTable & "] ADD CONSTRAINT [" & ckName & "] " &
+                            "CHECK([" & v.PartitionColumn & "] > " & lowerBound.ToString() & " AND [" & v.PartitionColumn & "] <= " & pvStr & ");",
+                            "CK setzen")
+                        Log("  → CHECK Constraint: " & ckName & " (" & v.PartitionColumn & " > " & lowerBound.ToString() & " AND <= " & pvStr & ") ✓")
                         ' SWITCH IN
                         SqlAusfuehren(connStr, "ALTER TABLE dbo.[" & inTable & "] SWITCH TO dbo.[" & v.Faktentabelle & "] PARTITION " & pnrVal & ";", "SWITCH IN")
                         Log("  → SWITCH IN → " & v.Faktentabelle & " Partition " & pnrVal.ToString() & " ✓")
