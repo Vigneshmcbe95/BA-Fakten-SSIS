@@ -69,10 +69,40 @@ Partial Public Class ScriptMain
                         "Tabelle pruefen")) = 1
 
                     If tabelleExistiert Then
-                        ' Tabelle existiert -> NICHT loeschen, einfach weiter
-                        Log("  Faktentabelle dbo." & v.Faktentabelle & " existiert bereits -> uebersprungen")
-                        LogSchreiben(connStr, v.Verfahren, "SCHRITT_3",
-                            "Faktentabelle existiert bereits: dbo." & v.Faktentabelle & " -> uebersprungen (kein DROP)")
+                        ' Struktur pruefen: CCI vorhanden? Partitioniert?
+                        Dim hatCCI As Boolean = Convert.ToInt32(SqlSkalar(connStr,
+                            "SELECT COUNT(*) FROM sys.indexes WHERE object_id=OBJECT_ID('dbo.[" & v.Faktentabelle & "]') AND type=5",
+                            "CCI pruefen")) > 0
+                        Dim istPartitioniert As Boolean = Convert.ToInt32(SqlSkalar(connStr,
+                            "SELECT COUNT(*) FROM sys.indexes i " &
+                            "JOIN sys.partition_schemes ps ON i.data_space_id=ps.data_space_id " &
+                            "WHERE i.object_id=OBJECT_ID('dbo.[" & v.Faktentabelle & "]')",
+                            "Partition pruefen")) > 0
+                        Dim strukturOK As Boolean = (v.IndexType <> "CCI" OrElse hatCCI) AndAlso istPartitioniert
+                        If strukturOK Then
+                            Log("  Faktentabelle dbo." & v.Faktentabelle & " existiert bereits (Struktur OK) -> uebersprungen")
+                            LogSchreiben(connStr, v.Verfahren, "SCHRITT_3",
+                                "Faktentabelle existiert bereits (Struktur OK): dbo." & v.Faktentabelle & " -> uebersprungen")
+                        Else
+                            Dim hatDaten As Boolean = Convert.ToInt32(SqlSkalar(connStr,
+                                "SELECT COUNT(*) FROM (SELECT TOP 1 1 AS x FROM dbo.[" & v.Faktentabelle & "]) t",
+                                "Daten pruefen")) > 0
+                            If Not hatDaten Then
+                                Log("  Faktentabelle dbo." & v.Faktentabelle & " falsche Struktur (leer) -> DROP + neu erstellen")
+                                LogSchreiben(connStr, v.Verfahren, "SCHRITT_3",
+                                    "Faktentabelle falsche Struktur (leer) -> DROP + neu erstellen: dbo." & v.Faktentabelle)
+                                SqlAusfuehren(connStr, "DROP TABLE dbo.[" & v.Faktentabelle & "];", "Tabelle droppen")
+                                FaktentabelleErstellen(connStr, v)
+                                LogSchreiben(connStr, v.Verfahren, "SCHRITT_3",
+                                    "Faktentabelle neu erstellt: dbo." & v.Faktentabelle &
+                                    " | PF: PF_" & v.PartitionColumn & "_" & v.Faktentabelle &
+                                    " | Index: " & v.IndexType & " | Komprimierung: " & v.Compression)
+                            Else
+                                Log("  WARNUNG: dbo." & v.Faktentabelle & " hat Daten aber falsche Struktur -> manuelle Korrektur noetig")
+                                LogSchreiben(connStr, v.Verfahren, "SCHRITT_3",
+                                    "WARNUNG: Faktentabelle hat Daten aber falsche Struktur -> uebersprungen: dbo." & v.Faktentabelle)
+                            End If
+                        End If
                     Else
                         ' Tabelle existiert nicht -> vollstaendig erstellen
                         Log("  Faktentabelle dbo." & v.Faktentabelle & " existiert nicht -> wird erstellt")
@@ -117,16 +147,25 @@ Partial Public Class ScriptMain
         Dim filegroup As String = Convert.ToString(SqlSkalar(connStr,
             "SELECT name FROM sys.filegroups WHERE is_default=1", "Filegroup"))
 
-        ' PF/PS loeschen falls vorhanden
-        If Convert.ToInt32(SqlSkalar(connStr, "SELECT COUNT(*) FROM sys.partition_schemes WHERE name='" & ps & "'", "PS pruefen")) > 0 Then
-            SqlAusfuehren(connStr, "DROP PARTITION SCHEME [" & ps & "];", "PS loeschen")
+        ' PF/PS loeschen nur wenn nicht von anderen Tabellen benutzt
+        Dim psInUse As Boolean = Convert.ToInt32(SqlSkalar(connStr,
+            "SELECT COUNT(*) FROM sys.indexes i " &
+            "JOIN sys.partition_schemes ps2 ON i.data_space_id=ps2.data_space_id " &
+            "WHERE ps2.name='" & ps & "'",
+            "PS Benutzung pruefen")) > 0
+        If Not psInUse Then
+            If Convert.ToInt32(SqlSkalar(connStr, "SELECT COUNT(*) FROM sys.partition_schemes WHERE name='" & ps & "'", "PS pruefen")) > 0 Then
+                SqlAusfuehren(connStr, "DROP PARTITION SCHEME [" & ps & "];", "PS loeschen")
+            End If
+            If Convert.ToInt32(SqlSkalar(connStr, "SELECT COUNT(*) FROM sys.partition_functions WHERE name='" & pf & "'", "PF pruefen")) > 0 Then
+                SqlAusfuehren(connStr, "DROP PARTITION FUNCTION [" & pf & "];", "PF loeschen")
+            End If
+            SqlAusfuehren(connStr, "CREATE PARTITION FUNCTION [" & pf & "](INT) AS RANGE LEFT FOR VALUES(0);", "PF erstellen")
+            SqlAusfuehren(connStr, "CREATE PARTITION SCHEME [" & ps & "] AS PARTITION [" & pf & "] ALL TO ([" & filegroup & "]);", "PS erstellen")
+            Log("  PF und PS erstellt: " & pf & " / " & ps)
+        Else
+            Log("  PF/PS bereits vorhanden und in Benutzung -> wiederverwendet: " & pf & " / " & ps)
         End If
-        If Convert.ToInt32(SqlSkalar(connStr, "SELECT COUNT(*) FROM sys.partition_functions WHERE name='" & pf & "'", "PF pruefen")) > 0 Then
-            SqlAusfuehren(connStr, "DROP PARTITION FUNCTION [" & pf & "];", "PF loeschen")
-        End If
-
-        SqlAusfuehren(connStr, "CREATE PARTITION FUNCTION [" & pf & "](INT) AS RANGE LEFT FOR VALUES(0);", "PF erstellen")
-        SqlAusfuehren(connStr, "CREATE PARTITION SCHEME [" & ps & "] AS PARTITION [" & pf & "] ALL TO ([" & filegroup & "]);", "PS erstellen")
 
         ' Spaltenliste (columns_dbo) aus Template (via INFORMATION_SCHEMA) + Metadaten holen
         Dim selectList As String = Nothing
@@ -170,6 +209,14 @@ Partial Public Class ScriptMain
         
         SqlAusfuehren(connStr, "ALTER TABLE dbo.[" & v.Faktentabelle.ToLower() & "] SET (LOCK_ESCALATION=AUTO);", "LOCK_ESCALATION")
         Log("  Faktentabelle erstellt: dbo." & v.Faktentabelle.ToLower())
+
+        ' CCI auf Partitionsschema anlegen (konvertiert HEAP zu partitionierter CCI-Tabelle)
+        If v.IndexType = "CCI" Then
+            SqlAusfuehren(connStr,
+                "CREATE CLUSTERED COLUMNSTORE INDEX [CCI_" & v.Faktentabelle & "] ON dbo.[" & v.Faktentabelle.ToLower() & "] ON [" & ps & "]([" & v.PartitionColumn & "]);",
+                "CCI erstellen")
+            Log("  CCI angelegt (partitioniert auf " & ps & ")")
+        End If
 
         ' NCCI
         If v.NcciFlag = "TRUE" Then
