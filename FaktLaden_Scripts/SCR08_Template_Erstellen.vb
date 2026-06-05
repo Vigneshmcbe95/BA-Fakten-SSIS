@@ -111,20 +111,21 @@ Partial Public Class ScriptMain
             "Template Check"))
 
         If exists > 0 Then
-            Log("  Template existiert bereits. Vergleiche Struktur mit tm_polybase_struktur...")
+            Log("  Template existiert bereits. Vergleiche Spaltenliste mit tm_polybase_struktur...")
             
-            ' Compare columns_dbo from existing template vs tm_polybase_struktur
+            ' Validierung: Prüfen ob die Business-Spalten im Template mit den 'colname' Einträgen in der Metadaten-Tabelle übereinstimmen
             Dim sqlCompare As String = "
             WITH NewSchema AS (
-                SELECT STRING_AGG(CAST(columns_dbo AS nvarchar(max)), '|') WITHIN GROUP (ORDER BY colno) as SchemaStr
+                SELECT STRING_AGG(UPPER(LTRIM(RTRIM(colname))), '|') WITHIN GROUP (ORDER BY colno) as ColStr
                 FROM dbo.tm_polybase_struktur
                 WHERE themengebiet = @thema AND tabname = @tab
             ),
             OldSchema AS (
-                SELECT STRING_AGG(CAST(columns_dbo AS nvarchar(max)), '|') WITHIN GROUP (ORDER BY colno) as SchemaStr
-                FROM " & ziel & "
+                SELECT STRING_AGG(UPPER(LTRIM(RTRIM(COLUMN_NAME))), '|') WITHIN GROUP (ORDER BY ORDINAL_POSITION) as ColStr
+                FROM [" & _datenbank & "].INFORMATION_SCHEMA.COLUMNS
+                WHERE TABLE_SCHEMA = 'dbo' AND TABLE_NAME = '" & tabelle & "_template'
             )
-            SELECT CASE WHEN n.SchemaStr = o.SchemaStr THEN 1 ELSE 0 END
+            SELECT CASE WHEN n.ColStr = o.ColStr THEN 1 ELSE 0 END
             FROM NewSchema n, OldSchema o"
 
             Dim match As Integer = 0
@@ -134,21 +135,22 @@ Partial Public Class ScriptMain
                     Using cmd As New SqlCommand(sqlCompare, conn)
                         cmd.Parameters.AddWithValue("@thema", v.Themengebiet.Trim().ToLower())
                         cmd.Parameters.AddWithValue("@tab", v.Verfahren.Trim().ToLower())
-                        match = Convert.ToInt32(cmd.ExecuteScalar())
+                        Dim res = cmd.ExecuteScalar()
+                        match = If(res IsNot Nothing AndAlso res IsNot DBNull.Value, Convert.ToInt32(res), 0)
                     End Using
                 End Using
             Catch ex As Exception
-                Log("  Fehler beim Strukturvergleich: " & ex.Message)
+                Log("  Warnung beim Strukturvergleich: " & ex.Message & " -> Sicherhaltshalber Neuanlage empfohlen.")
                 match = 0
             End Try
 
             If match = 1 Then
-                Log("  ✓ Struktur identisch. Bestehendes Template wird wiederverwendet.")
+                Log("  ✓ Spaltenliste identisch. Bestehendes Template wird wiederverwendet.")
                 Return
             Else
                 LogFehler("  !!! STRUKTUR-MISSMATCH !!!")
-                LogFehler("  Das bestehende Template " & ziel & " passt nicht zu tm_polybase_struktur.")
-                LogFehler("  Bitte Template manuell prüfen oder löschen für Neuanlage.")
+                LogFehler("  Die Spalten im bestehenden Template passen nicht zur Definition in tm_polybase_struktur.")
+                LogFehler("  Bitte Template-Tabelle löschen, damit sie neu erstellt werden kann.")
                 Throw New Exception("Struktur-Konflikt in " & ziel)
             End If
         End If
