@@ -181,18 +181,13 @@ Partial Public Class ScriptMain
     End Sub
 
     Private Sub LogSchreiben(connStr As String, verfahren As String, schritt As String, meldung As String)
-        Try
-            Using conn As New SqlConnection(connStr)
-                conn.Open()
-                Using cmd As New SqlCommand("INSERT INTO dbo.tm_fakten_load_log(verfahren,schritt,meldung) VALUES(@v,@s,@m)", conn)
-                    cmd.Parameters.AddWithValue("@v", verfahren)
-                    cmd.Parameters.AddWithValue("@s", schritt)
-                    cmd.Parameters.AddWithValue("@m", meldung)
-                    cmd.ExecuteNonQuery()
-                End Using
-            End Using
-        Catch
-        End Try
+        ' Kein DB-Log: Logging laeuft vollstaendig ueber SSIS Events (Eventhandler)
+        ' FEHLER_* -> FireError | alles andere -> FireInformation
+        If schritt.StartsWith("FEHLER", StringComparison.OrdinalIgnoreCase) Then
+            LogFehler("[" & schritt & "] " & verfahren & ": " & meldung)
+        Else
+            Log("[" & schritt & "] " & verfahren & ": " & meldung)
+        End If
     End Sub
 
     Private Function SqlAusfuehren(connStr As String, sql As String, beschreibung As String) As Integer
