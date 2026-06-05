@@ -96,100 +96,32 @@ Partial Public Class ScriptMain
     End Sub
 
     ' =============================================================================
-    ' TEMPLATE ERSTELLEN - Direct from Oracle external table
+    ' TEMPLATE ERSTELLEN
+    ' Gleiche Dynamik wie SCR09 ErstelleExternalTable — aber columns_dbo statt columns_ext
+    ' Ergebnis: dbo.[tabelle_template] mit echten Spalten (aam_id, jhw_id ...)
     ' =============================================================================
     Private Sub TemplateErstellen(connStr As String, v As VerfahrenInfo)
-        Dim tabelle As String = v.Faktentabelle.ToLower()
-        ' Use _datenbank parameter for the template location
-        Dim ziel As String = "[" & _datenbank & "].dbo." & tabelle & "_template"
+        Dim sql As String =
+            "DECLARE @t  nvarchar(128) = N'" & v.Faktentabelle.ToLower() & "';" & vbCrLf &
+            "DECLARE @s  nvarchar(128) = N'" & v.Themengebiet.Trim().ToLower() & "';" & vbCrLf &
+            "DECLARE @db nvarchar(128) = N'" & _datenbank & "';" & vbCrLf & vbCrLf &
+            "DECLARE @drop nvarchar(max), @crt nvarchar(max);" & vbCrLf & vbCrLf &
+            "SELECT" & vbCrLf &
+            "    @drop = CONCAT(N'IF OBJECT_ID(''[', @db, N'].dbo.[', @t, N'_template]'',''U'') IS NOT NULL DROP TABLE [', @db, N'].dbo.[', @t, N'_template];')," & vbCrLf &
+            "    @crt  = CONCAT(N'SELECT TOP 0 '," & vbCrLf &
+            "                   STRING_AGG(CAST(columns_dbo AS nvarchar(max)), CONCAT(N',',CHAR(13),CHAR(10))) WITHIN GROUP (ORDER BY colno)," & vbCrLf &
+            "                   N' INTO [', @db, N'].dbo.[', @t, N'_template] FROM ext.[', @t, N'];')" & vbCrLf &
+            "FROM dbo.tm_polybase_struktur" & vbCrLf &
+            "WHERE tabname = @t" & vbCrLf &
+            "  AND themengebiet = @s;" & vbCrLf & vbCrLf &
+            "IF @crt IS NULL THROW 50001, 'Keine Metadaten in tm_polybase_struktur', 1;" & vbCrLf & vbCrLf &
+            "EXEC(@drop);" & vbCrLf &
+            "EXEC(@crt);"
 
-        Log("  Prüfe/Erstelle Template: " & ziel)
-
-        ' 1. Check if template already exists
-        Dim exists As Integer = Convert.ToInt32(SqlSkalar(connStr,
-            "SELECT COUNT(*) FROM [" & _datenbank & "].sys.tables WHERE schema_id=SCHEMA_ID('dbo') AND name='" & tabelle & "_template'",
-            "Template Check"))
-
-        If exists > 0 Then
-            Log("  Template existiert bereits. Vergleiche Spaltenliste mit tm_polybase_struktur...")
-            
-            ' Validierung: Prüfen ob die Business-Spalten im Template mit den 'colname' Einträgen in der Metadaten-Tabelle übereinstimmen
-            Dim sqlCompare As String = "
-            WITH NewSchema AS (
-                SELECT STRING_AGG(UPPER(LTRIM(RTRIM(colname))), '|') WITHIN GROUP (ORDER BY colno) as ColStr
-                FROM dbo.tm_polybase_struktur
-                WHERE themengebiet = @thema AND tabname = @tab
-            ),
-            OldSchema AS (
-                SELECT STRING_AGG(UPPER(LTRIM(RTRIM(COLUMN_NAME))), '|') WITHIN GROUP (ORDER BY ORDINAL_POSITION) as ColStr
-                FROM [" & _datenbank & "].INFORMATION_SCHEMA.COLUMNS
-                WHERE TABLE_SCHEMA = 'dbo' AND TABLE_NAME = '" & tabelle & "_template'
-            )
-            SELECT CASE WHEN n.ColStr = o.ColStr THEN 1 ELSE 0 END
-            FROM NewSchema n, OldSchema o"
-
-            Dim match As Integer = 0
-            Try
-                Using conn As New SqlConnection(connStr)
-                    conn.Open()
-                    Using cmd As New SqlCommand(sqlCompare, conn)
-                        cmd.Parameters.AddWithValue("@thema", v.Themengebiet.Trim().ToLower())
-                        cmd.Parameters.AddWithValue("@tab", v.Verfahren.Trim().ToLower())
-                        Dim res = cmd.ExecuteScalar()
-                        match = If(res IsNot Nothing AndAlso res IsNot DBNull.Value, Convert.ToInt32(res), 0)
-                    End Using
-                End Using
-            Catch ex As Exception
-                Log("  Warnung beim Strukturvergleich: " & ex.Message & " -> Sicherhaltshalber Neuanlage empfohlen.")
-                match = 0
-            End Try
-
-            If match = 1 Then
-                Log("  ✓ Spaltenliste identisch. Bestehendes Template wird wiederverwendet.")
-                Return
-            Else
-                LogFehler("  !!! STRUKTUR-MISSMATCH !!!")
-                LogFehler("  Die Spalten im bestehenden Template passen nicht zur Definition in tm_polybase_struktur.")
-                LogFehler("  Bitte Template-Tabelle löschen, damit sie neu erstellt werden kann.")
-                Throw New Exception("Struktur-Konflikt in " & ziel)
-            End If
-        End If
-
-        ' 2. Create Template from tm_polybase_struktur if not exists
-        Log("  Erstelle neues Template aus tm_polybase_struktur...")
-        
-        Dim sqlCreate As String = "
-        SELECT 
-            themengebiet,
-            tabname,
-            colname,
-            colno,
-            columns_dbo,
-            columns_ext
-        INTO " & ziel & "
-        FROM dbo.tm_polybase_struktur
-        WHERE themengebiet = @thema AND tabname = @tab
-        ORDER BY colno"
-
-        Using conn As New SqlConnection(connStr)
-            conn.Open()
-            Using cmd As New SqlCommand(sqlCreate, conn)
-                cmd.Parameters.AddWithValue("@thema", v.Themengebiet.Trim().ToLower())
-                cmd.Parameters.AddWithValue("@tab", v.Verfahren.Trim().ToLower())
-                cmd.ExecuteNonQuery()
-            End Using
-        End Using
-
-        ' Validate
-        Dim cnt As Integer = Convert.ToInt32(SqlSkalar(connStr,
-            "SELECT COUNT(*) FROM " & ziel,
-            "Template Count"))
-
-        If cnt = 0 Then
-            Throw New Exception("Keine Daten in tm_polybase_struktur für " & v.Verfahren & " gefunden!")
-        End If
-
-        Log("  ✓ Template neu erstellt: " & ziel & " | Spalten: " & cnt.ToString())
+        Log("  Erstelle Template fuer: " & v.Faktentabelle.ToLower())
+        Log("SQL:" & vbCrLf & sql)
+        SqlAusfuehren(connStr, sql, "Template erstellen")
+        Log("  Template erstellt ✓")
     End Sub
 
     ' =============================================================================
