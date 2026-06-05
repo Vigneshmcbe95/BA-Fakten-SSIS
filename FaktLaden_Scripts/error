@@ -1,187 +1,190 @@
 Task	Meldungstyp	Meldung
-SCR19_Partitionstausch	info	WARNUNG [SWITCH IN] Versuch 5/10: ALTER TABLE SWITCH statement failed. Check constraints or partition function of source table 'msi_dm_lst_sgbii.dbo.tf_bsbm_arbnehm_in_202301' allows values that are not allowed by check constraints or partition function on target table 'msi_dm_lst_sgbii.dbo.tf_bsbm_arbnehm'.
-SCR19_Partitionstausch	info	WARNUNG [SWITCH IN] Versuch 4/10: ALTER TABLE SWITCH statement failed. Check constraints or partition function of source table 'msi_dm_lst_sgbii.dbo.tf_bsbm_arbnehm_in_202301' allows values that are not allowed by check constraints or partition function on target table 'msi_dm_lst_sgbii.dbo.tf_bsbm_arbnehm'.
-SCR19_Partitionstausch	info	WARNUNG [SWITCH IN] Versuch 3/10: ALTER TABLE SWITCH statement failed. Check constraints or partition function of source table 'msi_dm_lst_sgbii.dbo.tf_bsbm_arbnehm_in_202301' allows values that are not allowed by check constraints or partition function on target table 'msi_dm_lst_sgbii.dbo.tf_bsbm_arbnehm'.
 SCR19_Partitionstausch	info	WARNUNG [SWITCH IN] Versuch 2/10: ALTER TABLE SWITCH statement failed. Check constraints or partition function of source table 'msi_dm_lst_sgbii.dbo.tf_bsbm_arbnehm_in_202301' allows values that are not allowed by check constraints or partition function on target table 'msi_dm_lst_sgbii.dbo.tf_bsbm_arbnehm'.
 SCR19_Partitionstausch	info	WARNUNG [SWITCH IN] Versuch 1/10: ALTER TABLE SWITCH statement failed. Check constraints or partition function of source table 'msi_dm_lst_sgbii.dbo.tf_bsbm_arbnehm_in_202301' allows values that are not allowed by check constraints or partition function on target table 'msi_dm_lst_sgbii.dbo.tf_bsbm_arbnehm'.
-SCR19_Partitionstausch	info	  â CHECK Constraint: mon_id_202301_tf_bsbm_arbnehm_CK â
-SCR19_Partitionstausch	info	  â SWITCH OUT â tf_bsbm_arbnehm_out_202301 â
+SCR19_Partitionstausch	info	  → CHECK Constraint: mon_id_202301_tf_bsbm_arbnehm_CK ✓
+SCR19_Partitionstausch	info	  → SWITCH OUT → tf_bsbm_arbnehm_out_202301 ✓
 SCR19_Partitionstausch	info	  Partitionsnummer: 2
-SCR19_Partitionstausch	info	  â Partition: 202301
 SCR19_Partitionstausch	info	  _in Tabellen: 12
+SCR19_Partitionstausch	info	  → Partition: 202301
 SCR19_Partitionstausch	info	Verfahren: tf_bsbm_arbnehm | Tabelle: tf_bsbm_arbnehm
 SCR19_Partitionstausch	info	Verfahren: 1
-SCR19_Partitionstausch	info	Zeitpunkt: 05.06.2026 22:06:42
-SCR19_Partitionstausch	info	SCR15_Partitionstausch â Start
+SCR19_Partitionstausch	info	────────────────────────────────────────────────────────
+SCR19_Partitionstausch	info	════════════════════════════════════════════════════════
+SCR19_Partitionstausch	info	Zeitpunkt: 05.06.2026 22:40:06
+SCR19_Partitionstausch	info	SCR15_Partitionstausch – Start
+SCR19_Partitionstausch	info	════════════════════════════════════════════════════════
 SCR18_Stagingtabelle - NCCI erstellen	info	Erfolgreich: 1 | Fehler: 0
-SCR18_Stagingtabelle - NCCI erstellen	info	  â NCCI nicht anwendbar â Ã¼bersprungen
+SCR18_Stagingtabelle - NCCI erstellen	info	  → NCCI nicht anwendbar → Ã¼bersprungen
 SCR18_Stagingtabelle - NCCI erstellen	info	Verfahren: tf_bsbm_arbnehm | NCCI: FALSE | IndexTyp: CCI
+SCR18_Stagingtabelle - NCCI erstellen	info	────────────────────────────────────────────────────────
 SCR18_Stagingtabelle - NCCI erstellen	info	Verfahren: 1
-SCR18_Stagingtabelle - NCCI erstellen	info	Zeitpunkt: 05.06.2026 22:06:42
-SCR18_Stagingtabelle - NCCI erstellen	info	SCR14_NCCI_Out â Start
+SCR18_Stagingtabelle - NCCI erstellen	info	════════════════════════════════════════════════════════
+SCR18_Stagingtabelle - NCCI erstellen	info	Zeitpunkt: 05.06.2026 22:40:06
+SCR18_Stagingtabelle - NCCI erstellen	info	SCR14_NCCI_Out – Start
+SCR18_Stagingtabelle - NCCI erstellen	info	════════════════════════════════════════════════════════
 SCR17_Stagingtabelle komprimieren	info	Erfolgreich: 1 | Fehler: 0
-SCR17_Stagingtabelle komprimieren	info	  â CCI aktiv â PAGE/ROW nicht anwendbar â Ã¼bersprungen
-SCR17_Stagingtabelle komprimieren	info	Verfahren: 1
+SCR17_Stagingtabelle komprimieren	info	  → CCI aktiv → PAGE/ROW nicht anwendbar → Ã¼bersprungen
+SCR17_Stagingtabelle komprimieren	info	────────────────────────────────────────────────────────
 SCR17_Stagingtabelle komprimieren	info	Verfahren: tf_bsbm_arbnehm | Komprimierung: NONE | IndexTyp: CCI
-SCR17_Stagingtabelle komprimieren	info	SCR13_Komprimierung_Out â Start
-SCR17_Stagingtabelle komprimieren	info	Zeitpunkt: 05.06.2026 22:06:41
+SCR17_Stagingtabelle komprimieren	info	Verfahren: 1
+SCR17_Stagingtabelle komprimieren	info	════════════════════════════════════════════════════════
+SCR17_Stagingtabelle komprimieren	info	SCR13_Komprimierung_Out – Start
+SCR17_Stagingtabelle komprimieren	info	Zeitpunkt: 05.06.2026 22:40:06
+SCR17_Stagingtabelle komprimieren	info	════════════════════════════════════════════════════════
 SCR16_Stagingtabelle - Clustered Index erstellen	info	Erfolgreich: 1 | Fehler: 0
-SCR16_Stagingtabelle - Clustered Index erstellen	info	  â Schritt 7a abgeschlossen â
-SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt â
-SCR16_Stagingtabelle - Clustered Index erstellen	info	  â Index auf: tf_bsbm_arbnehm_out_202312
-SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt â
-SCR16_Stagingtabelle - Clustered Index erstellen	info	  â Index auf: tf_bsbm_arbnehm_out_202311
-SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt â
-SCR16_Stagingtabelle - Clustered Index erstellen	info	  â Index auf: tf_bsbm_arbnehm_out_202310
-SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt â
-SCR16_Stagingtabelle - Clustered Index erstellen	info	  â Index auf: tf_bsbm_arbnehm_out_202309
-SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt â
-SCR16_Stagingtabelle - Clustered Index erstellen	info	  â Index auf: tf_bsbm_arbnehm_out_202308
-SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt â
-SCR16_Stagingtabelle - Clustered Index erstellen	info	  â Index auf: tf_bsbm_arbnehm_out_202307
-SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt â
-SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt â
-SCR16_Stagingtabelle - Clustered Index erstellen	info	  â Index auf: tf_bsbm_arbnehm_out_202306
-SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt â
-SCR16_Stagingtabelle - Clustered Index erstellen	info	  â Index auf: tf_bsbm_arbnehm_out_202305
-SCR16_Stagingtabelle - Clustered Index erstellen	info	  â Index auf: tf_bsbm_arbnehm_out_202304
-SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt â
-SCR16_Stagingtabelle - Clustered Index erstellen	info	  â Index auf: tf_bsbm_arbnehm_out_202303
-SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt â
-SCR16_Stagingtabelle - Clustered Index erstellen	info	  â Index auf: tf_bsbm_arbnehm_out_202302
-SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt â
-SCR16_Stagingtabelle - Clustered Index erstellen	info	  â Index auf: tf_bsbm_arbnehm_out_202301
-SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt â
-SCR16_Stagingtabelle - Clustered Index erstellen	info	  â Index auf: tf_bsbm_arbnehm_in_202312
-SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt â
-SCR16_Stagingtabelle - Clustered Index erstellen	info	  â Index auf: tf_bsbm_arbnehm_in_202311
-SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt â
-SCR16_Stagingtabelle - Clustered Index erstellen	info	  â Index auf: tf_bsbm_arbnehm_in_202310
-SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt â
-SCR16_Stagingtabelle - Clustered Index erstellen	info	  â Index auf: tf_bsbm_arbnehm_in_202309
-SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt â
-SCR16_Stagingtabelle - Clustered Index erstellen	info	  â Index auf: tf_bsbm_arbnehm_in_202308
-SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt â
-SCR16_Stagingtabelle - Clustered Index erstellen	info	  â Index auf: tf_bsbm_arbnehm_in_202307
-SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt â
-SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt â
-SCR16_Stagingtabelle - Clustered Index erstellen	info	  â Index auf: tf_bsbm_arbnehm_in_202306
-SCR16_Stagingtabelle - Clustered Index erstellen	info	  â Index auf: tf_bsbm_arbnehm_in_202305
-SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt â
-SCR16_Stagingtabelle - Clustered Index erstellen	info	  â Index auf: tf_bsbm_arbnehm_in_202304
-SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt â
-SCR16_Stagingtabelle - Clustered Index erstellen	info	  â Index auf: tf_bsbm_arbnehm_in_202303
-SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt â
-SCR16_Stagingtabelle - Clustered Index erstellen	info	  â Index auf: tf_bsbm_arbnehm_in_202302
-SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt â
-SCR16_Stagingtabelle - Clustered Index erstellen	info	  â Index auf: tf_bsbm_arbnehm_in_202301
+SCR16_Stagingtabelle - Clustered Index erstellen	info	  → Schritt 7a abgeschlossen ✓
+SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt ✓
+SCR16_Stagingtabelle - Clustered Index erstellen	info	  → Index auf: tf_bsbm_arbnehm_out_202312
+SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt ✓
+SCR16_Stagingtabelle - Clustered Index erstellen	info	  → Index auf: tf_bsbm_arbnehm_out_202311
+SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt ✓
+SCR16_Stagingtabelle - Clustered Index erstellen	info	  → Index auf: tf_bsbm_arbnehm_out_202310
+SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt ✓
+SCR16_Stagingtabelle - Clustered Index erstellen	info	  → Index auf: tf_bsbm_arbnehm_out_202309
+SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt ✓
+SCR16_Stagingtabelle - Clustered Index erstellen	info	  → Index auf: tf_bsbm_arbnehm_out_202308
+SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt ✓
+SCR16_Stagingtabelle - Clustered Index erstellen	info	  → Index auf: tf_bsbm_arbnehm_out_202307
+SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt ✓
+SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt ✓
+SCR16_Stagingtabelle - Clustered Index erstellen	info	  → Index auf: tf_bsbm_arbnehm_out_202306
+SCR16_Stagingtabelle - Clustered Index erstellen	info	  → Index auf: tf_bsbm_arbnehm_out_202305
+SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt ✓
+SCR16_Stagingtabelle - Clustered Index erstellen	info	  → Index auf: tf_bsbm_arbnehm_out_202304
+SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt ✓
+SCR16_Stagingtabelle - Clustered Index erstellen	info	  → Index auf: tf_bsbm_arbnehm_out_202303
+SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt ✓
+SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt ✓
+SCR16_Stagingtabelle - Clustered Index erstellen	info	  → Index auf: tf_bsbm_arbnehm_out_202302
+SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI bereits vorhanden → Ã¼bersprungen
+SCR16_Stagingtabelle - Clustered Index erstellen	info	  → Index auf: tf_bsbm_arbnehm_out_202301
+SCR16_Stagingtabelle - Clustered Index erstellen	info	  → Index auf: tf_bsbm_arbnehm_in_202312
+SCR16_Stagingtabelle - Clustered Index erstellen	info	  → Index auf: tf_bsbm_arbnehm_in_202311
+SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI bereits vorhanden → Ã¼bersprungen
+SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI bereits vorhanden → Ã¼bersprungen
+SCR16_Stagingtabelle - Clustered Index erstellen	info	  → Index auf: tf_bsbm_arbnehm_in_202310
+SCR16_Stagingtabelle - Clustered Index erstellen	info	  → Index auf: tf_bsbm_arbnehm_in_202309
+SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI bereits vorhanden → Ã¼bersprungen
+SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI bereits vorhanden → Ã¼bersprungen
+SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI bereits vorhanden → Ã¼bersprungen
+SCR16_Stagingtabelle - Clustered Index erstellen	info	  → Index auf: tf_bsbm_arbnehm_in_202308
+SCR16_Stagingtabelle - Clustered Index erstellen	info	  → Index auf: tf_bsbm_arbnehm_in_202307
+SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI bereits vorhanden → Ã¼bersprungen
+SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI bereits vorhanden → Ã¼bersprungen
+SCR16_Stagingtabelle - Clustered Index erstellen	info	  → Index auf: tf_bsbm_arbnehm_in_202306
+SCR16_Stagingtabelle - Clustered Index erstellen	info	  → Index auf: tf_bsbm_arbnehm_in_202305
+SCR16_Stagingtabelle - Clustered Index erstellen	info	  → Index auf: tf_bsbm_arbnehm_in_202304
+SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI bereits vorhanden → Ã¼bersprungen
+SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI bereits vorhanden → Ã¼bersprungen
+SCR16_Stagingtabelle - Clustered Index erstellen	info	  → Index auf: tf_bsbm_arbnehm_in_202303
+SCR16_Stagingtabelle - Clustered Index erstellen	info	  → Index auf: tf_bsbm_arbnehm_in_202302
+SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI bereits vorhanden → Ã¼bersprungen
+SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI bereits vorhanden → Ã¼bersprungen
+SCR16_Stagingtabelle - Clustered Index erstellen	info	  → Index auf: tf_bsbm_arbnehm_in_202301
+SCR16_Stagingtabelle - Clustered Index erstellen	info	────────────────────────────────────────────────────────
 SCR16_Stagingtabelle - Clustered Index erstellen	info	Verfahren: tf_bsbm_arbnehm | IndexTyp: CCI
 SCR16_Stagingtabelle - Clustered Index erstellen	info	Verfahren: 1
-SCR16_Stagingtabelle - Clustered Index erstellen	info	Zeitpunkt: 05.06.2026 22:05:04
-SCR16_Stagingtabelle - Clustered Index erstellen	info	SCR12_Index_InOut â Start
-SCR15_usp_Faktenladen_Partitionladen	info	Verfahren mit Status 'ERFOLG': 0
+SCR16_Stagingtabelle - Clustered Index erstellen	info	Zeitpunkt: 05.06.2026 22:40:06
+SCR16_Stagingtabelle - Clustered Index erstellen	info	════════════════════════════════════════════════════════
+SCR16_Stagingtabelle - Clustered Index erstellen	info	SCR12_Index_InOut – Start
+SCR16_Stagingtabelle - Clustered Index erstellen	info	════════════════════════════════════════════════════════
 SCR15_usp_Faktenladen_Partitionladen	info	Keine Verfahren zu verarbeiten
+SCR15_usp_Faktenladen_Partitionladen	info	Verfahren mit Status 'ERFOLG': 0
 SCR15_usp_Faktenladen_Partitionladen	info	  Gelesen: tf_bsbm_arbnehm | 202312 | NEU
-SCR15_usp_Faktenladen_Partitionladen	info	  Gelesen: tf_bsbm_arbnehm | 202310 | NEU
 SCR15_usp_Faktenladen_Partitionladen	info	  Gelesen: tf_bsbm_arbnehm | 202311 | NEU
-SCR15_usp_Faktenladen_Partitionladen	info	  Gelesen: tf_bsbm_arbnehm | 202308 | NEU
+SCR15_usp_Faktenladen_Partitionladen	info	  Gelesen: tf_bsbm_arbnehm | 202310 | NEU
 SCR15_usp_Faktenladen_Partitionladen	info	  Gelesen: tf_bsbm_arbnehm | 202309 | NEU
 SCR15_usp_Faktenladen_Partitionladen	info	  Gelesen: tf_bsbm_arbnehm | 202307 | NEU
-SCR15_usp_Faktenladen_Partitionladen	info	  Gelesen: tf_bsbm_arbnehm | 202305 | NEU
+SCR15_usp_Faktenladen_Partitionladen	info	  Gelesen: tf_bsbm_arbnehm | 202308 | NEU
 SCR15_usp_Faktenladen_Partitionladen	info	  Gelesen: tf_bsbm_arbnehm | 202306 | NEU
-SCR15_usp_Faktenladen_Partitionladen	info	  Gelesen: tf_bsbm_arbnehm | 202303 | NEU
 SCR15_usp_Faktenladen_Partitionladen	info	  Gelesen: tf_bsbm_arbnehm | 202304 | NEU
+SCR15_usp_Faktenladen_Partitionladen	info	  Gelesen: tf_bsbm_arbnehm | 202305 | NEU
+SCR15_usp_Faktenladen_Partitionladen	info	  Gelesen: tf_bsbm_arbnehm | 202303 | NEU
+SCR15_usp_Faktenladen_Partitionladen	info	  Gelesen: tf_bsbm_arbnehm | 202301 | NEU
 SCR15_usp_Faktenladen_Partitionladen	info	  Gelesen: tf_bsbm_arbnehm | 202302 | NEU
 SCR15_usp_Faktenladen_Partitionladen	info	Partitionswerte: 12 Eintraege
-SCR15_usp_Faktenladen_Partitionladen	info	  Gelesen: tf_bsbm_arbnehm | 202301 | NEU
-SCR15_usp_Faktenladen_Partitionladen	info	UserName         : ruemmelinD1
 SCR15_usp_Faktenladen_Partitionladen	info	PackageName      : Q0010106
+SCR15_usp_Faktenladen_Partitionladen	info	UserName         : ruemmelinD1
 SCR15_usp_Faktenladen_Partitionladen	info	ProtokollSP      : usp_SSIS_Protokoll
-SCR15_usp_Faktenladen_Partitionladen	info	Protokolltabelle : tm_msi_dm_lst_sgbii_master_meta_prot
 SCR15_usp_Faktenladen_Partitionladen	info	ProtokollDB      : msi_dm_lst_sgbii
+SCR15_usp_Faktenladen_Partitionladen	info	Protokolltabelle : tm_msi_dm_lst_sgbii_master_meta_prot
 SCR15_usp_Faktenladen_Partitionladen	info	Datenbank        : msi_dm_lst_sgbii
 SCR15_usp_Faktenladen_Partitionladen	info	Datamart         : msi_dm_lst_sgbii
 SCR15_usp_Faktenladen_Partitionladen	info	Server           : Q0010106
-SCR15_usp_Faktenladen_Partitionladen	info	Zeitpunkt: 05.06.2026 22:05:04
-SCR15_usp_Faktenladen_Partitionladen	info	ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
-SCR15_usp_Faktenladen_Partitionladen	info	SCR16_Partitionladen_Nachlauf â Start
-SCR15_usp_Faktenladen_Partitionladen	info	ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
-SCR14_usp_Faktenladen_StagetabellenDML	info	Fehler:      0
+SCR15_usp_Faktenladen_Partitionladen	info	Zeitpunkt: 05.06.2026 22:40:06
+SCR15_usp_Faktenladen_Partitionladen	info	════════════════════════════════════════════════════════
+SCR15_usp_Faktenladen_Partitionladen	info	SCR16_Partitionladen_Nachlauf – Start
+SCR15_usp_Faktenladen_Partitionladen	info	════════════════════════════════════════════════════════
+SCR14_usp_Faktenladen_StagetabellenDML	info	════════════════════════════════════════════════════════
 SCR14_usp_Faktenladen_StagetabellenDML	info	SCR11b_StagetabellenDML_Aufruf erfolgreich abgeschlossen
+SCR14_usp_Faktenladen_StagetabellenDML	info	Fehler:      0
+SCR14_usp_Faktenladen_StagetabellenDML	info	════════════════════════════════════════════════════════
 SCR14_usp_Faktenladen_StagetabellenDML	info	Erfolgreich: 1
 SCR14_usp_Faktenladen_StagetabellenDML	info	ZUSAMMENFASSUNG SCR11b_StagetabellenDML_Aufruf
+SCR14_usp_Faktenladen_StagetabellenDML	info	════════════════════════════════════════════════════════
 SCR14_usp_Faktenladen_StagetabellenDML	info	  Info: Prozedur [usp_Faktenladen_StagetabellenDML_tf_bsbm_arbnehm] existiert nicht -> uebersprungen
 SCR14_usp_Faktenladen_StagetabellenDML	info	  Prozedur: usp_Faktenladen_StagetabellenDML_tf_bsbm_arbnehm
-SCR14_usp_Faktenladen_StagetabellenDML	info	ClusteredIndex   : CCI
 SCR14_usp_Faktenladen_StagetabellenDML	info	Komprimierung    : NONE
 SCR14_usp_Faktenladen_StagetabellenDML	info	Partitionsspalte : mon_id
-SCR14_usp_Faktenladen_StagetabellenDML	info	Verfahren        : tf_bsbm_arbnehm
+SCR14_usp_Faktenladen_StagetabellenDML	info	ClusteredIndex   : CCI
 SCR14_usp_Faktenladen_StagetabellenDML	info	Faktentabelle    : tf_bsbm_arbnehm
+SCR14_usp_Faktenladen_StagetabellenDML	info	────────────────────────────────────────────────────────
+SCR14_usp_Faktenladen_StagetabellenDML	info	Verfahren        : tf_bsbm_arbnehm
 SCR14_usp_Faktenladen_StagetabellenDML	info	Verfahren mit Status 'DATEN_GELADEN': 1
 SCR14_usp_Faktenladen_StagetabellenDML	info	  Gelesen: tf_bsbm_arbnehm | 202311 | NEU
 SCR14_usp_Faktenladen_StagetabellenDML	info	  Gelesen: tf_bsbm_arbnehm | 202312 | NEU
 SCR14_usp_Faktenladen_StagetabellenDML	info	  Gelesen: tf_bsbm_arbnehm | 202310 | NEU
 SCR14_usp_Faktenladen_StagetabellenDML	info	  Gelesen: tf_bsbm_arbnehm | 202308 | NEU
 SCR14_usp_Faktenladen_StagetabellenDML	info	  Gelesen: tf_bsbm_arbnehm | 202309 | NEU
-SCR14_usp_Faktenladen_StagetabellenDML	info	  Gelesen: tf_bsbm_arbnehm | 202306 | NEU
 SCR14_usp_Faktenladen_StagetabellenDML	info	  Gelesen: tf_bsbm_arbnehm | 202307 | NEU
 SCR14_usp_Faktenladen_StagetabellenDML	info	  Gelesen: tf_bsbm_arbnehm | 202305 | NEU
+SCR14_usp_Faktenladen_StagetabellenDML	info	  Gelesen: tf_bsbm_arbnehm | 202306 | NEU
 SCR14_usp_Faktenladen_StagetabellenDML	info	  Gelesen: tf_bsbm_arbnehm | 202303 | NEU
 SCR14_usp_Faktenladen_StagetabellenDML	info	  Gelesen: tf_bsbm_arbnehm | 202304 | NEU
-SCR14_usp_Faktenladen_StagetabellenDML	info	  Gelesen: tf_bsbm_arbnehm | 202301 | NEU
 SCR14_usp_Faktenladen_StagetabellenDML	info	  Gelesen: tf_bsbm_arbnehm | 202302 | NEU
-SCR14_usp_Faktenladen_StagetabellenDML	info	Partitionswerte aus SCR09: 12 Eintraege
-SCR14_usp_Faktenladen_StagetabellenDML	info	UserName         : SDST\ruemmelinD1
+SCR14_usp_Faktenladen_StagetabellenDML	info	  Gelesen: tf_bsbm_arbnehm | 202301 | NEU
 SCR14_usp_Faktenladen_StagetabellenDML	info	PackageName      : Package
+SCR14_usp_Faktenladen_StagetabellenDML	info	Partitionswerte aus SCR09: 12 Eintraege
 SCR14_usp_Faktenladen_StagetabellenDML	info	ProtokollSP      : usp_SSIS_Protokoll
+SCR14_usp_Faktenladen_StagetabellenDML	info	UserName         : SDST\ruemmelinD1
 SCR14_usp_Faktenladen_StagetabellenDML	info	Protokolltabelle : tm_msi_dm_lst_sgbii_master_meta_prot
 SCR14_usp_Faktenladen_StagetabellenDML	info	Verfahren (BA)   : AST
 SCR14_usp_Faktenladen_StagetabellenDML	info	ProtokollDB      : msi_dm_lst_sgbii
 SCR14_usp_Faktenladen_StagetabellenDML	info	Datamart         : msi_dm_lst_sgbii
 SCR14_usp_Faktenladen_StagetabellenDML	info	Datenbank        : msi_dm_lst_sgbii
-SCR14_usp_Faktenladen_StagetabellenDML	info	Zeitpunkt: 05.06.2026 22:05:04
 SCR14_usp_Faktenladen_StagetabellenDML	info	Server           : Q0010106
-SCR14_usp_Faktenladen_StagetabellenDML	info	SCR11b_StagetabellenDML_Aufruf â Start (v2: BA::objPartitionValues gesteuert)
-SCR13_Daten_Laden	info	════════════════════════════════════════════════════════
+SCR14_usp_Faktenladen_StagetabellenDML	info	Zeitpunkt: 05.06.2026 22:40:05
+SCR14_usp_Faktenladen_StagetabellenDML	info	════════════════════════════════════════════════════════
+SCR14_usp_Faktenladen_StagetabellenDML	info	SCR11b_StagetabellenDML_Aufruf – Start (v2: BA::objPartitionValues gesteuert)
+SCR14_usp_Faktenladen_StagetabellenDML	info	════════════════════════════════════════════════════════
 SCR13_Daten_Laden	info	Erfolgreich: 1 | Fehler: 0
+SCR13_Daten_Laden	info	════════════════════════════════════════════════════════
 SCR13_Daten_Laden	info	  → Schritt 6 abgeschlossen ✓
-SCR13_Daten_Laden	info	  → Zeilen geladen (tf_bsbm_arbnehm_in_202312): 1108137
-SCR13_Daten_Laden	info	  → Zeilen geladen (tf_bsbm_arbnehm_in_202311): 1115309
-SCR13_Daten_Laden	info	  → Zeilen geladen (tf_bsbm_arbnehm_in_202310): 1119814
-SCR13_Daten_Laden	info	  → Zeilen geladen (tf_bsbm_arbnehm_in_202309): 1124086
-SCR13_Daten_Laden	info	  → Zeilen geladen (tf_bsbm_arbnehm_in_202301): 1123917
-SCR13_Daten_Laden	info	  → Zeilen geladen (tf_bsbm_arbnehm_in_202308): 1124810
-SCR13_Daten_Laden	info	  → Zeilen geladen (tf_bsbm_arbnehm_in_202303): 1130256
-SCR13_Daten_Laden	info	  → Zeilen geladen (tf_bsbm_arbnehm_in_202307): 1126245
-SCR13_Daten_Laden	info	  INSERT INTO [tf_bsbm_arbnehm_in_202312_LOADING] WHERE mon_id = 202312 (→ wird zu _in_ umbenannt)
-SCR13_Daten_Laden	info	  INSERT INTO [tf_bsbm_arbnehm_in_202311_LOADING] WHERE mon_id = 202311 (→ wird zu _in_ umbenannt)
-SCR13_Daten_Laden	info	  → Zeilen geladen (tf_bsbm_arbnehm_in_202304): 1128256
-SCR13_Daten_Laden	info	  → Zeilen geladen (tf_bsbm_arbnehm_in_202302): 1125859
-SCR13_Daten_Laden	info	  INSERT INTO [tf_bsbm_arbnehm_in_202310_LOADING] WHERE mon_id = 202310 (→ wird zu _in_ umbenannt)
-SCR13_Daten_Laden	info	  → Zeilen geladen (tf_bsbm_arbnehm_in_202305): 1128730
-SCR13_Daten_Laden	info	  INSERT INTO [tf_bsbm_arbnehm_in_202309_LOADING] WHERE mon_id = 202309 (→ wird zu _in_ umbenannt)
-SCR13_Daten_Laden	info	  → Zeilen geladen (tf_bsbm_arbnehm_in_202306): 1129061
-SCR13_Daten_Laden	info	  INSERT INTO [tf_bsbm_arbnehm_in_202305_LOADING] WHERE mon_id = 202305 (→ wird zu _in_ umbenannt)
-SCR13_Daten_Laden	info	  INSERT INTO [tf_bsbm_arbnehm_in_202307_LOADING] WHERE mon_id = 202307 (→ wird zu _in_ umbenannt)
-SCR13_Daten_Laden	info	  INSERT INTO [tf_bsbm_arbnehm_in_202304_LOADING] WHERE mon_id = 202304 (→ wird zu _in_ umbenannt)
-SCR13_Daten_Laden	info	  INSERT INTO [tf_bsbm_arbnehm_in_202306_LOADING] WHERE mon_id = 202306 (→ wird zu _in_ umbenannt)
-SCR13_Daten_Laden	info	  INSERT INTO [tf_bsbm_arbnehm_in_202303_LOADING] WHERE mon_id = 202303 (→ wird zu _in_ umbenannt)
-SCR13_Daten_Laden	info	  INSERT INTO [tf_bsbm_arbnehm_in_202308_LOADING] WHERE mon_id = 202308 (→ wird zu _in_ umbenannt)
-SCR13_Daten_Laden	info	  INSERT INTO [tf_bsbm_arbnehm_in_202302_LOADING] WHERE mon_id = 202302 (→ wird zu _in_ umbenannt)
-SCR13_Daten_Laden	info	  INSERT INTO [tf_bsbm_arbnehm_in_202301_LOADING] WHERE mon_id = 202301 (→ wird zu _in_ umbenannt)
+SCR13_Daten_Laden	info	  → tf_bsbm_arbnehm_in_202312 bereits gefuellt (1108137 Zeilen) → uebersprungen ✓
+SCR13_Daten_Laden	info	  → tf_bsbm_arbnehm_in_202310 bereits gefuellt (1119814 Zeilen) → uebersprungen ✓
+SCR13_Daten_Laden	info	  → tf_bsbm_arbnehm_in_202307 bereits gefuellt (1126245 Zeilen) → uebersprungen ✓
+SCR13_Daten_Laden	info	  → tf_bsbm_arbnehm_in_202309 bereits gefuellt (1124086 Zeilen) → uebersprungen ✓
+SCR13_Daten_Laden	info	  → tf_bsbm_arbnehm_in_202308 bereits gefuellt (1124810 Zeilen) → uebersprungen ✓
+SCR13_Daten_Laden	info	  → tf_bsbm_arbnehm_in_202311 bereits gefuellt (1115309 Zeilen) → uebersprungen ✓
+SCR13_Daten_Laden	info	  → tf_bsbm_arbnehm_in_202306 bereits gefuellt (1129061 Zeilen) → uebersprungen ✓
+SCR13_Daten_Laden	info	  → tf_bsbm_arbnehm_in_202305 bereits gefuellt (1128730 Zeilen) → uebersprungen ✓
+SCR13_Daten_Laden	info	  → tf_bsbm_arbnehm_in_202303 bereits gefuellt (1130256 Zeilen) → uebersprungen ✓
+SCR13_Daten_Laden	info	  → tf_bsbm_arbnehm_in_202302 bereits gefuellt (1125859 Zeilen) → uebersprungen ✓
+SCR13_Daten_Laden	info	  → tf_bsbm_arbnehm_in_202304 bereits gefuellt (1128256 Zeilen) → uebersprungen ✓
+SCR13_Daten_Laden	info	  → tf_bsbm_arbnehm_in_202301 bereits gefuellt (1123917 Zeilen) → uebersprungen ✓
 SCR13_Daten_Laden	info	  Partitionswerte: 12
 SCR13_Daten_Laden	info	Verfahren: tf_bsbm_arbnehm | Spalte: mon_id
 SCR13_Daten_Laden	info	────────────────────────────────────────────────────────
 SCR13_Daten_Laden	info	Verfahren: 1
 SCR13_Daten_Laden	info	Partitionswerte gesamt: 12 Eintraege
 SCR13_Daten_Laden	info	Datenbank             : msi_dm_lst_sgbii
-SCR13_Daten_Laden	info	Maximale Parallelitaet: 8
-SCR13_Daten_Laden	info	Zeitpunkt: 05.06.2026 22:04:33
 SCR13_Daten_Laden	info	════════════════════════════════════════════════════════
+SCR13_Daten_Laden	info	Maximale Parallelitaet: 8
+SCR13_Daten_Laden	info	Zeitpunkt: 05.06.2026 22:40:05
 SCR13_Daten_Laden	info	SCR13_Daten_Laden → Start
 SCR13_Daten_Laden	info	════════════════════════════════════════════════════════
-SCR12_Staging_Erstellen	info	════════════════════════════════════════════════════════
 SCR12_Staging_Erstellen	info	Erfolgreich: 1 | Fehler: 0
+SCR12_Staging_Erstellen	info	════════════════════════════════════════════════════════
 SCR12_Staging_Erstellen	info	  → Schritt 5 abgeschlossen ✓
 SCR12_Staging_Erstellen	info	  _out erstellt: 202312 | Modus: NEU
 SCR12_Staging_Erstellen	info	  _out erstellt: 202311 | Modus: NEU
@@ -195,99 +198,108 @@ SCR12_Staging_Erstellen	info	  _out erstellt: 202304 | Modus: NEU
 SCR12_Staging_Erstellen	info	  _out erstellt: 202303 | Modus: NEU
 SCR12_Staging_Erstellen	info	  _out erstellt: 202302 | Modus: NEU
 SCR12_Staging_Erstellen	info	  _out erstellt: 202301 | Modus: NEU
-SCR12_Staging_Erstellen	info	  Lade Spaltendefinitionen aus tm_polybase_struktur (colname + Typ aus columns_ext)
+SCR12_Staging_Erstellen	info	  Lade Spaltenliste aus INFORMATION_SCHEMA: tf_bsbm_arbnehm_template
 SCR12_Staging_Erstellen	info	Verfahren: tf_bsbm_arbnehm
 SCR12_Staging_Erstellen	info	────────────────────────────────────────────────────────
 SCR12_Staging_Erstellen	info	Verfahren aus Arbeitsliste: 1
 SCR12_Staging_Erstellen	info	  Gelesen: tf_bsbm_arbnehm | 202312 | NEU
-SCR12_Staging_Erstellen	info	  Gelesen: tf_bsbm_arbnehm | 202310 | NEU
 SCR12_Staging_Erstellen	info	  Gelesen: tf_bsbm_arbnehm | 202311 | NEU
 SCR12_Staging_Erstellen	info	  Gelesen: tf_bsbm_arbnehm | 202309 | NEU
+SCR12_Staging_Erstellen	info	  Gelesen: tf_bsbm_arbnehm | 202310 | NEU
 SCR12_Staging_Erstellen	info	  Gelesen: tf_bsbm_arbnehm | 202307 | NEU
 SCR12_Staging_Erstellen	info	  Gelesen: tf_bsbm_arbnehm | 202308 | NEU
 SCR12_Staging_Erstellen	info	  Gelesen: tf_bsbm_arbnehm | 202306 | NEU
 SCR12_Staging_Erstellen	info	  Gelesen: tf_bsbm_arbnehm | 202305 | NEU
-SCR12_Staging_Erstellen	info	  Gelesen: tf_bsbm_arbnehm | 202304 | NEU
 SCR12_Staging_Erstellen	info	  Gelesen: tf_bsbm_arbnehm | 202303 | NEU
+SCR12_Staging_Erstellen	info	  Gelesen: tf_bsbm_arbnehm | 202304 | NEU
 SCR12_Staging_Erstellen	info	  Gelesen: tf_bsbm_arbnehm | 202302 | NEU
 SCR12_Staging_Erstellen	info	  Gelesen: tf_bsbm_arbnehm | 202301 | NEU
-SCR12_Staging_Erstellen	info	Datenbank          : msi_dm_lst_sgbii
 SCR12_Staging_Erstellen	info	Partitionswerte aus SCR09: 12 Eintraege
-SCR12_Staging_Erstellen	info	Parametertabelle   : tm_msi_dm_lst_sgbii_param
+SCR12_Staging_Erstellen	info	Datenbank          : msi_dm_lst_sgbii
 SCR12_Staging_Erstellen	info	ExtTableSchema     : ext
+SCR12_Staging_Erstellen	info	Parametertabelle   : tm_msi_dm_lst_sgbii_param
 SCR12_Staging_Erstellen	info	ParameterDB        : msi_dm_lst_sgbii
 SCR12_Staging_Erstellen	info	════════════════════════════════════════════════════════
 SCR12_Staging_Erstellen	info	SCR10_Staging_Erstellen – Start (v2: BA::objPartitionValues gesteuert)
-SCR12_Staging_Erstellen	info	Zeitpunkt: 05.06.2026 22:04:33
+SCR12_Staging_Erstellen	info	Zeitpunkt: 05.06.2026 22:40:05
 SCR12_Staging_Erstellen	info	════════════════════════════════════════════════════════
-SCR11_Partitionsgrenzen	info	ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
-SCR11_Partitionsgrenzen	info	ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+SCR11_Partitionsgrenzen	info	════════════════════════════════════════════════════════
+SCR11_Partitionsgrenzen	info	════════════════════════════════════════════════════════
 SCR11_Partitionsgrenzen	info	Erfolgreich: 1 | Fehler: 0
-SCR11_Partitionsgrenzen	info	ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+SCR11_Partitionsgrenzen	info	════════════════════════════════════════════════════════
 SCR11_Partitionsgrenzen	info	  tf_bsbm_arbnehm: 12 Partitionen (202301-202312)
-SCR11_Partitionsgrenzen	info	ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+SCR11_Partitionsgrenzen	info	════════════════════════════════════════════════════════
 SCR11_Partitionsgrenzen	info	BA::objPartitionValues gesetzt: 12 Eintraege
-SCR11_Partitionsgrenzen	info	  â Schritt 4 abgeschlossen â
-SCR11_Partitionsgrenzen	info	  â SPLIT ausgefuehrt: 12 | Uebersprungen: 0
-SCR11_Partitionsgrenzen	info	  Werte-Bereich: 202301 bis 202312 (12 Partitionen)
-SCR11_Partitionsgrenzen	info	  ââââââââââââââââââââââââââââââââââââââââââââââââââ
+SCR11_Partitionsgrenzen	info	  → Schritt 4 abgeschlossen ✓
+SCR11_Partitionsgrenzen	info	  → SPLIT ausgefuehrt: 12 | Uebersprungen: 0
+SCR11_Partitionsgrenzen	info	    → Boundary 202311 bereits vorhanden → uebersprungen
+SCR11_Partitionsgrenzen	info	    → Boundary 202312 bereits vorhanden → uebersprungen
+SCR11_Partitionsgrenzen	info	    → Boundary 202310 bereits vorhanden → uebersprungen
+SCR11_Partitionsgrenzen	info	    → Boundary 202308 bereits vorhanden → uebersprungen
+SCR11_Partitionsgrenzen	info	    → Boundary 202309 bereits vorhanden → uebersprungen
+SCR11_Partitionsgrenzen	info	    → Boundary 202307 bereits vorhanden → uebersprungen
+SCR11_Partitionsgrenzen	info	    → Boundary 202306 bereits vorhanden → uebersprungen
+SCR11_Partitionsgrenzen	info	    → Boundary 202305 bereits vorhanden → uebersprungen
+SCR11_Partitionsgrenzen	info	    → Boundary 202303 bereits vorhanden → uebersprungen
+SCR11_Partitionsgrenzen	info	    → Boundary 202304 bereits vorhanden → uebersprungen
+SCR11_Partitionsgrenzen	info	    → Boundary 202302 bereits vorhanden → uebersprungen
+SCR11_Partitionsgrenzen	info	    → Boundary 202301 bereits vorhanden → uebersprungen
+SCR11_Partitionsgrenzen	info	  ══════════════════════════════════════════════════
 SCR11_Partitionsgrenzen	info	  NEU: 12
+SCR11_Partitionsgrenzen	info	  Werte-Bereich: 202301 bis 202312 (12 Partitionen)
 SCR11_Partitionsgrenzen	info	  Gesamt zu verarbeiten: 12
-SCR11_Partitionsgrenzen	info	  ââââââââââââââââââââââââââââââââââââââââââââââââââ
 SCR11_Partitionsgrenzen	info	  Modus: AUTOMATIC
+SCR11_Partitionsgrenzen	info	  ──────────────────────────────────────────────────
 SCR11_Partitionsgrenzen	info	  ZUSAMMENFASSUNG: tf_bsbm_arbnehm
-SCR11_Partitionsgrenzen	info	  ââââââââââââââââââââââââââââââââââââââââââââââââââ
-SCR11_Partitionsgrenzen	info	  â Lade alle 12 Oracle-Werte
-SCR11_Partitionsgrenzen	info	  ââââââââââââââââââââââââââââââââââââââââââââââ
-SCR11_Partitionsgrenzen	info	  â Entscheidung: FULL LOAD (MSSQL leer)
-SCR11_Partitionsgrenzen	info	  ââââââââââââââââââââââââââââââââââââââââââââââ
+SCR11_Partitionsgrenzen	info	  ══════════════════════════════════════════════════
+SCR11_Partitionsgrenzen	info	  ──────────────────────────────────────────────
+SCR11_Partitionsgrenzen	info	  → Lade alle 12 Oracle-Werte
+SCR11_Partitionsgrenzen	info	  ──────────────────────────────────────────────
+SCR11_Partitionsgrenzen	info	  → Entscheidung: FULL LOAD (MSSQL leer)
 SCR11_Partitionsgrenzen	info	  MSSQL Werte gesamt: 0
 SCR11_Partitionsgrenzen	info	  Oracle MIN: 202301 | MAX: 202312
 SCR11_Partitionsgrenzen	info	  Oracle Werte gesamt: 12
-SCR11_Partitionsgrenzen	info	  ââââââââââââââââââââââââââââââââââââââââââââââââââ
+SCR11_Partitionsgrenzen	info	  ══════════════════════════════════════════════════
 SCR11_Partitionsgrenzen	info	  MODE: AUTOMATIC (partition_wert aus Oracle)
-SCR11_Partitionsgrenzen	info	  ââââââââââââââââââââââââââââââââââââââââââââââââââ
+SCR11_Partitionsgrenzen	info	  ══════════════════════════════════════════════════
 SCR11_Partitionsgrenzen	info	Verfahren: tf_bsbm_arbnehm | Tabelle: tf_bsbm_arbnehm | Spalte: mon_id
-SCR11_Partitionsgrenzen	info	ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+SCR11_Partitionsgrenzen	info	────────────────────────────────────────────────────────
 SCR11_Partitionsgrenzen	info	Verfahren: 1
-SCR11_Partitionsgrenzen	info	ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
-SCR11_Partitionsgrenzen	info	SCR09_Partitionsgrenzen â Start (v6: FINAL - All Fixes)
-SCR11_Partitionsgrenzen	info	Zeitpunkt: 05.06.2026 22:04:31
-SCR11_Partitionsgrenzen	info	ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
-SCR10_Faktentabelle_Erstellen	info	  -> Schritt 3 abgeschlossen
+SCR11_Partitionsgrenzen	info	════════════════════════════════════════════════════════
+SCR11_Partitionsgrenzen	info	SCR09_Partitionsgrenzen – Start (v6: FINAL - All Fixes)
+SCR11_Partitionsgrenzen	info	Zeitpunkt: 05.06.2026 22:40:03
+SCR11_Partitionsgrenzen	info	════════════════════════════════════════════════════════
 SCR10_Faktentabelle_Erstellen	info	Erfolgreich: 1 | Fehler: 0
-SCR10_Faktentabelle_Erstellen	info	  CCI angelegt (partitioniert)
-SCR10_Faktentabelle_Erstellen	info	  Faktentabelle erstellt: dbo.tf_bsbm_arbnehm
-SCR10_Faktentabelle_Erstellen	info	  PF und PS erstellt: PF_mon_id_tf_bsbm_arbnehm / PS_mon_id_tf_bsbm_arbnehm
-SCR10_Faktentabelle_Erstellen	info	  Faktentabelle dbo.tf_bsbm_arbnehm existiert nicht -> wird erstellt
+SCR10_Faktentabelle_Erstellen	info	  -> Schritt 3 abgeschlossen
+SCR10_Faktentabelle_Erstellen	info	  Faktentabelle dbo.tf_bsbm_arbnehm existiert bereits (Struktur OK) -> uebersprungen
 SCR10_Faktentabelle_Erstellen	info	Partitionsspalte: mon_id | IndexTyp: CCI | Komprimierung: NONE
+SCR10_Faktentabelle_Erstellen	info	────────────────────────────────────────────────────────
 SCR10_Faktentabelle_Erstellen	info	Verfahren: tf_bsbm_arbnehm | Faktentabelle: tf_bsbm_arbnehm
 SCR10_Faktentabelle_Erstellen	info	Verfahren: 1
-SCR10_Faktentabelle_Erstellen	info	────────────────────────────────────────────────────────
+SCR10_Faktentabelle_Erstellen	info	Zeitpunkt: 05.06.2026 22:40:03
 SCR10_Faktentabelle_Erstellen	info	════════════════════════════════════════════════════════
 SCR10_Faktentabelle_Erstellen	info	SCR08_Faktentabelle_Erstellen – Start (v2: kein DROP, nur CREATE wenn nicht vorhanden)
-SCR10_Faktentabelle_Erstellen	info	Zeitpunkt: 05.06.2026 22:04:31
 SCR10_Faktentabelle_Erstellen	info	════════════════════════════════════════════════════════
-SCR09_Ext_Tabelle_Erstellen	info	ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 SCR09_Ext_Tabelle_Erstellen	info	Erfolgreich: 1 | Fehler: 0
-SCR09_Ext_Tabelle_Erstellen	info	ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
-SCR09_Ext_Tabelle_Erstellen	info	  â Externe Tabelle erstellt â
-SCR09_Ext_Tabelle_Erstellen	info	  â Externe Tabelle erfolgreich: ext.[tf_bsbm_arbnehm]
-SCR09_Ext_Tabelle_Erstellen	info	  Oracle Location: ESTAT.THM_DM_STAT_BSBM.TF_BSBM_ARBNEHM
+SCR09_Ext_Tabelle_Erstellen	info	════════════════════════════════════════════════════════
+SCR09_Ext_Tabelle_Erstellen	info	════════════════════════════════════════════════════════
+SCR09_Ext_Tabelle_Erstellen	info	  → Externe Tabelle erstellt ✓
+SCR09_Ext_Tabelle_Erstellen	info	  ✓ Externe Tabelle erfolgreich: ext.[tf_bsbm_arbnehm]
 SCR09_Ext_Tabelle_Erstellen	info	  Erstelle externe Tabelle: ext.[tf_bsbm_arbnehm]
-SCR09_Ext_Tabelle_Erstellen	info	ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+SCR09_Ext_Tabelle_Erstellen	info	  Oracle Location: ESTAT.THM_DM_STAT_BSBM.TF_BSBM_ARBNEHM
 SCR09_Ext_Tabelle_Erstellen	info	Verfahren: tf_bsbm_arbnehm | Themengebiet: thm_dm_stat_bsbm
+SCR09_Ext_Tabelle_Erstellen	info	────────────────────────────────────────────────────────
 SCR09_Ext_Tabelle_Erstellen	info	Verfahren zur Verarbeitung: 1
 SCR09_Ext_Tabelle_Erstellen	info	ExtTableLocation   : ESTAT.STATRT.VM_DDL_SQL_SERVER
-SCR09_Ext_Tabelle_Erstellen	info	ExtSourceName      : Oracle-ESTAT
 SCR09_Ext_Tabelle_Erstellen	info	ExtSchema          : ext
+SCR09_Ext_Tabelle_Erstellen	info	ExtSourceName      : Oracle-ESTAT
 SCR09_Ext_Tabelle_Erstellen	info	Parametertabelle   : tm_msi_dm_lst_sgbii_param
-SCR09_Ext_Tabelle_Erstellen	info	RunID              : 65
+SCR09_Ext_Tabelle_Erstellen	info	RunID              : 66
 SCR09_Ext_Tabelle_Erstellen	info	ParameterDB        : msi_dm_lst_sgbii
-SCR09_Ext_Tabelle_Erstellen	info	ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
-SCR09_Ext_Tabelle_Erstellen	info	Zeitpunkt: 05.06.2026 22:04:30
-SCR09_Ext_Tabelle_Erstellen	info	ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
-SCR09_Ext_Tabelle_Erstellen	info	SCR07_Ext_Tabelle_Erstellen â Start (v2: tm_polybase_struktur)
+SCR09_Ext_Tabelle_Erstellen	info	════════════════════════════════════════════════════════
+SCR09_Ext_Tabelle_Erstellen	info	SCR07_Ext_Tabelle_Erstellen – Start (v2: tm_polybase_struktur)
+SCR09_Ext_Tabelle_Erstellen	info	Zeitpunkt: 05.06.2026 22:40:02
+SCR09_Ext_Tabelle_Erstellen	info	════════════════════════════════════════════════════════
 SCR08_Template_Erstellen	info	════════════════════════════════════════════════════════
 SCR08_Template_Erstellen	info	Erfolgreich: 1 | Fehler: 0
 SCR08_Template_Erstellen	info	════════════════════════════════════════════════════════
@@ -297,24 +309,24 @@ SCR08_Template_Erstellen	info	  Template fuer: tf_bsbm_arbnehm
 SCR08_Template_Erstellen	info	Verfahren: tf_bsbm_arbnehm | Themengebiet: thm_dm_stat_bsbm
 SCR08_Template_Erstellen	info	────────────────────────────────────────────────────────
 SCR08_Template_Erstellen	info	Verfahren zur Verarbeitung: 1
-SCR08_Template_Erstellen	info	Ext Schema         : ext
 SCR08_Template_Erstellen	info	Ext Tabelle        : vm_ddl_sql_server
 SCR08_Template_Erstellen	info	Datenbank          : msi_dm_lst_sgbii
-SCR08_Template_Erstellen	info	Parameter DB       : msi_dm_lst_sgbii
+SCR08_Template_Erstellen	info	Ext Schema         : ext
 SCR08_Template_Erstellen	info	Parameter Tabelle  : tm_msi_dm_lst_sgbii_param
 SCR08_Template_Erstellen	info	════════════════════════════════════════════════════════
-SCR08_Template_Erstellen	info	SCR06_Template_Erstellen – Start (v5: Direct from Oracle)
-SCR08_Template_Erstellen	info	Zeitpunkt: 05.06.2026 22:04:30
+SCR08_Template_Erstellen	info	Parameter DB       : msi_dm_lst_sgbii
+SCR08_Template_Erstellen	info	Zeitpunkt: 05.06.2026 22:40:02
 SCR08_Template_Erstellen	info	════════════════════════════════════════════════════════
+SCR08_Template_Erstellen	info	SCR06_Template_Erstellen – Start (v5: Direct from Oracle)
 SCR07_Schemadaten_Kopieren	info	════════════════════════════════════════════════════════
 SCR07_Schemadaten_Kopieren	info	Erfolgreich: 1 | Fehler: 0
 SCR07_Schemadaten_Kopieren	info	════════════════════════════════════════════════════════
+SCR07_Schemadaten_Kopieren	info	════════════════════════════════════════════════════════
+SCR07_Schemadaten_Kopieren	info	════════════════════════════════════════════════════════
 SCR07_Schemadaten_Kopieren	info	Staging-Tabelle dbo.ddl_staging bleibt für Debugging erhalten
-SCR07_Schemadaten_Kopieren	info	════════════════════════════════════════════════════════
-SCR07_Schemadaten_Kopieren	info	════════════════════════════════════════════════════════
 SCR07_Schemadaten_Kopieren	info	  → 18 Spalten kopiert ✓
-SCR07_Schemadaten_Kopieren	info	Verfahren: tf_bsbm_arbnehm | Themengebiet: thm_dm_stat_bsbm
 SCR07_Schemadaten_Kopieren	info	────────────────────────────────────────────────────────
+SCR07_Schemadaten_Kopieren	info	Verfahren: tf_bsbm_arbnehm | Themengebiet: thm_dm_stat_bsbm
 SCR07_Schemadaten_Kopieren	info	Staging-Tabelle existiert bereits mit 836676 Zeilen - wird wiederverwendet
 SCR07_Schemadaten_Kopieren	info	Quelle: [msi_dm_lst_sgbii].[ext].[vm_ddl_sql_server]
 SCR07_Schemadaten_Kopieren	info	Verfahren zur Verarbeitung: 1
@@ -324,25 +336,9 @@ SCR07_Schemadaten_Kopieren	info	Ext. Tabelle       : vm_ddl_sql_server
 SCR07_Schemadaten_Kopieren	info	Ext. Schema        : ext
 SCR07_Schemadaten_Kopieren	info	════════════════════════════════════════════════════════
 SCR07_Schemadaten_Kopieren	info	Datenbank          : msi_dm_lst_sgbii
-SCR07_Schemadaten_Kopieren	info	Zeitpunkt: 05.06.2026 22:04:30
+SCR07_Schemadaten_Kopieren	info	Zeitpunkt: 05.06.2026 22:40:02
 SCR07_Schemadaten_Kopieren	info	════════════════════════════════════════════════════════
 SCR07_Schemadaten_Kopieren	info	SCR05_Schemadaten_Kopieren – Start
 SCR06 Arbeitsliste Aufbauen	info	════════════════════════════════════════════════════════
 SCR06 Arbeitsliste Aufbauen	info	SCR_Arbeitsliste_Aufbauen_Fakten erfolgreich abgeschlossen ✓
-SCR06 Arbeitsliste Aufbauen	info	RunID          : 65
-SCR06 Arbeitsliste Aufbauen	info	════════════════════════════════════════════════════════
-SCR06 Arbeitsliste Aufbauen	info	Neue Verfahren : 0
-SCR06 Arbeitsliste Aufbauen	info	ZUSAMMENFASSUNG
-SCR06 Arbeitsliste Aufbauen	info	RunID aktualisiert für: 1 Verfahren
-SCR06 Arbeitsliste Aufbauen	info	════════════════════════════════════════════════════════
-SCR06 Arbeitsliste Aufbauen	info	FEHLER vorhanden → Nur FEHLER zu AUSSTEHEND (Erfolge bleiben) → 1 Zeilen zurückgesetzt
-SCR06 Arbeitsliste Aufbauen	info	── Schritt 3: RunID für alle Verfahren aktualisieren
-SCR06 Arbeitsliste Aufbauen	info	  - ANDERE   : 0
-SCR06 Arbeitsliste Aufbauen	info	  - ERFOLG   : 0
-SCR06 Arbeitsliste Aufbauen	info	  - FEHLER   : 7
-SCR06 Arbeitsliste Aufbauen	info	  - Total    : 7
-SCR06 Arbeitsliste Aufbauen	info	Status-Analyse (alle Verfahren aus Steuerliste):
-SCR06 Arbeitsliste Aufbauen	info	── Schritt 2: Status analysieren und zurücksetzen
-SCR06 Arbeitsliste Aufbauen	info	Neue Verfahren eingetragen: 0
-SCR06 Arbeitsliste Aufbauen	info	Pflichtfelder-Prüfung: alle Variablen vorhanden ✓
-SCR06 Arbeitsliste Aufbauen	info	── Schritt 1: Neue Verfahren aus Steuerliste eintragen
+SCR06 Arbeitsliste Aufbauen	info	RunID          : 66
