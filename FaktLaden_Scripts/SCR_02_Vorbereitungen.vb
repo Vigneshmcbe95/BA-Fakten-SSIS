@@ -6,13 +6,14 @@ Imports System.Data.SqlClient
 Imports Microsoft.SqlServer.Dts.Runtime
 
 ' =============================================================================
-'  Script   : SCR_02_Vorbereitungen
-'  Package  : Fakten Laden (SSIS)
-'  Purpose  : One-time environment preparation: work list / error history
-'             tables, PolyBase master key, credential, external data source,
-'             ext schema, external DDL table and its local dbo copy.
-'  Retry    : 3 attempts per SQL statement, 30 s delay
-'  Logging  : SSIS events only (FireInformation / FireError)
+'  Skript       : SCR_02_Vorbereitungen
+'  Paket        : Fakten Laden (SSIS)
+'  Zweck        : Einmalige Umgebungsvorbereitung: Arbeitsliste /
+'                 Fehlerhistorie, PolyBase Master Key, Credential, External
+'                 Data Source, ext-Schema, externe DDL-Tabelle und lokale
+'                 dbo-Kopie.
+'  Wiederholung : 3 Versuche je SQL-Anweisung, 30 s Wartezeit
+'  Protokoll    : Nur SSIS-Events (FireInformation / FireError)
 ' =============================================================================
 <Microsoft.SqlServer.Dts.Tasks.ScriptTask.SSISScriptTaskEntryPointAttribute()>
 <CLSCompliant(False)>
@@ -43,7 +44,7 @@ Partial Public Class ScriptMain
     Private _credName As String = String.Empty
 
     ' -----------------------------------------------------------------------
-    ' Main - Entry point - orchestrates the script flow.
+    ' Main - Einstiegspunkt - steuert den Ablauf des Skripts.
     ' -----------------------------------------------------------------------
     Public Sub Main()
 
@@ -105,8 +106,8 @@ Partial Public Class ScriptMain
     End Sub
 
     ' -----------------------------------------------------------------------
-    ' DboKopieErstellen - Creates / refreshes the local dbo copy of the
-    ' Oracle DDL view.
+    ' DboKopieErstellen - Erstellt / aktualisiert die lokale dbo-Kopie der
+    ' Oracle-DDL-Sicht.
     ' -----------------------------------------------------------------------
     Private Sub DboKopieErstellen(connStr As String)
 
@@ -147,8 +148,8 @@ Partial Public Class ScriptMain
     End Sub
 
     ' -----------------------------------------------------------------------
-    ' VariablenLaden - Reads the required SSIS variables into module
-    ' fields.
+    ' VariablenLaden - Liest die benoetigten SSIS-Variablen in Modulfelder
+    ' ein.
     ' -----------------------------------------------------------------------
     Private Sub VariablenLaden()
 
@@ -169,8 +170,8 @@ Partial Public Class ScriptMain
     End Sub
 
     ' -----------------------------------------------------------------------
-    ' PflichtfelderPruefen - Validates that all mandatory variables /
-    ' parameters are present.
+    ' PflichtfelderPruefen - Prueft, ob alle Pflichtvariablen / -parameter
+    ' vorhanden sind.
     ' -----------------------------------------------------------------------
     Private Function PflichtfelderPruefen() As Boolean
 
@@ -197,7 +198,8 @@ Partial Public Class ScriptMain
     End Function
 
     ' -----------------------------------------------------------------------
-    ' ArbeitslisteSicherstellen - Ensures dbo.ETL_Fkt_Arbeitsliste exists.
+    ' ArbeitslisteSicherstellen - Stellt sicher, dass
+    ' dbo.ETL_Fkt_Arbeitsliste existiert.
     ' -----------------------------------------------------------------------
     Private Sub ArbeitslisteSicherstellen(connStr As String)
 
@@ -231,8 +233,8 @@ ELSE
     End Sub
 
     ' -----------------------------------------------------------------------
-    ' FehlerHistorieSicherstellen - Ensures dbo.ETL_Fkt_FehlerHistorie
-    ' exists.
+    ' FehlerHistorieSicherstellen - Stellt sicher, dass
+    ' dbo.ETL_Fkt_FehlerHistorie existiert.
     ' -----------------------------------------------------------------------
     Private Sub FehlerHistorieSicherstellen(connStr As String)
 
@@ -261,7 +263,8 @@ ELSE
     End Sub
 
     ' -----------------------------------------------------------------------
-    ' MasterKeyPruefen - Ensures the database master key exists.
+    ' MasterKeyPruefen - Stellt sicher, dass der Datenbank-Master-Key
+    ' existiert.
     ' -----------------------------------------------------------------------
     Private Sub MasterKeyPruefen(connStr As String)
 
@@ -289,7 +292,8 @@ ELSE
     End Sub
 
     ' -----------------------------------------------------------------------
-    ' CredentialPruefen - Ensures the database scoped credential exists.
+    ' CredentialPruefen - Stellt sicher, dass das Database Scoped
+    ' Credential existiert.
     ' -----------------------------------------------------------------------
     Private Sub CredentialPruefen(connStr As String)
 
@@ -316,7 +320,8 @@ ELSE
     End Sub
 
     ' -----------------------------------------------------------------------
-    ' ExtDataSourcePruefen - Ensures the external data source exists.
+    ' ExtDataSourcePruefen - Stellt sicher, dass die External Data Source
+    ' existiert.
     ' -----------------------------------------------------------------------
     Private Sub ExtDataSourcePruefen(connStr As String)
 
@@ -345,7 +350,7 @@ ELSE
     End Sub
 
     ' -----------------------------------------------------------------------
-    ' SchemaPruefen - Ensures the ext schema exists.
+    ' SchemaPruefen - Stellt sicher, dass das ext-Schema existiert.
     ' -----------------------------------------------------------------------
     Private Sub SchemaPruefen(connStr As String)
 
@@ -368,7 +373,8 @@ ELSE
     End Sub
 
     ' -----------------------------------------------------------------------
-    ' ExtDDLTabellePruefen - Ensures the external DDL table exists.
+    ' ExtDDLTabellePruefen - Stellt sicher, dass die externe DDL-Tabelle
+    ' existiert.
     ' -----------------------------------------------------------------------
     Private Sub ExtDDLTabellePruefen(connStr As String)
 
@@ -413,8 +419,9 @@ WITH (
     End Sub
 
     ' -----------------------------------------------------------------------
-    ' SqlAusfuehren - Executes a non-query SQL statement with retry; logs
-    ' warning and the full SQL statement on failure.
+    ' SqlAusfuehren - Fuehrt eine SQL-Anweisung (Non-Query) mit
+    ' Wiederholung aus; protokolliert Warnung und vollstaendiges
+    ' SQL-Statement bei Fehlern.
     ' -----------------------------------------------------------------------
     Private Function SqlAusfuehren(connStr As String,
                                    sql As String,
@@ -450,7 +457,8 @@ WITH (
     End Function
 
     ' -----------------------------------------------------------------------
-    ' SqlSkalarAusfuehren - Executes a scalar SQL query with retry.
+    ' SqlSkalarAusfuehren - Fuehrt eine skalare SQL-Abfrage mit
+    ' Wiederholung aus.
     ' -----------------------------------------------------------------------
     Private Function SqlSkalarAusfuehren(connStr As String,
                                          sql As String,
@@ -485,15 +493,15 @@ WITH (
     End Function
 
     ' -----------------------------------------------------------------------
-    ' HoleVerbindungszeichenfolge - Returns the connection string of the
-    ' package connection manager.
+    ' HoleVerbindungszeichenfolge - Liefert den Connection String des
+    ' Paket-Verbindungsmanagers.
     ' -----------------------------------------------------------------------
     Private Function HoleVerbindungszeichenfolge() As String
         Return Dts.Connections(CONN_NAME).ConnectionString
     End Function
 
     ' -----------------------------------------------------------------------
-    ' Log - Writes an information message to the SSIS log
+    ' Log - Schreibt eine Informationsmeldung in das SSIS-Protokoll
     ' (FireInformation).
     ' -----------------------------------------------------------------------
     Private Sub Log(nachricht As String)
@@ -502,14 +510,15 @@ WITH (
     End Sub
 
     ' -----------------------------------------------------------------------
-    ' LogFehler - Writes an error message to the SSIS log (FireError).
+    ' LogFehler - Schreibt eine Fehlermeldung in das SSIS-Protokoll
+    ' (FireError).
     ' -----------------------------------------------------------------------
     Private Sub LogFehler(nachricht As String)
         Dts.Events.FireError(0, SKRIPT_NAME, nachricht, "", 0)
     End Sub
 
     ' -----------------------------------------------------------------------
-    ' ScriptResults - SSIS task result codes.
+    ' ScriptResults - SSIS-Task-Ergebniscodes.
     ' -----------------------------------------------------------------------
     Public Enum ScriptResults
         Success = DTSExecResult.Success

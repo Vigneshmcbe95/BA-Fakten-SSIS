@@ -7,13 +7,13 @@ Imports System.Collections.Generic
 Imports Microsoft.SqlServer.Dts.Runtime
 
 ' =============================================================================
-'  Script   : SCR09_Ext_Tabelle_Erstellen
-'  Package  : Fakten Laden (SSIS)
-'  Purpose  : Creates the PolyBase external table ext.<fact> against the
-'             Oracle source using the columns_ext metadata.
-'  Workflow : TEMPLATE_ERSTELLT -> EXT_TABELLE_ERSTELLT
-'  Retry    : 3 attempts per SQL statement, 30 s delay
-'  Logging  : SSIS events only (FireInformation / FireError)
+'  Skript       : SCR09_Ext_Tabelle_Erstellen
+'  Paket        : Fakten Laden (SSIS)
+'  Zweck        : Erstellt die PolyBase External Table ext.<fakt> auf die
+'                 Oracle-Quelle anhand der columns_ext-Metadaten.
+'  Ablauf       : TEMPLATE_ERSTELLT -> EXT_TABELLE_ERSTELLT
+'  Wiederholung : 3 Versuche je SQL-Anweisung, 30 s Wartezeit
+'  Protokoll    : Nur SSIS-Events (FireInformation / FireError)
 ' =============================================================================
 <Microsoft.SqlServer.Dts.Tasks.ScriptTask.SSISScriptTaskEntryPointAttribute()>
 <CLSCompliant(False)>
@@ -33,7 +33,7 @@ Partial Public Class ScriptMain
     Private _extTableLocation As String = String.Empty
 
     ' -----------------------------------------------------------------------
-    ' Main - Entry point - orchestrates the script flow.
+    ' Main - Einstiegspunkt - steuert den Ablauf des Skripts.
     ' -----------------------------------------------------------------------
     Public Sub Main()
         Log("SCR09_Ext_Tabelle_Erstellen - Start")
@@ -90,8 +90,8 @@ Partial Public Class ScriptMain
     End Sub
 
     ' -----------------------------------------------------------------------
-    ' ExtTabelleErstellen - Creates the PolyBase external table from the
-    ' columns_ext metadata.
+    ' ExtTabelleErstellen - Erstellt die PolyBase External Table aus den
+    ' columns_ext-Metadaten.
     ' -----------------------------------------------------------------------
     Private Sub ExtTabelleErstellen(connStr As String, v As VerfahrenInfo)
         Dim extName As String = v.Faktentabelle.ToLower()
@@ -176,8 +176,8 @@ WHERE schema_id = SCHEMA_ID('" & _extSchema & "')
     End Sub
 
     ' -----------------------------------------------------------------------
-    ' VerfahrenLaden - Loads the Verfahren to process from the work list
-    ' (joined with the parameter table).
+    ' VerfahrenLaden - Laedt die zu verarbeitenden Verfahren aus der
+    ' Arbeitsliste (Join mit der Parametertabelle).
     ' -----------------------------------------------------------------------
     Private Function VerfahrenLaden(connStr As String) As List(Of VerfahrenInfo)
         Dim liste As New List(Of VerfahrenInfo)()
@@ -227,7 +227,8 @@ WHERE schema_id = SCHEMA_ID('" & _extSchema & "')
     End Function
 
     ' -----------------------------------------------------------------------
-    ' StatusSetzen - Updates Status / LetzterSchritt of a work list row.
+    ' StatusSetzen - Aktualisiert Status / LetzterSchritt einer
+    ' Arbeitslisten-Zeile.
     ' -----------------------------------------------------------------------
     Private Sub StatusSetzen(connStr As String, id As Integer, status As String)
         SqlAusfuehren(connStr,
@@ -236,8 +237,8 @@ WHERE schema_id = SCHEMA_ID('" & _extSchema & "')
     End Sub
 
     ' -----------------------------------------------------------------------
-    ' FehlerSetzen - Marks a work list row as FEHLER and stores the error
-    ' message.
+    ' FehlerSetzen - Markiert eine Arbeitslisten-Zeile als FEHLER und
+    ' speichert die Fehlermeldung.
     ' -----------------------------------------------------------------------
     Private Sub FehlerSetzen(connStr As String, id As Integer, msg As String)
         Dim kurz As String = If(msg.Length > 3900, msg.Substring(0, 3900), msg)
@@ -256,8 +257,8 @@ WHERE schema_id = SCHEMA_ID('" & _extSchema & "')
     End Sub
 
     ' -----------------------------------------------------------------------
-    ' LogSchreiben - Routes protocol messages to SSIS events: FEHLER_* ->
-    ' FireError, everything else -> FireInformation.
+    ' LogSchreiben - Leitet Protokollmeldungen an SSIS-Events weiter:
+    ' FEHLER_* -> FireError, alles andere -> FireInformation.
     ' -----------------------------------------------------------------------
     Private Sub LogSchreiben(connStr As String, verfahren As String, schritt As String, meldung As String)
         ' Kein DB-Log: Logging laeuft vollstaendig ueber SSIS Events (Eventhandler)
@@ -270,8 +271,9 @@ WHERE schema_id = SCHEMA_ID('" & _extSchema & "')
     End Sub
 
     ' -----------------------------------------------------------------------
-    ' SqlAusfuehren - Executes a non-query SQL statement with retry; logs
-    ' warning and the full SQL statement on failure.
+    ' SqlAusfuehren - Fuehrt eine SQL-Anweisung (Non-Query) mit
+    ' Wiederholung aus; protokolliert Warnung und vollstaendiges
+    ' SQL-Statement bei Fehlern.
     ' -----------------------------------------------------------------------
     Private Function SqlAusfuehren(connStr As String, sql As String, beschreibung As String) As Integer
         Dim versuch As Integer = 0
@@ -302,8 +304,8 @@ WHERE schema_id = SCHEMA_ID('" & _extSchema & "')
     End Function
 
     ' -----------------------------------------------------------------------
-    ' SqlSkalar - Executes a scalar SQL query with retry; logs warning and
-    ' the full SQL statement on failure.
+    ' SqlSkalar - Fuehrt eine skalare SQL-Abfrage mit Wiederholung aus;
+    ' protokolliert Warnung und vollstaendiges SQL-Statement bei Fehlern.
     ' -----------------------------------------------------------------------
     Private Function SqlSkalar(connStr As String, sql As String, beschreibung As String) As Object
         Dim versuch As Integer = 0
@@ -331,15 +333,15 @@ WHERE schema_id = SCHEMA_ID('" & _extSchema & "')
     End Function
 
     ' -----------------------------------------------------------------------
-    ' HoleVerbindungszeichenfolge - Returns the connection string of the
-    ' package connection manager.
+    ' HoleVerbindungszeichenfolge - Liefert den Connection String des
+    ' Paket-Verbindungsmanagers.
     ' -----------------------------------------------------------------------
     Private Function HoleVerbindungszeichenfolge() As String
         Return Dts.Connections(CONN_NAME).ConnectionString
     End Function
 
     ' -----------------------------------------------------------------------
-    ' Log - Writes an information message to the SSIS log
+    ' Log - Schreibt eine Informationsmeldung in das SSIS-Protokoll
     ' (FireInformation).
     ' -----------------------------------------------------------------------
     Private Sub Log(n As String)
@@ -348,14 +350,15 @@ WHERE schema_id = SCHEMA_ID('" & _extSchema & "')
     End Sub
 
     ' -----------------------------------------------------------------------
-    ' LogFehler - Writes an error message to the SSIS log (FireError).
+    ' LogFehler - Schreibt eine Fehlermeldung in das SSIS-Protokoll
+    ' (FireError).
     ' -----------------------------------------------------------------------
     Private Sub LogFehler(n As String)
         Dts.Events.FireError(0, SKRIPT_NAME, n, "", 0)
     End Sub
 
     ' -----------------------------------------------------------------------
-    ' VerfahrenInfo - Data container for one Verfahren work item.
+    ' VerfahrenInfo - Datencontainer fuer ein Verfahren der Arbeitsliste.
     ' -----------------------------------------------------------------------
     Private Class VerfahrenInfo
         Public Property ID As Integer
@@ -366,7 +369,7 @@ WHERE schema_id = SCHEMA_ID('" & _extSchema & "')
     End Class
 
     ' -----------------------------------------------------------------------
-    ' ScriptResults - SSIS task result codes.
+    ' ScriptResults - SSIS-Task-Ergebniscodes.
     ' -----------------------------------------------------------------------
     Public Enum ScriptResults
         Success = DTSExecResult.Success

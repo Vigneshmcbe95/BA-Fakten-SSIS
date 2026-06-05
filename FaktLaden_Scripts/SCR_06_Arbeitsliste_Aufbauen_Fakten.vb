@@ -7,11 +7,12 @@ Imports System.Collections.Generic
 Imports Microsoft.SqlServer.Dts.Runtime
 
 ' =============================================================================
-'  Script   : SCR_06_Arbeitsliste_Aufbauen_Fakten
-'  Package  : Fakten Laden (SSIS)
-'  Purpose  : Builds the work list for this run: inserts new Verfahren,
-'             resets FEHLER rows to AUSSTEHEND and stamps the current RunID.
-'  Logging  : SSIS events only (FireInformation / FireError)
+'  Skript       : SCR_06_Arbeitsliste_Aufbauen_Fakten
+'  Paket        : Fakten Laden (SSIS)
+'  Zweck        : Baut die Arbeitsliste fuer den Lauf auf: traegt neue
+'                 Verfahren ein, setzt FEHLER-Zeilen auf AUSSTEHEND zurueck
+'                 und aktualisiert die RunID.
+'  Protokoll    : Nur SSIS-Events (FireInformation / FireError)
 ' =============================================================================
 <Microsoft.SqlServer.Dts.Tasks.ScriptTask.SSISScriptTaskEntryPointAttribute()>
 <CLSCompliant(False)>
@@ -28,7 +29,7 @@ Partial Public Class ScriptMain
     Private _connectionString As String = String.Empty
 
     ' -----------------------------------------------------------------------
-    ' Main - Entry point - orchestrates the script flow.
+    ' Main - Einstiegspunkt - steuert den Ablauf des Skripts.
     ' -----------------------------------------------------------------------
     Public Sub Main()
 
@@ -85,8 +86,8 @@ Partial Public Class ScriptMain
     End Sub
 
     ' -----------------------------------------------------------------------
-    ' VariablenLaden - Reads the required SSIS variables into module
-    ' fields.
+    ' VariablenLaden - Liest die benoetigten SSIS-Variablen in Modulfelder
+    ' ein.
     ' -----------------------------------------------------------------------
     Private Sub VariablenLaden()
         _runID = Convert.ToInt32(Dts.Variables("BA::RunID").Value)
@@ -97,8 +98,8 @@ Partial Public Class ScriptMain
     End Sub
 
     ' -----------------------------------------------------------------------
-    ' PflichtfelderPruefen - Validates that all mandatory variables /
-    ' parameters are present.
+    ' PflichtfelderPruefen - Prueft, ob alle Pflichtvariablen / -parameter
+    ' vorhanden sind.
     ' -----------------------------------------------------------------------
     Private Function PflichtfelderPruefen() As Boolean
         Dim fehlend As New System.Text.StringBuilder()
@@ -115,8 +116,8 @@ Partial Public Class ScriptMain
     End Function
 
     ' -----------------------------------------------------------------------
-    ' NeueVerfahrenEintragen - Inserts new Verfahren from the control list
-    ' into the work list.
+    ' NeueVerfahrenEintragen - Traegt neue Verfahren aus der Steuerliste in
+    ' die Arbeitsliste ein.
     ' -----------------------------------------------------------------------
     Private Function NeueVerfahrenEintragen() As Integer
 
@@ -158,8 +159,8 @@ WHERE p.Verfahren IS NOT NULL
     End Function
 
     ' -----------------------------------------------------------------------
-    ' StatusAnalysierenUndZuruecksetzen - Analyzes the work list status and
-    ' resets rows for the new run.
+    ' StatusAnalysierenUndZuruecksetzen - Analysiert den
+    ' Arbeitslisten-Status und setzt Zeilen fuer den neuen Lauf zurueck.
     ' -----------------------------------------------------------------------
     Private Function StatusAnalysierenUndZuruecksetzen() As String
 
@@ -288,8 +289,8 @@ WHERE a.Status NOT IN ('ERFOLG', 'AUSSTEHEND')
     End Function
 
     ' -----------------------------------------------------------------------
-    ' RunIDAktualisieren - Stamps the current RunID on all Verfahren of
-    ' this run.
+    ' RunIDAktualisieren - Aktualisiert die RunID fuer alle Verfahren
+    ' dieses Laufs.
     ' -----------------------------------------------------------------------
     Private Function RunIDAktualisieren() As Integer
 
@@ -320,15 +321,15 @@ WHERE p.Verfahren IS NOT NULL;"
     End Function
 
     ' -----------------------------------------------------------------------
-    ' HoleVerbindungszeichenfolge - Returns the connection string of the
-    ' package connection manager.
+    ' HoleVerbindungszeichenfolge - Liefert den Connection String des
+    ' Paket-Verbindungsmanagers.
     ' -----------------------------------------------------------------------
     Private Function HoleVerbindungszeichenfolge() As String
         Return Dts.Connections(CONN_NAME).ConnectionString
     End Function
 
     ' -----------------------------------------------------------------------
-    ' Log - Writes an information message to the SSIS log
+    ' Log - Schreibt eine Informationsmeldung in das SSIS-Protokoll
     ' (FireInformation).
     ' -----------------------------------------------------------------------
     Private Sub Log(nachricht As String)
@@ -337,14 +338,15 @@ WHERE p.Verfahren IS NOT NULL;"
     End Sub
 
     ' -----------------------------------------------------------------------
-    ' LogFehler - Writes an error message to the SSIS log (FireError).
+    ' LogFehler - Schreibt eine Fehlermeldung in das SSIS-Protokoll
+    ' (FireError).
     ' -----------------------------------------------------------------------
     Private Sub LogFehler(nachricht As String)
         Dts.Events.FireError(0, SKRIPT_NAME, nachricht, "", 0)
     End Sub
 
     ' -----------------------------------------------------------------------
-    ' ScriptResults - SSIS task result codes.
+    ' ScriptResults - SSIS-Task-Ergebniscodes.
     ' -----------------------------------------------------------------------
     Public Enum ScriptResults
         Success = DTSExecResult.Success

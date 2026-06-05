@@ -8,12 +8,12 @@ Imports System.Text
 Imports Microsoft.SqlServer.Dts.Runtime
 
 ' =============================================================================
-'  Script   : SCR_05_Parameter_Vollstaendigkeitspruefung
-'  Package  : Fakten Laden (SSIS)
-'  Purpose  : Validates that every Verfahren has all mandatory parameters in
-'             the parameter table.
-'  Retry    : 3 attempts per SQL statement, 30 s delay
-'  Logging  : SSIS events only (FireInformation / FireError)
+'  Skript       : SCR_05_Parameter_Vollstaendigkeitspruefung
+'  Paket        : Fakten Laden (SSIS)
+'  Zweck        : Prueft, ob jedes Verfahren alle Pflichtparameter in der
+'                 Parametertabelle besitzt.
+'  Wiederholung : 3 Versuche je SQL-Anweisung, 30 s Wartezeit
+'  Protokoll    : Nur SSIS-Events (FireInformation / FireError)
 ' =============================================================================
 <Microsoft.SqlServer.Dts.Tasks.ScriptTask.SSISScriptTaskEntryPointAttribute()>
 <CLSCompliant(False)>
@@ -50,7 +50,7 @@ Partial Public Class ScriptMain
     Private _steuerlistenTabelle As String = String.Empty
 
     ' -----------------------------------------------------------------------
-    ' Main - Entry point - orchestrates the script flow.
+    ' Main - Einstiegspunkt - steuert den Ablauf des Skripts.
     ' -----------------------------------------------------------------------
     Public Sub Main()
 
@@ -252,8 +252,8 @@ Partial Public Class ScriptMain
     End Sub
 
     ' -----------------------------------------------------------------------
-    ' VariablenLaden - Reads the required SSIS variables into module
-    ' fields.
+    ' VariablenLaden - Liest die benoetigten SSIS-Variablen in Modulfelder
+    ' ein.
     ' -----------------------------------------------------------------------
     Private Sub VariablenLaden()
         _parameterDB = Dts.Variables("BA::ParameterDB").Value.ToString().Trim()
@@ -264,8 +264,8 @@ Partial Public Class ScriptMain
     End Sub
 
     ' -----------------------------------------------------------------------
-    ' PflichtfelderPruefen - Validates that all mandatory variables /
-    ' parameters are present.
+    ' PflichtfelderPruefen - Prueft, ob alle Pflichtvariablen / -parameter
+    ' vorhanden sind.
     ' -----------------------------------------------------------------------
     Private Function PflichtfelderPruefen() As Boolean
         Dim fehlend As New StringBuilder()
@@ -281,8 +281,8 @@ Partial Public Class ScriptMain
     End Function
 
     ' -----------------------------------------------------------------------
-    ' PartitionsspalteHolen - Reads the partition column from the parameter
-    ' table.
+    ' PartitionsspalteHolen - Liest die Partitionsspalte aus der
+    ' Parametertabelle.
     ' -----------------------------------------------------------------------
     Private Function PartitionsspalteHolen(connStr As String, verfahren As String) As String
         Dim sql As String =
@@ -316,8 +316,8 @@ Partial Public Class ScriptMain
     End Function
 
     ' -----------------------------------------------------------------------
-    ' WhereKlauselFuellen - Builds the WHERE clause per Verfahren and fills
-    ' it into the control list.
+    ' WhereKlauselFuellen - Baut die WHERE-Klausel je Verfahren auf und
+    ' fuellt sie in die Steuerliste.
     ' -----------------------------------------------------------------------
     Private Sub WhereKlauselFuellen(connStr As String, verfahren As String, partCol As String)
         ' UPDATE alle Zeilen dieses Verfahrens wo partition_wert bereits gesetzt (durch SCR04)
@@ -352,7 +352,8 @@ Partial Public Class ScriptMain
     End Sub
 
     ' -----------------------------------------------------------------------
-    ' SteuerlistenTabellePruefen - Ensures the control list table exists.
+    ' SteuerlistenTabellePruefen - Stellt sicher, dass die
+    ' Steuerlisten-Tabelle existiert.
     ' -----------------------------------------------------------------------
     Private Function SteuerlistenTabellePruefen(connStr As String) As Boolean
 
@@ -403,8 +404,8 @@ Partial Public Class ScriptMain
     End Function
 
     ' -----------------------------------------------------------------------
-    ' VerfahrenAusSteuerlisteHolen - Loads the Verfahren entries from the
-    ' control list table.
+    ' VerfahrenAusSteuerlisteHolen - Laedt die Verfahren-Eintraege aus der
+    ' Steuerlisten-Tabelle.
     ' -----------------------------------------------------------------------
     Private Function VerfahrenAusSteuerlisteHolen(connStr As String) As List(Of String)
 
@@ -452,8 +453,8 @@ Partial Public Class ScriptMain
     End Function
 
     ' -----------------------------------------------------------------------
-    ' VerfahrenExistiertInParametertabelle - Checks whether a Verfahren
-    ' exists in the parameter table.
+    ' VerfahrenExistiertInParametertabelle - Prueft, ob ein Verfahren in
+    ' der Parametertabelle existiert.
     ' -----------------------------------------------------------------------
     Private Function VerfahrenExistiertInParametertabelle(connStr As String,
                                                            verfahren As String) As Boolean
@@ -492,7 +493,7 @@ Partial Public Class ScriptMain
     End Function
 
     ' -----------------------------------------------------------------------
-    ' ParameterPruefen - Validates the parameter set of a Verfahren.
+    ' ParameterPruefen - Prueft den Parametersatz eines Verfahrens.
     ' -----------------------------------------------------------------------
     Private Function ParameterPruefen(connStr As String,
                                        verfahren As String,
@@ -543,8 +544,8 @@ Partial Public Class ScriptMain
     End Function
 
     ' -----------------------------------------------------------------------
-    ' SqlSkalar - Executes a scalar SQL query with retry; logs warning and
-    ' the full SQL statement on failure.
+    ' SqlSkalar - Fuehrt eine skalare SQL-Abfrage mit Wiederholung aus;
+    ' protokolliert Warnung und vollstaendiges SQL-Statement bei Fehlern.
     ' -----------------------------------------------------------------------
     Private Function SqlSkalar(connStr As String,
                                 sql As String,
@@ -579,15 +580,15 @@ Partial Public Class ScriptMain
     End Function
 
     ' -----------------------------------------------------------------------
-    ' HoleVerbindungszeichenfolge - Returns the connection string of the
-    ' package connection manager.
+    ' HoleVerbindungszeichenfolge - Liefert den Connection String des
+    ' Paket-Verbindungsmanagers.
     ' -----------------------------------------------------------------------
     Private Function HoleVerbindungszeichenfolge() As String
         Return Dts.Connections(CONN_NAME).ConnectionString
     End Function
 
     ' -----------------------------------------------------------------------
-    ' Log - Writes an information message to the SSIS log
+    ' Log - Schreibt eine Informationsmeldung in das SSIS-Protokoll
     ' (FireInformation).
     ' -----------------------------------------------------------------------
     Private Sub Log(nachricht As String)
@@ -596,14 +597,15 @@ Partial Public Class ScriptMain
     End Sub
 
     ' -----------------------------------------------------------------------
-    ' LogFehler - Writes an error message to the SSIS log (FireError).
+    ' LogFehler - Schreibt eine Fehlermeldung in das SSIS-Protokoll
+    ' (FireError).
     ' -----------------------------------------------------------------------
     Private Sub LogFehler(nachricht As String)
         Dts.Events.FireError(0, SKRIPT_NAME, nachricht, "", 0)
     End Sub
 
     ' -----------------------------------------------------------------------
-    ' ScriptResults - SSIS task result codes.
+    ' ScriptResults - SSIS-Task-Ergebniscodes.
     ' -----------------------------------------------------------------------
     Public Enum ScriptResults
         Success = DTSExecResult.Success

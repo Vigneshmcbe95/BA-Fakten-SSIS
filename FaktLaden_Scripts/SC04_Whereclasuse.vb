@@ -8,13 +8,13 @@ Imports System.Text.RegularExpressions
 Imports Microsoft.SqlServer.Dts.Runtime
 
 ' =============================================================================
-'  Script   : SC04_Whereclasuse
-'  Package  : Fakten Laden (SSIS)
-'  Purpose  : Builds the WHERE clause per Verfahren from the control list
-'             (based on the reference date) and writes it back to the
-'             control table.
-'  Retry    : 3 attempts per SQL statement, 30 s delay
-'  Logging  : SSIS events only (FireInformation / FireError)
+'  Skript       : SC04_Whereclasuse
+'  Paket        : Fakten Laden (SSIS)
+'  Zweck        : Baut je Verfahren die WHERE-Klausel aus der Steuerliste
+'                 auf (basierend auf dem Referenzdatum) und schreibt sie
+'                 zurueck.
+'  Wiederholung : 3 Versuche je SQL-Anweisung, 30 s Wartezeit
+'  Protokoll    : Nur SSIS-Events (FireInformation / FireError)
 ' =============================================================================
 <Microsoft.SqlServer.Dts.Tasks.ScriptTask.SSISScriptTaskEntryPointAttribute()>
 <CLSCompliant(False)>
@@ -32,7 +32,7 @@ Partial Public Class ScriptMain
     Private _parametertab As String = String.Empty
 
     ' -----------------------------------------------------------------------
-    ' Main - Entry point - orchestrates the script flow.
+    ' Main - Einstiegspunkt - steuert den Ablauf des Skripts.
     ' -----------------------------------------------------------------------
     Public Sub Main()
 
@@ -99,8 +99,8 @@ Partial Public Class ScriptMain
     End Sub
 
     ' -----------------------------------------------------------------------
-    ' WertExtrahieren - Extracts a single value from a delimited parameter
-    ' string.
+    ' WertExtrahieren - Extrahiert einen Einzelwert aus einem getrennten
+    ' Parameterstring.
     ' -----------------------------------------------------------------------
     Private Function WertExtrahieren(filter As String) As String
 
@@ -137,8 +137,8 @@ Partial Public Class ScriptMain
     End Function
 
     ' -----------------------------------------------------------------------
-    ' PartitionsspalteAusParameterLaden - Reads the partition column of a
-    ' Verfahren from the parameter table.
+    ' PartitionsspalteAusParameterLaden - Liest die Partitionsspalte eines
+    ' Verfahrens aus der Parametertabelle.
     ' -----------------------------------------------------------------------
     Private Function PartitionsspalteAusParameterLaden(connStr As String) As Dictionary(Of String, String)
         Dim dict As New Dictionary(Of String, String)()
@@ -181,7 +181,7 @@ Partial Public Class ScriptMain
     End Function
 
     ' -----------------------------------------------------------------------
-    ' TokenAufloesen - Resolves placeholder tokens in a template string.
+    ' TokenAufloesen - Loest Platzhalter-Token in einer Vorlage auf.
     ' -----------------------------------------------------------------------
     Private Function TokenAufloesen(f As String) As String
         Dim r As String = f
@@ -203,8 +203,8 @@ Partial Public Class ScriptMain
     End Function
 
     ' -----------------------------------------------------------------------
-    ' SpaltenSicherstellen - Ensures required columns exist on the target
-    ' table (adds missing ones).
+    ' SpaltenSicherstellen - Stellt sicher, dass benoetigte Spalten auf der
+    ' Zieltabelle existieren (ergaenzt fehlende).
     ' -----------------------------------------------------------------------
     Private Sub SpaltenSicherstellen(connStr As String)
         SqlRun(connStr,
@@ -218,7 +218,7 @@ IF NOT EXISTS(SELECT 1 FROM sys.columns WHERE object_id=OBJECT_ID('dbo." & _stlT
     End Sub
 
     ' -----------------------------------------------------------------------
-    ' ZeilenLaden - Loads the rows of a SQL query into a list.
+    ' ZeilenLaden - Laedt die Zeilen einer SQL-Abfrage in eine Liste.
     ' -----------------------------------------------------------------------
     Private Function ZeilenLaden(connStr As String) As List(Of Zeile)
         Dim liste As New List(Of Zeile)()
@@ -257,8 +257,8 @@ IF NOT EXISTS(SELECT 1 FROM sys.columns WHERE object_id=OBJECT_ID('dbo." & _stlT
     End Function
 
     ' -----------------------------------------------------------------------
-    ' ZurueckSchreiben - Writes the generated WHERE clause back to the
-    ' control table.
+    ' ZurueckSchreiben - Schreibt die erzeugte WHERE-Klausel in die
+    ' Steuerliste zurueck.
     ' -----------------------------------------------------------------------
     Private Sub ZurueckSchreiben(connStr As String, tabFilter As String, fileName As String,
                                   whereKlausel As String, partWert As String)
@@ -290,7 +290,7 @@ IF NOT EXISTS(SELECT 1 FROM sys.columns WHERE object_id=OBJECT_ID('dbo." & _stlT
     End Sub
 
     ' -----------------------------------------------------------------------
-    ' SqlRun - Executes a SQL statement with retry.
+    ' SqlRun - Fuehrt eine SQL-Anweisung mit Wiederholung aus.
     ' -----------------------------------------------------------------------
     Private Sub SqlRun(connStr As String, sql As String)
         Using conn As New SqlConnection(connStr)
@@ -303,15 +303,15 @@ IF NOT EXISTS(SELECT 1 FROM sys.columns WHERE object_id=OBJECT_ID('dbo." & _stlT
     End Sub
 
     ' -----------------------------------------------------------------------
-    ' HoleVerbindungszeichenfolge - Returns the connection string of the
-    ' package connection manager.
+    ' HoleVerbindungszeichenfolge - Liefert den Connection String des
+    ' Paket-Verbindungsmanagers.
     ' -----------------------------------------------------------------------
     Private Function HoleVerbindungszeichenfolge() As String
         Return Dts.Connections(CONN_NAME).ConnectionString
     End Function
 
     ' -----------------------------------------------------------------------
-    ' Log - Writes an information message to the SSIS log
+    ' Log - Schreibt eine Informationsmeldung in das SSIS-Protokoll
     ' (FireInformation).
     ' -----------------------------------------------------------------------
     Private Sub Log(n As String)
@@ -320,7 +320,8 @@ IF NOT EXISTS(SELECT 1 FROM sys.columns WHERE object_id=OBJECT_ID('dbo." & _stlT
     End Sub
 
     ' -----------------------------------------------------------------------
-    ' LogFehler - Writes an error message to the SSIS log (FireError).
+    ' LogFehler - Schreibt eine Fehlermeldung in das SSIS-Protokoll
+    ' (FireError).
     ' -----------------------------------------------------------------------
     Private Sub LogFehler(n As String)
         Dts.Events.FireError(0, SKRIPT_NAME, n, "", 0)
@@ -336,7 +337,7 @@ IF NOT EXISTS(SELECT 1 FROM sys.columns WHERE object_id=OBJECT_ID('dbo." & _stlT
     End Class
 
     ' -----------------------------------------------------------------------
-    ' ScriptResults - SSIS task result codes.
+    ' ScriptResults - SSIS-Task-Ergebniscodes.
     ' -----------------------------------------------------------------------
     Public Enum ScriptResults
         Success = DTSExecResult.Success

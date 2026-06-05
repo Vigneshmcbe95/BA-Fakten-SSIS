@@ -6,14 +6,14 @@ Imports System.Collections.Generic
 Imports Microsoft.SqlServer.Dts.Runtime
 
 ' =============================================================================
-'  Script   : SCR19_Partitionstausch
-'  Package  : Fakten Laden (SSIS)
-'  Purpose  : Performs the partition switch per loaded partition: SWITCH OUT
-'             to _out_, CHECK constraint on _in_, SWITCH IN, cleanup and
-'             final state.
-'  Workflow : NCCI_OUT_ERSTELLT -> ERFOLG
-'  Retry    : 3 attempts per SQL statement, 30 s delay
-'  Logging  : SSIS events only (FireInformation / FireError)
+'  Skript       : SCR19_Partitionstausch
+'  Paket        : Fakten Laden (SSIS)
+'  Zweck        : Fuehrt den Partitionstausch je geladener Partition durch:
+'                 SWITCH OUT nach _out_, CHECK-Constraint auf _in_, SWITCH
+'                 IN, Aufraeumen und Endstatus.
+'  Ablauf       : NCCI_OUT_ERSTELLT -> ERFOLG
+'  Wiederholung : 3 Versuche je SQL-Anweisung, 30 s Wartezeit
+'  Protokoll    : Nur SSIS-Events (FireInformation / FireError)
 ' =============================================================================
 <Microsoft.SqlServer.Dts.Tasks.ScriptTask.SSISScriptTaskEntryPointAttribute()>
 <CLSCompliant(False)>
@@ -29,7 +29,7 @@ Partial Public Class ScriptMain
     Private _parametertab As String = String.Empty
 
     ' -----------------------------------------------------------------------
-    ' Main - Entry point - orchestrates the script flow.
+    ' Main - Einstiegspunkt - steuert den Ablauf des Skripts.
     ' -----------------------------------------------------------------------
     Public Sub Main()
         Log("SCR19_Partitionstausch - Start")
@@ -135,7 +135,8 @@ Partial Public Class ScriptMain
     End Sub
 
     ' -----------------------------------------------------------------------
-    ' InTabellenLaden - Lists all _in_ staging tables of a fact table.
+    ' InTabellenLaden - Listet alle _in_-Staging-Tabellen einer
+    ' Faktentabelle auf.
     ' -----------------------------------------------------------------------
     Private Function InTabellenLaden(connStr As String, faktentabelle As String) As List(Of String)
         Dim liste As New List(Of String)()
@@ -163,8 +164,8 @@ Partial Public Class ScriptMain
     End Function
 
     ' -----------------------------------------------------------------------
-    ' VerfahrenLaden - Loads the Verfahren to process from the work list
-    ' (joined with the parameter table).
+    ' VerfahrenLaden - Laedt die zu verarbeitenden Verfahren aus der
+    ' Arbeitsliste (Join mit der Parametertabelle).
     ' -----------------------------------------------------------------------
     Private Function VerfahrenLaden(connStr As String) As List(Of VerfahrenInfo)
         Dim liste As New List(Of VerfahrenInfo)()
@@ -203,22 +204,24 @@ Partial Public Class ScriptMain
     End Function
 
     ' -----------------------------------------------------------------------
-    ' StatusSetzen - Updates Status / LetzterSchritt of a work list row.
+    ' StatusSetzen - Aktualisiert Status / LetzterSchritt einer
+    ' Arbeitslisten-Zeile.
     ' -----------------------------------------------------------------------
     Private Sub StatusSetzen(connStr As String, id As Integer, status As String)
         SqlAusfuehren(connStr, "UPDATE dbo.ETL_Fkt_Arbeitsliste SET Status='" & status & "',LetzterSchritt='" & status & "',AktualisiertAm=GETDATE() WHERE ID=" & id, "Status")
     End Sub
 
     ' -----------------------------------------------------------------------
-    ' StatusSetzenErfolg - Sets the final status ERFOLG on a work list row.
+    ' StatusSetzenErfolg - Setzt den Endstatus ERFOLG auf einer
+    ' Arbeitslisten-Zeile.
     ' -----------------------------------------------------------------------
     Private Sub StatusSetzenErfolg(connStr As String, id As Integer)
         SqlAusfuehren(connStr, "UPDATE dbo.ETL_Fkt_Arbeitsliste SET Status='ERFOLG',LetzterSchritt='ERFOLG',AktualisiertAm=GETDATE() WHERE ID=" & id, "ERFOLG")
     End Sub
 
     ' -----------------------------------------------------------------------
-    ' FehlerSetzen - Marks a work list row as FEHLER and stores the error
-    ' message.
+    ' FehlerSetzen - Markiert eine Arbeitslisten-Zeile als FEHLER und
+    ' speichert die Fehlermeldung.
     ' -----------------------------------------------------------------------
     Private Sub FehlerSetzen(connStr As String, id As Integer, msg As String)
         Try
@@ -235,8 +238,8 @@ Partial Public Class ScriptMain
     End Sub
 
     ' -----------------------------------------------------------------------
-    ' LogSchreiben - Routes protocol messages to SSIS events: FEHLER_* ->
-    ' FireError, everything else -> FireInformation.
+    ' LogSchreiben - Leitet Protokollmeldungen an SSIS-Events weiter:
+    ' FEHLER_* -> FireError, alles andere -> FireInformation.
     ' -----------------------------------------------------------------------
     Private Sub LogSchreiben(connStr As String, verfahren As String, schritt As String, meldung As String)
         ' Kein DB-Log: Logging laeuft vollstaendig ueber SSIS Events (Eventhandler)
@@ -249,8 +252,9 @@ Partial Public Class ScriptMain
     End Sub
 
     ' -----------------------------------------------------------------------
-    ' SqlAusfuehren - Executes a non-query SQL statement with retry; logs
-    ' warning and the full SQL statement on failure.
+    ' SqlAusfuehren - Fuehrt eine SQL-Anweisung (Non-Query) mit
+    ' Wiederholung aus; protokolliert Warnung und vollstaendiges
+    ' SQL-Statement bei Fehlern.
     ' -----------------------------------------------------------------------
     Private Function SqlAusfuehren(connStr As String, sql As String, beschreibung As String) As Integer
         Dim versuch As Integer = 0
@@ -276,8 +280,8 @@ Partial Public Class ScriptMain
     End Function
 
     ' -----------------------------------------------------------------------
-    ' SqlSkalar - Executes a scalar SQL query with retry; logs warning and
-    ' the full SQL statement on failure.
+    ' SqlSkalar - Fuehrt eine skalare SQL-Abfrage mit Wiederholung aus;
+    ' protokolliert Warnung und vollstaendiges SQL-Statement bei Fehlern.
     ' -----------------------------------------------------------------------
     Private Function SqlSkalar(connStr As String, sql As String, beschreibung As String) As Object
         Dim versuch As Integer = 0
@@ -301,15 +305,15 @@ Partial Public Class ScriptMain
     End Function
 
     ' -----------------------------------------------------------------------
-    ' HoleVerbindungszeichenfolge - Returns the connection string of the
-    ' package connection manager.
+    ' HoleVerbindungszeichenfolge - Liefert den Connection String des
+    ' Paket-Verbindungsmanagers.
     ' -----------------------------------------------------------------------
     Private Function HoleVerbindungszeichenfolge() As String
         Return Dts.Connections(CONN_NAME).ConnectionString
     End Function
 
     ' -----------------------------------------------------------------------
-    ' Log - Writes an information message to the SSIS log
+    ' Log - Schreibt eine Informationsmeldung in das SSIS-Protokoll
     ' (FireInformation).
     ' -----------------------------------------------------------------------
     Private Sub Log(n As String)
@@ -318,14 +322,15 @@ Partial Public Class ScriptMain
     End Sub
 
     ' -----------------------------------------------------------------------
-    ' LogFehler - Writes an error message to the SSIS log (FireError).
+    ' LogFehler - Schreibt eine Fehlermeldung in das SSIS-Protokoll
+    ' (FireError).
     ' -----------------------------------------------------------------------
     Private Sub LogFehler(n As String)
         Dts.Events.FireError(0, SKRIPT_NAME, n, "", 0)
     End Sub
 
     ' -----------------------------------------------------------------------
-    ' VerfahrenInfo - Data container for one Verfahren work item.
+    ' VerfahrenInfo - Datencontainer fuer ein Verfahren der Arbeitsliste.
     ' -----------------------------------------------------------------------
     Private Class VerfahrenInfo
         Public Property ID As Integer
@@ -336,7 +341,7 @@ Partial Public Class ScriptMain
     End Class
 
     ' -----------------------------------------------------------------------
-    ' ScriptResults - SSIS task result codes.
+    ' ScriptResults - SSIS-Task-Ergebniscodes.
     ' -----------------------------------------------------------------------
     Public Enum ScriptResults
         Success = DTSExecResult.Success

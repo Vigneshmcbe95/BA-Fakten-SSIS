@@ -6,13 +6,13 @@ Imports System.Data.SqlClient
 Imports Microsoft.SqlServer.Dts.Runtime
 
 ' =============================================================================
-'  Script   : SCR_PaketStart
-'  Package  : Fakten Laden (SSIS)
-'  Purpose  : Initializes the package run: ensures ETL_Fakt_LaufHistorie
-'             exists, closes orphaned runs and creates a new run row (sets
-'             BA::RunID).
-'  Retry    : 3 attempts per SQL statement, 30 s delay
-'  Logging  : SSIS events only (FireInformation / FireError)
+'  Skript       : SCR_PaketStart
+'  Paket        : Fakten Laden (SSIS)
+'  Zweck        : Initialisiert den Paketlauf: stellt ETL_Fakt_LaufHistorie
+'                 sicher, schliesst verwaiste Laeufe ab und legt einen neuen
+'                 Lauf an (setzt BA::RunID).
+'  Wiederholung : 3 Versuche je SQL-Anweisung, 30 s Wartezeit
+'  Protokoll    : Nur SSIS-Events (FireInformation / FireError)
 ' =============================================================================
 <Microsoft.SqlServer.Dts.Tasks.ScriptTask.SSISScriptTaskEntryPointAttribute()>
 <CLSCompliant(False)>
@@ -28,7 +28,7 @@ Partial Public Class ScriptMain
     Private Const WARTE_SEK As Integer = 30
 
     ' -----------------------------------------------------------------------
-    ' Main - Entry point - orchestrates the script flow.
+    ' Main - Einstiegspunkt - steuert den Ablauf des Skripts.
     ' -----------------------------------------------------------------------
     Public Sub Main()
 
@@ -66,7 +66,8 @@ Partial Public Class ScriptMain
     End Sub
 
     ' -----------------------------------------------------------------------
-    ' LaufHistorieSicherstellen - Ensures dbo.ETL_Fakt_LaufHistorie exists.
+    ' LaufHistorieSicherstellen - Stellt sicher, dass
+    ' dbo.ETL_Fakt_LaufHistorie existiert.
     ' -----------------------------------------------------------------------
     Private Sub LaufHistorieSicherstellen(connStr As String)
 
@@ -112,8 +113,8 @@ ELSE
     End Sub
 
     ' -----------------------------------------------------------------------
-    ' VerwaistelaeufeAbschliessen - Closes orphaned runs (LAUFEND ->
-    ' ABGEBROCHEN).
+    ' VerwaistelaeufeAbschliessen - Schliesst verwaiste Laeufe ab (LAUFEND
+    ' -> ABGEBROCHEN).
     ' -----------------------------------------------------------------------
     Private Sub VerwaistelaeufeAbschliessen(connStr As String)
 
@@ -129,8 +130,8 @@ WHERE  RunStatus = 'LAUFEND';"
     End Sub
 
     ' -----------------------------------------------------------------------
-    ' FehlerZuruecksetzen - Resets FEHLER rows to AUSSTEHEND for the new
-    ' run.
+    ' FehlerZuruecksetzen - Setzt FEHLER-Zeilen fuer den neuen Lauf auf
+    ' AUSSTEHEND zurueck.
     ' -----------------------------------------------------------------------
     Private Sub FehlerZuruecksetzen(connStr As String)
 
@@ -154,7 +155,8 @@ END;"
     End Sub
 
     ' -----------------------------------------------------------------------
-    ' NeuenLaufAnlegen - Creates a new run row and returns its RunID.
+    ' NeuenLaufAnlegen - Legt einen neuen Lauf an und liefert die RunID
+    ' zurueck.
     ' -----------------------------------------------------------------------
     Private Function NeuenLaufAnlegen(connStr As String) As Integer
 
@@ -174,8 +176,9 @@ SELECT SCOPE_IDENTITY();"
     End Function
 
     ' -----------------------------------------------------------------------
-    ' SqlAusfuehren - Executes a non-query SQL statement with retry; logs
-    ' warning and the full SQL statement on failure.
+    ' SqlAusfuehren - Fuehrt eine SQL-Anweisung (Non-Query) mit
+    ' Wiederholung aus; protokolliert Warnung und vollstaendiges
+    ' SQL-Statement bei Fehlern.
     ' -----------------------------------------------------------------------
     Private Function SqlAusfuehren(connStr As String,
                                    sql As String,
@@ -211,7 +214,8 @@ SELECT SCOPE_IDENTITY();"
     End Function
 
     ' -----------------------------------------------------------------------
-    ' SqlSkalarAusfuehren - Executes a scalar SQL query with retry.
+    ' SqlSkalarAusfuehren - Fuehrt eine skalare SQL-Abfrage mit
+    ' Wiederholung aus.
     ' -----------------------------------------------------------------------
     Private Function SqlSkalarAusfuehren(connStr As String,
                                          sql As String,
@@ -246,15 +250,15 @@ SELECT SCOPE_IDENTITY();"
     End Function
 
     ' -----------------------------------------------------------------------
-    ' HoleVerbindungszeichenfolge - Returns the connection string of the
-    ' package connection manager.
+    ' HoleVerbindungszeichenfolge - Liefert den Connection String des
+    ' Paket-Verbindungsmanagers.
     ' -----------------------------------------------------------------------
     Private Function HoleVerbindungszeichenfolge() As String
         Return Dts.Connections(CONN_NAME).ConnectionString
     End Function
 
     ' -----------------------------------------------------------------------
-    ' Log - Writes an information message to the SSIS log
+    ' Log - Schreibt eine Informationsmeldung in das SSIS-Protokoll
     ' (FireInformation).
     ' -----------------------------------------------------------------------
     Private Sub Log(nachricht As String)
@@ -263,14 +267,15 @@ SELECT SCOPE_IDENTITY();"
     End Sub
 
     ' -----------------------------------------------------------------------
-    ' LogFehler - Writes an error message to the SSIS log (FireError).
+    ' LogFehler - Schreibt eine Fehlermeldung in das SSIS-Protokoll
+    ' (FireError).
     ' -----------------------------------------------------------------------
     Private Sub LogFehler(nachricht As String)
         Dts.Events.FireError(0, SKRIPT_NAME, nachricht, "", 0)
     End Sub
 
     ' -----------------------------------------------------------------------
-    ' ScriptResults - SSIS task result codes.
+    ' ScriptResults - SSIS-Task-Ergebniscodes.
     ' -----------------------------------------------------------------------
     Public Enum ScriptResults
         Success = DTSExecResult.Success
