@@ -7,12 +7,12 @@ Imports Microsoft.SqlServer.Dts.Runtime
 ' =============================================================================
 ' SCR19_Partitionstausch"
 ' ZWECK: Pro Verfahren pro _in Tabelle:
-'        SWITCH OUT Faktentabelle â _out
+'        SWITCH OUT Faktentabelle → _out
 '        CHECK Constraint auf _in
-'        SWITCH IN _in â Faktentabelle
+'        SWITCH IN _in → Faktentabelle
 '        DROP _out + _in
 '        Abschlussstatus: MSSQL MIN/MAX/COUNT loggen
-'        Status: PARTITIONSTAUSCH â ERFOLG
+'        Status: PARTITIONSTAUSCH → ERFOLG
 ' =============================================================================
 <Microsoft.SqlServer.Dts.Tasks.ScriptTask.SSISScriptTaskEntryPointAttribute()>
 <CLSCompliant(False)>
@@ -28,10 +28,10 @@ Partial Public Class ScriptMain
     Private _parametertab As String = String.Empty
 
     Public Sub Main()
-        Log("ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ")
-        Log("SCR15_Partitionstausch â Start")
+        Log("════════════════════════════════════════════════════════")
+        Log("SCR15_Partitionstausch – Start")
         Log("Zeitpunkt: " & DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss"))
-        Log("ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ")
+        Log("════════════════════════════════════════════════════════")
         Try
             _runID = Convert.ToInt32(Dts.Variables("BA::RunID").Value)
             _parameterDB = Dts.Variables("BA::ParameterDB").Value.ToString().Trim()
@@ -42,10 +42,10 @@ Partial Public Class ScriptMain
             Dim cntOK As Integer = 0
             Dim cntFehler As Integer = 0
             For Each v As VerfahrenInfo In verfahren
-                Log("ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ")
+                Log("────────────────────────────────────────────────────────")
                 Log("Verfahren: " & v.Verfahren & " | Tabelle: " & v.Faktentabelle)
                 If v.LetzterSchritt = "PARTITIONSTAUSCH_ERFOLG" Then
-                    Log("  â bereits abgeschlossen â Ã¼bersprungen â")
+                    Log("  → bereits abgeschlossen → Ã¼bersprungen ✓")
                     Continue For
                 End If
                 Try
@@ -57,7 +57,7 @@ Partial Public Class ScriptMain
                     For Each inTable As String In inTables
                         Dim pvStr As String = inTable.Replace(v.Faktentabelle.ToLower() & "_in_", "")
                         Dim outTable As String = v.Faktentabelle.ToLower() & "_out_" & pvStr
-                        Log("  â Partition: " & pvStr)
+                        Log("  → Partition: " & pvStr)
                         ' Partitionsnummer
                         Dim pnr As Object = SqlSkalar(connStr,
                             "SELECT sprv.boundary_id FROM sys.partition_functions spf JOIN sys.partition_range_values sprv ON sprv.function_id=spf.function_id WHERE spf.name='" & pf & "' AND sprv.value=" & pvStr,
@@ -71,45 +71,45 @@ Partial Public Class ScriptMain
                         Log("  Partitionsnummer: " & pnrVal.ToString())
                         ' SWITCH OUT
                         SqlAusfuehren(connStr, "ALTER TABLE dbo.[" & v.Faktentabelle & "] SWITCH PARTITION " & pnrVal & " TO dbo.[" & outTable & "];", "SWITCH OUT")
-                        Log("  â SWITCH OUT â " & outTable & " â")
+                        Log("  → SWITCH OUT → " & outTable & " ✓")
                         ' CHECK Constraint auf _in
                         Dim ckName As String = v.PartitionColumn & "_" & pvStr & "_" & v.Faktentabelle & "_CK"
                         If Convert.ToInt32(SqlSkalar(connStr, "SELECT COUNT(*) FROM sys.check_constraints WHERE parent_object_id=OBJECT_ID('dbo." & inTable & "') AND name='" & ckName & "'", "CK prÃ¼fen")) > 0 Then
                             SqlAusfuehren(connStr, "ALTER TABLE dbo.[" & inTable & "] DROP CONSTRAINT [" & ckName & "];", "CK lÃ¶schen")
                         End If
                         SqlAusfuehren(connStr, "ALTER TABLE dbo.[" & inTable & "] ADD CONSTRAINT [" & ckName & "] CHECK([" & v.PartitionColumn & "]=" & pvStr & ");", "CK setzen")
-                        Log("  â CHECK Constraint: " & ckName & " â")
+                        Log("  → CHECK Constraint: " & ckName & " ✓")
                         ' SWITCH IN
                         SqlAusfuehren(connStr, "ALTER TABLE dbo.[" & inTable & "] SWITCH TO dbo.[" & v.Faktentabelle & "] PARTITION " & pnrVal & ";", "SWITCH IN")
-                        Log("  â SWITCH IN â " & v.Faktentabelle & " Partition " & pnrVal.ToString() & " â")
+                        Log("  → SWITCH IN → " & v.Faktentabelle & " Partition " & pnrVal.ToString() & " ✓")
                         ' Cleanup
                         If Convert.ToInt32(SqlSkalar(connStr, "SELECT CASE WHEN OBJECT_ID('dbo." & outTable & "','U') IS NOT NULL THEN 1 ELSE 0 END", "out prÃ¼fen")) = 1 Then
                             SqlAusfuehren(connStr, "DROP TABLE dbo.[" & outTable & "];", "drop _out")
-                            Log("  â _out gelÃ¶scht â")
+                            Log("  → _out gelÃ¶scht ✓")
                         End If
                         If Convert.ToInt32(SqlSkalar(connStr, "SELECT CASE WHEN OBJECT_ID('dbo." & inTable & "','U') IS NOT NULL THEN 1 ELSE 0 END", "in prÃ¼fen")) = 1 Then
                             SqlAusfuehren(connStr, "DROP TABLE dbo.[" & inTable & "];", "drop _in")
-                            Log("  â _in gelÃ¶scht â")
+                            Log("  → _in gelÃ¶scht ✓")
                         End If
-                        LogSchreiben(connStr, v.Verfahren, "SWITCH_" & pvStr, "SWITCH IN erfolgreich â " & v.Faktentabelle & " Partition " & pnrVal.ToString())
+                        LogSchreiben(connStr, v.Verfahren, "SWITCH_" & pvStr, "SWITCH IN erfolgreich → " & v.Faktentabelle & " Partition " & pnrVal.ToString())
                     Next
                     ' Abschlussstatus MSSQL
                     Dim finalMin As Object = SqlSkalar(connStr, "SELECT MIN([" & v.PartitionColumn & "]) FROM dbo.[" & v.Faktentabelle & "]", "Final MIN")
                     Dim finalMax As Object = SqlSkalar(connStr, "SELECT MAX([" & v.PartitionColumn & "]) FROM dbo.[" & v.Faktentabelle & "]", "Final MAX")
                     Dim finalCnt As Object = SqlSkalar(connStr, "SELECT COUNT(*) FROM dbo.[" & v.Faktentabelle & "]", "Final COUNT")
-                    Log("  âââââââââââââââââââââââââââââââââââââââââââââââââââââââ")
-                    Log("  â  ABSCHLUSSSTATUS: " & v.Faktentabelle)
-                    Log("  â  Zeilen: " & Convert.ToString(finalCnt))
-                    Log("  â  MIN:    " & If(finalMin Is Nothing OrElse finalMin Is DBNull.Value, "NULL", Convert.ToString(finalMin)))
-                    Log("  â  MAX:    " & If(finalMax Is Nothing OrElse finalMax Is DBNull.Value, "NULL", Convert.ToString(finalMax)))
-                    Log("  âââââââââââââââââââââââââââââââââââââââââââââââââââââââ")
+                    Log("  →─────────────────────────────────────────────────────→")
+                    Log("  →  ABSCHLUSSSTATUS: " & v.Faktentabelle)
+                    Log("  →  Zeilen: " & Convert.ToString(finalCnt))
+                    Log("  →  MIN:    " & If(finalMin Is Nothing OrElse finalMin Is DBNull.Value, "NULL", Convert.ToString(finalMin)))
+                    Log("  →  MAX:    " & If(finalMax Is Nothing OrElse finalMax Is DBNull.Value, "NULL", Convert.ToString(finalMax)))
+                    Log("  →─────────────────────────────────────────────────────→")
                     LogSchreiben(connStr, v.Verfahren, "ABSCHLUSS",
                         "Fertig. Zeilen: " & Convert.ToString(finalCnt) &
                         " | MIN: " & If(finalMin Is Nothing OrElse finalMin Is DBNull.Value, "NULL", Convert.ToString(finalMin)) &
                         " | MAX: " & If(finalMax Is Nothing OrElse finalMax Is DBNull.Value, "NULL", Convert.ToString(finalMax)))
                     StatusSetzenErfolg(connStr, v.ID)
                     cntOK += 1
-                    Log("  â Verfahren erfolgreich abgeschlossen â")
+                    Log("  → Verfahren erfolgreich abgeschlossen ✓")
                 Catch ex As Exception
                     cntFehler += 1
                     FehlerSetzen(connStr, v.ID, ex.Message)
@@ -117,9 +117,9 @@ Partial Public Class ScriptMain
                     LogFehler("FEHLER '" & v.Verfahren & "': " & ex.Message)
                 End Try
             Next
-            Log("ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ")
+            Log("════════════════════════════════════════════════════════")
             Log("Erfolgreich: " & cntOK.ToString() & " | Fehler: " & cntFehler.ToString())
-            Log("ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ")
+            Log("════════════════════════════════════════════════════════")
             Dts.TaskResult = If(cntFehler > 0, ScriptResults.Failure, ScriptResults.Success)
         Catch ex As Exception
             LogFehler("Kritischer Fehler: " & ex.Message)

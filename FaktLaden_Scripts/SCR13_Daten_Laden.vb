@@ -36,10 +36,10 @@ Partial Public Class ScriptMain
     ' ==========================================================================================
     Public Sub Main()
 
-        Log("ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ")
-        Log("SCR11_Daten_Laden â Start")
+        Log("════════════════════════════════════════════════════════")
+        Log("SCR11_Daten_Laden – Start")
         Log("Zeitpunkt: " & DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss"))
-        Log("ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ")
+        Log("════════════════════════════════════════════════════════")
 
         Try
             _runID = Convert.ToInt32(Dts.Variables("BA::RunID").Value)
@@ -77,13 +77,13 @@ Partial Public Class ScriptMain
             Log("Erfolgreich: " & _cntOK.ToString() & " | Fehler: " & _cntFehler.ToString())
 
             If _fehlerListe.Count > 0 Then
-                Log("ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ")
+                Log("════════════════════════════════════════════════════════")
                 Log("FEHLER: VERFAHREN MIT VERARBEITUNGSFEHLERN:")
-                Log("ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ")
+                Log("────────────────────────────────────────────────────────")
                 For Each f As String In _fehlerListe.OrderBy(Function(x) x)
-                    Log("  â¢ " & f)
+                    Log("  →¢ " & f)
                 Next
-                Log("ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ")
+                Log("════════════════════════════════════════════════════════")
             End If
 
             Dts.TaskResult = If(_cntFehler > 0, ScriptResults.Failure, ScriptResults.Success)
@@ -101,12 +101,12 @@ Partial Public Class ScriptMain
     Private Sub VerarbeiteVerfahren(v As VerfahrenInfo, connStr As String)
 
         SyncLock _logSperre
-            Log("ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ")
+            Log("────────────────────────────────────────────────────────")
             Log("Verfahren: " & v.Verfahren & " | Spalte: " & v.PartitionColumn)
         End SyncLock
 
         If v.LetzterSchritt = "DATEN_GELADEN" Then
-            Log("  â bereits abgeschlossen â Ã¼bersprungen â")
+            Log("  → bereits abgeschlossen → Ã¼bersprungen ✓")
             Return
         End If
 
@@ -183,7 +183,7 @@ Partial Public Class ScriptMain
             "Daten geladen. Partitionen: " & inTables.Count.ToString() & " | Zeilen gesamt: " & cntGesamtZeilen.ToString())
 
             Interlocked.Increment(_cntOK)
-            Log("  â Schritt 6 abgeschlossen â")
+            Log("  → Schritt 6 abgeschlossen ✓")
 
         Catch ex As Exception
             Interlocked.Increment(_cntFehler)

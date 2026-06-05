@@ -12,7 +12,7 @@ Imports Microsoft.SqlServer.Dts.Runtime
 ' ZWECK  : Pro Verfahren: _in + _out Tabellen pro Partitionswert erstellen
 '          Liest Partitionswerte aus BA::objPartitionValues (von SCR09 gesetzt)
 '          Kopiert Spalten-Struktur direkt von der externen Tabelle
-'          Status: STAGING_ERSTELLEN â STAGING_ERSTELLT
+'          Status: STAGING_ERSTELLEN → STAGING_ERSTELLT
 ' =============================================================================
 <Microsoft.SqlServer.Dts.Tasks.ScriptTask.SSISScriptTaskEntryPointAttribute()>
 <CLSCompliant(False)>
@@ -33,10 +33,10 @@ Partial Public Class ScriptMain
 
     Public Sub Main()
 
-        Log("ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ")
-        Log("SCR10_Staging_Erstellen â Start (v2: BA::objPartitionValues gesteuert)")
+        Log("════════════════════════════════════════════════════════")
+        Log("SCR10_Staging_Erstellen – Start (v2: BA::objPartitionValues gesteuert)")
         Log("Zeitpunkt: " & DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss"))
-        Log("ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ")
+        Log("════════════════════════════════════════════════════════")
 
         Try
             _runID = Convert.ToInt32(Dts.Variables("BA::RunID").Value)
@@ -50,12 +50,12 @@ Partial Public Class ScriptMain
             Log("ExtTableSchema     : " & _extTableSchema)
             Log("Datenbank          : " & _datenbank)
 
-            ' âââââââââââââââââââââââââââââââââââââââââââââââââââââ
+            ' ─────────────────────────────────────────────────────
             ' 1. Partitionswerte aus BA::objPartitionValues lesen
-            ' âââââââââââââââââââââââââââââââââââââââââââââââââââââ
+            ' ─────────────────────────────────────────────────────
             Dim partObjekt As Object = Dts.Variables("BA::objPartitionValues").Value
             If partObjekt Is Nothing Then
-                Log("BA::objPartitionValues ist leer (Nothing) â keine Staging-Tabellen zu erstellen")
+                Log("BA::objPartitionValues ist leer (Nothing) → keine Staging-Tabellen zu erstellen")
                 Dts.TaskResult = ScriptResults.Success
                 Return
             End If
@@ -85,18 +85,18 @@ Partial Public Class ScriptMain
             Dim cntFehler As Integer = 0
 
             For Each v As VerfahrenInfo In verfahren
-                Log("ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ")
+                Log("────────────────────────────────────────────────────────")
                 Log("Verfahren: " & v.Verfahren)
 
                 If v.LetzterSchritt = "STAGING_ERSTELLT" Then
-                    Log("  â bereits abgeschlossen â uebersprungen â")
+                    Log("  → bereits abgeschlossen → uebersprungen ✓")
                     Continue For
                 End If
 
                 ' Partitionswerte fuer dieses Verfahren suchen
                 Dim meineWerte As List(Of PartitionsEintrag) = Nothing
                 If Not verfahrenWerte.TryGetValue(v.Verfahren, meineWerte) OrElse meineWerte.Count = 0 Then
-                    Log("  WARNUNG: Keine Partitionswerte fuer dieses Verfahren â uebersprungen")
+                    Log("  WARNUNG: Keine Partitionswerte fuer dieses Verfahren → uebersprungen")
                     ProtokollSchreiben(connStr, v.Verfahren, "WARNUNG_SCR10", "Keine Partitionswerte in BA::objPartitionValues")
                     StatusSetzen(connStr, v.ID, "STAGING_ERSTELLT")
                     cntOK += 1
@@ -131,7 +131,7 @@ Partial Public Class ScriptMain
                         " | NEU: " & meineWerte.FindAll(Function(p) p.Modus = "NEU").Count.ToString() &
                         " | AKTUALISIERUNG: " & meineWerte.FindAll(Function(p) p.Modus = "AKTUALISIERUNG").Count.ToString())
                     cntOK += 1
-                    Log("  â Schritt 5 abgeschlossen â")
+                    Log("  → Schritt 5 abgeschlossen ✓")
 
                 Catch ex As Exception
                     cntFehler += 1
@@ -141,7 +141,7 @@ Partial Public Class ScriptMain
                 End Try
             Next
 
-            Log("ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ")
+            Log("════════════════════════════════════════════════════════")
             Log("Erfolgreich: " & cntOK.ToString() & " | Fehler: " & cntFehler.ToString())
             Dts.TaskResult = If(cntFehler > 0, ScriptResults.Failure, ScriptResults.Success)
 

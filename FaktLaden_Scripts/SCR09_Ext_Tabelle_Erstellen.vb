@@ -10,8 +10,8 @@ Imports Microsoft.SqlServer.Dts.Runtime
 ' PAKET  : Fakten Laden
 ' SKRIPT : SCR09_Ext_Tabelle_Erstellen (v2 - using tm_polybase_struktur)
 ' ZWECK  : Pro Verfahren: externe Tabelle aus tm_polybase_struktur.columns_ext erstellen
-'          Oracle LOCATION â UPPER CASE
-'          Status: TEMPLATE_ERSTELLT â EXT_TABELLE_ERSTELLT
+'          Oracle LOCATION → UPPER CASE
+'          Status: TEMPLATE_ERSTELLT → EXT_TABELLE_ERSTELLT
 ' =============================================================================
 <Microsoft.SqlServer.Dts.Tasks.ScriptTask.SSISScriptTaskEntryPointAttribute()>
 <CLSCompliant(False)>
@@ -31,10 +31,10 @@ Partial Public Class ScriptMain
     Private _extTableLocation As String = String.Empty
 
     Public Sub Main()
-        Log("ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ")
-        Log("SCR07_Ext_Tabelle_Erstellen â Start (v2: tm_polybase_struktur)")
+        Log("════════════════════════════════════════════════════════")
+        Log("SCR07_Ext_Tabelle_Erstellen – Start (v2: tm_polybase_struktur)")
         Log("Zeitpunkt: " & DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss"))
-        Log("ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ")
+        Log("════════════════════════════════════════════════════════")
 
         Try
             _runID = Convert.ToInt32(Dts.Variables("BA::RunID").Value)
@@ -60,11 +60,11 @@ Partial Public Class ScriptMain
             Dim cntFehler As Integer = 0
 
             For Each v As VerfahrenInfo In verfahren
-                Log("ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ")
+                Log("────────────────────────────────────────────────────────")
                 Log("Verfahren: " & v.Verfahren & " | Themengebiet: " & v.Themengebiet)
 
                 If v.LetzterSchritt = "EXT_TABELLE_ERSTELLT" Then
-                    Log("  â bereits abgeschlossen â Ã¼bersprungen â")
+                    Log("  → bereits abgeschlossen → Ã¼bersprungen ✓")
                     Continue For
                 End If
 
@@ -75,7 +75,7 @@ Partial Public Class ScriptMain
                     LogSchreiben(connStr, v.Verfahren, "SCHRITT_2",
                         "Externe Tabelle erstellt: " & _extSchema & "." & v.Faktentabelle.ToLower())
                     cntOK += 1
-                    Log("  â Externe Tabelle erstellt â")
+                    Log("  → Externe Tabelle erstellt ✓")
                 Catch ex As Exception
                     cntFehler += 1
                     FehlerSetzen(connStr, v.ID, ex.Message)
@@ -84,9 +84,9 @@ Partial Public Class ScriptMain
                 End Try
             Next
 
-            Log("ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ")
+            Log("════════════════════════════════════════════════════════")
             Log("Erfolgreich: " & cntOK.ToString() & " | Fehler: " & cntFehler.ToString())
-            Log("ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ")
+            Log("════════════════════════════════════════════════════════")
 
             Dts.TaskResult = If(cntFehler > 0, ScriptResults.Failure, ScriptResults.Success)
 
@@ -106,7 +106,7 @@ Partial Public Class ScriptMain
         Log("  Erstelle externe Tabelle: " & extFullName)
 
         ' Extract Oracle environment from ExtTableLocation
-        ' Example: "ISTAT.STATRT.VM_DDL_SQL_SERVER" â "ISTAT"
+        ' Example: "ISTAT.STATRT.VM_DDL_SQL_SERVER" → "ISTAT"
         Dim oracleEnvironment As String = _extTableLocation.Split("."c)(0).ToUpper()
 
         ' Oracle LOCATION: <ENVIRONMENT>.<THEMENGEBIET>.<FAKTENTABELLE> (all UPPER)
@@ -178,7 +178,7 @@ WHERE schema_id = SCHEMA_ID('" & _extSchema & "')
             Throw New Exception("Externe Tabelle wurde nicht erstellt!")
         End If
 
-        Log("  â Externe Tabelle erfolgreich: " & extFullName)
+        Log("  ✓ Externe Tabelle erfolgreich: " & extFullName)
     End Sub
 
     ' =============================================================================

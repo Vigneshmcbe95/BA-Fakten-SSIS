@@ -7,7 +7,7 @@ Imports Microsoft.SqlServer.Dts.Runtime
 ' =============================================================================
 ' SCR17_Komprimierung_Out
 ' ZWECK: PAGE/ROW Komprimierung auf alle _out Tabellen (nur bei CI, nicht CCI)
-' Status: KOMPRIMIERUNG â KOMPRIMIERUNG_ERSTELLT
+' Status: KOMPRIMIERUNG → KOMPRIMIERUNG_ERSTELLT
 ' =============================================================================
 <Microsoft.SqlServer.Dts.Tasks.ScriptTask.SSISScriptTaskEntryPointAttribute()>
 <CLSCompliant(False)>
@@ -23,10 +23,10 @@ Partial Public Class ScriptMain
     Private _parametertab As String = String.Empty
 
     Public Sub Main()
-        Log("ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ")
-        Log("SCR13_Komprimierung_Out â Start")
+        Log("════════════════════════════════════════════════════════")
+        Log("SCR13_Komprimierung_Out – Start")
         Log("Zeitpunkt: " & DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss"))
-        Log("ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ")
+        Log("════════════════════════════════════════════════════════")
         Try
             _runID = Convert.ToInt32(Dts.Variables("BA::RunID").Value)
             _parameterDB = Dts.Variables("BA::ParameterDB").Value.ToString().Trim()
@@ -37,25 +37,25 @@ Partial Public Class ScriptMain
             Dim cntOK As Integer = 0
             Dim cntFehler As Integer = 0
             For Each v As VerfahrenInfo In verfahren
-                Log("ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ")
+                Log("────────────────────────────────────────────────────────")
                 Log("Verfahren: " & v.Verfahren & " | Komprimierung: " & v.Compression & " | IndexTyp: " & v.IndexType)
                 If v.LetzterSchritt = "KOMPRIMIERUNG_ERSTELLT" Then
-                    Log("  â bereits abgeschlossen â Ã¼bersprungen â")
+                    Log("  → bereits abgeschlossen → Ã¼bersprungen ✓")
                     Continue For
                 End If
                 Try
                     StatusSetzen(connStr, v.ID, "KOMPRIMIERUNG")
                     If v.IndexType = "CCI" Then
-                        Log("  â CCI aktiv â PAGE/ROW nicht anwendbar â Ã¼bersprungen")
+                        Log("  → CCI aktiv → PAGE/ROW nicht anwendbar → Ã¼bersprungen")
                         StatusSetzen(connStr, v.ID, "KOMPRIMIERUNG_ERSTELLT")
-                        LogSchreiben(connStr, v.Verfahren, "SCHRITT_7B", "CCI aktiv â Komprimierung Ã¼bersprungen")
+                        LogSchreiben(connStr, v.Verfahren, "SCHRITT_7B", "CCI aktiv → Komprimierung Ã¼bersprungen")
                         cntOK += 1
                         Continue For
                     End If
                     If v.Compression <> "PAGE" AndAlso v.Compression <> "ROW" Then
-                        Log("  â Keine Komprimierung konfiguriert â Ã¼bersprungen")
+                        Log("  → Keine Komprimierung konfiguriert → Ã¼bersprungen")
                         StatusSetzen(connStr, v.ID, "KOMPRIMIERUNG_ERSTELLT")
-                        LogSchreiben(connStr, v.Verfahren, "SCHRITT_7B", "Keine Komprimierung konfiguriert â Ã¼bersprungen")
+                        LogSchreiben(connStr, v.Verfahren, "SCHRITT_7B", "Keine Komprimierung konfiguriert → Ã¼bersprungen")
                         cntOK += 1
                         Continue For
                     End If
@@ -73,7 +73,7 @@ Partial Public Class ScriptMain
                                         While rdr.Read()
                                             Dim tbl As String = rdr(0).ToString()
                                             SqlAusfuehren(connStr, "ALTER TABLE dbo.[" & tbl & "] REBUILD WITH (DATA_COMPRESSION=" & v.Compression & ");", "Komprimierung " & tbl)
-                                            Log("  â Komprimierung " & v.Compression & " auf: " & tbl & " â")
+                                            Log("  → Komprimierung " & v.Compression & " auf: " & tbl & " ✓")
                                             cntTbl += 1
                                         End While
                                     End Using
@@ -87,7 +87,7 @@ Partial Public Class ScriptMain
                     StatusSetzen(connStr, v.ID, "KOMPRIMIERUNG_ERSTELLT")
                     LogSchreiben(connStr, v.Verfahren, "SCHRITT_7B", "Komprimierung " & v.Compression & " auf " & cntTbl.ToString() & " _out Tabellen")
                     cntOK += 1
-                    Log("  â Schritt 7b abgeschlossen â")
+                    Log("  → Schritt 7b abgeschlossen ✓")
                 Catch ex As Exception
                     cntFehler += 1
                     FehlerSetzen(connStr, v.ID, ex.Message)

@@ -7,7 +7,7 @@ Imports Microsoft.SqlServer.Dts.Runtime
 ' =============================================================================
 ' SCR16_Stagingtabelle - Clustered Index erstellen
 ' ZWECK: CI oder CCI auf alle _in und _out Tabellen anlegen
-' Status: INDEX_IN_OUT â INDEX_IN_OUT_ERSTELLT
+' Status: INDEX_IN_OUT → INDEX_IN_OUT_ERSTELLT
 ' =============================================================================
 <Microsoft.SqlServer.Dts.Tasks.ScriptTask.SSISScriptTaskEntryPointAttribute()>
 <CLSCompliant(False)>
@@ -23,10 +23,10 @@ Partial Public Class ScriptMain
     Private _parametertab As String = String.Empty
 
     Public Sub Main()
-        Log("ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ")
-        Log("SCR12_Index_InOut â Start")
+        Log("════════════════════════════════════════════════════════")
+        Log("SCR12_Index_InOut – Start")
         Log("Zeitpunkt: " & DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss"))
-        Log("ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ")
+        Log("════════════════════════════════════════════════════════")
         Try
             _runID = Convert.ToInt32(Dts.Variables("BA::RunID").Value)
             _parameterDB = Dts.Variables("BA::ParameterDB").Value.ToString().Trim()
@@ -37,10 +37,10 @@ Partial Public Class ScriptMain
             Dim cntOK As Integer = 0
             Dim cntFehler As Integer = 0
             For Each v As VerfahrenInfo In verfahren
-                Log("ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ")
+                Log("────────────────────────────────────────────────────────")
                 Log("Verfahren: " & v.Verfahren & " | IndexTyp: " & v.IndexType)
                 If v.LetzterSchritt = "INDEX_IN_OUT_ERSTELLT" Then
-                    Log("  â bereits abgeschlossen â Ã¼bersprungen â")
+                    Log("  → bereits abgeschlossen → Ã¼bersprungen ✓")
                     Continue For
                 End If
                 Try
@@ -56,27 +56,27 @@ Partial Public Class ScriptMain
                     ' Alle _in und _out Tabellen
                     Dim tabellen As List(Of String) = InOutTabellenLaden(connStr, v.Faktentabelle)
                     For Each tbl As String In tabellen
-                        Log("  â Index auf: " & tbl)
+                        Log("  → Index auf: " & tbl)
                         If v.IndexType = "TRUE" Then
                             If Not IndexVorhanden(connStr, tbl, "CI_" & tbl) Then
                                 SqlAusfuehren(connStr, "CREATE CLUSTERED INDEX [CI_" & tbl & "] ON dbo.[" & tbl & "] (" & ciCols & ") WITH (FILLFACTOR=100,SORT_IN_TEMPDB=ON);", "CI " & tbl)
-                                Log("    CI angelegt â")
+                                Log("    CI angelegt ✓")
                             Else
-                                Log("    CI bereits vorhanden â Ã¼bersprungen")
+                                Log("    CI bereits vorhanden → Ã¼bersprungen")
                             End If
                         ElseIf v.IndexType = "CCI" Then
                             If Not IndexVorhanden(connStr, tbl, "CCI_" & tbl) Then
                                 SqlAusfuehren(connStr, "CREATE CLUSTERED COLUMNSTORE INDEX [CCI_" & tbl & "] ON dbo.[" & tbl & "];", "CCI " & tbl)
-                                Log("    CCI angelegt â")
+                                Log("    CCI angelegt ✓")
                             Else
-                                Log("    CCI bereits vorhanden â Ã¼bersprungen")
+                                Log("    CCI bereits vorhanden → Ã¼bersprungen")
                             End If
                         End If
                     Next
                     StatusSetzen(connStr, v.ID, "INDEX_IN_OUT_ERSTELLT")
                     LogSchreiben(connStr, v.Verfahren, "SCHRITT_7A", "Index _in/_out erstellt: " & tabellen.Count.ToString() & " Tabellen")
                     cntOK += 1
-                    Log("  â Schritt 7a abgeschlossen â")
+                    Log("  → Schritt 7a abgeschlossen ✓")
                 Catch ex As Exception
                     cntFehler += 1
                     FehlerSetzen(connStr, v.ID, ex.Message)

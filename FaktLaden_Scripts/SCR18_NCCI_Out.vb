@@ -7,7 +7,7 @@ Imports Microsoft.SqlServer.Dts.Runtime
 ' =============================================================================
 ' SCR18_NCCI_Out
 ' ZWECK: NCCI auf alle _out Tabellen (nur wenn NcciFlag=TRUE und IndexType<>CCI)
-' Status: NCCI_OUT â NCCI_OUT_ERSTELLT
+' Status: NCCI_OUT → NCCI_OUT_ERSTELLT
 ' =============================================================================
 <Microsoft.SqlServer.Dts.Tasks.ScriptTask.SSISScriptTaskEntryPointAttribute()>
 <CLSCompliant(False)>
@@ -23,10 +23,10 @@ Partial Public Class ScriptMain
     Private _parametertab As String = String.Empty
 
     Public Sub Main()
-        Log("ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ")
-        Log("SCR14_NCCI_Out â Start")
+        Log("════════════════════════════════════════════════════════")
+        Log("SCR14_NCCI_Out – Start")
         Log("Zeitpunkt: " & DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss"))
-        Log("ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ")
+        Log("════════════════════════════════════════════════════════")
         Try
             _runID = Convert.ToInt32(Dts.Variables("BA::RunID").Value)
             _parameterDB = Dts.Variables("BA::ParameterDB").Value.ToString().Trim()
@@ -37,18 +37,18 @@ Partial Public Class ScriptMain
             Dim cntOK As Integer = 0
             Dim cntFehler As Integer = 0
             For Each v As VerfahrenInfo In verfahren
-                Log("ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ")
+                Log("────────────────────────────────────────────────────────")
                 Log("Verfahren: " & v.Verfahren & " | NCCI: " & v.NcciFlag & " | IndexTyp: " & v.IndexType)
                 If v.LetzterSchritt = "NCCI_OUT_ERSTELLT" Then
-                    Log("  â bereits abgeschlossen â Ã¼bersprungen â")
+                    Log("  → bereits abgeschlossen → Ã¼bersprungen ✓")
                     Continue For
                 End If
                 Try
                     StatusSetzen(connStr, v.ID, "NCCI_OUT")
                     If v.NcciFlag <> "TRUE" OrElse v.IndexType = "CCI" Then
-                        Log("  â NCCI nicht anwendbar â Ã¼bersprungen")
+                        Log("  → NCCI nicht anwendbar → Ã¼bersprungen")
                         StatusSetzen(connStr, v.ID, "NCCI_OUT_ERSTELLT")
-                        LogSchreiben(connStr, v.Verfahren, "SCHRITT_7C", "NCCI nicht anwendbar â Ã¼bersprungen")
+                        LogSchreiben(connStr, v.Verfahren, "SCHRITT_7C", "NCCI nicht anwendbar → Ã¼bersprungen")
                         cntOK += 1
                         Continue For
                     End If
@@ -70,9 +70,9 @@ Partial Public Class ScriptMain
                                                 "NCCI Spalten"))
                                             If Not IndexVorhanden(connStr, tbl, "NCCI_" & tbl) Then
                                                 SqlAusfuehren(connStr, "CREATE NONCLUSTERED COLUMNSTORE INDEX [NCCI_" & tbl & "] ON dbo.[" & tbl & "] (" & allCols & ");", "NCCI " & tbl)
-                                                Log("  â NCCI angelegt: " & tbl & " â")
+                                                Log("  → NCCI angelegt: " & tbl & " ✓")
                                             Else
-                                                Log("  â NCCI bereits vorhanden: " & tbl)
+                                                Log("  → NCCI bereits vorhanden: " & tbl)
                                             End If
                                             cntTbl += 1
                                         End While
@@ -87,7 +87,7 @@ Partial Public Class ScriptMain
                     StatusSetzen(connStr, v.ID, "NCCI_OUT_ERSTELLT")
                     LogSchreiben(connStr, v.Verfahren, "SCHRITT_7C", "NCCI auf " & cntTbl.ToString() & " _out Tabellen")
                     cntOK += 1
-                    Log("  â Schritt 7c abgeschlossen â")
+                    Log("  → Schritt 7c abgeschlossen ✓")
                 Catch ex As Exception
                     cntFehler += 1
                     FehlerSetzen(connStr, v.ID, ex.Message)

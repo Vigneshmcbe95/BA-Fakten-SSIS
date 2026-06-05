@@ -42,10 +42,10 @@ Partial Public Class ScriptMain
 
     Public Sub Main()
 
-        Log("ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ")
-        Log("SCR16_Partitionladen_Nachlauf â Start")
+        Log("════════════════════════════════════════════════════════")
+        Log("SCR16_Partitionladen_Nachlauf – Start")
         Log("Zeitpunkt: " & DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss"))
-        Log("ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ")
+        Log("════════════════════════════════════════════════════════")
 
         Try
             _runID = Convert.ToInt32(Dts.Variables("BA::RunID").Value)
@@ -110,7 +110,7 @@ Partial Public Class ScriptMain
             Dim cntFehler As Integer = 0
 
             For Each v As VerfahrenInfo In verfahren
-                Log("ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ")
+                Log("────────────────────────────────────────────────────────")
                 Log("Verfahren        : " & v.Verfahren)
                 Log("Faktentabelle    : " & v.Faktentabelle)
                 Log("Partitionsspalte : " & v.PartitionsSpalte)
@@ -146,7 +146,7 @@ Partial Public Class ScriptMain
                     Dim protokollID As String = "{" & Guid.NewGuid().ToString() & "}"
 
                     For Each partWert As String In meineWerte
-                        Log("  ââââââââââââââââââââââââââââââââââââââââââââââââ")
+                        Log("  ────────────────────────────────────────────────")
                         Log("  Partition      : " & partWert)
                         Log("  ProtokollID    : " & protokollID)
 
@@ -190,9 +190,9 @@ Partial Public Class ScriptMain
                 End Try
             Next
 
-            Log("ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ")
+            Log("════════════════════════════════════════════════════════")
             Log("Erfolgreich: " & cntOK.ToString() & " | Fehler: " & cntFehler.ToString())
-            Log("ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ")
+            Log("════════════════════════════════════════════════════════")
             Dts.TaskResult = If(cntFehler > 0, ScriptResults.Failure, ScriptResults.Success)
 
         Catch ex As Exception

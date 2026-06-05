@@ -61,10 +61,10 @@ Partial Public Class ScriptMain
 
     Public Sub Main()
 
-        Log("ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ")
-        Log("SCR11b_StagetabellenDML_Aufruf â Start (v2: BA::objPartitionValues gesteuert)")
+        Log("════════════════════════════════════════════════════════")
+        Log("SCR11b_StagetabellenDML_Aufruf – Start (v2: BA::objPartitionValues gesteuert)")
         Log("Zeitpunkt: " & DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss"))
-        Log("ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ")
+        Log("════════════════════════════════════════════════════════")
 
         Try
             _runID = Convert.ToInt32(Dts.Variables("BA::RunID").Value)
@@ -119,7 +119,7 @@ Partial Public Class ScriptMain
             Log("Verfahren mit Status '" & STATUS_START & "': " & verfahren.Count.ToString())
 
             If verfahren.Count = 0 Then
-                Log("Keine Verfahren zu verarbeiten â beende erfolgreich.")
+                Log("Keine Verfahren zu verarbeiten – beende erfolgreich.")
                 Dts.TaskResult = ScriptResults.Success
                 Return
             End If
@@ -129,7 +129,7 @@ Partial Public Class ScriptMain
             Dim fehlerListe As New List(Of String)()
 
             For Each v As VerfahrenInfo In verfahren
-                Log("ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ")
+                Log("────────────────────────────────────────────────────────")
                 Log("Verfahren        : " & v.Verfahren)
                 Log("Faktentabelle    : " & v.Faktentabelle)
                 Log("Partitionsspalte : " & v.PartitionsSpalte)
@@ -166,7 +166,7 @@ Partial Public Class ScriptMain
                         Dim partWert As String = pe.Wert
                         Dim inTabelle As String = v.Faktentabelle.ToLower() & "_in_" & partWert
 
-                        Log("  ââââââââââââââââââââââââââââââââââââââââââââââââ")
+                        Log("  ────────────────────────────────────────────────")
                         Log("  Partition      : " & partWert)
                         Log("  Modus          : " & pe.Modus)
                         Log("  _in Tabelle    : " & inTabelle)
@@ -214,9 +214,9 @@ Partial Public Class ScriptMain
                 End Try
             Next
 
-            Log("ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ")
+            Log("════════════════════════════════════════════════════════")
             Log("ZUSAMMENFASSUNG SCR11b_StagetabellenDML_Aufruf")
-            Log("ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ")
+            Log("════════════════════════════════════════════════════════")
             Log("Erfolgreich: " & cntOK.ToString())
             Log("Fehler:      " & cntFehler.ToString())
             If fehlerListe.Count > 0 Then
@@ -225,7 +225,7 @@ Partial Public Class ScriptMain
                     Log("  - " & fv)
                 Next
             End If
-            Log("ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ")
+            Log("════════════════════════════════════════════════════════")
 
             If cntFehler > 0 Then
                 LogFehler("SCR11b: " & cntFehler.ToString() & " Verfahren mit Fehlern")

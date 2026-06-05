@@ -26,10 +26,10 @@ Partial Public Class ScriptMain
     ' =========================================================================
     Public Sub Main()
 
-        Log("ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ")
-        Log("SCR04_WhereKlausel_Aufbauen â Start (v2: vollstaendige Ziffernerfassung)")
+        Log("════════════════════════════════════════════════════════")
+        Log("SCR04_WhereKlausel_Aufbauen – Start (v2: vollstaendige Ziffernerfassung)")
         Log("Referenzdatum: " & _refDatum.ToString("dd.MM.yyyy HH:mm:ss"))
-        Log("ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ")
+        Log("════════════════════════════════════════════════════════")
 
         Try
             _stlTabelle = Dts.Variables("BA::SteuerlistenTabelle").Value.ToString().Trim()
@@ -42,8 +42,8 @@ Partial Public Class ScriptMain
 
             SpaltenSicherstellen(connStr)
 
-            ' ââ Partitionsspalte direkt aus Parametertabelle (vom Benutzer gepflegt)
-            Log("ââ Partitionsspalte aus Parametertabelle laden ...")
+            ' ── Partitionsspalte direkt aus Parametertabelle (vom Benutzer gepflegt)
+            Log("── Partitionsspalte aus Parametertabelle laden ...")
             Dim partLookup As Dictionary(Of String, String) = PartitionsspalteAusParameterLaden(connStr)
             Log("Partitionsspalten geladen: " & partLookup.Count.ToString() & " Verfahren")
 
@@ -79,11 +79,11 @@ Partial Public Class ScriptMain
                 ZurueckSchreiben(connStr, z.TabnameFilter, z.FileName, where, wert)
             Next
 
-            Log("ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ")
+            Log("════════════════════════════════════════════════════════")
             Log("where_klausel gefuellt       : " & cntMit.ToString())
             Log("partition_wert NULL          : " & cntOhne.ToString())
             Log("kein Partitionsspalte-Eintrag: " & cntNull.ToString())
-            Log("ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ")
+            Log("════════════════════════════════════════════════════════")
             Dts.TaskResult = ScriptResults.Success
 
         Catch ex As Exception
@@ -98,12 +98,12 @@ Partial Public Class ScriptMain
     '  1. :MONID/:YEAR Token aufloesen
     '  2. :LAST_MM(n)  :LAST_YY(n)  :YYYYMM(...)  :YYYY(...)
     '  3. Nach Token-Aufloesung: ALLE Ziffern aus aufgeloestem String extrahieren
-    '  4. Kein Treffer â Nothing (NULL in DB)
+    '  4. Kein Treffer → Nothing (NULL in DB)
     '
     ' AENDERUNG v2:
     '  Fallback-Regex geaendert von ((?:19|20)\d{4})\d* auf ((?:19|20)\d{4}\d*)
     '  Damit werden alle Ziffern erfasst, z.B.:
-    '    tf_lstp_bg_bs_bedarfe:MONID(0)00 â nach Aufloesung: tf_lstp_bg_bs_bedarfe:20260400
+    '    tf_lstp_bg_bs_bedarfe:MONID(0)00 → nach Aufloesung: tf_lstp_bg_bs_bedarfe:20260400
     '    Alt: 202604   (nur 6 Ziffern, trailing 00 ignoriert)
     '    Neu: 20260400 (alle 8 Ziffern, stimmt mit Oracle mow_id ueberein)
     ' =========================================================================
@@ -114,15 +114,15 @@ Partial Public Class ScriptMain
         Dim f As String = TokenAufloesen(filter)
         Dim m As Match
 
-        ' :LAST_MM / :LAST_YYMM / :LAST_YYYYMM(n) â YYYYMM
+        ' :LAST_MM / :LAST_YYMM / :LAST_YYYYMM(n) → YYYYMM
         m = Regex.Match(f, ":LAST_(?:MM|YYMM|YYYYMM)\((\d+)\)", RegexOptions.IgnoreCase)
         If m.Success Then Return _refDatum.AddMonths(-CInt(m.Groups(1).Value)).ToString("yyyyMM")
 
-        ' :LAST_YY / :LAST_YYYY(n) â YYYY
+        ' :LAST_YY / :LAST_YYYY(n) → YYYY
         m = Regex.Match(f, ":LAST_(?:YY|YYYY)\((\d+)\)", RegexOptions.IgnoreCase)
         If m.Success Then Return _refDatum.AddYears(-CInt(m.Groups(1).Value)).ToString("yyyy")
 
-        ' :YYYYMM(val,...) â wert direkt
+        ' :YYYYMM(val,...) → wert direkt
         m = Regex.Match(f, ":YYYYMM\(([^)]+)\)", RegexOptions.IgnoreCase)
         If m.Success Then Return m.Groups(1).Value.Trim()
 
@@ -132,8 +132,8 @@ Partial Public Class ScriptMain
 
         ' Nach Token-Aufloesung: ALLE Ziffern aus dem String extrahieren
         ' v2: Erfasst alle aufeinanderfolgenden Ziffern nach dem Jahrespraefix
-        ' z.B. tf_lstp_bg_bs_bedarfe:20260400 â 20260400 (alle 8 Ziffern)
-        ' z.B. tf_zkt_bb_20260301              â 20260301 (alle 8 Ziffern)
+        ' z.B. tf_lstp_bg_bs_bedarfe:20260400 → 20260400 (alle 8 Ziffern)
+        ' z.B. tf_zkt_bb_20260301              → 20260301 (alle 8 Ziffern)
         m = Regex.Match(f, "((?:19|20)\d{4}\d*)", RegexOptions.IgnoreCase)
         If m.Success Then Return m.Groups(1).Value
 
@@ -143,8 +143,8 @@ Partial Public Class ScriptMain
 
     ' =========================================================================
     ' Partitionsspalte EINMALIG aus Parametertabelle laden
-    ' Dictionary: Verfahren (lower) â Faktenpartitionsspalte
-    ' Direkt vom Benutzer gepflegter Wert â kein vm_ddl benoetigt
+    ' Dictionary: Verfahren (lower) → Faktenpartitionsspalte
+    ' Direkt vom Benutzer gepflegter Wert → kein vm_ddl benoetigt
     ' =========================================================================
     Private Function PartitionsspalteAusParameterLaden(connStr As String) As Dictionary(Of String, String)
         Dim dict As New Dictionary(Of String, String)()
@@ -187,7 +187,7 @@ Partial Public Class ScriptMain
     End Function
 
     ' =========================================================================
-    ' :MONID(n) â YYYYMM  |  :YEAR(n) â YYYY
+    ' :MONID(n) → YYYYMM  |  :YEAR(n) → YYYY
     ' =========================================================================
     Private Function TokenAufloesen(f As String) As String
         Dim r As String = f

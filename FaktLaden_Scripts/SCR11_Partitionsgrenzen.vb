@@ -29,7 +29,7 @@ Imports Microsoft.SqlServer.Dts.Runtime
 '          - APPEND loads ALL missing values (not just > MAX)
 '          - Compact logging (no individual partition lines)
 '
-' Status: PARTITIONSGRENZEN â PARTITIONSGRENZEN_ERSTELLT
+' Status: PARTITIONSGRENZEN → PARTITIONSGRENZEN_ERSTELLT
 ' =============================================================================
 <Microsoft.SqlServer.Dts.Tasks.ScriptTask.SSISScriptTaskEntryPointAttribute()>
 <CLSCompliant(False)>
@@ -48,10 +48,10 @@ Partial Public Class ScriptMain
 
     Public Sub Main()
 
-        Log("ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ")
-        Log("SCR09_Partitionsgrenzen â Start (v6: FINAL - All Fixes)")
+        Log("════════════════════════════════════════════════════════")
+        Log("SCR09_Partitionsgrenzen – Start (v6: FINAL - All Fixes)")
         Log("Zeitpunkt: " & DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss"))
-        Log("ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ")
+        Log("════════════════════════════════════════════════════════")
 
         Try
             _runID = Convert.ToInt32(Dts.Variables("BA::RunID").Value)
@@ -69,20 +69,20 @@ Partial Public Class ScriptMain
             Dim cntFehler As Integer = 0
 
             For Each v As VerfahrenInfo In verfahren
-                Log("ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ")
+                Log("────────────────────────────────────────────────────────")
                 Log("Verfahren: " & v.Verfahren & " | Tabelle: " & v.Faktentabelle & " | Spalte: " & v.PartitionsSpalte)
 
                 If v.LetzterSchritt = "PARTITIONSGRENZEN_ERSTELLT" Then
-                    Log("  â bereits abgeschlossen â uebersprungen â")
+                    Log("  → bereits abgeschlossen → uebersprungen ✓")
                     Continue For
                 End If
 
                 Try
                     StatusSetzen(connStr, v.ID, "PARTITIONSGRENZEN")
 
-                    ' âââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+                    ' ═════════════════════════════════════════════════════════
                     ' SCHRITT 1: Versuche partition_wert aus CSV zu lesen
-                    ' âââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+                    ' ═════════════════════════════════════════════════════════
                     Dim benutzerWerte As List(Of Integer) = PartitionWerteLaden(connStr, v.Verfahren)
 
                     Dim zuVerarbeiten As New List(Of PartitionsEintrag)()
@@ -91,13 +91,13 @@ Partial Public Class ScriptMain
                     Dim mssqlWerte As List(Of Integer) = Nothing
 
                     If benutzerWerte.Count > 0 Then
-                        ' âââââââââââââââââââââââââââââââââââââââââââââââââââââ
+                        ' ═════════════════════════════════════════════════════
                         ' MODE 1: MANUAL (partition_wert aus CSV)
-                        ' âââââââââââââââââââââââââââââââââââââââââââââââââââââ
+                        ' ═════════════════════════════════════════════════════
                         modus = "MANUAL"
-                        Log("  ââââââââââââââââââââââââââââââââââââââââââââââââââ")
+                        Log("  ══════════════════════════════════════════════════")
                         Log("  MODE: MANUAL (partition_wert aus CSV)")
-                        Log("  ââââââââââââââââââââââââââââââââââââââââââââââââââ")
+                        Log("  ══════════════════════════════════════════════════")
                         Log("  Benutzer partition_wert: " & benutzerWerte.Count.ToString() & " Werte")
                         Log("  MIN: " & benutzerWerte.Min().ToString() & " | MAX: " & benutzerWerte.Max().ToString())
 
@@ -119,7 +119,7 @@ Partial Public Class ScriptMain
                             Dts.TaskResult = ScriptResults.Failure
                             Return
                         End If
-                        Log("  â Alle Benutzer-Werte in Oracle vorhanden â")
+                        Log("  → Alle Benutzer-Werte in Oracle vorhanden ✓")
 
                         ' MSSQL Status pruefen
                         mssqlWerte = MssqlWerteLaden(connStr, v)
@@ -142,20 +142,20 @@ Partial Public Class ScriptMain
                         Log("  Klassifizierung: AKTUALISIERUNG=" & cntAktualisierung.ToString() & " | NEU=" & cntNeu.ToString())
 
                     Else
-                        ' âââââââââââââââââââââââââââââââââââââââââââââââââââââ
+                        ' ═════════════════════════════════════════════════════
                         ' MODE 2: AUTOMATIC (kein partition_wert in CSV)
-                        ' âââââââââââââââââââââââââââââââââââââââââââââââââââââ
+                        ' ═════════════════════════════════════════════════════
                         modus = "AUTOMATIC"
-                        Log("  ââââââââââââââââââââââââââââââââââââââââââââââââââ")
+                        Log("  ══════════════════════════════════════════════════")
                         Log("  MODE: AUTOMATIC (partition_wert aus Oracle)")
-                        Log("  ââââââââââââââââââââââââââââââââââââââââââââââââââ")
+                        Log("  ══════════════════════════════════════════════════")
 
                         ' Alle Oracle-Werte laden
                         oracleAlleWerte = OracleAlleWerteLaden(connStr, v)
                         Log("  Oracle Werte gesamt: " & oracleAlleWerte.Count.ToString())
 
                         If oracleAlleWerte.Count = 0 Then
-                            Log("  WARNUNG: Keine Daten in Oracle â uebersprungen")
+                            Log("  WARNUNG: Keine Daten in Oracle → uebersprungen")
                             ProtokollSchreiben(connStr, v.Verfahren, "WARNUNG_SCR09", "Keine Daten in Oracle")
                             StatusSetzen(connStr, v.ID, "PARTITIONSGRENZEN_ERSTELLT")
                             cntOK += 1
@@ -169,30 +169,30 @@ Partial Public Class ScriptMain
                         Log("  MSSQL Werte gesamt: " & mssqlWerte.Count.ToString())
 
                         If mssqlWerte.Count = 0 Then
-                            ' âââ FULL LOAD: MSSQL ist leer âââ
-                            Log("  ââââââââââââââââââââââââââââââââââââââââââââââ")
-                            Log("  â Entscheidung: FULL LOAD (MSSQL leer)")
-                            Log("  â Lade alle " & oracleAlleWerte.Count.ToString() & " Oracle-Werte")
-                            Log("  ââââââââââââââââââââââââââââââââââââââââââââââ")
+                            ' ─── FULL LOAD: MSSQL ist leer ───
+                            Log("  ──────────────────────────────────────────────")
+                            Log("  → Entscheidung: FULL LOAD (MSSQL leer)")
+                            Log("  → Lade alle " & oracleAlleWerte.Count.ToString() & " Oracle-Werte")
+                            Log("  ──────────────────────────────────────────────")
 
                             For Each ow As Integer In oracleAlleWerte
                                 zuVerarbeiten.Add(New PartitionsEintrag With {.Wert = ow, .Modus = "NEU"})
                             Next
 
                         Else
-                            ' âââ APPEND: Lade ALLE fehlenden Oracle-Werte âââ
+                            ' ─── APPEND: Lade ALLE fehlenden Oracle-Werte ───
                             Log("  MSSQL MIN: " & mssqlWerte.Min().ToString() & " | MAX: " & mssqlWerte.Max().ToString())
-                            Log("  ââââââââââââââââââââââââââââââââââââââââââââââ")
-                            Log("  â Entscheidung: APPEND (alle fehlenden Werte)")
-                            Log("  ââââââââââââââââââââââââââââââââââââââââââââââ")
+                            Log("  ──────────────────────────────────────────────")
+                            Log("  → Entscheidung: APPEND (alle fehlenden Werte)")
+                            Log("  ──────────────────────────────────────────────")
 
-                            ' âââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+                            ' ═════════════════════════════════════════════════════════
                             ' FIX: Load ALL Oracle values NOT in MSSQL
                             ' This catches:
                             ' - Historical values before MSSQL MIN
                             ' - Gap values between MSSQL MIN and MAX
                             ' - Future values after MSSQL MAX
-                            ' âââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+                            ' ═════════════════════════════════════════════════════════
                             Dim neueWerte As List(Of Integer) = oracleAlleWerte.Where(Function(w) Not mssqlWerte.Contains(w)).ToList()
 
                             Log("  Oracle gesamt: " & oracleAlleWerte.Count.ToString())
@@ -200,7 +200,7 @@ Partial Public Class ScriptMain
                             Log("  Fehlende Werte: " & neueWerte.Count.ToString())
 
                             If neueWerte.Count = 0 Then
-                                Log("  â Keine fehlenden Werte â uebersprungen")
+                                Log("  → Keine fehlenden Werte → uebersprungen")
                                 StatusSetzen(connStr, v.ID, "PARTITIONSGRENZEN_ERSTELLT")
                                 cntOK += 1
                                 Continue For
@@ -224,14 +224,14 @@ Partial Public Class ScriptMain
                         End If
                     End If
 
-                    ' âââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+                    ' ═════════════════════════════════════════════════════════
                     ' ZUSAMMENFASSUNG (COMPACT)
-                    ' âââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+                    ' ═════════════════════════════════════════════════════════
                     zuVerarbeiten = zuVerarbeiten.OrderBy(Function(z) z.Wert).ToList()
 
-                    Log("  ââââââââââââââââââââââââââââââââââââââââââââââââââ")
+                    Log("  ══════════════════════════════════════════════════")
                     Log("  ZUSAMMENFASSUNG: " & v.Verfahren)
-                    Log("  ââââââââââââââââââââââââââââââââââââââââââââââââââ")
+                    Log("  ──────────────────────────────────────────────────")
                     Log("  Modus: " & modus)
                     Log("  Gesamt zu verarbeiten: " & zuVerarbeiten.Count.ToString())
 
@@ -247,18 +247,18 @@ Partial Public Class ScriptMain
                         Log("  Werte-Bereich: " & minVal.ToString() & " bis " & maxVal.ToString() &
                             " (" & zuVerarbeiten.Count.ToString() & " Partitionen)")
                     End If
-                    Log("  ââââââââââââââââââââââââââââââââââââââââââââââââââ")
+                    Log("  ══════════════════════════════════════════════════")
 
                     If zuVerarbeiten.Count = 0 Then
-                        Log("  â Keine Partitionswerte zu verarbeiten â uebersprungen")
+                        Log("  → Keine Partitionswerte zu verarbeiten → uebersprungen")
                         StatusSetzen(connStr, v.ID, "PARTITIONSGRENZEN_ERSTELLT")
                         cntOK += 1
                         Continue For
                     End If
 
-                    ' âââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+                    ' ═════════════════════════════════════════════════════════
                     ' PARTITIONSGRENZEN ERSTELLEN (nur fuer NEU Werte)
-                    ' âââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+                    ' ═════════════════════════════════════════════════════════
                     Dim dateigruppe As String = Convert.ToString(SqlSkalar(connStr,
                         "SELECT name FROM sys.filegroups WHERE is_default=1", "Dateigruppe"))
                     Dim pf As String = "PF_" & v.PartitionsSpalte & "_" & v.Faktentabelle
@@ -276,11 +276,11 @@ Partial Public Class ScriptMain
                         End If
                     Next
 
-                    Log("  â SPLIT ausgefuehrt: " & cntSplit.ToString() & " | Uebersprungen: " & cntSkip.ToString())
+                    Log("  → SPLIT ausgefuehrt: " & cntSplit.ToString() & " | Uebersprungen: " & cntSkip.ToString())
 
-                    ' âââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+                    ' ═════════════════════════════════════════════════════════
                     ' ERGEBNIS SPEICHERN
-                    ' âââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+                    ' ═════════════════════════════════════════════════════════
                     gesamtErgebnis(v.Verfahren) = zuVerarbeiten
 
                     StatusSetzen(connStr, v.ID, "PARTITIONSGRENZEN_ERSTELLT")
@@ -294,7 +294,7 @@ Partial Public Class ScriptMain
 
                     ProtokollSchreiben(connStr, v.Verfahren, "SCHRITT_4", protMsg)
                     cntOK += 1
-                    Log("  â Schritt 4 abgeschlossen â")
+                    Log("  → Schritt 4 abgeschlossen ✓")
 
                 Catch ex As Exception
                     cntFehler += 1
@@ -304,9 +304,9 @@ Partial Public Class ScriptMain
                 End Try
             Next
 
-            ' âââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+            ' ═════════════════════════════════════════════════════════
             ' BA::objPartitionValues SETZEN
-            ' âââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+            ' ═════════════════════════════════════════════════════════
             Dim gesamtAnzahl As Integer = 0
             For Each kvp As KeyValuePair(Of String, List(Of PartitionsEintrag)) In gesamtErgebnis
                 gesamtAnzahl += kvp.Value.Count
@@ -325,7 +325,7 @@ Partial Public Class ScriptMain
                 Next
                 Dts.Variables("BA::objPartitionValues").Value = partArray
 
-                Log("ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ")
+                Log("════════════════════════════════════════════════════════")
                 Log("BA::objPartitionValues gesetzt: " & gesamtAnzahl.ToString() & " Eintraege")
 
                 ' Show summary by Verfahren (compact)
@@ -335,15 +335,15 @@ Partial Public Class ScriptMain
                     Log("  " & kvp.Key & ": " & kvp.Value.Count.ToString() & " Partitionen (" & minV.ToString() & "-" & maxV.ToString() & ")")
                 Next
 
-                Log("ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ")
+                Log("════════════════════════════════════════════════════════")
             Else
                 Dts.Variables("BA::objPartitionValues").Value = Nothing
                 Log("BA::objPartitionValues: leer (Nothing)")
             End If
 
-            Log("ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ")
+            Log("════════════════════════════════════════════════════════")
             Log("Erfolgreich: " & cntOK.ToString() & " | Fehler: " & cntFehler.ToString())
-            Log("ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ")
+            Log("════════════════════════════════════════════════════════")
             Dts.TaskResult = If(cntFehler > 0, ScriptResults.Failure, ScriptResults.Success)
 
         Catch ex As Exception
@@ -471,7 +471,7 @@ Partial Public Class ScriptMain
             "WHERE pfn.name='" & pf & "' AND CONVERT(int,prv.value)=" & partWert
         Dim boundCount As Object = SqlSkalar(connStr, sqlBoundExists, "Boundary prüfen")
         If Convert.ToInt32(If(boundCount, 0)) > 0 Then
-            Log("    â Boundary " & partWert & " bereits vorhanden â uebersprungen")
+            Log("    → Boundary " & partWert & " bereits vorhanden → uebersprungen")
             Return
         End If
 
@@ -534,9 +534,9 @@ Partial Public Class ScriptMain
                 "ALTER PARTITION FUNCTION [" & pf & "]() SPLIT RANGE(" & partWert & ");",
                 "SPLIT direkt")
         Else
-            ' âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+            ' ═════════════════════════════════════════════════════════════
             ' SWITCH OUT / SPLIT / SWITCH IN (WITH CCI/CI FIX)
-            ' âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+            ' ═════════════════════════════════════════════════════════════
             Dim tmpTabelle As String = v.Faktentabelle & "_tmp_" & partName.ToString()
             SqlAusfuehren(connStr, "IF OBJECT_ID('dbo.[" & tmpTabelle & "]','U') IS NOT NULL DROP TABLE dbo.[" & tmpTabelle & "];", "Tmp loeschen")
 
@@ -548,9 +548,9 @@ Partial Public Class ScriptMain
                 "Komprimierung"))
             Dim kompStr As String = If(komprimierung = "PAGE" OrElse komprimierung = "ROW", " WITH (DATA_COMPRESSION=" & komprimierung & ")", "")
 
-            ' âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+            ' ═════════════════════════════════════════════════════════════
             ' FIX: Detect source table index type
-            ' âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+            ' ═════════════════════════════════════════════════════════════
             Dim sqlIndexInfo As String =
                 "SELECT i.type_desc, i.name " &
                 "FROM sys.indexes i " &
@@ -587,9 +587,9 @@ Partial Public Class ScriptMain
                 "CREATE TABLE dbo.[" & tmpTabelle & "] (" & spaltenDef & ")" & kompStr & ";",
                 "Tmp erstellen")
 
-            ' âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+            ' ═════════════════════════════════════════════════════════════
             ' Create matching clustered index on temp table
-            ' âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+            ' ═════════════════════════════════════════════════════════════
             If indexType = "CLUSTERED COLUMNSTORE" Then
                 ' Source has Clustered Columnstore Index (CCI)
                 SqlAusfuehren(connStr,
