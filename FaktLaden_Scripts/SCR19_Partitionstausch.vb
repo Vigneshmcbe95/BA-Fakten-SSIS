@@ -58,12 +58,12 @@ Partial Public Class ScriptMain
                         Dim pvStr As String = inTable.Replace(v.Faktentabelle.ToLower() & "_in_", "")
                         Dim outTable As String = v.Faktentabelle.ToLower() & "_out_" & pvStr
                         Log("  → Partition: " & pvStr)
-                        ' Partitionsnummer
+                        ' Partitionsnummer per $partition-Funktion — gibt direkt die korrekte Nummer zurueck
                         Dim pnr As Object = SqlSkalar(connStr,
-                            "SELECT sprv.boundary_id FROM sys.partition_functions spf JOIN sys.partition_range_values sprv ON sprv.function_id=spf.function_id WHERE spf.name='" & pf & "' AND sprv.value=" & pvStr,
+                            "SELECT $partition.[" & pf & "](" & pvStr & ")",
                             "Partitionsnummer")
                         If pnr Is Nothing OrElse pnr Is DBNull.Value OrElse Convert.ToInt32(pnr) = 0 Then
-                            Log("  FEHLER: Partitionsnummer nicht gefunden fÃ¼r: " & pvStr)
+                            Log("  FEHLER: Partitionsnummer nicht gefunden fuer: " & pvStr)
                             LogSchreiben(connStr, v.Verfahren, "FEHLER_SWITCH", "Partition nicht gefunden: " & pvStr)
                             Continue For
                         End If
