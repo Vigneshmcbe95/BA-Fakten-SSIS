@@ -24,6 +24,7 @@ Partial Public Class ScriptMain
     Private _parameterDB As String = String.Empty
     Private _parametertab As String = String.Empty
     Private _maxparallel As Integer = 0
+    Private _datenbank As String = String.Empty
 
     Private ReadOnly _logSperre As New Object()
     Private ReadOnly _fehlerListe As New ConcurrentBag(Of String)
@@ -44,10 +45,12 @@ Partial Public Class ScriptMain
             _runID = Convert.ToInt32(Dts.Variables("BA::RunID").Value)
             _parameterDB = Dts.Variables("BA::ParameterDB").Value.ToString().Trim()
             _parametertab = Dts.Variables("BA::Parametertabelle").Value.ToString().Trim()
+            _datenbank = Dts.Variables("BA::Datenbank").Value.ToString().Trim()
 
             ' Maximale ParallelitÃ¤t aus SSIS-Variable lesen
             _maxparallel = CInt(Dts.Variables("BA::Maxparallel").Value)
             Log("Maximale Parallelitaet: " & _maxparallel.ToString())
+            Log("Datenbank             : " & _datenbank)
 
             Dim connStr As String = HoleVerbindungszeichenfolge()
             Dim verfahren As List(Of VerfahrenInfo) = VerfahrenLaden(connStr)
@@ -200,30 +203,9 @@ Partial Public Class ScriptMain
                                           partitionValue As String) As Integer
 
         ' SELECT-Liste aus Template laden
-        Dim sqlSelectList As String =
-"SELECT STRING_AGG(
-    CONCAT(
-        CHAR(9), LOWER(colname), ' = ',
-        CASE WHEN is_nullable = 0 THEN 'ISNULL(' ELSE '' END,
-        CASE WHEN typname IN ('nvarchar','varchar','nchar','char')
-             THEN CONCAT('CONVERT(', typname, '(', collength, '), ')
-             ELSE '' END,
-        UPPER(colname),
-        CASE WHEN typname IN ('nvarchar','varchar','nchar','char')
-             THEN ' COLLATE Latin1_General_100_CI_AS_SC_UTF8)'
-             ELSE '' END,
-        CASE WHEN is_nullable = 0 AND typname LIKE '%char%' THEN ', '''')'
-             WHEN is_nullable = 0 AND (typname LIKE 'float%'
-                  OR typname IN ('numeric','decimal')
-                  OR typname LIKE '%int%') THEN ', 0)'
-             WHEN is_nullable = 0 AND typname LIKE '%date%' THEN ', ''1900-01-01'')'
-             ELSE '' END
-    ),
-    ',' + CHAR(13) + CHAR(10)
-) WITHIN GROUP (ORDER BY colno)
-FROM dwh.dbo." & v.Faktentabelle.ToLower() & "_template
-WHERE tabname = @tab
-  AND themengebiet = @thm"
+        Dim templateTable As String = "[" & _datenbank & "].dbo." & v.Faktentabelle.ToLower() & "_template"
+        
+        Dim sqlSelectList As String = "SELECT STRING_AGG(CAST(columns_dbo AS nvarchar(max)), ',' + CHAR(13) + CHAR(10)) WITHIN GROUP (ORDER BY colno) FROM " & templateTable
 
         Dim selectList As String = Nothing
         Dim versuch As Integer = 0
@@ -234,9 +216,6 @@ WHERE tabname = @tab
                 Using conn As New SqlConnection(connStr)
                     conn.Open()
                     Using cmd As New SqlCommand(sqlSelectList, conn)
-                        cmd.CommandTimeout = 0
-                        cmd.Parameters.AddWithValue("@tab", v.Verfahren.ToLower())
-                        cmd.Parameters.AddWithValue("@thm", v.Themengebiet.ToLower())
                         Dim result As Object = cmd.ExecuteScalar()
                         If result IsNot Nothing AndAlso result IsNot DBNull.Value Then
                             selectList = result.ToString()
@@ -251,7 +230,7 @@ WHERE tabname = @tab
         End While
 
         If String.IsNullOrEmpty(selectList) Then
-            Throw New Exception("SELECT-Liste ist NULL â Template prÃ¼fen: " & v.Faktentabelle.ToLower() & "_template")
+            Throw New Exception("SELECT-Liste konnte nicht aus " & templateTable & " geladen werden.")
         End If
 
         ' SELECT INTO aufbauen

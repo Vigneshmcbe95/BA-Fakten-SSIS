@@ -100,99 +100,83 @@ Partial Public Class ScriptMain
     ' =============================================================================
     Private Sub TemplateErstellen(connStr As String, v As VerfahrenInfo)
         Dim tabelle As String = v.Faktentabelle.ToLower()
-        Dim ziel As String = "dwh.dbo." & tabelle & "_template"
+        ' Use _datenbank parameter for the template location
+        Dim ziel As String = "[" & _datenbank & "].dbo." & tabelle & "_template"
 
-        Log("  Erstelle Template: " & ziel)
+        Log("  Prüfe/Erstelle Template: " & ziel)
 
-        ' Drop if exists
-        Dim sqlDrop As String = "DROP TABLE IF EXISTS " & ziel & ";"
-        SqlAusfuehren(connStr, sqlDrop, "Template DROP")
+        ' 1. Check if template already exists
+        Dim exists As Integer = Convert.ToInt32(SqlSkalar(connStr,
+            "SELECT COUNT(*) FROM [" & _datenbank & "].sys.tables WHERE schema_id=SCHEMA_ID('dbo') AND name='" & tabelle & "_template'",
+            "Template Check"))
 
-        ' Build template directly from external Oracle table
-        Dim sqlCreate As String =
-"SELECT
-    CAST(RTRIM(ddl.THMNAME) AS VARCHAR(100)) COLLATE Latin1_General_100_CI_AS_SC_UTF8 AS themengebiet,
-    CAST(RTRIM(ddl.TABNAME) AS VARCHAR(100)) COLLATE Latin1_General_100_CI_AS_SC_UTF8 AS tabname,
-    ddl.COLNAME AS colname,
-    ddl.COLNO AS colno,
-    ddl.TYPNAME AS typname,
-    ddl.COLLENGTH AS collength,
-    ddl.PRECISION AS precision,
-    ddl.SCALE AS scale,
-    ddl.IS_NULLABLE AS is_nullable,
-    -- Build columns_dbo on the fly
-    CONCAT(
-        CHAR(9), LOWER(ddl.COLNAME), ' = ',
-        CASE WHEN ddl.IS_NULLABLE = 0 THEN 'ISNULL(' ELSE '' END,
-        CASE WHEN ddl.TYPNAME IN ('nvarchar','varchar','nchar','char')
-             THEN CONCAT('CONVERT(', ddl.TYPNAME COLLATE Latin1_General_100_CI_AS_SC_UTF8,
-                         '(', ddl.COLLENGTH, '), ')
-             ELSE ''
-        END,
-        UPPER(ddl.COLNAME),
-        CASE WHEN ddl.TYPNAME IN ('nvarchar','varchar','nchar','char')
-             THEN ' COLLATE Latin1_General_100_CI_AS_SC_UTF8)'
-             ELSE ''
-        END,
-        CASE WHEN ddl.IS_NULLABLE = 0 AND ddl.TYPNAME LIKE '%char%'
-                THEN ', '''')'
-             WHEN ddl.IS_NULLABLE = 0 AND (ddl.TYPNAME LIKE 'float%'
-                  OR ddl.TYPNAME IN ('numeric','decimal')
-                  OR ddl.TYPNAME LIKE '%int%')
-                THEN ', 0)'
-             WHEN ddl.IS_NULLABLE = 0 AND ddl.TYPNAME LIKE '%date%'
-                THEN ', ''1900-01-01'')'
-             ELSE ''
-        END
-    ) AS columns_dbo,
-    -- Build columns_ext on the fly
-    CONCAT(
-        CHAR(9), UPPER(ddl.COLNAME), ' ', ddl.TYPNAME,
-        CASE WHEN ddl.TYPNAME IN ('nvarchar','varchar','nchar','char')
-             THEN CONCAT('(',
-                    CASE WHEN ddl.COLLENGTH * 4 > 4000
-                         THEN 4000
-                         ELSE ddl.COLLENGTH * 4
-                    END,
-                    ') COLLATE Latin1_General_100_CS_AS_SC_UTF8')
-             WHEN ddl.TYPNAME = 'varbinary'
-                THEN CONCAT('(', ddl.COLLENGTH, ')')
-             WHEN ddl.TYPNAME IN ('decimal','numeric')
-                THEN CONCAT('(', ddl.PRECISION, ',', ddl.SCALE, ')')
-             ELSE ''
-        END,
-        ' NULL'
-    ) AS columns_ext
-INTO " & ziel & "
-FROM [" & _datenbank & "].[" & _extTableSchema & "].[" & _extTableName & "] ddl
-WHERE CAST(RTRIM(ddl.THMNAME) AS VARCHAR(100)) COLLATE Latin1_General_100_CI_AS_SC_UTF8 = @thema COLLATE Latin1_General_100_CI_AS_SC_UTF8
-  AND CAST(RTRIM(ddl.TABNAME) AS VARCHAR(100)) COLLATE Latin1_General_100_CI_AS_SC_UTF8 = @tab COLLATE Latin1_General_100_CI_AS_SC_UTF8
-ORDER BY ddl.COLNO;"
+        If exists > 0 Then
+            Log("  Template existiert bereits. Vergleiche Struktur mit tm_polybase_struktur...")
+            
+            ' Compare columns_dbo from existing template vs tm_polybase_struktur
+            Dim sqlCompare As String = "
+            WITH NewSchema AS (
+                SELECT STRING_AGG(CAST(columns_dbo AS nvarchar(max)), '|') WITHIN GROUP (ORDER BY colno) as SchemaStr
+                FROM dbo.tm_polybase_struktur
+                WHERE themengebiet = @thema AND tabname = @tab
+            ),
+            OldSchema AS (
+                SELECT STRING_AGG(CAST(columns_dbo AS nvarchar(max)), '|') WITHIN GROUP (ORDER BY colno) as SchemaStr
+                FROM " & ziel & "
+            )
+            SELECT CASE WHEN n.SchemaStr = o.SchemaStr THEN 1 ELSE 0 END
+            FROM NewSchema n, OldSchema o"
 
-        Dim versuch As Integer = 0
-        While versuch < MAX_VERSUCHE
-            versuch += 1
+            Dim match As Integer = 0
             Try
                 Using conn As New SqlConnection(connStr)
                     conn.Open()
-                    Using cmd As New SqlCommand(sqlCreate, conn)
-                        cmd.CommandTimeout = 0
+                    Using cmd As New SqlCommand(sqlCompare, conn)
                         cmd.Parameters.AddWithValue("@thema", v.Themengebiet.Trim().ToLower())
                         cmd.Parameters.AddWithValue("@tab", v.Verfahren.Trim().ToLower())
-                        Log("  Oracle-Abfrage: Theme='" & v.Themengebiet.Trim().ToLower() & "', Table='" & v.Verfahren.Trim().ToLower() & "'")
-                        cmd.ExecuteNonQuery()
+                        match = Convert.ToInt32(cmd.ExecuteScalar())
                     End Using
                 End Using
-                Exit While
             Catch ex As Exception
-                Log(String.Format("WARNUNG [Template erstellen] Versuch {0}/{1}: {2}", versuch, MAX_VERSUCHE, ex.Message))
-                If versuch < MAX_VERSUCHE Then
-                    System.Threading.Thread.Sleep(WARTE_SEK * 1000)
-                Else
-                    Throw
-                End If
+                Log("  Fehler beim Strukturvergleich: " & ex.Message)
+                match = 0
             End Try
-        End While
+
+            If match = 1 Then
+                Log("  ✓ Struktur identisch. Bestehendes Template wird wiederverwendet.")
+                Return
+            Else
+                LogFehler("  !!! STRUKTUR-MISSMATCH !!!")
+                LogFehler("  Das bestehende Template " & ziel & " passt nicht zu tm_polybase_struktur.")
+                LogFehler("  Bitte Template manuell prüfen oder löschen für Neuanlage.")
+                Throw New Exception("Struktur-Konflikt in " & ziel)
+            End If
+        End If
+
+        ' 2. Create Template from tm_polybase_struktur if not exists
+        Log("  Erstelle neues Template aus tm_polybase_struktur...")
+        
+        Dim sqlCreate As String = "
+        SELECT 
+            themengebiet,
+            tabname,
+            colname,
+            colno,
+            columns_dbo,
+            columns_ext
+        INTO " & ziel & "
+        FROM dbo.tm_polybase_struktur
+        WHERE themengebiet = @thema AND tabname = @tab
+        ORDER BY colno"
+
+        Using conn As New SqlConnection(connStr)
+            conn.Open()
+            Using cmd As New SqlCommand(sqlCreate, conn)
+                cmd.Parameters.AddWithValue("@thema", v.Themengebiet.Trim().ToLower())
+                cmd.Parameters.AddWithValue("@tab", v.Verfahren.Trim().ToLower())
+                cmd.ExecuteNonQuery()
+            End Using
+        End Using
 
         ' Validate
         Dim cnt As Integer = Convert.ToInt32(SqlSkalar(connStr,
@@ -200,10 +184,10 @@ ORDER BY ddl.COLNO;"
             "Template Count"))
 
         If cnt = 0 Then
-            Throw New Exception("Template wurde erstellt, hat aber 0 Zeilen!")
+            Throw New Exception("Keine Daten in tm_polybase_struktur für " & v.Verfahren & " gefunden!")
         End If
 
-        Log("  ✓ Template erfolgreich: " & ziel & " | Spalten: " & cnt.ToString())
+        Log("  ✓ Template neu erstellt: " & ziel & " | Spalten: " & cnt.ToString())
     End Sub
 
     ' =============================================================================

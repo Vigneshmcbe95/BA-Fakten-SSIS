@@ -28,6 +28,7 @@ Partial Public Class ScriptMain
     Private _parameterDB As String = String.Empty
     Private _parametertab As String = String.Empty
     Private _extTableSchema As String = String.Empty
+    Private _datenbank As String = String.Empty
 
 
     Public Sub Main()
@@ -42,10 +43,12 @@ Partial Public Class ScriptMain
             _parameterDB = Dts.Variables("BA::ParameterDB").Value.ToString().Trim()
             _parametertab = Dts.Variables("BA::Parametertabelle").Value.ToString().Trim()
             _extTableSchema = Dts.Variables("BA::ExtTableSchema").Value.ToString().Trim()
+            _datenbank = Dts.Variables("BA::Datenbank").Value.ToString().Trim()
 
             Log("ParameterDB        : " & _parameterDB)
             Log("Parametertabelle   : " & _parametertab)
             Log("ExtTableSchema     : " & _extTableSchema)
+            Log("Datenbank          : " & _datenbank)
 
             ' âââââââââââââââââââââââââââââââââââââââââââââââââââââ
             ' 1. Partitionswerte aus BA::objPartitionValues lesen
@@ -103,23 +106,20 @@ Partial Public Class ScriptMain
                 Try
                     StatusSetzen(connStr, v.ID, "STAGING_ERSTELLEN")
 
-                    ' Spaltenliste aus externer Tabelle holen
-                    Dim spaltenListe As String = HoleSpaltenListeVonExtTable(connStr, v)
+                    ' Spaltenliste (columns_dbo) aus Template holen
+                    Dim selectList As String = HoleMappingAusTemplate(connStr, v)
 
-                    ' _in + _out pro Partitionswert erstellen
+                    ' _out pro Partitionswert erstellen
                     Dim cntStaging As Integer = 0
                     For Each pe As PartitionsEintrag In meineWerte
                         Dim pvStr As String = pe.Wert
-                        Dim inTabelle As String = v.Faktentabelle.ToLower() & "_in_" & pvStr
                         Dim outTabelle As String = v.Faktentabelle.ToLower() & "_out_" & pvStr
 
-                        ' _out Tabelle erstellen
-                        SqlAusfuehren(connStr,
-                            "IF EXISTS(SELECT 1 FROM sys.tables WHERE schema_id=SCHEMA_ID('dbo') AND name='" & outTabelle & "') DROP TABLE dbo.[" & outTabelle & "];",
-                            "_out loeschen")
-                        SqlAusfuehren(connStr,
-                            "CREATE TABLE dbo.[" & outTabelle & "] (" & vbCrLf & spaltenListe & vbCrLf & ");",
-                            "_out erstellen")
+                        ' _out Tabelle mit SELECT TOP 0 INTO erstellen
+                        SqlAusfuehren(connStr, "IF OBJECT_ID('dbo.[" & outTabelle & "]','U') IS NOT NULL DROP TABLE dbo.[" & outTabelle & "];", "_out loeschen")
+                        
+                        Dim sqlCreate As String = "SELECT TOP 0 " & selectList & " INTO dbo.[" & outTabelle & "] FROM ext.[" & v.Faktentabelle.ToLower() & "];"
+                        SqlAusfuehren(connStr, sqlCreate, "_out erstellen")
 
                         Log("  _out erstellt: " & pvStr & " | Modus: " & pe.Modus)
                         cntStaging += 1
@@ -153,69 +153,33 @@ Partial Public Class ScriptMain
     End Sub
 
     ' =========================================================================
-    ' Spaltenliste von externer Tabelle kopieren
+    ' Spaltenliste (Mapping) aus Template holen
     ' =========================================================================
-    Private Function HoleSpaltenListeVonExtTable(connStr As String, v As VerfahrenInfo) As String
-        Dim templateTableName As String = v.Faktentabelle.ToLower() & "_template"
+    Private Function HoleMappingAusTemplate(connStr As String, v As VerfahrenInfo) As String
+        Dim templateTable As String = "[" & _datenbank & "].dbo." & v.Faktentabelle.ToLower() & "_template"
 
-        ' PrÃ¼fen ob Template-Tabelle existiert
-        Dim templateExists As Integer = Convert.ToInt32(SqlSkalar(connStr,
-            "SELECT COUNT(*) FROM sys.tables WHERE schema_id=SCHEMA_ID('dbo') AND name='" & templateTableName & "'",
-            "Template prÃ¼fen"))
+        Log("  Lade Mapping von: " & templateTable)
 
-        If templateExists = 0 Then
-            Throw New Exception("Template-Tabelle nicht gefunden: dbo." & templateTableName)
-        End If
-
-        Log("  Kopiere Spalten-Struktur von: dbo." & templateTableName)
-
-        Dim sql As String =
-    "SELECT STRING_AGG(
-    CONCAT(
-        CHAR(9), c.COLUMN_NAME, ' ', 
-        c.DATA_TYPE,
-        CASE 
-            WHEN c.DATA_TYPE IN ('varchar','nvarchar','char','nchar','varbinary')
-                 AND c.CHARACTER_MAXIMUM_LENGTH <> -1
-                THEN CONCAT('(', c.CHARACTER_MAXIMUM_LENGTH, ')')
-            WHEN c.DATA_TYPE IN ('decimal','numeric')
-                THEN CONCAT('(', c.NUMERIC_PRECISION, ',', c.NUMERIC_SCALE, ')')
-            ELSE ''
-        END,
-        CASE WHEN c.COLLATION_NAME IS NOT NULL 
-             THEN CONCAT(' COLLATE ', c.COLLATION_NAME) 
-             ELSE '' 
-        END,
-        CASE WHEN c.IS_NULLABLE = 'YES' THEN ' NULL' ELSE ' NOT NULL' END
-    ),
-    ',' + CHAR(13) + CHAR(10)
-) WITHIN GROUP (ORDER BY c.ORDINAL_POSITION)
-FROM INFORMATION_SCHEMA.COLUMNS c
-WHERE c.TABLE_SCHEMA = 'dbo'
-  AND c.TABLE_NAME = @table"
-
+        Dim sqlCols As String = "SELECT STRING_AGG(CAST(columns_dbo AS nvarchar(max)), ',' + CHAR(13) + CHAR(10)) WITHIN GROUP (ORDER BY colno) FROM " & templateTable
+        
         Dim versuch As Integer = 0
         While versuch < MAX_VERSUCHE
             versuch += 1
             Try
                 Using conn As New SqlConnection(connStr)
                     conn.Open()
-                    Using cmd As New SqlCommand(sql, conn)
-                        cmd.CommandTimeout = 0
-                        cmd.Parameters.AddWithValue("@table", templateTableName)
-                        Dim ergebnis As Object = cmd.ExecuteScalar()
-                        If ergebnis IsNot Nothing AndAlso ergebnis IsNot DBNull.Value Then
-                            Return ergebnis.ToString()
-                        End If
+                    Using cmd As New SqlCommand(sqlCols, conn)
+                        Dim r As Object = cmd.ExecuteScalar()
+                        If r IsNot Nothing AndAlso r IsNot DBNull.Value Then Return r.ToString()
                     End Using
                 End Using
-                Throw New Exception("Spaltenliste ist NULL â Template pruefen: dbo." & templateTableName)
             Catch ex As Exception
-                Log(String.Format("WARNUNG [Spaltenliste] Versuch {0}/{1}: {2}", versuch, MAX_VERSUCHE, ex.Message))
+                Log(String.Format("WARNUNG [Template Spalten] Versuch {0}/{1}: {2}", versuch, MAX_VERSUCHE, ex.Message))
                 If versuch < MAX_VERSUCHE Then System.Threading.Thread.Sleep(WARTE_SEK * 1000) Else Throw
             End Try
         End While
-        Return String.Empty
+
+        Throw New Exception("Spaltenliste aus Template " & templateTable & " konnte nicht geladen werden.")
     End Function
 
     ' =========================================================================

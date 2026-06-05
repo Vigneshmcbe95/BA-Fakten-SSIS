@@ -28,6 +28,7 @@ Partial Public Class ScriptMain
     Private _runID As Integer = 0
     Private _parameterDB As String = String.Empty
     Private _parametertab As String = String.Empty
+    Private _datenbank As String = String.Empty
 
     Public Sub Main()
 
@@ -40,6 +41,7 @@ Partial Public Class ScriptMain
             _runID = Convert.ToInt32(Dts.Variables("BA::RunID").Value)
             _parameterDB = Dts.Variables("BA::ParameterDB").Value.ToString().Trim()
             _parametertab = Dts.Variables("BA::Parametertabelle").Value.ToString().Trim()
+            _datenbank = Dts.Variables("BA::Datenbank").Value.ToString().Trim()
 
             Dim connStr As String = HoleVerbindungszeichenfolge()
             Dim verfahren As List(Of VerfahrenInfo) = VerfahrenLaden(connStr)
@@ -110,29 +112,26 @@ Partial Public Class ScriptMain
 
         Dim pf As String = "PF_" & v.PartitionColumn & "_" & v.Faktentabelle
         Dim ps As String = "PS_" & v.PartitionColumn & "_" & v.Faktentabelle
+        Dim templateTable As String = "[" & _datenbank & "].dbo." & v.Faktentabelle.ToLower() & "_template"
 
         Dim filegroup As String = Convert.ToString(SqlSkalar(connStr,
             "SELECT name FROM sys.filegroups WHERE is_default=1", "Filegroup"))
 
-        ' PF/PS loeschen falls vorhanden (koennen von frueherem fehlgeschlagenen Lauf stammen)
+        ' PF/PS loeschen falls vorhanden
         If Convert.ToInt32(SqlSkalar(connStr, "SELECT COUNT(*) FROM sys.partition_schemes WHERE name='" & ps & "'", "PS pruefen")) > 0 Then
             SqlAusfuehren(connStr, "DROP PARTITION SCHEME [" & ps & "];", "PS loeschen")
-            Log("  PS geloescht: " & ps)
         End If
         If Convert.ToInt32(SqlSkalar(connStr, "SELECT COUNT(*) FROM sys.partition_functions WHERE name='" & pf & "'", "PF pruefen")) > 0 Then
             SqlAusfuehren(connStr, "DROP PARTITION FUNCTION [" & pf & "];", "PF loeschen")
-            Log("  PF geloescht: " & pf)
         End If
 
         SqlAusfuehren(connStr, "CREATE PARTITION FUNCTION [" & pf & "](INT) AS RANGE LEFT FOR VALUES(0);", "PF erstellen")
         SqlAusfuehren(connStr, "CREATE PARTITION SCHEME [" & ps & "] AS PARTITION [" & pf & "] ALL TO ([" & filegroup & "]);", "PS erstellen")
-        Log("  PF/PS angelegt: " & pf & " / " & ps)
 
-        ' Spaltenliste aus Template
-        Dim colList As String = Nothing
-        Dim sqlCols As String =
-"SELECT '('+STRING_AGG(CAST(columns_ext AS nvarchar(max)),','+CHAR(13)+CHAR(10)) WITHIN GROUP (ORDER BY colno)+')'
- FROM dwh.dbo." & v.Faktentabelle.ToLower() & "_template WHERE tabname=@t AND themengebiet=@thm"
+        ' Spaltenliste (columns_dbo) aus Template holen
+        Dim selectList As String = Nothing
+        Dim sqlCols As String = "SELECT STRING_AGG(CAST(columns_dbo AS nvarchar(max)), ',' + CHAR(13) + CHAR(10)) WITHIN GROUP (ORDER BY colno) FROM " & templateTable
+        
         Dim versuch As Integer = 0
         While versuch < MAX_VERSUCHE
             versuch += 1
@@ -140,50 +139,36 @@ Partial Public Class ScriptMain
                 Using conn As New SqlConnection(connStr)
                     conn.Open()
                     Using cmd As New SqlCommand(sqlCols, conn)
-                        cmd.CommandTimeout = 0
-                        cmd.Parameters.AddWithValue("@t", v.Verfahren.ToLower())
-                        cmd.Parameters.AddWithValue("@thm", v.Themengebiet.ToLower())
                         Dim r As Object = cmd.ExecuteScalar()
-                        If r IsNot Nothing AndAlso r IsNot DBNull.Value Then colList = r.ToString()
+                        If r IsNot Nothing AndAlso r IsNot DBNull.Value Then selectList = r.ToString()
                     End Using
                 End Using
                 Exit While
             Catch ex As Exception
-                Log(String.Format("WARNUNG [Spaltenliste] Versuch {0}/{1}: {2}", versuch, MAX_VERSUCHE, ex.Message))
+                Log(String.Format("WARNUNG [Template Spalten] Versuch {0}/{1}: {2}", versuch, MAX_VERSUCHE, ex.Message))
                 If versuch < MAX_VERSUCHE Then System.Threading.Thread.Sleep(WARTE_SEK * 1000) Else Throw
             End Try
         End While
-        If String.IsNullOrEmpty(colList) Then Throw New Exception("Spaltenliste NULL")
 
-        ' Tabelle erstellen
-        Dim sqlCreate As String = "CREATE TABLE dbo.[" & v.Faktentabelle & "] " & colList &
-            " ON [" & ps & "]([" & v.PartitionColumn & "])" &
-            If(v.Compression = "PAGE" OrElse v.Compression = "ROW", " WITH (DATA_COMPRESSION=" & v.Compression & ")", "") & ";"
-        SqlAusfuehren(connStr, sqlCreate, "Faktentabelle erstellen")
-        SqlAusfuehren(connStr, "ALTER TABLE dbo.[" & v.Faktentabelle & "] SET (LOCK_ESCALATION=AUTO);", "LOCK_ESCALATION")
-        Log("  Faktentabelle erstellt: dbo." & v.Faktentabelle)
-
-        ' Index
-        If v.IndexType = "TRUE" Then
-            SqlAusfuehren(connStr,
-                "CREATE CLUSTERED INDEX [CI_" & v.Faktentabelle & "] ON dbo.[" & v.Faktentabelle & "] ([" & v.PartitionColumn & "]) WITH (FILLFACTOR=100,SORT_IN_TEMPDB=ON" &
-                If(v.Compression = "PAGE" OrElse v.Compression = "ROW", ",DATA_COMPRESSION=" & v.Compression, "") & ") ON [" & ps & "]([" & v.PartitionColumn & "]);",
-                "CI erstellen")
-            Log("  CI angelegt")
-        ElseIf v.IndexType = "CCI" Then
-            SqlAusfuehren(connStr,
-                "CREATE CLUSTERED COLUMNSTORE INDEX [CCI_" & v.Faktentabelle & "] ON dbo.[" & v.Faktentabelle & "] ON [" & ps & "]([" & v.PartitionColumn & "]);",
-                "CCI erstellen")
-            Log("  CCI angelegt")
+        If String.IsNullOrEmpty(selectList) Then
+            Throw New Exception("Spaltenliste aus Template " & templateTable & " konnte nicht geladen werden.")
         End If
+
+        ' Faktentabelle mit SELECT TOP 0 INTO erstellen (übernimmt Typen/Nullability vom Mapping)
+        ' Quelle ist die External Table, Ziel die Faktentabelle
+        Dim sqlCreate As String = "SELECT TOP 0 " & selectList & " INTO dbo.[" & v.Faktentabelle.ToLower() & "] FROM ext.[" & v.Faktentabelle.ToLower() & "];"
+        SqlAusfuehren(connStr, sqlCreate, "Faktentabelle erstellen")
+        
+        SqlAusfuehren(connStr, "ALTER TABLE dbo.[" & v.Faktentabelle.ToLower() & "] SET (LOCK_ESCALATION=AUTO);", "LOCK_ESCALATION")
+        Log("  Faktentabelle erstellt: dbo." & v.Faktentabelle.ToLower())
 
         ' NCCI
         If v.NcciFlag = "TRUE" Then
             Dim allCols As String = Convert.ToString(SqlSkalar(connStr,
-                "SELECT STRING_AGG(QUOTENAME(name),',') FROM sys.columns WHERE object_id=OBJECT_ID('dbo." & v.Faktentabelle & "') AND is_computed=0",
+                "SELECT STRING_AGG(QUOTENAME(name),',') FROM sys.columns WHERE object_id=OBJECT_ID('dbo." & v.Faktentabelle.ToLower() & "') AND is_computed=0",
                 "NCCI Spalten"))
             SqlAusfuehren(connStr,
-                "CREATE NONCLUSTERED COLUMNSTORE INDEX [NCCI_" & v.Faktentabelle & "] ON dbo.[" & v.Faktentabelle & "] (" & allCols & ");",
+                "CREATE NONCLUSTERED COLUMNSTORE INDEX [NCCI_" & v.Faktentabelle & "] ON dbo.[" & v.Faktentabelle.ToLower() & "] (" & allCols & ");",
                 "NCCI erstellen")
             Log("  NCCI angelegt")
         End If
