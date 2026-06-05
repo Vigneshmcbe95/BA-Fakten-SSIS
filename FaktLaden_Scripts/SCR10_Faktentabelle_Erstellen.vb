@@ -181,7 +181,7 @@ Partial Public Class ScriptMain
             "            THEN c.DATA_TYPE + '(' + CAST(c.DATETIME_PRECISION AS varchar(5)) + ')' " &
             "        ELSE c.DATA_TYPE " &
             "    END + ' ' + " &
-            "    CASE c.IS_NULLABLE WHEN 'YES' THEN 'NULL' ELSE 'NOT NULL' END " &
+            "    'NULL' " &
             "AS nvarchar(max)), ',' + CHAR(13) + CHAR(10)) WITHIN GROUP (ORDER BY c.ORDINAL_POSITION) " &
             "FROM [" & _datenbank & "].INFORMATION_SCHEMA.COLUMNS c " &
             "WHERE c.TABLE_SCHEMA = 'dbo' AND c.TABLE_NAME = '" & v.Faktentabelle.ToLower() & "_template'"
