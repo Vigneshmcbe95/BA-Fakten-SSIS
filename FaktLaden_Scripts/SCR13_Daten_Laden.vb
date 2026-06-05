@@ -26,7 +26,7 @@ Imports System.Linq
 '            1. inTable existiert UND hat Zeilen  → bereits geladen, uebersprungen
 '            2. loadingTable existiert            → vorheriger Lauf abgebrochen, loeschen
 '            3. inTable existiert aber leer       → unvollstaendig, loeschen
-'            4. Immer: SELECT INTO _LOADING, dann RENAME → inTable (atomar)
+'            4. Immer: CREATE TABLE _LOADING + INSERT, dann RENAME → inTable (atomar)
 '
 '          Hinweis: _out_ Tabellen (leere Shells fuer Partition-Switch) werden von
 '                   SCR12 erstellt und sind NICHT der Ladeort fuer neue Daten.
@@ -211,7 +211,7 @@ Partial Public Class ScriptMain
                         "IF OBJECT_ID('dbo.[" & loadingTable & "]','U') IS NOT NULL DROP TABLE dbo.[" & loadingTable & "];",
                         "DROP _LOADING " & pv)
 
-                    ' ─── CLEANUP: leere _in_ Tabelle loeschen (SELECT INTO braucht neuen Namen) ───
+                    ' ─── CLEANUP: leere _in_ Tabelle loeschen ───
                     SqlAusfuehren(connStr,
                         "IF OBJECT_ID('dbo.[" & inTable & "]','U') IS NOT NULL DROP TABLE dbo.[" & inTable & "];",
                         "DROP _in_ leer " & pv)
@@ -242,7 +242,7 @@ Partial Public Class ScriptMain
                     End SyncLock
 
                     LogSchreiben(connStr, v.Verfahren, "LOAD_" & pv,
-                        "SELECT INTO dbo." & inTable & " | Zeilen: " & zeilen.ToString())
+                        "INSERT INTO dbo." & inTable & " | Zeilen: " & zeilen.ToString())
 
                     Interlocked.Add(cntGesamtZeilen, CLng(zeilen))
 
@@ -274,67 +274,74 @@ Partial Public Class ScriptMain
     End Sub
 
     ' ==========================================================================================
-    ' SELECT INTO _LOADING Tabelle — laedt eine Partition aus ext.[tabelle]
+    ' _LOADING Tabelle erstellen und Partition laden
+    ' Struktur aus columns_ext (exakte DDL), Daten via columns_dbo (ISNULL-Ausdruecke)
     ' ==========================================================================================
     Private Function DatenLadenSelectInto(connStr As String, v As VerfahrenInfo,
                                           loadingTable As String, extTable As String,
                                           partitionValue As String) As Integer
 
-        ' SELECT-Liste aus Template (via INFORMATION_SCHEMA + tm_polybase_struktur)
-        Dim templateName As String = v.Faktentabelle.ToLower() & "_template"
-
-        Dim sqlSelectList As String =
-            "SELECT STRING_AGG(CAST(m.columns_dbo AS nvarchar(max)), ',' + CHAR(13) + CHAR(10)) WITHIN GROUP (ORDER BY m.colno)" &
-            " FROM [" & _datenbank & "].INFORMATION_SCHEMA.COLUMNS c" &
-            " JOIN dbo.tm_polybase_struktur m ON UPPER(LTRIM(RTRIM(m.colname))) = UPPER(LTRIM(RTRIM(c.COLUMN_NAME)))" &
-            " WHERE c.TABLE_SCHEMA = 'dbo'" &
-            "   AND c.TABLE_NAME = '" & templateName & "'" &
-            "   AND m.tabname = @tab" &
-            "   AND m.themengebiet = @thema"
-
+        ' Spaltendefinition (columns_ext) und Ladeliste (columns_dbo) in einer Abfrage holen
+        Dim colDDL As String = Nothing
         Dim selectList As String = Nothing
-        Dim versuch As Integer = 0
 
+        Dim sqlMeta As String =
+            "SELECT" &
+            "  STRING_AGG(CAST(m.columns_ext AS nvarchar(max)), ',' + CHAR(13) + CHAR(10)) WITHIN GROUP (ORDER BY m.colno) AS colDDL," &
+            "  STRING_AGG(CAST(m.columns_dbo AS nvarchar(max)), ',' + CHAR(13) + CHAR(10)) WITHIN GROUP (ORDER BY m.colno) AS selectList" &
+            " FROM dbo.tm_polybase_struktur m" &
+            " WHERE m.tabname = @tab AND m.themengebiet = @thema"
+
+        Dim versuch As Integer = 0
         While versuch < MAX_VERSUCHE
             versuch += 1
             Try
                 Using conn As New SqlConnection(connStr)
                     conn.Open()
-                    Using cmd As New SqlCommand(sqlSelectList, conn)
+                    Using cmd As New SqlCommand(sqlMeta, conn)
                         cmd.CommandTimeout = 0
                         cmd.Parameters.AddWithValue("@tab", v.Verfahren.ToLower())
                         cmd.Parameters.AddWithValue("@thema", v.Themengebiet.ToLower())
-                        Dim result As Object = cmd.ExecuteScalar()
-                        If result IsNot Nothing AndAlso result IsNot DBNull.Value Then
-                            selectList = result.ToString()
-                        End If
+                        Using rdr As SqlDataReader = cmd.ExecuteReader()
+                            If rdr.Read() Then
+                                If Not rdr.IsDBNull(0) Then colDDL = rdr.GetString(0)
+                                If Not rdr.IsDBNull(1) Then selectList = rdr.GetString(1)
+                            End If
+                        End Using
                     End Using
                 End Using
                 Exit While
             Catch ex As Exception
                 SyncLock _logSperre
-                    Log(String.Format("WARNUNG [Template Query] Versuch {0}/{1}: {2}", versuch, MAX_VERSUCHE, ex.Message))
+                    Log(String.Format("WARNUNG [Metadaten laden] Versuch {0}/{1}: {2}", versuch, MAX_VERSUCHE, ex.Message))
                 End SyncLock
                 If versuch < MAX_VERSUCHE Then Thread.Sleep(WARTE_SEK * 1000) Else Throw
             End Try
         End While
 
+        If String.IsNullOrEmpty(colDDL) Then
+            Throw New Exception("columns_ext DDL fuer '" & v.Faktentabelle & "' konnte nicht geladen werden.")
+        End If
         If String.IsNullOrEmpty(selectList) Then
-            Throw New Exception("SELECT-Liste konnte nicht fuer Template '" & templateName & "' geladen werden.")
+            Throw New Exception("columns_dbo SELECT-Liste fuer '" & v.Faktentabelle & "' konnte nicht geladen werden.")
         End If
 
-        Dim sql As String =
+        ' Tabelle mit exakter Struktur aus columns_ext erstellen
+        SqlAusfuehren(connStr, "CREATE TABLE dbo.[" & loadingTable & "] (" & colDDL & ");", "CREATE _LOADING " & partitionValue)
+
+        ' Daten mit ISNULL-Ausdruecken aus columns_dbo laden
+        Dim sqlInsert As String =
+            "INSERT INTO dbo.[" & loadingTable & "]" & vbCrLf &
             "SELECT" & vbCrLf &
             selectList & vbCrLf &
-            "INTO dbo.[" & loadingTable & "]" & vbCrLf &
             "FROM ext.[" & extTable & "]" & vbCrLf &
             "WHERE [" & v.PartitionColumn & "] = " & partitionValue & ";"
 
         SyncLock _logSperre
-            Log("  SQL SELECT INTO [" & loadingTable & "] WHERE " & v.PartitionColumn & " = " & partitionValue & " (→ wird zu _in_ umbenannt)")
+            Log("  INSERT INTO [" & loadingTable & "] WHERE " & v.PartitionColumn & " = " & partitionValue & " (→ wird zu _in_ umbenannt)")
         End SyncLock
 
-        SqlAusfuehren(connStr, sql, "SELECT INTO " & loadingTable)
+        SqlAusfuehren(connStr, sqlInsert, "INSERT " & loadingTable)
 
         Return Convert.ToInt32(SqlSkalar(connStr,
             "SELECT COUNT(*) FROM dbo.[" & loadingTable & "]",

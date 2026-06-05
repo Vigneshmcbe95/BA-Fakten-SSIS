@@ -106,8 +106,8 @@ Partial Public Class ScriptMain
                 Try
                     StatusSetzen(connStr, v.ID, "STAGING_ERSTELLEN")
 
-                    ' Spaltenliste (columns_dbo) aus Template holen
-                    Dim selectList As String = HoleMappingAusTemplate(connStr, v)
+                    ' Spaltendefinitionen direkt aus tm_polybase_struktur (columns_ext = exakte DDL)
+                    Dim colDDL As String = HoleSpaltendefinitionen(connStr, v)
 
                     ' _out pro Partitionswert erstellen
                     Dim cntStaging As Integer = 0
@@ -115,11 +115,10 @@ Partial Public Class ScriptMain
                         Dim pvStr As String = pe.Wert
                         Dim outTabelle As String = v.Faktentabelle.ToLower() & "_out_" & pvStr
 
-                        ' _out Tabelle mit SELECT TOP 0 INTO erstellen
+                        ' _out Tabelle mit exakter Spaltendefinition aus columns_ext erstellen
                         SqlAusfuehren(connStr, "IF OBJECT_ID('dbo.[" & outTabelle & "]','U') IS NOT NULL DROP TABLE dbo.[" & outTabelle & "];", "_out loeschen")
-                        
-                        Dim sqlCreate As String = "SELECT TOP 0 " & selectList & " INTO dbo.[" & outTabelle & "] FROM ext.[" & v.Faktentabelle.ToLower() & "];"
-                        SqlAusfuehren(connStr, sqlCreate, "_out erstellen")
+
+                        SqlAusfuehren(connStr, "CREATE TABLE dbo.[" & outTabelle & "] (" & colDDL & ");", "_out erstellen")
 
                         Log("  _out erstellt: " & pvStr & " | Modus: " & pe.Modus)
                         cntStaging += 1
@@ -153,28 +152,23 @@ Partial Public Class ScriptMain
     End Sub
 
     ' =========================================================================
-    ' Spaltenliste (Mapping) aus Template (via INFORMATION_SCHEMA) + Metadaten holen
+    ' Spaltendefinitionen direkt aus tm_polybase_struktur (columns_ext = exakte DDL)
     ' =========================================================================
-    Private Function HoleMappingAusTemplate(connStr As String, v As VerfahrenInfo) As String
-        Dim templateName As String = v.Faktentabelle.ToLower() & "_template"
-        Log("  Lade Mapping von Template (via InfoSchema): " & templateName)
+    Private Function HoleSpaltendefinitionen(connStr As String, v As VerfahrenInfo) As String
+        Log("  Lade Spaltendefinitionen aus tm_polybase_struktur (columns_ext)")
 
-        Dim sqlCols As String = "
-        SELECT STRING_AGG(CAST(m.columns_dbo AS nvarchar(max)), ',' + CHAR(13) + CHAR(10)) WITHIN GROUP (ORDER BY m.colno)
-        FROM [" & _datenbank & "].INFORMATION_SCHEMA.COLUMNS c
-        JOIN dbo.tm_polybase_struktur m ON UPPER(LTRIM(RTRIM(m.colname))) = UPPER(LTRIM(RTRIM(c.COLUMN_NAME)))
-        WHERE c.TABLE_SCHEMA = 'dbo' 
-          AND c.TABLE_NAME = '" & templateName & "'
-          AND m.tabname = @tab
-          AND m.themengebiet = @thema"
-        
+        Dim sqlColExt As String =
+            "SELECT STRING_AGG(CAST(m.columns_ext AS nvarchar(max)), ',' + CHAR(13) + CHAR(10)) WITHIN GROUP (ORDER BY m.colno)" &
+            " FROM dbo.tm_polybase_struktur m" &
+            " WHERE m.tabname = @tab AND m.themengebiet = @thema"
+
         Dim versuch As Integer = 0
         While versuch < MAX_VERSUCHE
             versuch += 1
             Try
                 Using conn As New SqlConnection(connStr)
                     conn.Open()
-                    Using cmd As New SqlCommand(sqlCols, conn)
+                    Using cmd As New SqlCommand(sqlColExt, conn)
                         cmd.Parameters.AddWithValue("@tab", v.Verfahren.ToLower())
                         cmd.Parameters.AddWithValue("@thema", v.Themengebiet.ToLower())
                         Dim r As Object = cmd.ExecuteScalar()
@@ -182,12 +176,12 @@ Partial Public Class ScriptMain
                     End Using
                 End Using
             Catch ex As Exception
-                Log(String.Format("WARNUNG [Template Spalten] Versuch {0}/{1}: {2}", versuch, MAX_VERSUCHE, ex.Message))
+                Log(String.Format("WARNUNG [Spaltendefinitionen] Versuch {0}/{1}: {2}", versuch, MAX_VERSUCHE, ex.Message))
                 If versuch < MAX_VERSUCHE Then System.Threading.Thread.Sleep(WARTE_SEK * 1000) Else Throw
             End Try
         End While
 
-        Throw New Exception("Spaltenliste konnte nicht für Template " & templateName & " geladen werden.")
+        Throw New Exception("columns_ext DDL konnte nicht fuer '" & v.Faktentabelle & "' geladen werden.")
     End Function
 
     ' =========================================================================
