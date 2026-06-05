@@ -4,10 +4,15 @@ Imports System
 Imports System.Data.SqlClient
 Imports System.Collections.Generic
 Imports Microsoft.SqlServer.Dts.Runtime
+
 ' =============================================================================
-' SCR18_NCCI_Out
-' ZWECK: NCCI auf alle _out Tabellen (nur wenn NcciFlag=TRUE und IndexType<>CCI)
-' Status: NCCI_OUT → NCCI_OUT_ERSTELLT
+'  Script   : SCR18_NCCI_Out
+'  Package  : Fakten Laden (SSIS)
+'  Purpose  : Creates the nonclustered columnstore index on the _out_
+'             staging tables when configured.
+'  Workflow : KOMPRIMIERUNG_ERSTELLT -> NCCI_OUT_ERSTELLT
+'  Retry    : 3 attempts per SQL statement, 30 s delay
+'  Logging  : SSIS events only (FireInformation / FireError)
 ' =============================================================================
 <Microsoft.SqlServer.Dts.Tasks.ScriptTask.SSISScriptTaskEntryPointAttribute()>
 <CLSCompliant(False)>
@@ -22,6 +27,9 @@ Partial Public Class ScriptMain
     Private _parameterDB As String = String.Empty
     Private _parametertab As String = String.Empty
 
+    ' -----------------------------------------------------------------------
+    ' Main - Entry point - orchestrates the script flow.
+    ' -----------------------------------------------------------------------
     Public Sub Main()
         Log("SCR18_NCCI_Out - Start")
         Try
@@ -99,10 +107,17 @@ Partial Public Class ScriptMain
         End Try
     End Sub
 
+    ' -----------------------------------------------------------------------
+    ' IndexVorhanden - Checks whether an index exists on a table.
+    ' -----------------------------------------------------------------------
     Private Function IndexVorhanden(connStr As String, tbl As String, idxName As String) As Boolean
         Return Convert.ToInt32(SqlSkalar(connStr, "SELECT COUNT(*) FROM sys.indexes WHERE object_id=OBJECT_ID('dbo." & tbl & "') AND name='" & idxName & "'", "Index prÃ¼fen")) > 0
     End Function
 
+    ' -----------------------------------------------------------------------
+    ' VerfahrenLaden - Loads the Verfahren to process from the work list
+    ' (joined with the parameter table).
+    ' -----------------------------------------------------------------------
     Private Function VerfahrenLaden(connStr As String) As List(Of VerfahrenInfo)
         Dim liste As New List(Of VerfahrenInfo)()
         Dim sql As String =
@@ -141,10 +156,17 @@ Partial Public Class ScriptMain
         Return liste
     End Function
 
+    ' -----------------------------------------------------------------------
+    ' StatusSetzen - Updates Status / LetzterSchritt of a work list row.
+    ' -----------------------------------------------------------------------
     Private Sub StatusSetzen(connStr As String, id As Integer, status As String)
         SqlAusfuehren(connStr, "UPDATE dbo.ETL_Fkt_Arbeitsliste SET Status='" & status & "',LetzterSchritt='" & status & "',AktualisiertAm=GETDATE() WHERE ID=" & id, "Status")
     End Sub
 
+    ' -----------------------------------------------------------------------
+    ' FehlerSetzen - Marks a work list row as FEHLER and stores the error
+    ' message.
+    ' -----------------------------------------------------------------------
     Private Sub FehlerSetzen(connStr As String, id As Integer, msg As String)
         Try
             Using conn As New SqlConnection(connStr)
@@ -159,6 +181,10 @@ Partial Public Class ScriptMain
         End Try
     End Sub
 
+    ' -----------------------------------------------------------------------
+    ' LogSchreiben - Routes protocol messages to SSIS events: FEHLER_* ->
+    ' FireError, everything else -> FireInformation.
+    ' -----------------------------------------------------------------------
     Private Sub LogSchreiben(connStr As String, verfahren As String, schritt As String, meldung As String)
         ' Kein DB-Log: Logging laeuft vollstaendig ueber SSIS Events (Eventhandler)
         ' FEHLER_* -> FireError | alles andere -> FireInformation
@@ -169,6 +195,10 @@ Partial Public Class ScriptMain
         End If
     End Sub
 
+    ' -----------------------------------------------------------------------
+    ' SqlAusfuehren - Executes a non-query SQL statement with retry; logs
+    ' warning and the full SQL statement on failure.
+    ' -----------------------------------------------------------------------
     Private Function SqlAusfuehren(connStr As String, sql As String, beschreibung As String) As Integer
         Dim versuch As Integer = 0
         Dim letzterFehler As Exception = Nothing
@@ -192,6 +222,10 @@ Partial Public Class ScriptMain
         Throw New Exception(String.Format("[{0}] fehlgeschlagen: {1}", beschreibung, If(letzterFehler IsNot Nothing, letzterFehler.Message, "Unbekannt")))
     End Function
 
+    ' -----------------------------------------------------------------------
+    ' SqlSkalar - Executes a scalar SQL query with retry; logs warning and
+    ' the full SQL statement on failure.
+    ' -----------------------------------------------------------------------
     Private Function SqlSkalar(connStr As String, sql As String, beschreibung As String) As Object
         Dim versuch As Integer = 0
         While versuch < MAX_VERSUCHE
@@ -213,19 +247,33 @@ Partial Public Class ScriptMain
         Return Nothing
     End Function
 
+    ' -----------------------------------------------------------------------
+    ' HoleVerbindungszeichenfolge - Returns the connection string of the
+    ' package connection manager.
+    ' -----------------------------------------------------------------------
     Private Function HoleVerbindungszeichenfolge() As String
         Return Dts.Connections(CONN_NAME).ConnectionString
     End Function
 
+    ' -----------------------------------------------------------------------
+    ' Log - Writes an information message to the SSIS log
+    ' (FireInformation).
+    ' -----------------------------------------------------------------------
     Private Sub Log(n As String)
         Dim f As Boolean = False
         Dts.Events.FireInformation(0, SKRIPT_NAME, n, "", 0, f)
     End Sub
 
+    ' -----------------------------------------------------------------------
+    ' LogFehler - Writes an error message to the SSIS log (FireError).
+    ' -----------------------------------------------------------------------
     Private Sub LogFehler(n As String)
         Dts.Events.FireError(0, SKRIPT_NAME, n, "", 0)
     End Sub
 
+    ' -----------------------------------------------------------------------
+    ' VerfahrenInfo - Data container for one Verfahren work item.
+    ' -----------------------------------------------------------------------
     Private Class VerfahrenInfo
         Public Property ID As Integer
         Public Property Verfahren As String
@@ -235,6 +283,9 @@ Partial Public Class ScriptMain
         Public Property IndexType As String
     End Class
 
+    ' -----------------------------------------------------------------------
+    ' ScriptResults - SSIS task result codes.
+    ' -----------------------------------------------------------------------
     Public Enum ScriptResults
         Success = DTSExecResult.Success
         Failure = DTSExecResult.Failure

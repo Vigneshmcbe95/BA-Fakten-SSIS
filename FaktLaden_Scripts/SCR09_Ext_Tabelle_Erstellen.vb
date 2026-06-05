@@ -7,11 +7,13 @@ Imports System.Collections.Generic
 Imports Microsoft.SqlServer.Dts.Runtime
 
 ' =============================================================================
-' PAKET  : Fakten Laden
-' SKRIPT : SCR09_Ext_Tabelle_Erstellen (v2 - using tm_polybase_struktur)
-' ZWECK  : Pro Verfahren: externe Tabelle aus tm_polybase_struktur.columns_ext erstellen
-'          Oracle LOCATION → UPPER CASE
-'          Status: TEMPLATE_ERSTELLT → EXT_TABELLE_ERSTELLT
+'  Script   : SCR09_Ext_Tabelle_Erstellen
+'  Package  : Fakten Laden (SSIS)
+'  Purpose  : Creates the PolyBase external table ext.<fact> against the
+'             Oracle source using the columns_ext metadata.
+'  Workflow : TEMPLATE_ERSTELLT -> EXT_TABELLE_ERSTELLT
+'  Retry    : 3 attempts per SQL statement, 30 s delay
+'  Logging  : SSIS events only (FireInformation / FireError)
 ' =============================================================================
 <Microsoft.SqlServer.Dts.Tasks.ScriptTask.SSISScriptTaskEntryPointAttribute()>
 <CLSCompliant(False)>
@@ -30,6 +32,9 @@ Partial Public Class ScriptMain
     Private _extSourceName As String = String.Empty
     Private _extTableLocation As String = String.Empty
 
+    ' -----------------------------------------------------------------------
+    ' Main - Entry point - orchestrates the script flow.
+    ' -----------------------------------------------------------------------
     Public Sub Main()
         Log("SCR09_Ext_Tabelle_Erstellen - Start")
 
@@ -84,9 +89,10 @@ Partial Public Class ScriptMain
         End Try
     End Sub
 
-    ' =============================================================================
-    ' EXTERNE TABELLE ERSTELLEN - using columns_ext from tm_polybase_struktur
-    ' =============================================================================
+    ' -----------------------------------------------------------------------
+    ' ExtTabelleErstellen - Creates the PolyBase external table from the
+    ' columns_ext metadata.
+    ' -----------------------------------------------------------------------
     Private Sub ExtTabelleErstellen(connStr As String, v As VerfahrenInfo)
         Dim extName As String = v.Faktentabelle.ToLower()
         Dim extFullName As String = _extSchema & ".[" & extName & "]"
@@ -169,9 +175,10 @@ WHERE schema_id = SCHEMA_ID('" & _extSchema & "')
         Log("  OK Externe Tabelle erfolgreich: " & extFullName)
     End Sub
 
-    ' =============================================================================
-    ' VERFAHREN LADEN
-    ' =============================================================================
+    ' -----------------------------------------------------------------------
+    ' VerfahrenLaden - Loads the Verfahren to process from the work list
+    ' (joined with the parameter table).
+    ' -----------------------------------------------------------------------
     Private Function VerfahrenLaden(connStr As String) As List(Of VerfahrenInfo)
         Dim liste As New List(Of VerfahrenInfo)()
         Dim sql As String =
@@ -219,15 +226,19 @@ WHERE schema_id = SCHEMA_ID('" & _extSchema & "')
         Return liste
     End Function
 
-    ' =============================================================================
-    ' STATUS MANAGEMENT
-    ' =============================================================================
+    ' -----------------------------------------------------------------------
+    ' StatusSetzen - Updates Status / LetzterSchritt of a work list row.
+    ' -----------------------------------------------------------------------
     Private Sub StatusSetzen(connStr As String, id As Integer, status As String)
         SqlAusfuehren(connStr,
             "UPDATE dbo.ETL_Fkt_Arbeitsliste SET Status='" & status & "',LetzterSchritt='" & status & "',AktualisiertAm=GETDATE() WHERE ID=" & id.ToString(),
             "Status setzen")
     End Sub
 
+    ' -----------------------------------------------------------------------
+    ' FehlerSetzen - Marks a work list row as FEHLER and stores the error
+    ' message.
+    ' -----------------------------------------------------------------------
     Private Sub FehlerSetzen(connStr As String, id As Integer, msg As String)
         Dim kurz As String = If(msg.Length > 3900, msg.Substring(0, 3900), msg)
         Try
@@ -244,9 +255,10 @@ WHERE schema_id = SCHEMA_ID('" & _extSchema & "')
         End Try
     End Sub
 
-    ' =============================================================================
-    ' LOGGING
-    ' =============================================================================
+    ' -----------------------------------------------------------------------
+    ' LogSchreiben - Routes protocol messages to SSIS events: FEHLER_* ->
+    ' FireError, everything else -> FireInformation.
+    ' -----------------------------------------------------------------------
     Private Sub LogSchreiben(connStr As String, verfahren As String, schritt As String, meldung As String)
         ' Kein DB-Log: Logging laeuft vollstaendig ueber SSIS Events (Eventhandler)
         ' FEHLER_* -> FireError | alles andere -> FireInformation
@@ -257,9 +269,10 @@ WHERE schema_id = SCHEMA_ID('" & _extSchema & "')
         End If
     End Sub
 
-    ' =============================================================================
-    ' SQL HELPER FUNCTIONS
-    ' =============================================================================
+    ' -----------------------------------------------------------------------
+    ' SqlAusfuehren - Executes a non-query SQL statement with retry; logs
+    ' warning and the full SQL statement on failure.
+    ' -----------------------------------------------------------------------
     Private Function SqlAusfuehren(connStr As String, sql As String, beschreibung As String) As Integer
         Dim versuch As Integer = 0
         Dim letzterFehler As Exception = Nothing
@@ -288,6 +301,10 @@ WHERE schema_id = SCHEMA_ID('" & _extSchema & "')
             If(letzterFehler IsNot Nothing, letzterFehler.Message, "Unbekannt")))
     End Function
 
+    ' -----------------------------------------------------------------------
+    ' SqlSkalar - Executes a scalar SQL query with retry; logs warning and
+    ' the full SQL statement on failure.
+    ' -----------------------------------------------------------------------
     Private Function SqlSkalar(connStr As String, sql As String, beschreibung As String) As Object
         Dim versuch As Integer = 0
         While versuch < MAX_VERSUCHE
@@ -313,22 +330,33 @@ WHERE schema_id = SCHEMA_ID('" & _extSchema & "')
         Return Nothing
     End Function
 
+    ' -----------------------------------------------------------------------
+    ' HoleVerbindungszeichenfolge - Returns the connection string of the
+    ' package connection manager.
+    ' -----------------------------------------------------------------------
     Private Function HoleVerbindungszeichenfolge() As String
         Return Dts.Connections(CONN_NAME).ConnectionString
     End Function
 
+    ' -----------------------------------------------------------------------
+    ' Log - Writes an information message to the SSIS log
+    ' (FireInformation).
+    ' -----------------------------------------------------------------------
     Private Sub Log(n As String)
         Dim f As Boolean = False
         Dts.Events.FireInformation(0, SKRIPT_NAME, n, "", 0, f)
     End Sub
 
+    ' -----------------------------------------------------------------------
+    ' LogFehler - Writes an error message to the SSIS log (FireError).
+    ' -----------------------------------------------------------------------
     Private Sub LogFehler(n As String)
         Dts.Events.FireError(0, SKRIPT_NAME, n, "", 0)
     End Sub
 
-    ' =============================================================================
-    ' DATA CLASSES
-    ' =============================================================================
+    ' -----------------------------------------------------------------------
+    ' VerfahrenInfo - Data container for one Verfahren work item.
+    ' -----------------------------------------------------------------------
     Private Class VerfahrenInfo
         Public Property ID As Integer
         Public Property Verfahren As String
@@ -337,6 +365,9 @@ WHERE schema_id = SCHEMA_ID('" & _extSchema & "')
         Public Property Faktentabelle As String
     End Class
 
+    ' -----------------------------------------------------------------------
+    ' ScriptResults - SSIS task result codes.
+    ' -----------------------------------------------------------------------
     Public Enum ScriptResults
         Success = DTSExecResult.Success
         Failure = DTSExecResult.Failure

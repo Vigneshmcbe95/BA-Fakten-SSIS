@@ -8,13 +8,11 @@ Imports System.Text.RegularExpressions
 Imports Microsoft.SqlServer.Dts.Runtime
 
 ' =============================================================================
-' PAKET  : Fakten Laden
-' SKRIPT : SCR_03_Steuerlisten_Laden
-' ZWECK  : 1. Exakte CSV-Datei aus BA::STLDateiname einlesen
-'          2. Zeilenweise verarbeiten → Tabellenname ableiten
-'          3. INSERT / UPDATE in dbo.tm_steuerlistenfile_Fakten
-'          4. Pflichtfelder (where_klausel, partition_wert) sicherstellen
-'          5. Zusammenfassung ausgeben
+'  Script   : SCR_03_Steuerlisten_Laden
+'  Package  : Fakten Laden (SSIS)
+'  Purpose  : Loads the Steuerliste (control list) into the control table.
+'  Retry    : 3 attempts per SQL statement, 30 s delay
+'  Logging  : SSIS events only (FireInformation / FireError)
 ' =============================================================================
 <Microsoft.SqlServer.Dts.Tasks.ScriptTask.SSISScriptTaskEntryPointAttribute()>
 <CLSCompliant(False)>
@@ -37,9 +35,9 @@ Partial Public Class ScriptMain
     Private _steuerlistenTabelle As String = String.Empty
     Private _bearbeiter As String = String.Empty
 
-    ' -------------------------------------------------------------------------
-    ' Einstiegspunkt
-    ' -------------------------------------------------------------------------
+    ' -----------------------------------------------------------------------
+    ' Main - Entry point - orchestrates the script flow.
+    ' -----------------------------------------------------------------------
     Public Sub Main()
 
         Log("SCR_03_Steuerlisten_Laden - Start")
@@ -113,9 +111,10 @@ Partial Public Class ScriptMain
 
     End Sub
 
-    ' =========================================================================
-    ' Variablen aus SSIS laden
-    ' =========================================================================
+    ' -----------------------------------------------------------------------
+    ' VariablenLaden - Reads the required SSIS variables into module
+    ' fields.
+    ' -----------------------------------------------------------------------
     Private Sub VariablenLaden()
         _stlOrdner = Dts.Variables("BA::STLOrdner").Value.ToString().Trim()
         _stlDateiname = Dts.Variables("BA::STLDateiname").Value.ToString().Trim()
@@ -123,9 +122,10 @@ Partial Public Class ScriptMain
         _bearbeiter = Dts.Variables("System::CreatorName").Value.ToString().Trim()
     End Sub
 
-    ' =========================================================================
-    ' Pflichtfelder prüfen
-    ' =========================================================================
+    ' -----------------------------------------------------------------------
+    ' PflichtfelderPruefen - Validates that all mandatory variables /
+    ' parameters are present.
+    ' -----------------------------------------------------------------------
     Private Function PflichtfelderPruefen() As Boolean
         Dim fehlend As New System.Text.StringBuilder()
         If String.IsNullOrEmpty(_stlOrdner) Then fehlend.AppendLine("  → BA::STLOrdner")
@@ -139,9 +139,10 @@ Partial Public Class ScriptMain
         Return True
     End Function
 
-    ' =========================================================================
-    ' Zusätzliche Spalten in tm_steuerlistenfile_Fakten sicherstellen
-    ' =========================================================================
+    ' -----------------------------------------------------------------------
+    ' SpaltenSicherstellen - Ensures required columns exist on the target
+    ' table (adds missing ones).
+    ' -----------------------------------------------------------------------
     Private Sub SpaltenSicherstellen(connStr As String)
 
         Dim sql As String =
@@ -187,9 +188,9 @@ IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('dbo." & _s
 
     End Sub
 
-    ' =========================================================================
-    ' Einzelne Datei verarbeiten
-    ' =========================================================================
+    ' -----------------------------------------------------------------------
+    ' VerarbeiteDatei - Processes a single control list file.
+    ' -----------------------------------------------------------------------
     Private Sub VerarbeiteDatei(dateipfad As String,
                                 dateiname As String,
                                 connStr As String)
@@ -298,9 +299,10 @@ IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('dbo." & _s
 
     End Sub
 
-    ' =========================================================================
-    ' Tabellenname aus STL-Zeile ableiten
-    ' =========================================================================
+    ' -----------------------------------------------------------------------
+    ' TabellennameBestimmen - Determines the target table name of a
+    ' Verfahren.
+    ' -----------------------------------------------------------------------
     Private Function TabellennameBestimmen(zeile As String) As String
 
         Dim t As Match = Regex.Match(zeile, ":[YM]{2,6}\(", RegexOptions.IgnoreCase)
@@ -319,9 +321,10 @@ IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('dbo." & _s
 
     End Function
 
-    ' =========================================================================
-    ' SQL-Helfer: NonQuery mit Retry
-    ' =========================================================================
+    ' -----------------------------------------------------------------------
+    ' SqlAusfuehren - Executes a non-query SQL statement with retry; logs
+    ' warning and the full SQL statement on failure.
+    ' -----------------------------------------------------------------------
     Private Function SqlAusfuehren(connStr As String,
                                    sql As String,
                                    beschreibung As String) As Integer
@@ -355,9 +358,9 @@ IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('dbo." & _s
             If(letzterFehler IsNot Nothing, letzterFehler.Message, "Unbekannt")))
     End Function
 
-    ' =========================================================================
-    ' SQL-Helfer: Scalar mit Retry + anonyme Parameter
-    ' =========================================================================
+    ' -----------------------------------------------------------------------
+    ' SqlSkalarAusfuehren - Executes a scalar SQL query with retry.
+    ' -----------------------------------------------------------------------
     Private Function SqlSkalarAusfuehren(connStr As String,
                                          sql As String,
                                          beschreibung As String,
@@ -392,9 +395,9 @@ IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('dbo." & _s
             If(letzterFehler IsNot Nothing, letzterFehler.Message, "Unbekannt")))
     End Function
 
-    ' =========================================================================
-    ' SQL-Helfer: NonQuery mit Retry + anonyme Parameter
-    ' =========================================================================
+    ' -----------------------------------------------------------------------
+    ' SqlMitParameternAusfuehren - Executes a parameterized SQL statement.
+    ' -----------------------------------------------------------------------
     Private Sub SqlMitParameternAusfuehren(connStr As String,
                                            sql As String,
                                            beschreibung As String,
@@ -430,9 +433,9 @@ IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('dbo." & _s
             If(letzterFehler IsNot Nothing, letzterFehler.Message, "Unbekannt")))
     End Sub
 
-    ' =========================================================================
-    ' Parameter aus anonymem Objekt zu SqlCommand hinzufügen
-    ' =========================================================================
+    ' -----------------------------------------------------------------------
+    ' ParameterHinzufuegen - Adds a parameter to a SQL command.
+    ' -----------------------------------------------------------------------
     Private Sub ParameterHinzufuegen(cmd As SqlCommand, params As Object)
         If params Is Nothing Then Return
         For Each prop As System.Reflection.PropertyInfo In params.GetType().GetProperties()
@@ -443,28 +446,33 @@ IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('dbo." & _s
         Next
     End Sub
 
-    ' =========================================================================
-    ' Verbindungszeichenfolge aus SSIS Connection Manager holen
-    ' =========================================================================
+    ' -----------------------------------------------------------------------
+    ' HoleVerbindungszeichenfolge - Returns the connection string of the
+    ' package connection manager.
+    ' -----------------------------------------------------------------------
     Private Function HoleVerbindungszeichenfolge() As String
         Return Dts.Connections(CONN_NAME).ConnectionString
     End Function
 
-    ' =========================================================================
-    ' Logging
-    ' =========================================================================
+    ' -----------------------------------------------------------------------
+    ' Log - Writes an information message to the SSIS log
+    ' (FireInformation).
+    ' -----------------------------------------------------------------------
     Private Sub Log(nachricht As String)
         Dim fireAgain As Boolean = False
         Dts.Events.FireInformation(0, SKRIPT_NAME, nachricht, "", 0, fireAgain)
     End Sub
 
+    ' -----------------------------------------------------------------------
+    ' LogFehler - Writes an error message to the SSIS log (FireError).
+    ' -----------------------------------------------------------------------
     Private Sub LogFehler(nachricht As String)
         Dts.Events.FireError(0, SKRIPT_NAME, nachricht, "", 0)
     End Sub
 
-    ' =========================================================================
-    ' Ergebnistypen
-    ' =========================================================================
+    ' -----------------------------------------------------------------------
+    ' ScriptResults - SSIS task result codes.
+    ' -----------------------------------------------------------------------
     Public Enum ScriptResults
         Success = DTSExecResult.Success
         Failure = DTSExecResult.Failure

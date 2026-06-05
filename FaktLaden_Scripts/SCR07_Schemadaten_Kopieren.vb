@@ -7,11 +7,14 @@ Imports System.Collections.Generic
 Imports Microsoft.SqlServer.Dts.Runtime
 
 ' =============================================================================
-' PAKET  : Fakten Laden
-' SKRIPT : SCR05_Schemadaten_Kopieren
-' ZWECK  : Oracle Schemadaten in tm_polybase_struktur kopieren
-'          Status: AUSSTEHEND → SCHEMADATEN_KOPIERT
-'          STAGING TABLE BLEIBT ERHALTEN (für Debugging)
+'  Script   : SCR07_Schemadaten_Kopieren
+'  Package  : Fakten Laden (SSIS)
+'  Purpose  : Copies the Oracle DDL schema metadata from
+'             ext.vm_ddl_sql_server into dbo.tm_polybase_struktur
+'             (columns_dbo / columns_ext per fact table).
+'  Workflow : AUSSTEHEND -> SCHEMADATEN_KOPIERT
+'  Retry    : 3 attempts per SQL statement, 30 s delay
+'  Logging  : SSIS events only (FireInformation / FireError)
 ' =============================================================================
 <Microsoft.SqlServer.Dts.Tasks.ScriptTask.SSISScriptTaskEntryPointAttribute()>
 <CLSCompliant(False)>
@@ -28,6 +31,9 @@ Partial Public Class ScriptMain
     Private _extTableSchema As String = String.Empty
     Private _extTableName As String = String.Empty
 
+    ' -----------------------------------------------------------------------
+    ' Main - Entry point - orchestrates the script flow.
+    ' -----------------------------------------------------------------------
     Public Sub Main()
 
         Log("SCR07_Schemadaten_Kopieren - Start")
@@ -109,9 +115,9 @@ Partial Public Class ScriptMain
 
     End Sub
 
-    ' ==========================================================================================
-    ' ORACLE STAGING
-    ' ==========================================================================================
+    ' -----------------------------------------------------------------------
+    ' StageOracleData - Loads the Oracle DDL data into the staging table.
+    ' -----------------------------------------------------------------------
     Private Sub StageOracleData(connStr As String)
         Log("Oracle-Daten werden in Staging-Tabelle geladen...")
         Log("Quelle: [" & _datenbank & "].[" & _extTableSchema & "].[" & _extTableName & "]")
@@ -167,9 +173,9 @@ FROM [" & _datenbank & "].[" & _extTableSchema & "].[" & _extTableName & "];"
         End If
     End Sub
 
-    ' ==========================================================================================
-    ' EINE TABELLE AUS STAGING EINFÜGEN - SIMPLIFIED
-    ' ==========================================================================================
+    ' -----------------------------------------------------------------------
+    ' InsertTabelle - Inserts a row into the target table.
+    ' -----------------------------------------------------------------------
     Private Function InsertTabelle(connStr As String, thema As String, tab As String) As Integer
         ' DELETE old data
         Dim sqlDelete As String =
@@ -271,9 +277,10 @@ WHERE themengebiet = @thema
         End Using
     End Function
 
-    ' ==========================================================================================
-    ' VERFAHREN LADEN
-    ' ==========================================================================================
+    ' -----------------------------------------------------------------------
+    ' VerfahrenLaden - Loads the Verfahren to process from the work list
+    ' (joined with the parameter table).
+    ' -----------------------------------------------------------------------
     Private Function VerfahrenLaden(connStr As String) As List(Of VerfahrenInfo)
         Dim liste As New List(Of VerfahrenInfo)()
         Dim sql As String =
@@ -316,9 +323,10 @@ ORDER BY Verfahren"
         Return liste
     End Function
 
-    ' ==========================================================================================
-    ' ZIEL-TABELLE SICHERSTELLEN
-    ' ==========================================================================================
+    ' -----------------------------------------------------------------------
+    ' EnsureSchemadataTableExists - Ensures dbo.tm_polybase_struktur
+    ' exists.
+    ' -----------------------------------------------------------------------
     Private Sub EnsureSchemadataTableExists(connStr As String)
         Dim sql As String =
 "IF NOT EXISTS (
@@ -342,15 +350,19 @@ END;"
         Log("Ziel-Tabelle tm_polybase_struktur geprueft/erstellt.")
     End Sub
 
-    ' ==========================================================================================
-    ' STATUS & LOGGING
-    ' ==========================================================================================
+    ' -----------------------------------------------------------------------
+    ' StatusSetzen - Updates Status / LetzterSchritt of a work list row.
+    ' -----------------------------------------------------------------------
     Private Sub StatusSetzen(connStr As String, id As Integer, status As String)
         SqlAusfuehren(connStr,
             "UPDATE dbo.ETL_Fkt_Arbeitsliste SET Status='" & status & "', LetzterSchritt='" & status & "', AktualisiertAm=GETDATE() WHERE ID=" & id.ToString(),
             "Status setzen")
     End Sub
 
+    ' -----------------------------------------------------------------------
+    ' FehlerSetzen - Marks a work list row as FEHLER and stores the error
+    ' message.
+    ' -----------------------------------------------------------------------
     Private Sub FehlerSetzen(connStr As String, id As Integer, msg As String)
         Dim kurz As String = If(msg.Length > 3900, msg.Substring(0, 3900), msg)
         Try
@@ -366,6 +378,10 @@ END;"
         End Try
     End Sub
 
+    ' -----------------------------------------------------------------------
+    ' LogSchreiben - Routes protocol messages to SSIS events: FEHLER_* ->
+    ' FireError, everything else -> FireInformation.
+    ' -----------------------------------------------------------------------
     Private Sub LogSchreiben(connStr As String, verfahren As String, schritt As String, meldung As String)
         ' Kein DB-Log: Logging laeuft vollstaendig ueber SSIS Events (Eventhandler)
         ' FEHLER_* -> FireError | alles andere -> FireInformation
@@ -376,9 +392,10 @@ END;"
         End If
     End Sub
 
-    ' ==========================================================================================
-    ' SQL HELPER
-    ' ==========================================================================================
+    ' -----------------------------------------------------------------------
+    ' SqlAusfuehren - Executes a non-query SQL statement with retry; logs
+    ' warning and the full SQL statement on failure.
+    ' -----------------------------------------------------------------------
     Private Function SqlAusfuehren(connStr As String, sql As String, beschreibung As String) As Integer
         Dim versuch As Integer = 0
         Dim letzterFehler As Exception = Nothing
@@ -404,6 +421,10 @@ END;"
         Throw New Exception(String.Format("[{0}] fehlgeschlagen: {1}", beschreibung, If(letzterFehler IsNot Nothing, letzterFehler.Message, "Unbekannt")))
     End Function
 
+    ' -----------------------------------------------------------------------
+    ' SqlSkalar - Executes a scalar SQL query with retry; logs warning and
+    ' the full SQL statement on failure.
+    ' -----------------------------------------------------------------------
     Private Function SqlSkalar(connStr As String, sql As String, beschreibung As String) As Object
         Dim versuch As Integer = 0
         While versuch < MAX_VERSUCHE
@@ -429,19 +450,33 @@ END;"
         Return Nothing
     End Function
 
+    ' -----------------------------------------------------------------------
+    ' HoleVerbindungszeichenfolge - Returns the connection string of the
+    ' package connection manager.
+    ' -----------------------------------------------------------------------
     Private Function HoleVerbindungszeichenfolge() As String
         Return Dts.Connections(CONN_NAME).ConnectionString
     End Function
 
+    ' -----------------------------------------------------------------------
+    ' Log - Writes an information message to the SSIS log
+    ' (FireInformation).
+    ' -----------------------------------------------------------------------
     Private Sub Log(n As String)
         Dim f As Boolean = False
         Dts.Events.FireInformation(0, SKRIPT_NAME, n, "", 0, f)
     End Sub
 
+    ' -----------------------------------------------------------------------
+    ' LogFehler - Writes an error message to the SSIS log (FireError).
+    ' -----------------------------------------------------------------------
     Private Sub LogFehler(n As String)
         Dts.Events.FireError(0, SKRIPT_NAME, n, "", 0)
     End Sub
 
+    ' -----------------------------------------------------------------------
+    ' VerfahrenInfo - Data container for one Verfahren work item.
+    ' -----------------------------------------------------------------------
     Private Class VerfahrenInfo
         Public Property ID As Integer
         Public Property Verfahren As String
@@ -449,6 +484,9 @@ END;"
         Public Property LetzterSchritt As String
     End Class
 
+    ' -----------------------------------------------------------------------
+    ' ScriptResults - SSIS task result codes.
+    ' -----------------------------------------------------------------------
     Public Enum ScriptResults
         Success = DTSExecResult.Success
         Failure = DTSExecResult.Failure

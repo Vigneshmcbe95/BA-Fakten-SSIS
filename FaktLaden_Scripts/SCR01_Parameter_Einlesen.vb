@@ -7,11 +7,11 @@ Imports System.Text
 Imports Microsoft.SqlServer.Dts.Runtime
 
 ' =============================================================================
-' PAKET  : Fakten Laden
-' SKRIPT : SCR01_Parameter_Einlesen
-' ZWECK  : 1. Alle SSIS-Variablen lesen (werden per CMD /SET übergeben)
-'          2. Jeden Parameter einzeln prüfen → [OK] oder [FEHLEND]
-'          3. Bei fehlendem Pflichtparameter → Paket abbrechen
+'  Script   : SCR01_Parameter_Einlesen
+'  Package  : Fakten Laden (SSIS)
+'  Purpose  : Reads the package parameters from the parameter table into the
+'             SSIS variables (BA::*).
+'  Logging  : SSIS events only (FireInformation / FireError)
 ' =============================================================================
 <Microsoft.SqlServer.Dts.Tasks.ScriptTask.SSISScriptTaskEntryPointAttribute()>
 <CLSCompliant(False)>
@@ -23,9 +23,9 @@ Partial Public Class ScriptMain
     ' -------------------------------------------------------------------------
     Private Const SKRIPT_NAME As String = "SCR01_Parameter_Einlesen"
 
-    ' -------------------------------------------------------------------------
-    ' Einstiegspunkt
-    ' -------------------------------------------------------------------------
+    ' -----------------------------------------------------------------------
+    ' Main - Entry point - orchestrates the script flow.
+    ' -----------------------------------------------------------------------
     Public Sub Main()
 
         Log("SCR01_Parameter_Einlesen - Start")
@@ -104,12 +104,9 @@ Partial Public Class ScriptMain
 
     End Sub
 
-    ' =========================================================================
-    ' Einzelnen Parameter prüfen und loggen
-    ' variableName  = SSIS-Variablenname (z.B. "BA::Server")
-    ' paramLabel    = Anzeigename im Log  (z.B. "PARAM_SERVER")
-    ' istPasswort   = True → Wert wird als [Wert verborgen] geloggt
-    ' =========================================================================
+    ' -----------------------------------------------------------------------
+    ' PruefeParam - Checks a single parameter for existence and value.
+    ' -----------------------------------------------------------------------
     Private Function PruefeParam(variableName As String,
                                   paramLabel As String,
                                   istPasswort As Boolean) As Boolean
@@ -136,9 +133,9 @@ Partial Public Class ScriptMain
         End Try
     End Function
 
-    ' =========================================================================
-    ' Variable sicher lesen — leerer String bei Fehler
-    ' =========================================================================
+    ' -----------------------------------------------------------------------
+    ' LeseVariable - Reads a single SSIS variable (with fallback).
+    ' -----------------------------------------------------------------------
     Private Function LeseVariable(name As String) As String
         Try
             Return Dts.Variables(name).Value.ToString().Trim()
@@ -147,21 +144,25 @@ Partial Public Class ScriptMain
         End Try
     End Function
 
-    ' =========================================================================
-    ' Logging
-    ' =========================================================================
+    ' -----------------------------------------------------------------------
+    ' Log - Writes an information message to the SSIS log
+    ' (FireInformation).
+    ' -----------------------------------------------------------------------
     Private Sub Log(nachricht As String)
         Dim fireAgain As Boolean = False
         Dts.Events.FireInformation(0, SKRIPT_NAME, nachricht, "", 0, fireAgain)
     End Sub
 
+    ' -----------------------------------------------------------------------
+    ' LogFehler - Writes an error message to the SSIS log (FireError).
+    ' -----------------------------------------------------------------------
     Private Sub LogFehler(nachricht As String)
         Dts.Events.FireError(0, SKRIPT_NAME, nachricht, "", 0)
     End Sub
 
-    ' =========================================================================
-    ' Ergebnistypen
-    ' =========================================================================
+    ' -----------------------------------------------------------------------
+    ' ScriptResults - SSIS task result codes.
+    ' -----------------------------------------------------------------------
     Public Enum ScriptResults
         Success = DTSExecResult.Success
         Failure = DTSExecResult.Failure

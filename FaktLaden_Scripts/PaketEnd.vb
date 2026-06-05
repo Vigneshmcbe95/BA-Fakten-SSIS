@@ -3,6 +3,13 @@ Imports System.Data
 Imports System.Data.SqlClient
 Imports Microsoft.SqlServer.Dts.Runtime
 
+' =============================================================================
+'  Script   : PaketEnd
+'  Package  : Fakten Laden (SSIS)
+'  Purpose  : Finalizes the package run: aggregates the work list status
+'             counters into ETL_Fakt_LaufHistorie and logs the run summary.
+'  Logging  : SSIS events only (FireInformation / FireError)
+' =============================================================================
 <Microsoft.SqlServer.Dts.Tasks.ScriptTask.SSISScriptTaskEntryPointAttribute()>
 <CLSCompliant(False)>
 Partial Public Class ScriptMain
@@ -16,6 +23,9 @@ Partial Public Class ScriptMain
         Failure = DTSExecResult.Failure
     End Enum
 
+    ' -----------------------------------------------------------------------
+    ' Main - Entry point - orchestrates the script flow.
+    ' -----------------------------------------------------------------------
     Public Sub Main()
         Dim sqlConn As SqlConnection = Nothing
         Try
@@ -119,11 +129,18 @@ SELECT
         End Try
     End Sub
 
+    ' -----------------------------------------------------------------------
+    ' Log - Writes an information message to the SSIS log
+    ' (FireInformation).
+    ' -----------------------------------------------------------------------
     Private Sub Log(n As String)
         Dim f As Boolean = False
         Dts.Events.FireInformation(0, SKRIPT_NAME, n, "", 0, f)
     End Sub
 
+    ' -----------------------------------------------------------------------
+    ' LogFehler - Writes an error message to the SSIS log (FireError).
+    ' -----------------------------------------------------------------------
     Private Sub LogFehler(n As String)
         Dts.Events.FireError(0, SKRIPT_NAME, n, "", 0)
     End Sub

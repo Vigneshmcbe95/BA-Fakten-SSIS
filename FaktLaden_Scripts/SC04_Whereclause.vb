@@ -7,7 +7,15 @@ Imports System.Collections.Generic
 Imports System.Text.RegularExpressions
 Imports Microsoft.SqlServer.Dts.Runtime
 
-
+' =============================================================================
+'  Script   : SC04_Whereclause
+'  Package  : Fakten Laden (SSIS)
+'  Purpose  : Builds the WHERE clause per Verfahren from the control list
+'             (based on the reference date) and writes it back to the
+'             control table.
+'  Retry    : 3 attempts per SQL statement, 30 s delay
+'  Logging  : SSIS events only (FireInformation / FireError)
+' =============================================================================
 <Microsoft.SqlServer.Dts.Tasks.ScriptTask.SSISScriptTaskEntryPointAttribute()>
 <CLSCompliant(False)>
 Partial Public Class ScriptMain
@@ -23,7 +31,9 @@ Partial Public Class ScriptMain
     Private _parameterDB As String = String.Empty
     Private _parametertab As String = String.Empty
 
-    ' =========================================================================
+    ' -----------------------------------------------------------------------
+    ' Main - Entry point - orchestrates the script flow.
+    ' -----------------------------------------------------------------------
     Public Sub Main()
 
         Log("SC04_Whereclause - Start")
@@ -88,20 +98,10 @@ Partial Public Class ScriptMain
 
     End Sub
 
-    ' =========================================================================
-    ' KERN: Wert aus tabname_filter extrahieren per Regex
-    '  1. :MONID/:YEAR Token aufloesen
-    '  2. :LAST_MM(n)  :LAST_YY(n)  :YYYYMM(...)  :YYYY(...)
-    '  3. Nach Token-Aufloesung: ALLE Ziffern aus aufgeloestem String extrahieren
-    '  4. Kein Treffer → Nothing (NULL in DB)
-    '
-    ' AENDERUNG v2:
-    '  Fallback-Regex geaendert von ((?:19|20)\d{4})\d* auf ((?:19|20)\d{4}\d*)
-    '  Damit werden alle Ziffern erfasst, z.B.:
-    '    tf_lstp_bg_bs_bedarfe:MONID(0)00 → nach Aufloesung: tf_lstp_bg_bs_bedarfe:20260400
-    '    Alt: 202604   (nur 6 Ziffern, trailing 00 ignoriert)
-    '    Neu: 20260400 (alle 8 Ziffern, stimmt mit Oracle mow_id ueberein)
-    ' =========================================================================
+    ' -----------------------------------------------------------------------
+    ' WertExtrahieren - Extracts a single value from a delimited parameter
+    ' string.
+    ' -----------------------------------------------------------------------
     Private Function WertExtrahieren(filter As String) As String
 
         If String.IsNullOrEmpty(filter) Then Return Nothing
@@ -136,11 +136,10 @@ Partial Public Class ScriptMain
 
     End Function
 
-    ' =========================================================================
-    ' Partitionsspalte EINMALIG aus Parametertabelle laden
-    ' Dictionary: Verfahren (lower) → Faktenpartitionsspalte
-    ' Direkt vom Benutzer gepflegter Wert — kein vm_ddl benoetigt
-    ' =========================================================================
+    ' -----------------------------------------------------------------------
+    ' PartitionsspalteAusParameterLaden - Reads the partition column of a
+    ' Verfahren from the parameter table.
+    ' -----------------------------------------------------------------------
     Private Function PartitionsspalteAusParameterLaden(connStr As String) As Dictionary(Of String, String)
         Dim dict As New Dictionary(Of String, String)()
         Dim sql As String =
@@ -181,9 +180,9 @@ Partial Public Class ScriptMain
             If(letzterFehler IsNot Nothing, letzterFehler.Message, "Unbekannt")))
     End Function
 
-    ' =========================================================================
-    ' :MONID(n) → YYYYMM  |  :YEAR(n) → YYYY
-    ' =========================================================================
+    ' -----------------------------------------------------------------------
+    ' TokenAufloesen - Resolves placeholder tokens in a template string.
+    ' -----------------------------------------------------------------------
     Private Function TokenAufloesen(f As String) As String
         Dim r As String = f
         Dim m As Match
@@ -203,7 +202,10 @@ Partial Public Class ScriptMain
         Return r
     End Function
 
-    ' =========================================================================
+    ' -----------------------------------------------------------------------
+    ' SpaltenSicherstellen - Ensures required columns exist on the target
+    ' table (adds missing ones).
+    ' -----------------------------------------------------------------------
     Private Sub SpaltenSicherstellen(connStr As String)
         SqlRun(connStr,
 "IF NOT EXISTS(SELECT 1 FROM sys.columns WHERE object_id=OBJECT_ID('dbo." & _stlTabelle & "') AND name='where_klausel')
@@ -215,6 +217,9 @@ IF NOT EXISTS(SELECT 1 FROM sys.columns WHERE object_id=OBJECT_ID('dbo." & _stlT
         Log("Spalten geprueft/angelegt OK")
     End Sub
 
+    ' -----------------------------------------------------------------------
+    ' ZeilenLaden - Loads the rows of a SQL query into a list.
+    ' -----------------------------------------------------------------------
     Private Function ZeilenLaden(connStr As String) As List(Of Zeile)
         Dim liste As New List(Of Zeile)()
         Dim sql As String =
@@ -251,6 +256,10 @@ IF NOT EXISTS(SELECT 1 FROM sys.columns WHERE object_id=OBJECT_ID('dbo." & _stlT
         Return liste
     End Function
 
+    ' -----------------------------------------------------------------------
+    ' ZurueckSchreiben - Writes the generated WHERE clause back to the
+    ' control table.
+    ' -----------------------------------------------------------------------
     Private Sub ZurueckSchreiben(connStr As String, tabFilter As String, fileName As String,
                                   whereKlausel As String, partWert As String)
         ' Explizit NULL schreiben wenn where_klausel oder partition_wert nicht ermittelt
@@ -280,6 +289,9 @@ IF NOT EXISTS(SELECT 1 FROM sys.columns WHERE object_id=OBJECT_ID('dbo." & _stlT
         End While
     End Sub
 
+    ' -----------------------------------------------------------------------
+    ' SqlRun - Executes a SQL statement with retry.
+    ' -----------------------------------------------------------------------
     Private Sub SqlRun(connStr As String, sql As String)
         Using conn As New SqlConnection(connStr)
             conn.Open()
@@ -290,25 +302,42 @@ IF NOT EXISTS(SELECT 1 FROM sys.columns WHERE object_id=OBJECT_ID('dbo." & _stlT
         End Using
     End Sub
 
+    ' -----------------------------------------------------------------------
+    ' HoleVerbindungszeichenfolge - Returns the connection string of the
+    ' package connection manager.
+    ' -----------------------------------------------------------------------
     Private Function HoleVerbindungszeichenfolge() As String
         Return Dts.Connections(CONN_NAME).ConnectionString
     End Function
 
+    ' -----------------------------------------------------------------------
+    ' Log - Writes an information message to the SSIS log
+    ' (FireInformation).
+    ' -----------------------------------------------------------------------
     Private Sub Log(n As String)
         Dim f As Boolean = False
         Dts.Events.FireInformation(0, SKRIPT_NAME, n, "", 0, f)
     End Sub
 
+    ' -----------------------------------------------------------------------
+    ' LogFehler - Writes an error message to the SSIS log (FireError).
+    ' -----------------------------------------------------------------------
     Private Sub LogFehler(n As String)
         Dts.Events.FireError(0, SKRIPT_NAME, n, "", 0)
     End Sub
 
+    ' -----------------------------------------------------------------------
+    ' Zeile
+    ' -----------------------------------------------------------------------
     Private Class Zeile
         Public Property TabnameFilter As String
         Public Property Tabelle As String
         Public Property FileName As String
     End Class
 
+    ' -----------------------------------------------------------------------
+    ' ScriptResults - SSIS task result codes.
+    ' -----------------------------------------------------------------------
     Public Enum ScriptResults
         Success = DTSExecResult.Success
         Failure = DTSExecResult.Failure

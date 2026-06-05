@@ -6,15 +6,13 @@ Imports System.Data.SqlClient
 Imports Microsoft.SqlServer.Dts.Runtime
 
 ' =============================================================================
-' PAKET  : Fakten Laden
-' SKRIPT : SCR_02_Vorbereitungen
-' ZWECK  : 1. ETL_Fkt_Arbeitsliste sicherstellen
-'          2. ETL_Fkt_FehlerHistorie sicherstellen
-'          3. PolyBase Master Key prüfen / anlegen
-'          4. PolyBase Credential prüfen / anlegen
-'          5. PolyBase External Data Source prüfen / anlegen
-'          6. ext Schema prüfen / anlegen
-'          7. Externe DDL-Tabelle (vm_ddl_sql_server) prüfen / anlegen
+'  Script   : SCR_02_Vorbereitungen
+'  Package  : Fakten Laden (SSIS)
+'  Purpose  : One-time environment preparation: work list / error history
+'             tables, PolyBase master key, credential, external data source,
+'             ext schema, external DDL table and its local dbo copy.
+'  Retry    : 3 attempts per SQL statement, 30 s delay
+'  Logging  : SSIS events only (FireInformation / FireError)
 ' =============================================================================
 <Microsoft.SqlServer.Dts.Tasks.ScriptTask.SSISScriptTaskEntryPointAttribute()>
 <CLSCompliant(False)>
@@ -44,9 +42,9 @@ Partial Public Class ScriptMain
     Private _steuerlistenTabelle As String = String.Empty
     Private _credName As String = String.Empty
 
-    ' -------------------------------------------------------------------------
-    ' Einstiegspunkt
-    ' -------------------------------------------------------------------------
+    ' -----------------------------------------------------------------------
+    ' Main - Entry point - orchestrates the script flow.
+    ' -----------------------------------------------------------------------
     Public Sub Main()
 
         Log("SCR_02_Vorbereitungen - Start")
@@ -106,13 +104,10 @@ Partial Public Class ScriptMain
 
     End Sub
 
-    ' =========================================================================
-    ' Schritt 8: Lokale dbo-Kopie der ext DDL-Tabelle erstellen
-    '            SELECT INTO dbo.<extTabDDLName> FROM ext.<extTabDDLName>
-    '            Wird bei jedem Lauf neu erstellt (DROP + SELECT INTO)
-    '            → dient als Basis für where_klausel-Erkennung in SCR04
-    '            → Index auf TABNAME + COLNAME für schnellen Lookup in SCR04
-    ' =========================================================================
+    ' -----------------------------------------------------------------------
+    ' DboKopieErstellen - Creates / refreshes the local dbo copy of the
+    ' Oracle DDL view.
+    ' -----------------------------------------------------------------------
     Private Sub DboKopieErstellen(connStr As String)
 
         Dim zielTabelle As String = "dbo." & _extTabDDLName
@@ -151,9 +146,10 @@ Partial Public Class ScriptMain
 
     End Sub
 
-    ' =========================================================================
-    ' Variablen aus SSIS laden
-    ' =========================================================================
+    ' -----------------------------------------------------------------------
+    ' VariablenLaden - Reads the required SSIS variables into module
+    ' fields.
+    ' -----------------------------------------------------------------------
     Private Sub VariablenLaden()
 
         _server = Dts.Variables("BA::Server").Value.ToString().Trim()
@@ -172,9 +168,10 @@ Partial Public Class ScriptMain
 
     End Sub
 
-    ' =========================================================================
-    ' Pflichtfelder prüfen
-    ' =========================================================================
+    ' -----------------------------------------------------------------------
+    ' PflichtfelderPruefen - Validates that all mandatory variables /
+    ' parameters are present.
+    ' -----------------------------------------------------------------------
     Private Function PflichtfelderPruefen() As Boolean
 
         Dim fehlend As New System.Text.StringBuilder()
@@ -199,9 +196,9 @@ Partial Public Class ScriptMain
 
     End Function
 
-    ' =========================================================================
-    ' ETL_Fkt_Arbeitsliste sicherstellen
-    ' =========================================================================
+    ' -----------------------------------------------------------------------
+    ' ArbeitslisteSicherstellen - Ensures dbo.ETL_Fkt_Arbeitsliste exists.
+    ' -----------------------------------------------------------------------
     Private Sub ArbeitslisteSicherstellen(connStr As String)
 
         Dim sql As String =
@@ -233,9 +230,10 @@ ELSE
 
     End Sub
 
-    ' =========================================================================
-    ' ETL_Fkt_FehlerHistorie sicherstellen
-    ' =========================================================================
+    ' -----------------------------------------------------------------------
+    ' FehlerHistorieSicherstellen - Ensures dbo.ETL_Fkt_FehlerHistorie
+    ' exists.
+    ' -----------------------------------------------------------------------
     Private Sub FehlerHistorieSicherstellen(connStr As String)
 
         Dim sql As String =
@@ -262,9 +260,9 @@ ELSE
 
     End Sub
 
-    ' =========================================================================
-    ' PolyBase Master Key prüfen / anlegen
-    ' =========================================================================
+    ' -----------------------------------------------------------------------
+    ' MasterKeyPruefen - Ensures the database master key exists.
+    ' -----------------------------------------------------------------------
     Private Sub MasterKeyPruefen(connStr As String)
 
         Dim sqlPruefen As String =
@@ -290,9 +288,9 @@ ELSE
 
     End Sub
 
-    ' =========================================================================
-    ' PolyBase Credential prüfen / anlegen
-    ' =========================================================================
+    ' -----------------------------------------------------------------------
+    ' CredentialPruefen - Ensures the database scoped credential exists.
+    ' -----------------------------------------------------------------------
     Private Sub CredentialPruefen(connStr As String)
 
         Dim sqlPruefen As String =
@@ -317,9 +315,9 @@ ELSE
 
     End Sub
 
-    ' =========================================================================
-    ' External Data Source prüfen / anlegen
-    ' =========================================================================
+    ' -----------------------------------------------------------------------
+    ' ExtDataSourcePruefen - Ensures the external data source exists.
+    ' -----------------------------------------------------------------------
     Private Sub ExtDataSourcePruefen(connStr As String)
 
         Dim sqlPruefen As String =
@@ -346,9 +344,9 @@ ELSE
 
     End Sub
 
-    ' =========================================================================
-    ' ext Schema prüfen / anlegen
-    ' =========================================================================
+    ' -----------------------------------------------------------------------
+    ' SchemaPruefen - Ensures the ext schema exists.
+    ' -----------------------------------------------------------------------
     Private Sub SchemaPruefen(connStr As String)
 
         Dim sqlPruefen As String =
@@ -369,9 +367,9 @@ ELSE
 
     End Sub
 
-    ' =========================================================================
-    ' Externe DDL-Tabelle (vm_ddl_sql_server) prüfen / anlegen
-    ' =========================================================================
+    ' -----------------------------------------------------------------------
+    ' ExtDDLTabellePruefen - Ensures the external DDL table exists.
+    ' -----------------------------------------------------------------------
     Private Sub ExtDDLTabellePruefen(connStr As String)
 
         Dim vollName As String = _extTabSchema & "." & _extTabDDLName
@@ -414,9 +412,10 @@ WITH (
 
     End Sub
 
-    ' =========================================================================
-    ' SQL-Helfer: NonQuery mit Retry → gibt betroffene Zeilen zurück
-    ' =========================================================================
+    ' -----------------------------------------------------------------------
+    ' SqlAusfuehren - Executes a non-query SQL statement with retry; logs
+    ' warning and the full SQL statement on failure.
+    ' -----------------------------------------------------------------------
     Private Function SqlAusfuehren(connStr As String,
                                    sql As String,
                                    beschreibung As String) As Integer
@@ -450,9 +449,9 @@ WITH (
             If(letzterFehler IsNot Nothing, letzterFehler.Message, "Unbekannt")))
     End Function
 
-    ' =========================================================================
-    ' SQL-Helfer: Scalar mit Retry → gibt einzelnen Wert zurück
-    ' =========================================================================
+    ' -----------------------------------------------------------------------
+    ' SqlSkalarAusfuehren - Executes a scalar SQL query with retry.
+    ' -----------------------------------------------------------------------
     Private Function SqlSkalarAusfuehren(connStr As String,
                                          sql As String,
                                          beschreibung As String) As Object
@@ -485,28 +484,33 @@ WITH (
             If(letzterFehler IsNot Nothing, letzterFehler.Message, "Unbekannt")))
     End Function
 
-    ' =========================================================================
-    ' Verbindungszeichenfolge aus SSIS Connection Manager holen
-    ' =========================================================================
+    ' -----------------------------------------------------------------------
+    ' HoleVerbindungszeichenfolge - Returns the connection string of the
+    ' package connection manager.
+    ' -----------------------------------------------------------------------
     Private Function HoleVerbindungszeichenfolge() As String
         Return Dts.Connections(CONN_NAME).ConnectionString
     End Function
 
-    ' =========================================================================
-    ' Logging
-    ' =========================================================================
+    ' -----------------------------------------------------------------------
+    ' Log - Writes an information message to the SSIS log
+    ' (FireInformation).
+    ' -----------------------------------------------------------------------
     Private Sub Log(nachricht As String)
         Dim fireAgain As Boolean = False
         Dts.Events.FireInformation(0, SKRIPT_NAME, nachricht, "", 0, fireAgain)
     End Sub
 
+    ' -----------------------------------------------------------------------
+    ' LogFehler - Writes an error message to the SSIS log (FireError).
+    ' -----------------------------------------------------------------------
     Private Sub LogFehler(nachricht As String)
         Dts.Events.FireError(0, SKRIPT_NAME, nachricht, "", 0)
     End Sub
 
-    ' =========================================================================
-    ' Ergebnistypen
-    ' =========================================================================
+    ' -----------------------------------------------------------------------
+    ' ScriptResults - SSIS task result codes.
+    ' -----------------------------------------------------------------------
     Public Enum ScriptResults
         Success = DTSExecResult.Success
         Failure = DTSExecResult.Failure

@@ -7,29 +7,13 @@ Imports System.Collections.Generic
 Imports Microsoft.SqlServer.Dts.Runtime
 
 ' =============================================================================
-' PAKET  : Fakten Laden
-' SKRIPT : SCR14_StagetabellenDML_Aufruf 
-' ZWECK  : Liest BA::objPartitionValues (von SCR09 gesetzt)
-'          Pro Verfahren + Partitionswert: usp_Faktenladen_StagetabellenDML aufrufen
-'          Alle 15 Parameter werden mit echten Werten uebergeben
-'          Status: DATEN_GELADEN -> STAGE_DML -> STAGE_DML_ERFOLG
-'
-' PARAMETER-QUELLEN:
-'   @Partition          -> BA::objPartitionValues[i,1]
-'   @Partitionstabelle  -> Faktentabelle_in_Partitionswert
-'   @Partitionsspalte   -> Parametertabelle: Faktenpartitionsspalte
-'   @ClusteredIndex     -> Parametertabelle: FaktenClusteredIndex
-'   @Komprimierung      -> Parametertabelle: Faktenkomprimierung
-'   @UserName           -> System.Environment.UserName
-'   @PackageName        -> System.Environment.MachineName
-'   @Server             -> BA::Server
-'   @Datenbank          -> BA::Datenbank
-'   @Datamart           -> BA::Datamart
-'   @Verfahren          -> BA::Verfahren
-'   @ProtokollID        -> Auto-generierte GUID
-'   @ProtokollDatenbank -> BA::ProtokollDB
-'   @Protokolltabelle   -> BA::Protokolltabelle
-'   @ProtokollSP        -> BA::ProtokollSP
+'  Script   : SCR14_StagetabellenDML_Aufruf
+'  Package  : Fakten Laden (SSIS)
+'  Purpose  : Executes the optional per-Verfahren DML procedure
+'             usp_Faktenladen_StagetabellenDML_<fact> on the staged data.
+'  Workflow : DATEN_GELADEN -> STAGE_DML_ERFOLG
+'  Retry    : 3 attempts per SQL statement, 30 s delay
+'  Logging  : SSIS events only (FireInformation / FireError)
 ' =============================================================================
 <Microsoft.SqlServer.Dts.Tasks.ScriptTask.SSISScriptTaskEntryPointAttribute()>
 <CLSCompliant(False)>
@@ -59,6 +43,9 @@ Partial Public Class ScriptMain
     Private _userName As String = String.Empty
     Private _packageName As String = String.Empty
 
+    ' -----------------------------------------------------------------------
+    ' Main - Entry point - orchestrates the script flow.
+    ' -----------------------------------------------------------------------
     Public Sub Main()
 
         Log("SCR14_StagetabellenDML_Aufruf - Start")
@@ -223,6 +210,10 @@ Partial Public Class ScriptMain
         End Try
     End Sub
 
+    ' -----------------------------------------------------------------------
+    ' VerfahrenLaden - Loads the Verfahren to process from the work list
+    ' (joined with the parameter table).
+    ' -----------------------------------------------------------------------
     Private Function VerfahrenLaden(connStr As String) As List(Of VerfahrenInfo)
         Dim liste As New List(Of VerfahrenInfo)()
         Dim sql As String =
@@ -273,6 +264,9 @@ Partial Public Class ScriptMain
         Return liste
     End Function
 
+    ' -----------------------------------------------------------------------
+    ' ProzedurExistiert - Checks whether a stored procedure exists.
+    ' -----------------------------------------------------------------------
     Private Function ProzedurExistiert(connStr As String, procName As String) As Boolean
         Dim sql As String =
             "SELECT COUNT(*) FROM sys.objects " &
@@ -301,12 +295,19 @@ Partial Public Class ScriptMain
         Return False
     End Function
 
+    ' -----------------------------------------------------------------------
+    ' StatusSetzen - Updates Status / LetzterSchritt of a work list row.
+    ' -----------------------------------------------------------------------
     Private Sub StatusSetzen(connStr As String, id As Integer, status As String)
         SqlAusfuehren(connStr,
             "UPDATE dbo.ETL_Fkt_Arbeitsliste SET Status='" & status & "', LetzterSchritt='" & status & "', AktualisiertAm=GETDATE() WHERE ID=" & id,
             "StatusSetzen")
     End Sub
 
+    ' -----------------------------------------------------------------------
+    ' FehlerSetzen - Marks a work list row as FEHLER and stores the error
+    ' message.
+    ' -----------------------------------------------------------------------
     Private Sub FehlerSetzen(connStr As String, id As Integer, meldung As String)
         Try
             Using conn As New SqlConnection(connStr)
@@ -322,6 +323,10 @@ Partial Public Class ScriptMain
         End Try
     End Sub
 
+    ' -----------------------------------------------------------------------
+    ' ProtokollSchreiben - Routes protocol messages to SSIS events:
+    ' FEHLER_* -> FireError, everything else -> FireInformation.
+    ' -----------------------------------------------------------------------
     Private Sub ProtokollSchreiben(connStr As String, verfahren As String, schritt As String, meldung As String)
         ' Kein DB-Log: Logging laeuft vollstaendig ueber SSIS Events (Eventhandler)
         ' FEHLER_* -> FireError | alles andere -> FireInformation
@@ -332,6 +337,10 @@ Partial Public Class ScriptMain
         End If
     End Sub
 
+    ' -----------------------------------------------------------------------
+    ' SqlAusfuehren - Executes a non-query SQL statement with retry; logs
+    ' warning and the full SQL statement on failure.
+    ' -----------------------------------------------------------------------
     Private Function SqlAusfuehren(connStr As String, sql As String, beschreibung As String) As Integer
         Dim versuch As Integer = 0
         Dim letzterFehler As Exception = Nothing
@@ -355,24 +364,41 @@ Partial Public Class ScriptMain
         Throw New Exception(String.Format("[{0}] fehlgeschlagen: {1}", beschreibung, If(letzterFehler IsNot Nothing, letzterFehler.Message, "Unbekannt")))
     End Function
 
+    ' -----------------------------------------------------------------------
+    ' HoleVerbindungszeichenfolge - Returns the connection string of the
+    ' package connection manager.
+    ' -----------------------------------------------------------------------
     Private Function HoleVerbindungszeichenfolge() As String
         Return Dts.Connections(CONN_NAME).ConnectionString
     End Function
 
+    ' -----------------------------------------------------------------------
+    ' Log - Writes an information message to the SSIS log
+    ' (FireInformation).
+    ' -----------------------------------------------------------------------
     Private Sub Log(n As String)
         Dim f As Boolean = False
         Dts.Events.FireInformation(0, SKRIPT_NAME, n, "", 0, f)
     End Sub
 
+    ' -----------------------------------------------------------------------
+    ' LogFehler - Writes an error message to the SSIS log (FireError).
+    ' -----------------------------------------------------------------------
     Private Sub LogFehler(n As String)
         Dts.Events.FireError(0, SKRIPT_NAME, n, "", 0)
     End Sub
 
+    ' -----------------------------------------------------------------------
+    ' PartitionsEintrag - Data container for one partition value entry.
+    ' -----------------------------------------------------------------------
     Private Class PartitionsEintrag
         Public Property Wert As String
         Public Property Modus As String
     End Class
 
+    ' -----------------------------------------------------------------------
+    ' VerfahrenInfo - Data container for one Verfahren work item.
+    ' -----------------------------------------------------------------------
     Private Class VerfahrenInfo
         Public Property ID As Integer
         Public Property Verfahren As String
@@ -384,6 +410,9 @@ Partial Public Class ScriptMain
         Public Property Komprimierung As String
     End Class
 
+    ' -----------------------------------------------------------------------
+    ' ScriptResults - SSIS task result codes.
+    ' -----------------------------------------------------------------------
     Public Enum ScriptResults
         Success = DTSExecResult.Success
         Failure = DTSExecResult.Failure

@@ -11,27 +11,14 @@ Imports Microsoft.SqlServer.Dts.Tasks.ScriptTask
 Imports System.Linq
 
 ' =============================================================================
-' PAKET  : Fakten Laden
-' SKRIPT : SCR13_Daten_Laden
-'
-' ZWECK  : Laedt Daten partition-weise aus ext.[tabelle] in _in_ Tabellen
-'
-'          Partitionswerte kommen aus BA::objPartitionValues (gesetzt von SCR11).
-'          Pro Partitionswert pv wird folgendes gemacht:
-'
-'            inTable      = tf_..._in_202301        (Ziel: neue Daten fuer Partition-Switch)
-'            loadingTable = tf_..._in_202301_LOADING
-'
-'          RESUME-Logik:
-'            1. inTable existiert UND hat Zeilen  → bereits geladen, uebersprungen
-'            2. loadingTable existiert            → vorheriger Lauf abgebrochen, loeschen
-'            3. inTable existiert aber leer       → unvollstaendig, loeschen
-'            4. Immer: SELECT INTO _LOADING (columns_dbo), dann RENAME → inTable (atomar)
-'
-'          Hinweis: _out_ Tabellen (leere Shells fuer Partition-Switch) werden von
-'                   SCR12 erstellt und sind NICHT der Ladeort fuer neue Daten.
-'
-' Status: STAGING_ERSTELLT → DATEN_LADEN → DATEN_GELADEN
+'  Script   : SCR13_Daten_Laden
+'  Package  : Fakten Laden (SSIS)
+'  Purpose  : Loads the data partition-wise from ext.<fact> into _in_
+'             tables: SELECT INTO _LOADING, then atomic rename. Parallel and
+'             resume-capable.
+'  Workflow : STAGING_ERSTELLT -> DATEN_GELADEN
+'  Retry    : 3 attempts per SQL statement, 30 s delay
+'  Logging  : SSIS events only (FireInformation / FireError)
 ' =============================================================================
 <Microsoft.SqlServer.Dts.Tasks.ScriptTask.SSISScriptTaskEntryPointAttribute()>
 <CLSCompliant(False)>
@@ -54,9 +41,9 @@ Partial Public Class ScriptMain
     Private _cntOK As Integer = 0
     Private _cntFehler As Integer = 0
 
-    ' ==========================================================================================
-    ' HAUPTABLAUF
-    ' ==========================================================================================
+    ' -----------------------------------------------------------------------
+    ' Main - Entry point - orchestrates the script flow.
+    ' -----------------------------------------------------------------------
     Public Sub Main()
 
         Log("SCR13_Daten_Laden - Start")
@@ -116,9 +103,10 @@ Partial Public Class ScriptMain
 
     End Sub
 
-    ' ==========================================================================================
-    ' BA::objPartitionValues → Dictionary[Verfahren → List(partitionwert)]
-    ' ==========================================================================================
+    ' -----------------------------------------------------------------------
+    ' LesePartitionValues - Reads BA::objPartitionValues into a
+    ' per-Verfahren dictionary.
+    ' -----------------------------------------------------------------------
     Private Function LesePartitionValues() As Dictionary(Of String, List(Of String))
         Dim dict As New Dictionary(Of String, List(Of String))(StringComparer.OrdinalIgnoreCase)
         Dim partObjekt As Object = Dts.Variables("BA::objPartitionValues").Value
@@ -136,9 +124,9 @@ Partial Public Class ScriptMain
         Return dict
     End Function
 
-    ' ==========================================================================================
-    ' EINZELNES VERFAHREN VERARBEITEN
-    ' ==========================================================================================
+    ' -----------------------------------------------------------------------
+    ' VerarbeiteVerfahren - Processes a single Verfahren (parallel worker).
+    ' -----------------------------------------------------------------------
     Private Sub VerarbeiteVerfahren(v As VerfahrenInfo, connStr As String,
                                     partDict As Dictionary(Of String, List(Of String)))
 
@@ -263,9 +251,10 @@ Partial Public Class ScriptMain
 
     End Sub
 
-    ' ==========================================================================================
-    ' SELECT INTO _LOADING Tabelle — laedt eine Partition aus ext.[tabelle] via columns_dbo
-    ' ==========================================================================================
+    ' -----------------------------------------------------------------------
+    ' DatenLadenSelectInto - Loads one partition via SELECT INTO _LOADING
+    ' and renames it atomically to _in_.
+    ' -----------------------------------------------------------------------
     Private Function DatenLadenSelectInto(connStr As String, v As VerfahrenInfo,
                                           loadingTable As String, extTable As String,
                                           partitionValue As String) As Integer
@@ -323,9 +312,10 @@ Partial Public Class ScriptMain
             "Count " & loadingTable))
     End Function
 
-    ' ==========================================================================================
-    ' VERFAHREN LADEN
-    ' ==========================================================================================
+    ' -----------------------------------------------------------------------
+    ' VerfahrenLaden - Loads the Verfahren to process from the work list
+    ' (joined with the parameter table).
+    ' -----------------------------------------------------------------------
     Private Function VerfahrenLaden(connStr As String) As List(Of VerfahrenInfo)
         Dim liste As New List(Of VerfahrenInfo)()
         Dim sql As String =
@@ -370,9 +360,9 @@ Partial Public Class ScriptMain
         Return liste
     End Function
 
-    ' ==========================================================================================
-    ' STATUS / PROTOKOLL
-    ' ==========================================================================================
+    ' -----------------------------------------------------------------------
+    ' StatusSetzen - Updates Status / LetzterSchritt of a work list row.
+    ' -----------------------------------------------------------------------
     Private Sub StatusSetzen(connStr As String, id As Integer, status As String)
         SqlAusfuehren(connStr,
             "UPDATE dbo.ETL_Fkt_Arbeitsliste SET Status='" & status &
@@ -380,6 +370,10 @@ Partial Public Class ScriptMain
             "Status")
     End Sub
 
+    ' -----------------------------------------------------------------------
+    ' FehlerSetzen - Marks a work list row as FEHLER and stores the error
+    ' message.
+    ' -----------------------------------------------------------------------
     Private Sub FehlerSetzen(connStr As String, id As Integer, msg As String)
         Try
             Using conn As New SqlConnection(connStr)
@@ -396,6 +390,10 @@ Partial Public Class ScriptMain
         End Try
     End Sub
 
+    ' -----------------------------------------------------------------------
+    ' LogSchreiben - Routes protocol messages to SSIS events: FEHLER_* ->
+    ' FireError, everything else -> FireInformation.
+    ' -----------------------------------------------------------------------
     Private Sub LogSchreiben(connStr As String, verfahren As String, schritt As String, meldung As String)
         ' Kein DB-Log: Logging laeuft vollstaendig ueber SSIS Events (Eventhandler)
         ' FEHLER_* -> FireError | alles andere -> FireInformation
@@ -406,9 +404,10 @@ Partial Public Class ScriptMain
         End If
     End Sub
 
-    ' ==========================================================================================
-    ' SQL HILFSMETHODEN
-    ' ==========================================================================================
+    ' -----------------------------------------------------------------------
+    ' SqlAusfuehren - Executes a non-query SQL statement with retry; logs
+    ' warning and the full SQL statement on failure.
+    ' -----------------------------------------------------------------------
     Private Function SqlAusfuehren(connStr As String, sql As String, beschreibung As String) As Integer
         Dim versuch As Integer = 0
         Dim letzterFehler As Exception = Nothing
@@ -435,6 +434,10 @@ Partial Public Class ScriptMain
             If(letzterFehler IsNot Nothing, letzterFehler.Message, "Unbekannt")))
     End Function
 
+    ' -----------------------------------------------------------------------
+    ' SqlSkalar - Executes a scalar SQL query with retry; logs warning and
+    ' the full SQL statement on failure.
+    ' -----------------------------------------------------------------------
     Private Function SqlSkalar(connStr As String, sql As String, beschreibung As String) As Object
         Dim versuch As Integer = 0
         While versuch < MAX_VERSUCHE
@@ -458,13 +461,18 @@ Partial Public Class ScriptMain
         Return Nothing
     End Function
 
+    ' -----------------------------------------------------------------------
+    ' HoleVerbindungszeichenfolge - Returns the connection string of the
+    ' package connection manager.
+    ' -----------------------------------------------------------------------
     Private Function HoleVerbindungszeichenfolge() As String
         Return Dts.Connections(CONN_NAME).ConnectionString
     End Function
 
-    ' ==========================================================================================
-    ' LOGGING
-    ' ==========================================================================================
+    ' -----------------------------------------------------------------------
+    ' Log - Writes an information message to the SSIS log
+    ' (FireInformation).
+    ' -----------------------------------------------------------------------
     Private Sub Log(n As String)
         SyncLock _logSperre
             Dim f As Boolean = False
@@ -472,15 +480,18 @@ Partial Public Class ScriptMain
         End SyncLock
     End Sub
 
+    ' -----------------------------------------------------------------------
+    ' LogFehler - Writes an error message to the SSIS log (FireError).
+    ' -----------------------------------------------------------------------
     Private Sub LogFehler(n As String)
         SyncLock _logSperre
             Dts.Events.FireError(0, SKRIPT_NAME, n, "", 0)
         End SyncLock
     End Sub
 
-    ' ==========================================================================================
-    ' DATENSTRUKTUREN
-    ' ==========================================================================================
+    ' -----------------------------------------------------------------------
+    ' VerfahrenInfo - Data container for one Verfahren work item.
+    ' -----------------------------------------------------------------------
     Private Class VerfahrenInfo
         Public Property ID As Integer
         Public Property Verfahren As String
@@ -490,6 +501,9 @@ Partial Public Class ScriptMain
         Public Property PartitionColumn As String
     End Class
 
+    ' -----------------------------------------------------------------------
+    ' ScriptResults - SSIS task result codes.
+    ' -----------------------------------------------------------------------
     Public Enum ScriptResults
         Success = DTSExecResult.Success
         Failure = DTSExecResult.Failure

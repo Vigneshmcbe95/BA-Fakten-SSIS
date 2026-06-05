@@ -7,14 +7,14 @@ Imports System.Collections.Generic
 Imports Microsoft.SqlServer.Dts.Runtime
 
 ' =============================================================================
-' PAKET  : Fakten Laden
-' SKRIPT : SCR21_usp_Faktenladen_Nachlauf
-' ZWECK  : Pro Verfahren: usp_Faktenladen_Nachlauf_<Verfahren> aufrufen
-'          EINMAL pro Verfahren (nicht pro Partition)
-'          11 Parameter: originale 10 + @MowIdListe (komma-getrennte mow_ids)
-'          @MowIdListe wird aus BA::objPartitionValues gebaut
-'          Wenn Prozedur nicht existiert -> Info, kein Fehler
-'          Status: NACHLAUF_PART_ERFOLG -> NACHLAUF_VERF -> NACHLAUF_VERF_ERFOLG
+'  Script   : SCR21_usp_Faktenladen_Nachlauf
+'  Package  : Fakten Laden (SSIS)
+'  Purpose  : Executes the optional final procedure
+'             usp_Faktenladen_Nachlauf_<fact> per Verfahren after a
+'             successful run, if present.
+'  Workflow : NACHLAUF_PART_ERFOLG -> NACHLAUF_VERF_ERFOLG
+'  Retry    : 3 attempts per SQL statement, 30 s delay
+'  Logging  : SSIS events only (FireInformation / FireError)
 ' =============================================================================
 <Microsoft.SqlServer.Dts.Tasks.ScriptTask.SSISScriptTaskEntryPointAttribute()>
 <CLSCompliant(False)>
@@ -42,6 +42,9 @@ Partial Public Class ScriptMain
     Private _userName As String = String.Empty
     Private _packageName As String = String.Empty
 
+    ' -----------------------------------------------------------------------
+    ' Main - Entry point - orchestrates the script flow.
+    ' -----------------------------------------------------------------------
     Public Sub Main()
 
         Log("SCR21_usp_Faktenladen_Nachlauf - Start")
@@ -176,6 +179,10 @@ Partial Public Class ScriptMain
         End Try
     End Sub
 
+    ' -----------------------------------------------------------------------
+    ' VerfahrenLaden - Loads the Verfahren to process from the work list
+    ' (joined with the parameter table).
+    ' -----------------------------------------------------------------------
     Private Function VerfahrenLaden(connStr As String) As List(Of VerfahrenInfo)
         Dim liste As New List(Of VerfahrenInfo)()
         Dim sql As String =
@@ -213,6 +220,9 @@ Partial Public Class ScriptMain
         Return liste
     End Function
 
+    ' -----------------------------------------------------------------------
+    ' ProzedurExistiert - Checks whether a stored procedure exists.
+    ' -----------------------------------------------------------------------
     Private Function ProzedurExistiert(connStr As String, procName As String) As Boolean
         Using c As New SqlConnection(connStr)
             c.Open()
@@ -223,10 +233,17 @@ Partial Public Class ScriptMain
         End Using
     End Function
 
+    ' -----------------------------------------------------------------------
+    ' StatusSetzen - Updates Status / LetzterSchritt of a work list row.
+    ' -----------------------------------------------------------------------
     Private Sub StatusSetzen(connStr As String, id As Integer, status As String)
         SqlAusfuehren(connStr, "UPDATE dbo.ETL_Fkt_Arbeitsliste SET Status='" & status & "',LetzterSchritt='" & status & "',AktualisiertAm=GETDATE() WHERE ID=" & id, "Status")
     End Sub
 
+    ' -----------------------------------------------------------------------
+    ' FehlerSetzen - Marks a work list row as FEHLER and stores the error
+    ' message.
+    ' -----------------------------------------------------------------------
     Private Sub FehlerSetzen(connStr As String, id As Integer, meldung As String)
         Try
             Using conn As New SqlConnection(connStr)
@@ -241,6 +258,10 @@ Partial Public Class ScriptMain
         End Try
     End Sub
 
+    ' -----------------------------------------------------------------------
+    ' ProtokollSchreiben - Routes protocol messages to SSIS events:
+    ' FEHLER_* -> FireError, everything else -> FireInformation.
+    ' -----------------------------------------------------------------------
     Private Sub ProtokollSchreiben(connStr As String, verfahren As String, schritt As String, meldung As String)
         ' Kein DB-Log: Logging laeuft vollstaendig ueber SSIS Events (Eventhandler)
         ' FEHLER_* -> FireError | alles andere -> FireInformation
@@ -251,6 +272,10 @@ Partial Public Class ScriptMain
         End If
     End Sub
 
+    ' -----------------------------------------------------------------------
+    ' SqlAusfuehren - Executes a non-query SQL statement with retry; logs
+    ' warning and the full SQL statement on failure.
+    ' -----------------------------------------------------------------------
     Private Function SqlAusfuehren(connStr As String, sql As String, beschreibung As String) As Integer
         Dim versuch As Integer = 0
         Dim letzterFehler As Exception = Nothing
@@ -274,19 +299,33 @@ Partial Public Class ScriptMain
         Throw New Exception(String.Format("[{0}] fehlgeschlagen: {1}", beschreibung, If(letzterFehler IsNot Nothing, letzterFehler.Message, "Unbekannt")))
     End Function
 
+    ' -----------------------------------------------------------------------
+    ' HoleVerbindungszeichenfolge - Returns the connection string of the
+    ' package connection manager.
+    ' -----------------------------------------------------------------------
     Private Function HoleVerbindungszeichenfolge() As String
         Return Dts.Connections(CONN_NAME).ConnectionString
     End Function
 
+    ' -----------------------------------------------------------------------
+    ' Log - Writes an information message to the SSIS log
+    ' (FireInformation).
+    ' -----------------------------------------------------------------------
     Private Sub Log(n As String)
         Dim f As Boolean = False
         Dts.Events.FireInformation(0, SKRIPT_NAME, n, "", 0, f)
     End Sub
 
+    ' -----------------------------------------------------------------------
+    ' LogFehler - Writes an error message to the SSIS log (FireError).
+    ' -----------------------------------------------------------------------
     Private Sub LogFehler(n As String)
         Dts.Events.FireError(0, SKRIPT_NAME, n, "", 0)
     End Sub
 
+    ' -----------------------------------------------------------------------
+    ' VerfahrenInfo - Data container for one Verfahren work item.
+    ' -----------------------------------------------------------------------
     Private Class VerfahrenInfo
         Public Property ID As Integer
         Public Property Verfahren As String
@@ -294,6 +333,9 @@ Partial Public Class ScriptMain
         Public Property LetzterSchritt As String
     End Class
 
+    ' -----------------------------------------------------------------------
+    ' ScriptResults - SSIS task result codes.
+    ' -----------------------------------------------------------------------
     Public Enum ScriptResults
         Success = DTSExecResult.Success
         Failure = DTSExecResult.Failure

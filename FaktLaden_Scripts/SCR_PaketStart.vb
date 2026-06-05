@@ -6,12 +6,13 @@ Imports System.Data.SqlClient
 Imports Microsoft.SqlServer.Dts.Runtime
 
 ' =============================================================================
-' PAKET  : Fakten Laden
-' SKRIPT : SCR_PaketStart
-' ZWECK  : 1. ETL_Fakt_LaufHistorie sicherstellen (anlegen falls nicht vorhanden)
-'          2. Verwaiste Läufe (Status = LAUFEND) → ABGEBROCHEN setzen
-'          3. ETL_Arbeitsliste: FEHLER → AUSSTEHEND zurücksetzen (Retry)
-'          4. Neuen Lauf anlegen → BA::RunID setzen
+'  Script   : SCR_PaketStart
+'  Package  : Fakten Laden (SSIS)
+'  Purpose  : Initializes the package run: ensures ETL_Fakt_LaufHistorie
+'             exists, closes orphaned runs and creates a new run row (sets
+'             BA::RunID).
+'  Retry    : 3 attempts per SQL statement, 30 s delay
+'  Logging  : SSIS events only (FireInformation / FireError)
 ' =============================================================================
 <Microsoft.SqlServer.Dts.Tasks.ScriptTask.SSISScriptTaskEntryPointAttribute()>
 <CLSCompliant(False)>
@@ -26,9 +27,9 @@ Partial Public Class ScriptMain
     Private Const MAX_VERSUCHE As Integer = 3
     Private Const WARTE_SEK As Integer = 30
 
-    ' -------------------------------------------------------------------------
-    ' Einstiegspunkt
-    ' -------------------------------------------------------------------------
+    ' -----------------------------------------------------------------------
+    ' Main - Entry point - orchestrates the script flow.
+    ' -----------------------------------------------------------------------
     Public Sub Main()
 
         Log("Fakten Laden - Paketstart")
@@ -64,9 +65,9 @@ Partial Public Class ScriptMain
 
     End Sub
 
-    ' =========================================================================
-    ' ETL_Fakt_LaufHistorie anlegen falls nicht vorhanden
-    ' =========================================================================
+    ' -----------------------------------------------------------------------
+    ' LaufHistorieSicherstellen - Ensures dbo.ETL_Fakt_LaufHistorie exists.
+    ' -----------------------------------------------------------------------
     Private Sub LaufHistorieSicherstellen(connStr As String)
 
         Dim sql As String =
@@ -110,9 +111,10 @@ ELSE
 
     End Sub
 
-    ' =========================================================================
-    ' Verwaiste Läufe (Status = LAUFEND) → ABGEBROCHEN
-    ' =========================================================================
+    ' -----------------------------------------------------------------------
+    ' VerwaistelaeufeAbschliessen - Closes orphaned runs (LAUFEND ->
+    ' ABGEBROCHEN).
+    ' -----------------------------------------------------------------------
     Private Sub VerwaistelaeufeAbschliessen(connStr As String)
 
         Dim sql As String =
@@ -126,9 +128,10 @@ WHERE  RunStatus = 'LAUFEND';"
 
     End Sub
 
-    ' =========================================================================
-    ' ETL_Arbeitsliste: FEHLER → AUSSTEHEND (für Retry-Versuche)
-    ' =========================================================================
+    ' -----------------------------------------------------------------------
+    ' FehlerZuruecksetzen - Resets FEHLER rows to AUSSTEHEND for the new
+    ' run.
+    ' -----------------------------------------------------------------------
     Private Sub FehlerZuruecksetzen(connStr As String)
 
         Dim sql As String =
@@ -150,9 +153,9 @@ END;"
 
     End Sub
 
-    ' =========================================================================
-    ' Neuen Lauf in ETL_Fakt_LaufHistorie anlegen → RunID zurückgeben
-    ' =========================================================================
+    ' -----------------------------------------------------------------------
+    ' NeuenLaufAnlegen - Creates a new run row and returns its RunID.
+    ' -----------------------------------------------------------------------
     Private Function NeuenLaufAnlegen(connStr As String) As Integer
 
         Dim sql As String =
@@ -170,9 +173,10 @@ SELECT SCOPE_IDENTITY();"
 
     End Function
 
-    ' =========================================================================
-    ' SQL-Helfer: NonQuery mit Retry → gibt betroffene Zeilen zurück
-    ' =========================================================================
+    ' -----------------------------------------------------------------------
+    ' SqlAusfuehren - Executes a non-query SQL statement with retry; logs
+    ' warning and the full SQL statement on failure.
+    ' -----------------------------------------------------------------------
     Private Function SqlAusfuehren(connStr As String,
                                    sql As String,
                                    beschreibung As String) As Integer
@@ -206,9 +210,9 @@ SELECT SCOPE_IDENTITY();"
             If(letzterFehler IsNot Nothing, letzterFehler.Message, "Unbekannt")))
     End Function
 
-    ' =========================================================================
-    ' SQL-Helfer: Scalar mit Retry → gibt einzelnen Wert zurück
-    ' =========================================================================
+    ' -----------------------------------------------------------------------
+    ' SqlSkalarAusfuehren - Executes a scalar SQL query with retry.
+    ' -----------------------------------------------------------------------
     Private Function SqlSkalarAusfuehren(connStr As String,
                                          sql As String,
                                          beschreibung As String) As Object
@@ -241,28 +245,33 @@ SELECT SCOPE_IDENTITY();"
             If(letzterFehler IsNot Nothing, letzterFehler.Message, "Unbekannt")))
     End Function
 
-    ' =========================================================================
-    ' Verbindungszeichenfolge aus SSIS Connection Manager holen
-    ' =========================================================================
+    ' -----------------------------------------------------------------------
+    ' HoleVerbindungszeichenfolge - Returns the connection string of the
+    ' package connection manager.
+    ' -----------------------------------------------------------------------
     Private Function HoleVerbindungszeichenfolge() As String
         Return Dts.Connections(CONN_NAME).ConnectionString
     End Function
 
-    ' =========================================================================
-    ' Logging
-    ' =========================================================================
+    ' -----------------------------------------------------------------------
+    ' Log - Writes an information message to the SSIS log
+    ' (FireInformation).
+    ' -----------------------------------------------------------------------
     Private Sub Log(nachricht As String)
         Dim fireAgain As Boolean = False
         Dts.Events.FireInformation(0, SKRIPT_NAME, nachricht, "", 0, fireAgain)
     End Sub
 
+    ' -----------------------------------------------------------------------
+    ' LogFehler - Writes an error message to the SSIS log (FireError).
+    ' -----------------------------------------------------------------------
     Private Sub LogFehler(nachricht As String)
         Dts.Events.FireError(0, SKRIPT_NAME, nachricht, "", 0)
     End Sub
 
-    ' =========================================================================
-    ' Ergebnistypen
-    ' =========================================================================
+    ' -----------------------------------------------------------------------
+    ' ScriptResults - SSIS task result codes.
+    ' -----------------------------------------------------------------------
     Public Enum ScriptResults
         Success = DTSExecResult.Success
         Failure = DTSExecResult.Failure

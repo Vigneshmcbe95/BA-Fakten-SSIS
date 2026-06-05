@@ -8,15 +8,13 @@ Imports System.Text
 Imports Microsoft.SqlServer.Dts.Runtime
 
 ' =============================================================================
-' PAKET  : Fakten Laden
-' SKRIPT : SCR_04b_Parameter_Vollstaendigkeitspruefung
-' ZWECK  : Prüft VOR dem Aufbau der Arbeitsliste ob:
-'          1. Die Steuerlisten-Tabelle existiert und Einträge enthält
-'          2. Alle Verfahren aus der Steuerliste (tabname_filter IS NOT NULL)
-'             in der Parametertabelle vorhanden sind
-'          3. Alle 7 Pflichtparameter pro Verfahren vorhanden und befüllt sind
-'          → Bei JEDEM Fehler: Paket wird mit detaillierter Fehlermeldung abgebrochen
-' ============================================================================='
+'  Script   : SCR_05_Parameter_Vollstaendigkeitspruefung
+'  Package  : Fakten Laden (SSIS)
+'  Purpose  : Validates that every Verfahren has all mandatory parameters in
+'             the parameter table.
+'  Retry    : 3 attempts per SQL statement, 30 s delay
+'  Logging  : SSIS events only (FireInformation / FireError)
+' =============================================================================
 <Microsoft.SqlServer.Dts.Tasks.ScriptTask.SSISScriptTaskEntryPointAttribute()>
 <CLSCompliant(False)>
 Partial Public Class ScriptMain
@@ -51,9 +49,9 @@ Partial Public Class ScriptMain
     Private _parametertabelle As String = String.Empty
     Private _steuerlistenTabelle As String = String.Empty
 
-    ' =========================================================================
-    ' Einstiegspunkt
-    ' =========================================================================
+    ' -----------------------------------------------------------------------
+    ' Main - Entry point - orchestrates the script flow.
+    ' -----------------------------------------------------------------------
     Public Sub Main()
 
         Log("SCR_05_Parameter_Vollstaendigkeitspruefung - Start")
@@ -253,9 +251,10 @@ Partial Public Class ScriptMain
 
     End Sub
 
-    ' =========================================================================
-    ' SSIS-Variablen laden
-    ' =========================================================================
+    ' -----------------------------------------------------------------------
+    ' VariablenLaden - Reads the required SSIS variables into module
+    ' fields.
+    ' -----------------------------------------------------------------------
     Private Sub VariablenLaden()
         _parameterDB = Dts.Variables("BA::ParameterDB").Value.ToString().Trim()
         _parametertabelle = Dts.Variables("BA::Parametertabelle").Value.ToString().Trim()
@@ -264,9 +263,10 @@ Partial Public Class ScriptMain
         Log("Pflichtparameter     : " & String.Join(", ", PFLICHT_PARAMETER))
     End Sub
 
-    ' =========================================================================
-    ' Pflichtfelder des Skripts selbst prüfen (SSIS-Variablen)
-    ' =========================================================================
+    ' -----------------------------------------------------------------------
+    ' PflichtfelderPruefen - Validates that all mandatory variables /
+    ' parameters are present.
+    ' -----------------------------------------------------------------------
     Private Function PflichtfelderPruefen() As Boolean
         Dim fehlend As New StringBuilder()
         If String.IsNullOrEmpty(_parameterDB) Then fehlend.AppendLine("  → BA::ParameterDB")
@@ -280,9 +280,10 @@ Partial Public Class ScriptMain
         Return True
     End Function
 
-    ' =========================================================================
-    ' Schritt 4a: Faktenpartitionsspalte für ein Verfahren aus Parametertabelle lesen
-    ' =========================================================================
+    ' -----------------------------------------------------------------------
+    ' PartitionsspalteHolen - Reads the partition column from the parameter
+    ' table.
+    ' -----------------------------------------------------------------------
     Private Function PartitionsspalteHolen(connStr As String, verfahren As String) As String
         Dim sql As String =
             "SELECT LTRIM(RTRIM(ISNULL(Wert,''))) " &
@@ -314,10 +315,10 @@ Partial Public Class ScriptMain
             If(letzterFehler IsNot Nothing, letzterFehler.Message, "Unbekannt")))
     End Function
 
-    ' =========================================================================
-    ' Schritt 4b: where_klausel in Steuerliste befüllen
-    '             WHERE <partCol> = '<partition_wert>'  — nur wo partition_wert gesetzt
-    ' =========================================================================
+    ' -----------------------------------------------------------------------
+    ' WhereKlauselFuellen - Builds the WHERE clause per Verfahren and fills
+    ' it into the control list.
+    ' -----------------------------------------------------------------------
     Private Sub WhereKlauselFuellen(connStr As String, verfahren As String, partCol As String)
         ' UPDATE alle Zeilen dieses Verfahrens wo partition_wert bereits gesetzt (durch SCR04)
         Dim sql As String =
@@ -350,9 +351,9 @@ Partial Public Class ScriptMain
             If(letzterFehler IsNot Nothing, letzterFehler.Message, "Unbekannt")))
     End Sub
 
-    ' =========================================================================
-    ' Schritt 1: Prüft ob Steuerlisten-Tabelle existiert und Einträge hat
-    ' =========================================================================
+    ' -----------------------------------------------------------------------
+    ' SteuerlistenTabellePruefen - Ensures the control list table exists.
+    ' -----------------------------------------------------------------------
     Private Function SteuerlistenTabellePruefen(connStr As String) As Boolean
 
         ' 1a: Tabelle überhaupt vorhanden?
@@ -401,10 +402,10 @@ Partial Public Class ScriptMain
 
     End Function
 
-    ' =========================================================================
-    ' Schritt 2: Verfahren aus Steuerliste wo where_klausel IS NOT NULL
-    '            JOIN Parametertabelle → nur Verfahren die dort existieren
-    ' =========================================================================
+    ' -----------------------------------------------------------------------
+    ' VerfahrenAusSteuerlisteHolen - Loads the Verfahren entries from the
+    ' control list table.
+    ' -----------------------------------------------------------------------
     Private Function VerfahrenAusSteuerlisteHolen(connStr As String) As List(Of String)
 
         Dim liste As New List(Of String)()
@@ -450,10 +451,10 @@ Partial Public Class ScriptMain
 
     End Function
 
-    ' =========================================================================
-    ' Schritt 3a: Prüft ob ein Verfahren überhaupt in der Parametertabelle
-    '             existiert (mindestens eine Zeile mit diesem Verfahren)
-    ' =========================================================================
+    ' -----------------------------------------------------------------------
+    ' VerfahrenExistiertInParametertabelle - Checks whether a Verfahren
+    ' exists in the parameter table.
+    ' -----------------------------------------------------------------------
     Private Function VerfahrenExistiertInParametertabelle(connStr As String,
                                                            verfahren As String) As Boolean
         Dim sql As String =
@@ -490,13 +491,9 @@ Partial Public Class ScriptMain
             If(letzterFehler IsNot Nothing, letzterFehler.Message, "Unbekannt")))
     End Function
 
-    ' =========================================================================
-    ' Schritt 3b: Prüft einen einzelnen Pflichtparameter für ein Verfahren
-    '  Rückgabe:
-    '    "OK"       → Zeile vorhanden, Wert befüllt
-    '    "FEHLEND"  → Zeile in Parametertabelle nicht vorhanden
-    '    "LEER"     → Zeile vorhanden, Wert ist NULL oder leer
-    ' =========================================================================
+    ' -----------------------------------------------------------------------
+    ' ParameterPruefen - Validates the parameter set of a Verfahren.
+    ' -----------------------------------------------------------------------
     Private Function ParameterPruefen(connStr As String,
                                        verfahren As String,
                                        parameter As String) As String
@@ -545,9 +542,10 @@ Partial Public Class ScriptMain
             If(letzterFehler IsNot Nothing, letzterFehler.Message, "Unbekannt")))
     End Function
 
-    ' =========================================================================
-    ' Hilfsfunktion: Skalaren SQL-Wert lesen mit Retry-Logik
-    ' =========================================================================
+    ' -----------------------------------------------------------------------
+    ' SqlSkalar - Executes a scalar SQL query with retry; logs warning and
+    ' the full SQL statement on failure.
+    ' -----------------------------------------------------------------------
     Private Function SqlSkalar(connStr As String,
                                 sql As String,
                                 beschreibung As String) As Object
@@ -580,28 +578,33 @@ Partial Public Class ScriptMain
             If(letzterFehler IsNot Nothing, letzterFehler.Message, "Unbekannt")))
     End Function
 
-    ' =========================================================================
-    ' Verbindungszeichenfolge aus SSIS Connection Manager holen
-    ' =========================================================================
+    ' -----------------------------------------------------------------------
+    ' HoleVerbindungszeichenfolge - Returns the connection string of the
+    ' package connection manager.
+    ' -----------------------------------------------------------------------
     Private Function HoleVerbindungszeichenfolge() As String
         Return Dts.Connections(CONN_NAME).ConnectionString
     End Function
 
-    ' =========================================================================
-    ' Logging
-    ' =========================================================================
+    ' -----------------------------------------------------------------------
+    ' Log - Writes an information message to the SSIS log
+    ' (FireInformation).
+    ' -----------------------------------------------------------------------
     Private Sub Log(nachricht As String)
         Dim fireAgain As Boolean = False
         Dts.Events.FireInformation(0, SKRIPT_NAME, nachricht, "", 0, fireAgain)
     End Sub
 
+    ' -----------------------------------------------------------------------
+    ' LogFehler - Writes an error message to the SSIS log (FireError).
+    ' -----------------------------------------------------------------------
     Private Sub LogFehler(nachricht As String)
         Dts.Events.FireError(0, SKRIPT_NAME, nachricht, "", 0)
     End Sub
 
-    ' =========================================================================
-    ' Ergebnistypen
-    ' =========================================================================
+    ' -----------------------------------------------------------------------
+    ' ScriptResults - SSIS task result codes.
+    ' -----------------------------------------------------------------------
     Public Enum ScriptResults
         Success = DTSExecResult.Success
         Failure = DTSExecResult.Failure

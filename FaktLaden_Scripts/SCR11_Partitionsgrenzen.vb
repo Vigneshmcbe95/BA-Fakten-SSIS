@@ -8,28 +8,14 @@ Imports System.Linq
 Imports Microsoft.SqlServer.Dts.Runtime
 
 ' =============================================================================
-' PAKET  : Fakten Laden
-' SKRIPT : SCR09_Partitionsgrenzen
-' 
-' ZWECK  : HYBRID MODE - Unterstuetzt BEIDE Modi:
-'          
-'          MODE 1 - MANUAL (partition_wert in CSV vorhanden):
-'            - Verwendet nur die vom Benutzer angegebenen Werte
-'            - Validiert gegen Oracle
-'            - AKTUALISIERUNG fuer existierende Werte
-'            - NEU fuer fehlende Werte
-'          
-'          MODE 2 - AUTOMATIC (partition_wert ist NULL/leer):
-'            - Liest ALLE distinct Werte aus Oracle
-'            - FULL LOAD wenn MSSQL leer
-'            - APPEND: Laedt ALLE Oracle-Werte die NICHT in MSSQL sind
-'              (vor, zwischen und nach - keine Luecken!)
-'
-' FIXES  : - CCI/CI Index detection for temp tables in SWITCH operations
-'          - APPEND loads ALL missing values (not just > MAX)
-'          - Compact logging (no individual partition lines)
-'
-' Status: PARTITIONSGRENZEN → PARTITIONSGRENZEN_ERSTELLT
+'  Script   : SCR11_Partitionsgrenzen
+'  Package  : Fakten Laden (SSIS)
+'  Purpose  : Determines the partition values to load (Oracle vs. MSSQL
+'             delta), SPLITs the partition function and publishes
+'             BA::objPartitionValues.
+'  Workflow : FAKTENTABELLE_ERSTELLT -> PARTITIONSGRENZEN_ERSTELLT
+'  Retry    : 3 attempts per SQL statement, 30 s delay
+'  Logging  : SSIS events only (FireInformation / FireError)
 ' =============================================================================
 <Microsoft.SqlServer.Dts.Tasks.ScriptTask.SSISScriptTaskEntryPointAttribute()>
 <CLSCompliant(False)>
@@ -46,6 +32,9 @@ Partial Public Class ScriptMain
     Private _parametertab As String = String.Empty
     Private _stlTabelle As String = String.Empty
 
+    ' -----------------------------------------------------------------------
+    ' Main - Entry point - orchestrates the script flow.
+    ' -----------------------------------------------------------------------
     Public Sub Main()
 
         Log("SCR11_Partitionsgrenzen - Start")
@@ -334,9 +323,9 @@ Partial Public Class ScriptMain
 
     End Sub
 
-    ' =========================================================================
-    ' partition_wert aus Steuerlisten-Tabelle laden
-    ' =========================================================================
+    ' -----------------------------------------------------------------------
+    ' PartitionWerteLaden - Loads the partition values of a Verfahren.
+    ' -----------------------------------------------------------------------
     Private Function PartitionWerteLaden(connStr As String, verfahren As String) As List(Of Integer)
         Dim alleWerte As New HashSet(Of Integer)()
         Dim sql As String =
@@ -376,9 +365,10 @@ Partial Public Class ScriptMain
         Return alleWerte.OrderBy(Function(w) w).ToList()
     End Function
 
-    ' =========================================================================
-    ' ALLE distinct Partitionswerte aus Oracle laden
-    ' =========================================================================
+    ' -----------------------------------------------------------------------
+    ' OracleAlleWerteLaden - Loads all distinct partition values from the
+    ' Oracle ext table.
+    ' -----------------------------------------------------------------------
     Private Function OracleAlleWerteLaden(connStr As String, v As VerfahrenInfo) As List(Of Integer)
         Dim liste As New List(Of Integer)()
         Dim sql As String = "SELECT DISTINCT [" & v.PartitionsSpalte & "] FROM ext.[" & v.Faktentabelle.ToLower() &
@@ -407,9 +397,10 @@ Partial Public Class ScriptMain
         Return liste
     End Function
 
-    ' =========================================================================
-    ' ALLE distinct Partitionswerte aus MSSQL laden
-    ' =========================================================================
+    ' -----------------------------------------------------------------------
+    ' MssqlWerteLaden - Loads the already existing partition values from
+    ' the MSSQL fact table.
+    ' -----------------------------------------------------------------------
     Private Function MssqlWerteLaden(connStr As String, v As VerfahrenInfo) As List(Of Integer)
         Dim liste As New List(Of Integer)()
         Dim sql As String = "SELECT DISTINCT [" & v.PartitionsSpalte & "] FROM dbo.[" & v.Faktentabelle &
@@ -438,9 +429,10 @@ Partial Public Class ScriptMain
         Return liste
     End Function
 
-    ' =========================================================================
-    ' Partition SPLIT durchfuehren (MIT CCI/CI FIX)
-    ' =========================================================================
+    ' -----------------------------------------------------------------------
+    ' PartitionSplitDurchfuehren - Adds missing partition boundaries via
+    ' ALTER PARTITION FUNCTION ... SPLIT.
+    ' -----------------------------------------------------------------------
     Private Sub PartitionSplitDurchfuehren(connStr As String, v As VerfahrenInfo,
                                             pf As String, ps As String,
                                             dateigruppe As String, partWert As Integer)
@@ -627,9 +619,10 @@ Partial Public Class ScriptMain
 
     End Sub
 
-    ' =========================================================================
-    ' Spaltendefinition
-    ' =========================================================================
+    ' -----------------------------------------------------------------------
+    ' HoleSpaltendefinition - Builds the column DDL definition from the
+    ' metadata.
+    ' -----------------------------------------------------------------------
     Private Function HoleSpaltendefinition(connStr As String, faktentabelle As String) As String
         Dim sql As String =
 "SELECT STUFF((SELECT ', '+QUOTENAME(c.name)+' '+
@@ -644,9 +637,10 @@ Partial Public Class ScriptMain
         Return Convert.ToString(SqlSkalar(connStr, sql, "Spaltendefinition"))
     End Function
 
-    ' =========================================================================
-    ' Verfahren laden
-    ' =========================================================================
+    ' -----------------------------------------------------------------------
+    ' VerfahrenLaden - Loads the Verfahren to process from the work list
+    ' (joined with the parameter table).
+    ' -----------------------------------------------------------------------
     Private Function VerfahrenLaden(connStr As String) As List(Of VerfahrenInfo)
         Dim liste As New List(Of VerfahrenInfo)()
         Dim sql As String =
@@ -687,13 +681,17 @@ Partial Public Class ScriptMain
         Return liste
     End Function
 
-    ' =========================================================================
-    ' Helper functions
-    ' =========================================================================
+    ' -----------------------------------------------------------------------
+    ' StatusSetzen - Updates Status / LetzterSchritt of a work list row.
+    ' -----------------------------------------------------------------------
     Private Sub StatusSetzen(connStr As String, id As Integer, status As String)
         SqlAusfuehren(connStr, "UPDATE dbo.ETL_Fkt_Arbeitsliste SET Status='" & status & "',LetzterSchritt='" & status & "',AktualisiertAm=GETDATE() WHERE ID=" & id, "Status")
     End Sub
 
+    ' -----------------------------------------------------------------------
+    ' FehlerSetzen - Marks a work list row as FEHLER and stores the error
+    ' message.
+    ' -----------------------------------------------------------------------
     Private Sub FehlerSetzen(connStr As String, id As Integer, meldung As String)
         Try
             Using conn As New SqlConnection(connStr)
@@ -708,6 +706,10 @@ Partial Public Class ScriptMain
         End Try
     End Sub
 
+    ' -----------------------------------------------------------------------
+    ' ProtokollSchreiben - Routes protocol messages to SSIS events:
+    ' FEHLER_* -> FireError, everything else -> FireInformation.
+    ' -----------------------------------------------------------------------
     Private Sub ProtokollSchreiben(connStr As String, verfahren As String, schritt As String, meldung As String)
         ' Kein DB-Log: Logging laeuft vollstaendig ueber SSIS Events (Eventhandler)
         ' FEHLER_* -> FireError | alles andere -> FireInformation
@@ -718,6 +720,10 @@ Partial Public Class ScriptMain
         End If
     End Sub
 
+    ' -----------------------------------------------------------------------
+    ' SqlAusfuehren - Executes a non-query SQL statement with retry; logs
+    ' warning and the full SQL statement on failure.
+    ' -----------------------------------------------------------------------
     Private Function SqlAusfuehren(connStr As String, sql As String, beschreibung As String) As Integer
         Dim versuch As Integer = 0
         Dim letzterFehler As Exception = Nothing
@@ -741,6 +747,10 @@ Partial Public Class ScriptMain
         Throw New Exception(String.Format("[{0}] fehlgeschlagen: {1}", beschreibung, If(letzterFehler IsNot Nothing, letzterFehler.Message, "Unbekannt")))
     End Function
 
+    ' -----------------------------------------------------------------------
+    ' SqlSkalar - Executes a scalar SQL query with retry; logs warning and
+    ' the full SQL statement on failure.
+    ' -----------------------------------------------------------------------
     Private Function SqlSkalar(connStr As String, sql As String, beschreibung As String) As Object
         Dim versuch As Integer = 0
         While versuch < MAX_VERSUCHE
@@ -762,27 +772,41 @@ Partial Public Class ScriptMain
         Return Nothing
     End Function
 
+    ' -----------------------------------------------------------------------
+    ' HoleVerbindungszeichenfolge - Returns the connection string of the
+    ' package connection manager.
+    ' -----------------------------------------------------------------------
     Private Function HoleVerbindungszeichenfolge() As String
         Return Dts.Connections(CONN_NAME).ConnectionString
     End Function
 
+    ' -----------------------------------------------------------------------
+    ' Log - Writes an information message to the SSIS log
+    ' (FireInformation).
+    ' -----------------------------------------------------------------------
     Private Sub Log(n As String)
         Dim f As Boolean = False
         Dts.Events.FireInformation(0, SKRIPT_NAME, n, "", 0, f)
     End Sub
 
+    ' -----------------------------------------------------------------------
+    ' LogFehler - Writes an error message to the SSIS log (FireError).
+    ' -----------------------------------------------------------------------
     Private Sub LogFehler(n As String)
         Dts.Events.FireError(0, SKRIPT_NAME, n, "", 0)
     End Sub
 
-    ' =========================================================================
-    ' Datenklassen
-    ' =========================================================================
+    ' -----------------------------------------------------------------------
+    ' PartitionsEintrag - Data container for one partition value entry.
+    ' -----------------------------------------------------------------------
     Private Class PartitionsEintrag
         Public Property Wert As Integer
         Public Property Modus As String
     End Class
 
+    ' -----------------------------------------------------------------------
+    ' VerfahrenInfo - Data container for one Verfahren work item.
+    ' -----------------------------------------------------------------------
     Private Class VerfahrenInfo
         Public Property ID As Integer
         Public Property Verfahren As String
@@ -792,6 +816,9 @@ Partial Public Class ScriptMain
         Public Property PartitionsSpalte As String
     End Class
 
+    ' -----------------------------------------------------------------------
+    ' ScriptResults - SSIS task result codes.
+    ' -----------------------------------------------------------------------
     Public Enum ScriptResults
         Success = DTSExecResult.Success
         Failure = DTSExecResult.Failure
