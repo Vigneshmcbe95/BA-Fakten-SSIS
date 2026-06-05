@@ -1,4 +1,4 @@
-﻿Option Explicit On
+Option Explicit On
 Option Strict On
 Imports System
 Imports System.Data.SqlClient
@@ -10,12 +10,35 @@ Imports Microsoft.SqlServer.Dts.Runtime
 Imports Microsoft.SqlServer.Dts.Tasks.ScriptTask
 Imports System.Linq
 
+' =============================================================================
+' PAKET  : Fakten Laden
+' SKRIPT : SCR13_Daten_Laden
+'
+' ZWECK  : Laedt Daten partition-weise aus ext.[tabelle] in _in_ Tabellen
+'
+'          Partitionswerte kommen aus BA::objPartitionValues (gesetzt von SCR11).
+'          Pro Partitionswert pv wird folgendes gemacht:
+'
+'            inTable      = tf_..._in_202301        (Ziel: neue Daten fuer Partition-Switch)
+'            loadingTable = tf_..._in_202301_LOADING
+'
+'          RESUME-Logik:
+'            1. inTable existiert UND hat Zeilen  → bereits geladen, uebersprungen
+'            2. loadingTable existiert            → vorheriger Lauf abgebrochen, loeschen
+'            3. inTable existiert aber leer       → unvollstaendig, loeschen
+'            4. Immer: SELECT INTO _LOADING, dann RENAME → inTable (atomar)
+'
+'          Hinweis: _out_ Tabellen (leere Shells fuer Partition-Switch) werden von
+'                   SCR12 erstellt und sind NICHT der Ladeort fuer neue Daten.
+'
+' Status: STAGING_ERSTELLT → DATEN_LADEN → DATEN_GELADEN
+' =============================================================================
 <Microsoft.SqlServer.Dts.Tasks.ScriptTask.SSISScriptTaskEntryPointAttribute()>
 <CLSCompliant(False)>
 Partial Public Class ScriptMain
     Inherits Microsoft.SqlServer.Dts.Tasks.ScriptTask.VSTARTScriptObjectModelBase
 
-    Private Const SKRIPT_NAME As String = "SCR11_Daten_Laden"
+    Private Const SKRIPT_NAME As String = "SCR13_Daten_Laden"
     Private Const CONN_NAME As String = "Verbindung"
     Private Const MAX_VERSUCHE As Integer = 10
     Private Const WARTE_SEK As Integer = 30
@@ -37,7 +60,7 @@ Partial Public Class ScriptMain
     Public Sub Main()
 
         Log("════════════════════════════════════════════════════════")
-        Log("SCR11_Daten_Laden – Start")
+        Log("SCR13_Daten_Laden → Start")
         Log("Zeitpunkt: " & DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss"))
         Log("════════════════════════════════════════════════════════")
 
@@ -46,11 +69,16 @@ Partial Public Class ScriptMain
             _parameterDB = Dts.Variables("BA::ParameterDB").Value.ToString().Trim()
             _parametertab = Dts.Variables("BA::Parametertabelle").Value.ToString().Trim()
             _datenbank = Dts.Variables("BA::Datenbank").Value.ToString().Trim()
-
-            ' Maximale ParallelitÃ¤t aus SSIS-Variable lesen
             _maxparallel = CInt(Dts.Variables("BA::Maxparallel").Value)
+
             Log("Maximale Parallelitaet: " & _maxparallel.ToString())
             Log("Datenbank             : " & _datenbank)
+
+            ' ─────────────────────────────────────────────────────────────────
+            ' Partitionswerte aus BA::objPartitionValues lesen
+            ' ─────────────────────────────────────────────────────────────────
+            Dim partDict As Dictionary(Of String, List(Of String)) = LesePartitionValues()
+            Log("Partitionswerte gesamt: " & partDict.Values.Sum(Function(l) l.Count).ToString() & " Eintraege")
 
             Dim connStr As String = HoleVerbindungszeichenfolge()
             Dim verfahren As List(Of VerfahrenInfo) = VerfahrenLaden(connStr)
@@ -62,26 +90,28 @@ Partial Public Class ScriptMain
                 Return
             End If
 
-            ' Parallel verarbeiten mit MaxDegreeOfParallelism
             Dim opts As New ParallelOptions With {.MaxDegreeOfParallelism = _maxparallel}
 
             Parallel.ForEach(verfahren, opts,
                 Sub(v As VerfahrenInfo)
                     Try
-                        VerarbeiteVerfahren(v, connStr)
+                        VerarbeiteVerfahren(v, connStr, partDict)
                     Catch ex As Exception
-                        Log("Verfahren " & v.Verfahren & " uebersprungen wegen kritischem Fehler: " & ex.Message)
+                        SyncLock _logSperre
+                            Log("Verfahren " & v.Verfahren & " uebersprungen wegen kritischem Fehler: " & ex.Message)
+                        End SyncLock
                     End Try
                 End Sub)
 
+            Log("════════════════════════════════════════════════════════")
             Log("Erfolgreich: " & _cntOK.ToString() & " | Fehler: " & _cntFehler.ToString())
 
             If _fehlerListe.Count > 0 Then
                 Log("════════════════════════════════════════════════════════")
-                Log("FEHLER: VERFAHREN MIT VERARBEITUNGSFEHLERN:")
+                Log("FEHLER-DETAILS:")
                 Log("────────────────────────────────────────────────────────")
                 For Each f As String In _fehlerListe.OrderBy(Function(x) x)
-                    Log("  →¢ " & f)
+                    Log("  → " & f)
                 Next
                 Log("════════════════════════════════════════════════════════")
             End If
@@ -96,9 +126,30 @@ Partial Public Class ScriptMain
     End Sub
 
     ' ==========================================================================================
+    ' BA::objPartitionValues → Dictionary[Verfahren → List(partitionwert)]
+    ' ==========================================================================================
+    Private Function LesePartitionValues() As Dictionary(Of String, List(Of String))
+        Dim dict As New Dictionary(Of String, List(Of String))(StringComparer.OrdinalIgnoreCase)
+        Dim partObjekt As Object = Dts.Variables("BA::objPartitionValues").Value
+        If partObjekt Is Nothing Then
+            Log("BA::objPartitionValues ist leer (Nothing)")
+            Return dict
+        End If
+        Dim partArray(,) As String = CType(partObjekt, String(,))
+        For i As Integer = 0 To partArray.GetLength(0) - 1
+            Dim verf As String = partArray(i, 0)
+            Dim wert As String = partArray(i, 1)
+            If Not dict.ContainsKey(verf) Then dict(verf) = New List(Of String)()
+            dict(verf).Add(wert)
+        Next
+        Return dict
+    End Function
+
+    ' ==========================================================================================
     ' EINZELNES VERFAHREN VERARBEITEN
     ' ==========================================================================================
-    Private Sub VerarbeiteVerfahren(v As VerfahrenInfo, connStr As String)
+    Private Sub VerarbeiteVerfahren(v As VerfahrenInfo, connStr As String,
+                                    partDict As Dictionary(Of String, List(Of String)))
 
         SyncLock _logSperre
             Log("────────────────────────────────────────────────────────")
@@ -106,113 +157,140 @@ Partial Public Class ScriptMain
         End SyncLock
 
         If v.LetzterSchritt = "DATEN_GELADEN" Then
-            Log("  → bereits abgeschlossen → Ã¼bersprungen ✓")
+            SyncLock _logSperre
+                Log("  → bereits abgeschlossen → uebersprungen ✓")
+            End SyncLock
             Return
         End If
+
+        ' Partitionswerte fuer dieses Verfahren aus dem Dictionary holen
+        Dim partWerte As List(Of String) = Nothing
+        If Not partDict.TryGetValue(v.Verfahren, partWerte) OrElse partWerte.Count = 0 Then
+            SyncLock _logSperre
+                Log("  WARNUNG: Keine Partitionswerte in BA::objPartitionValues fuer '" & v.Verfahren & "' → uebersprungen")
+            End SyncLock
+            Return
+        End If
+
+        SyncLock _logSperre
+            Log("  Partitionswerte: " & partWerte.Count.ToString())
+        End SyncLock
 
         Try
             StatusSetzen(connStr, v.ID, "DATEN_LADEN")
 
-            ' Alle _in Tabellen finden
-            Dim inTables As List(Of String) = InTabellenLaden(connStr, v.Faktentabelle)
-
-            SyncLock _logSperre
-                Log("  _in Tabellen: " & inTables.Count.ToString())
-            End SyncLock
-
-            ' Thread-safe ZeilenzÃ¤hler
             Dim cntGesamtZeilen As Long = 0
-
-            ' Inner loop jetzt auch PARALLEL
             Dim innerOpts As New ParallelOptions With {.MaxDegreeOfParallelism = _maxparallel}
 
-            Parallel.ForEach(inTables, innerOpts,
-            Sub(inTable As String)
+            Parallel.ForEach(partWerte, innerOpts,
+            Sub(pv As String)
                 Try
-                    ' -- RESUME LOGIC --
-                    ' Wenn die finale Tabelle bereits existiert, wurde sie erfolgreich geladen (sp_rename erfolgt erst am Ende)
-                    Dim finalTableExists As Boolean = Convert.ToInt32(SqlSkalar(connStr,
-                        "SELECT COUNT(*) FROM sys.tables WHERE schema_id=SCHEMA_ID('dbo') AND name='" & inTable & "'",
-                        "final table check")) > 0
+                    Dim inTable As String = v.Faktentabelle.ToLower() & "_in_" & pv
+                    Dim loadingTable As String = inTable & "_LOADING"
 
-                    If finalTableExists Then
-                        Log("  → Partition " & inTable & " bereits geladen. Übersprungen ✓")
-                        Return
+                    ' ─── RESUME: inTable existiert UND hat Zeilen → bereits geladen ───
+                    Dim inExists As Boolean = Convert.ToInt32(SqlSkalar(connStr,
+                        "SELECT COUNT(*) FROM sys.tables WHERE schema_id=SCHEMA_ID('dbo') AND name='" & inTable & "'",
+                        "inTable check")) > 0
+
+                    If inExists Then
+                        Dim zeilenCount As Integer = Convert.ToInt32(SqlSkalar(connStr,
+                            "SELECT COUNT(*) FROM dbo.[" & inTable & "]",
+                            "rows check"))
+                        If zeilenCount > 0 Then
+                            SyncLock _logSperre
+                                Log("  → " & inTable & " bereits gefuellt (" & zeilenCount.ToString() & " Zeilen) → uebersprungen ✓")
+                            End SyncLock
+                            Interlocked.Add(cntGesamtZeilen, CLng(zeilenCount))
+                            Return
+                        End If
                     End If
 
-                    Dim loadingTable As String = inTable & "_LOADING"
-                    Dim pvStr As String = inTable.Replace(v.Faktentabelle.ToLower() & "_in_", "")
-                    Dim extTable As String = v.Faktentabelle.ToLower()
+                    ' ─── CLEANUP: _LOADING von abgebrochenem Lauf loeschen ───
+                    SqlAusfuehren(connStr,
+                        "IF OBJECT_ID('dbo.[" & loadingTable & "]','U') IS NOT NULL DROP TABLE dbo.[" & loadingTable & "];",
+                        "DROP _LOADING " & pv)
 
-                    ' Ext Tabelle prüfen
+                    ' ─── CLEANUP: leere _in_ Tabelle loeschen (SELECT INTO braucht neuen Namen) ───
+                    SqlAusfuehren(connStr,
+                        "IF OBJECT_ID('dbo.[" & inTable & "]','U') IS NOT NULL DROP TABLE dbo.[" & inTable & "];",
+                        "DROP _in_ leer " & pv)
+
+                    ' ─── Ext-Tabelle pruefen ───
+                    Dim extTable As String = v.Faktentabelle.ToLower()
                     Dim extExists As Boolean = Convert.ToInt32(SqlSkalar(connStr,
                         "SELECT COUNT(*) FROM sys.external_tables WHERE schema_id=SCHEMA_ID('ext') AND name='" & extTable & "'",
-                        "ext prüfen")) > 0
+                        "ext pruefen")) > 0
 
                     If Not extExists Then
-                        Log("  WARNUNG: ext." & extTable & " nicht gefunden → übersprungen")
+                        SyncLock _logSperre
+                            Log("  WARNUNG: ext." & extTable & " nicht gefunden → uebersprungen")
+                        End SyncLock
                         Return
                     End If
 
-                    ' -- ATOMIC LOAD (RENAME TRICK) --
-                    ' 1. LOADING Tabelle sicherheitshalber löschen (falls ein vorheriger Versuch abgebrochen ist)
-                    SqlAusfuehren(connStr, "IF OBJECT_ID('dbo.[" & loadingTable & "]','U') IS NOT NULL DROP TABLE dbo.[" & loadingTable & "];", "DROP " & loadingTable)
+                    ' ─── SELECT INTO _LOADING (atomar) ───
+                    Dim zeilen As Integer = DatenLadenSelectInto(connStr, v, loadingTable, extTable, pv)
 
-                    ' 2. SELECT INTO in die LOADING Tabelle
-                    Dim zeilen As Integer = DatenLadenSelectInto(connStr, v, loadingTable, extTable, pvStr)
+                    ' ─── RENAME _LOADING → _in_ (atomar abschliessen) ───
+                    SqlAusfuehren(connStr,
+                        "EXEC sp_rename 'dbo.[" & loadingTable & "]', '" & inTable & "';",
+                        "RENAME " & pv)
 
-                    ' 3. RENAME nur bei Erfolg
-                    SqlAusfuehren(connStr, "EXEC sp_rename 'dbo.[" & loadingTable & "]', '" & inTable & "';", "RENAME to " & inTable)
+                    SyncLock _logSperre
+                        Log("  → Zeilen geladen (" & inTable & "): " & zeilen.ToString())
+                    End SyncLock
 
-                    Log("  → Eingefügte Zeilen (" & inTable & "): " & zeilen.ToString())
-                    LogSchreiben(connStr, v.Verfahren, "LOAD_" & pvStr,
+                    LogSchreiben(connStr, v.Verfahren, "LOAD_" & pv,
                         "SELECT INTO dbo." & inTable & " | Zeilen: " & zeilen.ToString())
 
-                    ' Thread-safe addieren
                     Interlocked.Add(cntGesamtZeilen, CLng(zeilen))
 
                 Catch ex As Exception
                     Interlocked.Increment(_cntFehler)
-                    _fehlerListe.Add("FEHLER '" & v.Verfahren & "." & inTable & "': " & ex.Message)
-                    LogFehler("FEHLER bei " & inTable & ": " & ex.Message)
+                    _fehlerListe.Add("FEHLER '" & v.Verfahren & "' pv=" & pv & ": " & ex.Message)
+                    LogFehler("FEHLER bei pv=" & pv & " (" & v.Faktentabelle.ToLower() & "_in_" & pv & "): " & ex.Message)
                 End Try
             End Sub)
 
             StatusSetzen(connStr, v.ID, "DATEN_GELADEN")
             LogSchreiben(connStr, v.Verfahren, "SCHRITT_6",
-            "Daten geladen. Partitionen: " & inTables.Count.ToString() & " | Zeilen gesamt: " & cntGesamtZeilen.ToString())
+                "Daten geladen. Partitionen: " & partWerte.Count.ToString() &
+                " | Zeilen gesamt: " & cntGesamtZeilen.ToString())
 
             Interlocked.Increment(_cntOK)
-            Log("  → Schritt 6 abgeschlossen ✓")
+            SyncLock _logSperre
+                Log("  → Schritt 6 abgeschlossen ✓")
+            End SyncLock
 
         Catch ex As Exception
             Interlocked.Increment(_cntFehler)
             _fehlerListe.Add("FEHLER '" & v.Verfahren & "': " & ex.Message)
             FehlerSetzen(connStr, v.ID, ex.Message)
-            LogSchreiben(connStr, v.Verfahren, "FEHLER_SCR11", ex.Message)
+            LogSchreiben(connStr, v.Verfahren, "FEHLER_SCR13", ex.Message)
             LogFehler("FEHLER '" & v.Verfahren & "': " & ex.Message)
         End Try
 
     End Sub
 
     ' ==========================================================================================
-    ' DATEN LADEN MIT SELECT INTO - verwendet DBO Spalten aus Template
+    ' SELECT INTO _LOADING Tabelle — laedt eine Partition aus ext.[tabelle]
     ' ==========================================================================================
     Private Function DatenLadenSelectInto(connStr As String, v As VerfahrenInfo,
-                                          inTable As String, extTable As String,
+                                          loadingTable As String, extTable As String,
                                           partitionValue As String) As Integer
 
-        ' SELECT-Liste aus Template (via INFORMATION_SCHEMA) + Metadaten laden
+        ' SELECT-Liste aus Template (via INFORMATION_SCHEMA + tm_polybase_struktur)
         Dim templateName As String = v.Faktentabelle.ToLower() & "_template"
-        
-        Dim sqlSelectList As String = "
-        SELECT STRING_AGG(CAST(m.columns_dbo AS nvarchar(max)), ',' + CHAR(13) + CHAR(10)) WITHIN GROUP (ORDER BY m.colno)
-        FROM [" & _datenbank & "].INFORMATION_SCHEMA.COLUMNS c
-        JOIN dbo.tm_polybase_struktur m ON UPPER(LTRIM(RTRIM(m.colname))) = UPPER(LTRIM(RTRIM(c.COLUMN_NAME)))
-        WHERE c.TABLE_SCHEMA = 'dbo' 
-          AND c.TABLE_NAME = '" & templateName & "'
-          AND m.tabname = @tab
-          AND m.themengebiet = @thema"
+
+        Dim sqlSelectList As String =
+            "SELECT STRING_AGG(CAST(m.columns_dbo AS nvarchar(max)), ',' + CHAR(13) + CHAR(10)) WITHIN GROUP (ORDER BY m.colno)" &
+            " FROM [" & _datenbank & "].INFORMATION_SCHEMA.COLUMNS c" &
+            " JOIN dbo.tm_polybase_struktur m ON UPPER(LTRIM(RTRIM(m.colname))) = UPPER(LTRIM(RTRIM(c.COLUMN_NAME)))" &
+            " WHERE c.TABLE_SCHEMA = 'dbo'" &
+            "   AND c.TABLE_NAME = '" & templateName & "'" &
+            "   AND m.tabname = @tab" &
+            "   AND m.themengebiet = @thema"
 
         Dim selectList As String = Nothing
         Dim versuch As Integer = 0
@@ -223,6 +301,7 @@ Partial Public Class ScriptMain
                 Using conn As New SqlConnection(connStr)
                     conn.Open()
                     Using cmd As New SqlCommand(sqlSelectList, conn)
+                        cmd.CommandTimeout = 0
                         cmd.Parameters.AddWithValue("@tab", v.Verfahren.ToLower())
                         cmd.Parameters.AddWithValue("@thema", v.Themengebiet.ToLower())
                         Dim result As Object = cmd.ExecuteScalar()
@@ -233,65 +312,33 @@ Partial Public Class ScriptMain
                 End Using
                 Exit While
             Catch ex As Exception
-                Log(String.Format("WARNUNG [Template Query] Versuch {0}/{1}: {2}", versuch, MAX_VERSUCHE, ex.Message))
+                SyncLock _logSperre
+                    Log(String.Format("WARNUNG [Template Query] Versuch {0}/{1}: {2}", versuch, MAX_VERSUCHE, ex.Message))
+                End SyncLock
                 If versuch < MAX_VERSUCHE Then Thread.Sleep(WARTE_SEK * 1000) Else Throw
             End Try
         End While
 
         If String.IsNullOrEmpty(selectList) Then
-            Throw New Exception("SELECT-Liste konnte nicht für Template " & templateName & " geladen werden.")
+            Throw New Exception("SELECT-Liste konnte nicht fuer Template '" & templateName & "' geladen werden.")
         End If
 
-        ' SELECT INTO aufbauen
         Dim sql As String =
-"SELECT" & vbCrLf &
-selectList & vbCrLf &
-"INTO dbo.[" & inTable & "]" & vbCrLf &
-"FROM ext.[" & extTable & "]" & vbCrLf &
-"WHERE [" & v.PartitionColumn & "] = " & partitionValue & ";"
+            "SELECT" & vbCrLf &
+            selectList & vbCrLf &
+            "INTO dbo.[" & loadingTable & "]" & vbCrLf &
+            "FROM ext.[" & extTable & "]" & vbCrLf &
+            "WHERE [" & v.PartitionColumn & "] = " & partitionValue & ";"
 
-        ' SQL loggen
-        Log("SQL SELECT INTO:" & vbCrLf & sql)
+        SyncLock _logSperre
+            Log("  SQL SELECT INTO [" & loadingTable & "] WHERE " & v.PartitionColumn & " = " & partitionValue & " (→ wird zu _in_ umbenannt)")
+        End SyncLock
 
-        SqlAusfuehren(connStr, sql, "SELECT INTO " & inTable)
+        SqlAusfuehren(connStr, sql, "SELECT INTO " & loadingTable)
 
-        ' Zeilen zÃ¤hlen
-        Dim zeilen As Integer = Convert.ToInt32(SqlSkalar(connStr,
-            "SELECT COUNT(*) FROM dbo.[" & inTable & "]",
-            "Count " & inTable))
-
-        Return zeilen
-    End Function
-
-    ' ==========================================================================================
-    ' _IN TABELLEN LADEN
-    ' ==========================================================================================
-    Private Function InTabellenLaden(connStr As String, faktentabelle As String) As List(Of String)
-        Dim liste As New List(Of String)()
-        Dim versuch As Integer = 0
-        While versuch < MAX_VERSUCHE
-            versuch += 1
-            Try
-                Using conn As New SqlConnection(connStr)
-                    conn.Open()
-                    Using cmd As New SqlCommand(
-                        "SELECT name FROM sys.tables WHERE schema_id=SCHEMA_ID('dbo') AND name LIKE '" &
-                        faktentabelle.ToLower() & "_in_%' ORDER BY name", conn)
-                        cmd.CommandTimeout = 0
-                        Using rdr As SqlDataReader = cmd.ExecuteReader()
-                            While rdr.Read()
-                                liste.Add(rdr(0).ToString())
-                            End While
-                        End Using
-                    End Using
-                End Using
-                Return liste
-            Catch ex As Exception
-                Log(String.Format("WARNUNG [_in Tabellen] Versuch {0}/{1}: {2}", versuch, MAX_VERSUCHE, ex.Message))
-                If versuch < MAX_VERSUCHE Then Thread.Sleep(WARTE_SEK * 1000) Else Throw
-            End Try
-        End While
-        Return liste
+        Return Convert.ToInt32(SqlSkalar(connStr,
+            "SELECT COUNT(*) FROM dbo.[" & loadingTable & "]",
+            "Count " & loadingTable))
     End Function
 
     ' ==========================================================================================
@@ -300,13 +347,13 @@ selectList & vbCrLf &
     Private Function VerfahrenLaden(connStr As String) As List(Of VerfahrenInfo)
         Dim liste As New List(Of VerfahrenInfo)()
         Dim sql As String =
-"SELECT a.ID, a.Verfahren, a.Themengebiet, a.LetzterSchritt,
-        pf.Wert AS Faktentabelle, pp.Wert AS PartitionColumn
- FROM   dbo.ETL_Fkt_Arbeitsliste a
- JOIN   " & _parameterDB & ".dbo." & _parametertab & " pf ON pf.Verfahren=a.Verfahren AND pf.Parameter='Faktentabelle'
- JOIN   " & _parameterDB & ".dbo." & _parametertab & " pp ON pp.Verfahren=a.Verfahren AND pp.Parameter='Faktenpartitionsspalte'
- WHERE  a.Status IN ('STAGING_ERSTELLT','DATEN_LADEN')
- AND    a.RunID = " & _runID & " ORDER BY a.Verfahren"
+            "SELECT a.ID, a.Verfahren, a.Themengebiet, a.LetzterSchritt," &
+            "       pf.Wert AS Faktentabelle, pp.Wert AS PartitionColumn" &
+            " FROM   dbo.ETL_Fkt_Arbeitsliste a" &
+            " JOIN   " & _parameterDB & ".dbo." & _parametertab & " pf ON pf.Verfahren=a.Verfahren AND pf.Parameter='Faktentabelle'" &
+            " JOIN   " & _parameterDB & ".dbo." & _parametertab & " pp ON pp.Verfahren=a.Verfahren AND pp.Parameter='Faktenpartitionsspalte'" &
+            " WHERE  a.Status IN ('STAGING_ERSTELLT','DATEN_LADEN')" &
+            " AND    a.RunID = " & _runID & " ORDER BY a.Verfahren"
 
         Dim versuch As Integer = 0
         While versuch < MAX_VERSUCHE
@@ -342,7 +389,7 @@ selectList & vbCrLf &
     End Function
 
     ' ==========================================================================================
-    ' STATUS METHODEN
+    ' STATUS / PROTOKOLL
     ' ==========================================================================================
     Private Sub StatusSetzen(connStr As String, id As Integer, status As String)
         SqlAusfuehren(connStr,
@@ -372,8 +419,7 @@ selectList & vbCrLf &
             Using conn As New SqlConnection(connStr)
                 conn.Open()
                 Using cmd As New SqlCommand(
-                    "INSERT INTO dbo.tm_fakten_load_log(verfahren,schritt,meldung) VALUES(@v,@s,@m)",
-                    conn)
+                    "INSERT INTO dbo.tm_fakten_load_log(verfahren,schritt,meldung) VALUES(@v,@s,@m)", conn)
                     cmd.Parameters.AddWithValue("@v", verfahren)
                     cmd.Parameters.AddWithValue("@s", schritt)
                     cmd.Parameters.AddWithValue("@m", meldung)
@@ -402,7 +448,9 @@ selectList & vbCrLf &
                 End Using
             Catch ex As Exception
                 letzterFehler = ex
-                Log(String.Format("WARNUNG [{0}] Versuch {1}/{2}: {3}", beschreibung, versuch, MAX_VERSUCHE, ex.Message))
+                SyncLock _logSperre
+                    Log(String.Format("WARNUNG [{0}] Versuch {1}/{2}: {3}", beschreibung, versuch, MAX_VERSUCHE, ex.Message))
+                End SyncLock
                 If versuch < MAX_VERSUCHE Then Thread.Sleep(WARTE_SEK * 1000)
             End Try
         End While
@@ -423,7 +471,9 @@ selectList & vbCrLf &
                     End Using
                 End Using
             Catch ex As Exception
-                Log(String.Format("WARNUNG [{0}] Versuch {1}/{2}: {3}", beschreibung, versuch, MAX_VERSUCHE, ex.Message))
+                SyncLock _logSperre
+                    Log(String.Format("WARNUNG [{0}] Versuch {1}/{2}: {3}", beschreibung, versuch, MAX_VERSUCHE, ex.Message))
+                End SyncLock
                 If versuch < MAX_VERSUCHE Then Thread.Sleep(WARTE_SEK * 1000) Else Throw
             End Try
         End While
