@@ -19,6 +19,8 @@ Partial Public Class ScriptMain
         Dim sqlConn As SqlConnection = Nothing
         Try
             Dim runID As Integer = CInt(Dts.Variables("BA::RunID").Value)
+            Dim parameterDB As String = CStr(Dts.Variables("BA::ParameterDB").Value).Trim()
+            Dim parametertab As String = CStr(Dts.Variables("BA::Parametertabelle").Value).Trim()
 
             Dim cm As ConnectionManager = Dts.Connections(ConnectionName)
             Dim builder As New SqlConnectionStringBuilder(cm.ConnectionString)
@@ -81,13 +83,65 @@ SET
     AnzahlKomprimierung         = @AnzahlKomprimierung,
     AnzahlNcciOut               = @AnzahlNcciOut,
     AnzahlPartitionstausch      = @AnzahlPartitionstausch
-WHERE ID = @ID;"
+WHERE ID = @ID;
 
+-- =====================================================================
+-- Aufraeumen bei Fehler: leere _out_-Tabellen der Verfahren dieses
+-- Laufs entfernen. Nur LEERE Tabellen werden geloescht - eine gefuellte
+-- _out_-Tabelle enthaelt nach SWITCH OUT die alten Partitionsdaten
+-- (Rollback-Kopie) und bleibt erhalten. _in_-Tabellen bleiben immer
+-- erhalten (Resume-Cache, erspart erneutes Laden aus Oracle).
+-- =====================================================================
+DECLARE @drop nvarchar(max) = N'';
+SELECT @drop = @drop +
+    N'IF NOT EXISTS (SELECT TOP 1 1 FROM dbo.' + QUOTENAME(t.name) + N') ' +
+    N'DROP TABLE dbo.' + QUOTENAME(t.name) + N';' + CHAR(10)
+FROM sys.tables t
+WHERE t.schema_id = SCHEMA_ID('dbo')
+  AND EXISTS (
+      SELECT 1
+      FROM dbo.ETL_Fkt_Arbeitsliste a
+      JOIN " & parameterDB & ".dbo." & parametertab & " pf
+           ON pf.Verfahren = a.Verfahren AND pf.Parameter = 'Faktentabelle'
+      WHERE a.RunID = @ID
+        AND t.name LIKE LOWER(pf.Wert) + '[_]out[_]%'
+  );
+
+-- Externe Tabellen (ext.<faktentabelle>) der Verfahren dieses Laufs
+-- entfernen: reine PolyBase-Verweise auf Oracle, enthalten keine Daten,
+-- SCR09 erstellt sie beim naechsten Lauf neu aus den Metadaten.
+SELECT @drop = @drop +
+    N'DROP EXTERNAL TABLE ext.' + QUOTENAME(t.name) + N';' + CHAR(10)
+FROM sys.external_tables t
+WHERE t.schema_id = SCHEMA_ID('ext')
+  AND EXISTS (
+      SELECT 1
+      FROM dbo.ETL_Fkt_Arbeitsliste a
+      JOIN " & parameterDB & ".dbo." & parametertab & " pf
+           ON pf.Verfahren = a.Verfahren AND pf.Parameter = 'Faktentabelle'
+      WHERE a.RunID = @ID
+        AND t.name = LOWER(pf.Wert)
+  );
+
+EXEC sp_executesql @drop;
+SELECT ISNULL(@drop, N'');"
+
+            Dim dropScript As String = ""
             Using cmd As New SqlCommand(sql, sqlConn)
                 cmd.CommandTimeout = 0
                 cmd.Parameters.Add("@RunID", SqlDbType.Int).Value = runID
-                cmd.ExecuteNonQuery()
+                Dim r As Object = cmd.ExecuteScalar()
+                If r IsNot Nothing AndAlso r IsNot DBNull.Value Then dropScript = r.ToString()
             End Using
+
+            Dim fireAgain As Boolean = False
+            If dropScript.Trim().Length > 0 Then
+                Dts.Events.FireInformation(0, "OnFailed",
+                    "Cleanup (leere _out_-Tabellen + ext-Tabellen):" & Environment.NewLine & dropScript, "", 0, fireAgain)
+            Else
+                Dts.Events.FireInformation(0, "OnFailed",
+                    "Cleanup: keine leeren _out_-Tabellen und keine ext-Tabellen gefunden", "", 0, fireAgain)
+            End If
 
             Dts.TaskResult = ScriptResults.Success
 
