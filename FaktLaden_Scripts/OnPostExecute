@@ -1,0 +1,71 @@
+Imports System
+Imports System.Data
+Imports System.Data.SqlClient
+Imports Microsoft.SqlServer.Dts.Runtime
+
+' =============================================================================
+'  Skript       : OnPostExecute (Paket-Eventhandler)
+'  Paket        : Fakten Laden (SSIS)
+'  Zweck        : Traegt die Endzeit des beendeten Tasks in der zuletzt
+'                 geoeffneten Zeile (Endzeit IS NULL) von
+'                 dbo.ETL_Fkt_TaskLaufzeit nach. DauerSekunden wird als
+'                 berechnete Spalte automatisch ermittelt.
+'  Variablen    : ReadOnly: System::SourceID
+'  Protokoll    : Fehler im Handler werden verschluckt (Laufzeitmessung darf
+'                 das Paket nie zum Absturz bringen)
+' =============================================================================
+<Microsoft.SqlServer.Dts.Tasks.ScriptTask.SSISScriptTaskEntryPointAttribute()>
+<CLSCompliant(False)>
+Partial Public Class ScriptMain
+    Inherits Microsoft.SqlServer.Dts.Tasks.ScriptTask.VSTARTScriptObjectModelBase
+
+    Private ReadOnly ConnectionName As String = "Verbindung"
+
+    Enum ScriptResults
+        Success = DTSExecResult.Success
+        Failure = DTSExecResult.Failure
+    End Enum
+
+    Public Sub Main()
+        Dim sqlConn As SqlConnection = Nothing
+        Try
+            Dim sourceID As String = CStr(Dts.Variables("System::SourceID").Value)
+
+            Dim cm As ConnectionManager = Dts.Connections(ConnectionName)
+            Dim builder As New SqlConnectionStringBuilder(cm.ConnectionString)
+            sqlConn = New SqlConnection(builder.ConnectionString)
+            sqlConn.Open()
+
+            Dim sql As String =
+"IF EXISTS (SELECT 1 FROM sys.tables WHERE name = 'ETL_Fkt_TaskLaufzeit' AND schema_id = SCHEMA_ID('dbo'))
+BEGIN
+    UPDATE dbo.ETL_Fkt_TaskLaufzeit
+    SET    Endzeit = GETDATE()
+    WHERE  ID = (SELECT MAX(ID)
+                 FROM   dbo.ETL_Fkt_TaskLaufzeit
+                 WHERE  SourceID = @SourceID
+                 AND    Endzeit IS NULL);
+END;"
+
+            Using cmd As New SqlCommand(sql, sqlConn)
+                cmd.CommandTimeout = 30
+                cmd.Parameters.Add("@SourceID", SqlDbType.NVarChar, 50).Value = sourceID
+                cmd.ExecuteNonQuery()
+            End Using
+
+            Dts.TaskResult = ScriptResults.Success
+
+        Catch ex As Exception
+            ' Laufzeitmessung darf das Paket nie stoppen - Fehler nur als Info melden
+            Dim fireAgain As Boolean = False
+            Dts.Events.FireInformation(0, "OnPostExecute",
+                "WARNUNG Laufzeitmessung (Ende): " & ex.Message, "", 0, fireAgain)
+            Dts.TaskResult = ScriptResults.Success
+        Finally
+            If sqlConn IsNot Nothing AndAlso sqlConn.State <> ConnectionState.Closed Then
+                sqlConn.Close()
+            End If
+        End Try
+    End Sub
+
+End Class
