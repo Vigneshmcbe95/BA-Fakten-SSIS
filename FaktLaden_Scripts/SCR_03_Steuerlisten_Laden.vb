@@ -1,4 +1,4 @@
-﻿Option Explicit On
+Option Explicit On
 Option Strict On
 
 Imports System
@@ -10,7 +10,16 @@ Imports Microsoft.SqlServer.Dts.Runtime
 ' =============================================================================
 '  Skript       : SCR_03_Steuerlisten_Laden
 '  Paket        : Fakten Laden (SSIS)
-'  Zweck        : Laedt die Steuerliste in die Steuerlisten-Tabelle.
+'  Zweck        : Laedt die Steuerliste in zwei Tabellen:
+'                 1. Audit-Tabelle (<Tabelle>_audit): nur INSERT, nie UPDATE
+'                    oder DELETE - vollstaendige Historie (wer, wann, was).
+'                 2. Arbeitstabelle (<Tabelle>): DELETE + INSERT je Datei -
+'                    die Datei ist die Wahrheit; SC04 fuellt hier
+'                    where_klausel / partition_wert.
+'                 Danach wird die Datei in den Ordner 'Done' verschoben;
+'                 Dateien mit Endung _perm.csv bleiben liegen.
+'                 Jeder Fehler (Datei fehlt / nicht lesbar / SQL) fuehrt zum
+'                 Abbruch des Tasks.
 '  Wiederholung : 3 Versuche je SQL-Anweisung, 30 s Wartezeit
 '  Protokoll    : Nur SSIS-Events (FireInformation / FireError)
 ' =============================================================================
@@ -26,6 +35,8 @@ Partial Public Class ScriptMain
     Private Const CONN_NAME As String = "Verbindung"
     Private Const MAX_VERSUCHE As Integer = 3
     Private Const WARTE_SEK As Integer = 30
+    Private Const DONE_ORDNER As String = "Done"
+    Private Const PERM_ENDUNG As String = "_perm.csv"
 
     ' -------------------------------------------------------------------------
     ' SSIS-Variablen
@@ -33,6 +44,7 @@ Partial Public Class ScriptMain
     Private _stlOrdner As String = String.Empty
     Private _stlDateiname As String = String.Empty
     Private _steuerlistenTabelle As String = String.Empty
+    Private _auditTabelle As String = String.Empty
     Private _bearbeiter As String = String.Empty
 
     ' -----------------------------------------------------------------------
@@ -53,13 +65,15 @@ Partial Public Class ScriptMain
             ' Ordnerpfad normalisieren
             If Not _stlOrdner.EndsWith("\") Then _stlOrdner &= "\"
 
-            Log("Steuerlisten-Tabelle: dbo." & _steuerlistenTabelle)
+            _auditTabelle = _steuerlistenTabelle & "_audit"
+            Log("Arbeitstabelle : dbo." & _steuerlistenTabelle)
+            Log("Audit-Tabelle  : dbo." & _auditTabelle)
 
-            ' Spalten sicherstellen
+            ' Tabellen sicherstellen (Arbeitstabelle + Audit)
             Dim connStr As String = HoleVerbindungszeichenfolge()
-            SpaltenSicherstellen(connStr)
+            TabellenSicherstellen(connStr)
 
-            ' Exakte Datei aus BA::STLDateiname
+            ' Exakte Datei aus BA::STLDateiname - fehlt sie, ist das ein Fehler
             Dim dateipfad As String = Path.Combine(_stlOrdner, _stlDateiname)
             Log("Vollstaendiger Pfad : " & dateipfad)
 
@@ -69,40 +83,18 @@ Partial Public Class ScriptMain
                 Return
             End If
 
-            Dim alleDateien() As String = {dateipfad}
-            Dim gesamt As Integer = 1
-            Log("Gefundene Dateien  : 1 (exakt per BA::STLDateiname)")
+            ' Datei verarbeiten - jeder Fehler fuehrt zum Abbruch
+            Dim dateiname As String = Path.GetFileName(dateipfad)
+            Log("Verarbeite Datei: " & dateiname)
 
-            ' Datei verarbeiten
-            Dim cntErfolgreich As Integer = 0
-            Dim cntFehlerhaft As Integer = 0
+            VerarbeiteDatei(dateipfad, dateiname, connStr)
+            Log("Datei erfolgreich verarbeitet: " & dateiname & " OK")
 
-            For Each dp As String In alleDateien
-                Dim dateiname As String = Path.GetFileName(dp)
-                Log(String.Format("Verarbeite Datei 1/1: {0}", dateiname))
-                Try
-                    VerarbeiteDatei(dp, dateiname, connStr)
-                    cntErfolgreich += 1
-                    Log("Datei erfolgreich verarbeitet: " & dateiname & " OK")
-                Catch ex As Exception
-                    cntFehlerhaft += 1
-                    LogFehler(String.Format("FEHLER in Datei '{0}': {1}", dateiname, ex.Message))
-                End Try
-            Next
+            ' Datei nach Done verschieben (ausser *_perm.csv)
+            DateiVerschieben(dateipfad, dateiname)
 
-            ' Zusammenfassung
-            Log("ZUSAMMENFASSUNG SCR_02_Steuerlisten_Laden")
-            Log("Dateien gesamt      : " & gesamt.ToString())
-            Log("Erfolgreich         : " & cntErfolgreich.ToString())
-            Log("Fehlerhaft          : " & cntFehlerhaft.ToString())
-
-            If cntFehlerhaft > 0 Then
-                LogFehler(cntFehlerhaft.ToString() & " Datei(en) konnten nicht verarbeitet werden.")
-                Dts.TaskResult = ScriptResults.Failure
-            Else
-                Log("Datei erfolgreich verarbeitet OK")
-                Dts.TaskResult = ScriptResults.Success
-            End If
+            Log("SCR_03_Steuerlisten_Laden erfolgreich abgeschlossen OK")
+            Dts.TaskResult = ScriptResults.Success
 
         Catch ex As Exception
             LogFehler("Kritischer Fehler in " & SKRIPT_NAME & ": " & ex.Message)
@@ -128,9 +120,9 @@ Partial Public Class ScriptMain
     ' -----------------------------------------------------------------------
     Private Function PflichtfelderPruefen() As Boolean
         Dim fehlend As New System.Text.StringBuilder()
-        If String.IsNullOrEmpty(_stlOrdner) Then fehlend.AppendLine("  → BA::STLOrdner")
-        If String.IsNullOrEmpty(_stlDateiname) Then fehlend.AppendLine("  → BA::STLDateiname")
-        If String.IsNullOrEmpty(_steuerlistenTabelle) Then fehlend.AppendLine("  → BA::SteuerlistenTabelle")
+        If String.IsNullOrEmpty(_stlOrdner) Then fehlend.AppendLine("  - BA::STLOrdner")
+        If String.IsNullOrEmpty(_stlDateiname) Then fehlend.AppendLine("  - BA::STLDateiname")
+        If String.IsNullOrEmpty(_steuerlistenTabelle) Then fehlend.AppendLine("  - BA::SteuerlistenTabelle")
         If fehlend.Length > 0 Then
             LogFehler("Pflichtfelder fehlen:" & Environment.NewLine & fehlend.ToString())
             Return False
@@ -140,56 +132,86 @@ Partial Public Class ScriptMain
     End Function
 
     ' -----------------------------------------------------------------------
-    ' SpaltenSicherstellen - Stellt sicher, dass benoetigte Spalten auf der
-    ' Zieltabelle existieren (ergaenzt fehlende).
+    ' TabellenSicherstellen - Stellt Arbeitstabelle und Audit-Tabelle sicher.
+    ' Arbeitstabelle: technische Tabelle, SC04 fuellt where_klausel /
+    '                 partition_wert. Altspalten obj_gefunden / ref_datum
+    '                 werden entfernt.
+    ' Audit-Tabelle : stlid IDENTITY PRIMARY KEY, nur INSERT.
     ' -----------------------------------------------------------------------
-    Private Sub SpaltenSicherstellen(connStr As String)
+    Private Sub TabellenSicherstellen(connStr As String)
+
+        Dim w As String = _steuerlistenTabelle
+        Dim a As String = _auditTabelle
 
         Dim sql As String =
-"-- tm_steuerlistenfile_Fakten Tabelle sicherstellen
-IF NOT EXISTS (
-    SELECT 1 FROM sys.tables
-    WHERE  name      = '" & _steuerlistenTabelle & "'
-    AND    schema_id = SCHEMA_ID('dbo')
-)
+"-- =====================================================================
+-- 1. Arbeitstabelle sicherstellen
+-- =====================================================================
+IF NOT EXISTS (SELECT 1 FROM sys.tables WHERE name = '" & w & "' AND schema_id = SCHEMA_ID('dbo'))
 BEGIN
-    CREATE TABLE dbo." & _steuerlistenTabelle & "
+    CREATE TABLE dbo." & w & "
     (
-        tabelle        VARCHAR(255)   NULL,
+        tabelle        NVARCHAR(255)  NULL,
         FILE_NAME      NVARCHAR(255)  NULL,
-        tabellentyp    NVARCHAR(50)    NULL,
-        umgebung       NVARCHAR(50)   NULL,
+        tabellentyp    NVARCHAR(255)  NULL,
+        umgebung       NVARCHAR(255)  NULL,
         load_Date      DATETIME       NULL,
-        themengebiet   NVARCHAR(100)  NULL,
-        bearbeiter     NVARCHAR(100)  NULL,
+        themengebiet   NVARCHAR(255)  NULL,
+        bearbeiter     NVARCHAR(255)  NULL,
         tabname_filter NVARCHAR(500)  NULL,
         where_klausel  NVARCHAR(1000) NULL,
-        partition_wert NVARCHAR(500)  NULL,
-        obj_gefunden   VARCHAR(50)     NULL,
-        ref_datum      DATETIME       NULL
+        partition_wert NVARCHAR(500)  NULL
     );
-    PRINT 'Tabelle " & _steuerlistenTabelle & " neu angelegt.';
 END;
 
--- Fehlende Spalten nachträglich hinzufügen (Idempotent)
-IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('dbo." & _steuerlistenTabelle & "') AND name = 'tabname_filter')
-    ALTER TABLE dbo." & _steuerlistenTabelle & " ADD tabname_filter NVARCHAR(500) NULL;
-IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('dbo." & _steuerlistenTabelle & "') AND name = 'where_klausel')
-    ALTER TABLE dbo." & _steuerlistenTabelle & " ADD where_klausel NVARCHAR(1000) NULL;
-IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('dbo." & _steuerlistenTabelle & "') AND name = 'partition_wert')
-    ALTER TABLE dbo." & _steuerlistenTabelle & " ADD partition_wert NVARCHAR(500) NULL;
-IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('dbo." & _steuerlistenTabelle & "') AND name = 'obj_gefunden')
-    ALTER TABLE dbo." & _steuerlistenTabelle & " ADD obj_gefunden VARCHAR(3) NULL;
-IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('dbo." & _steuerlistenTabelle & "') AND name = 'ref_datum')
-    ALTER TABLE dbo." & _steuerlistenTabelle & " ADD ref_datum DATETIME NULL;"
+-- Migration bestehender Arbeitstabelle (idempotent)
+IF EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('dbo." & w & "') AND name = 'obj_gefunden')
+    ALTER TABLE dbo." & w & " DROP COLUMN obj_gefunden;
+IF EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('dbo." & w & "') AND name = 'ref_datum')
+    ALTER TABLE dbo." & w & " DROP COLUMN ref_datum;
+IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('dbo." & w & "') AND name = 'tabname_filter')
+    ALTER TABLE dbo." & w & " ADD tabname_filter NVARCHAR(500) NULL;
+IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('dbo." & w & "') AND name = 'where_klausel')
+    ALTER TABLE dbo." & w & " ADD where_klausel NVARCHAR(1000) NULL;
+IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('dbo." & w & "') AND name = 'partition_wert')
+    ALTER TABLE dbo." & w & " ADD partition_wert NVARCHAR(500) NULL;
+ALTER TABLE dbo." & w & " ALTER COLUMN tabelle      NVARCHAR(255) NULL;
+ALTER TABLE dbo." & w & " ALTER COLUMN FILE_NAME    NVARCHAR(255) NULL;
+ALTER TABLE dbo." & w & " ALTER COLUMN tabellentyp  NVARCHAR(255) NULL;
+ALTER TABLE dbo." & w & " ALTER COLUMN umgebung     NVARCHAR(255) NULL;
+ALTER TABLE dbo." & w & " ALTER COLUMN themengebiet NVARCHAR(255) NULL;
+ALTER TABLE dbo." & w & " ALTER COLUMN bearbeiter   NVARCHAR(255) NULL;
 
-        SqlAusfuehren(connStr, sql, "Spalten sicherstellen")
-        Log("Tabelle und Spalten geprueft/angelegt OK")
+-- =====================================================================
+-- 2. Audit-Tabelle sicherstellen (nur INSERT, nie UPDATE / DELETE)
+-- =====================================================================
+IF NOT EXISTS (SELECT 1 FROM sys.tables WHERE name = '" & a & "' AND schema_id = SCHEMA_ID('dbo'))
+BEGIN
+    CREATE TABLE dbo." & a & "
+    (
+        stlid          INT IDENTITY(1,1) NOT NULL
+            CONSTRAINT PK_" & a & " PRIMARY KEY,
+        tabelle        NVARCHAR(255)  NULL,
+        FILE_NAME      NVARCHAR(255)  NULL,
+        tabellentyp    NVARCHAR(255)  NULL,
+        umgebung       NVARCHAR(255)  NULL,
+        load_Date      DATETIME       NULL,
+        themengebiet   NVARCHAR(255)  NULL,
+        bearbeiter     NVARCHAR(255)  NULL,
+        tabname_filter NVARCHAR(500)  NULL
+    );
+END;"
+
+        SqlAusfuehren(connStr, sql, "Tabellen sicherstellen")
+        Log("Arbeitstabelle und Audit-Tabelle geprueft/angelegt OK")
 
     End Sub
 
     ' -----------------------------------------------------------------------
-    ' VerarbeiteDatei - Verarbeitet eine einzelne Steuerlisten-Datei.
+    ' VerarbeiteDatei - Verarbeitet eine einzelne Steuerlisten-Datei:
+    ' 1. INSERT jeder Zeile in die Audit-Tabelle (Historie)
+    ' 2. DELETE + INSERT in der Arbeitstabelle je FILE_NAME
+    '    (die Datei ist die Wahrheit - entfernte Zeilen verschwinden)
     ' -----------------------------------------------------------------------
     Private Sub VerarbeiteDatei(dateipfad As String,
                                 dateiname As String,
@@ -208,9 +230,16 @@ IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('dbo." & _s
         Log("  Umgebung     : " & umgebung)
         Log("  Themengebiet : " & themengebiet)
 
+        ' Arbeitstabelle: alte Zeilen dieser Datei entfernen (Datei = Wahrheit)
+        SqlMitParameternAusfuehren(connStr,
+            "DELETE FROM dbo." & _steuerlistenTabelle & " WHERE FILE_NAME = @f",
+            "DELETE Arbeitstabelle",
+            New With {.f = dateiname})
+        Log("  Arbeitstabelle: alte Zeilen der Datei entfernt")
+
+        Dim ladeZeit As DateTime = DateTime.Now
         Dim zeilenNr As Integer = 0
         Dim cntInsert As Integer = 0
-        Dim cntUpdate As Integer = 0
         Dim cntUebersp As Integer = 0
 
         For Each rohzeile As String In File.ReadAllLines(dateipfad)
@@ -225,7 +254,7 @@ IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('dbo." & _s
                 .TrimEnd(";"c) _
                 .Trim()
 
-            ' Leerzeilen und Kommentare überspringen
+            ' Leerzeilen und Kommentare ueberspringen
             If String.IsNullOrEmpty(zeile) OrElse zeile.StartsWith("#") Then
                 cntUebersp += 1
                 Continue For
@@ -235,58 +264,43 @@ IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('dbo." & _s
             Dim tabellenname As String = TabellennameBestimmen(zeile)
 
             Try
-                ' Existiert bereits?
-                Dim anzahl As Integer = Convert.ToInt32(
-                    SqlSkalarAusfuehren(connStr,
-                        "SELECT COUNT(*) FROM dbo." & _steuerlistenTabelle &
-                        " WHERE tabname_filter = @z AND FILE_NAME = @f",
-                        "Zeilenprüfung",
-                        New With {.z = zeile, .f = dateiname}))
+                ' 1. Audit-Tabelle: immer INSERT (Historie, nie aendern)
+                SqlMitParameternAusfuehren(connStr,
+                    "INSERT INTO dbo." & _auditTabelle &
+                    " (tabelle, FILE_NAME, tabellentyp, umgebung," &
+                    "  load_Date, themengebiet, bearbeiter, tabname_filter)" &
+                    " VALUES (@tab, @f, @typ, @umb, @dat, @thm, @bea, @z)",
+                    "INSERT Audit",
+                    New With {
+                        .tab = tabellenname,
+                        .f = dateiname,
+                        .typ = tabellentyp,
+                        .umb = umgebung,
+                        .dat = ladeZeit,
+                        .thm = themengebiet,
+                        .bea = _bearbeiter,
+                        .z = zeile
+                    })
 
-                If anzahl > 0 Then
-                    ' UPDATE
-                    SqlMitParameternAusfuehren(connStr,
-                        "UPDATE dbo." & _steuerlistenTabelle &
-                        " SET   tabelle      = @tab" &
-                        "     , tabellentyp  = @typ" &
-                        "     , umgebung     = @umb" &
-                        "     , load_Date    = @dat" &
-                        "     , themengebiet = @thm" &
-                        "     , bearbeiter   = @bea" &
-                        " WHERE tabname_filter = @z" &
-                        " AND   FILE_NAME      = @f",
-                        "UPDATE Zeile",
-                        New With {
-                            .tab = tabellenname,
-                            .typ = tabellentyp,
-                            .umb = umgebung,
-                            .dat = DateTime.Now,
-                            .thm = themengebiet,
-                            .bea = _bearbeiter,
-                            .z = zeile,
-                            .f = dateiname
-                        })
-                    cntUpdate += 1
-                Else
-                    ' INSERT
-                    SqlMitParameternAusfuehren(connStr,
-                        "INSERT INTO dbo." & _steuerlistenTabelle &
-                        " (tabelle, FILE_NAME, tabellentyp, umgebung," &
-                        "  load_Date, themengebiet, bearbeiter, tabname_filter)" &
-                        " VALUES (@tab, @f, @typ, @umb, @dat, @thm, @bea, @z)",
-                        "INSERT Zeile",
-                        New With {
-                            .tab = tabellenname,
-                            .f = dateiname,
-                            .typ = tabellentyp,
-                            .umb = umgebung,
-                            .dat = DateTime.Now,
-                            .thm = themengebiet,
-                            .bea = _bearbeiter,
-                            .z = zeile
-                        })
-                    cntInsert += 1
-                End If
+                ' 2. Arbeitstabelle: INSERT (vorher je Datei geleert)
+                SqlMitParameternAusfuehren(connStr,
+                    "INSERT INTO dbo." & _steuerlistenTabelle &
+                    " (tabelle, FILE_NAME, tabellentyp, umgebung," &
+                    "  load_Date, themengebiet, bearbeiter, tabname_filter)" &
+                    " VALUES (@tab, @f, @typ, @umb, @dat, @thm, @bea, @z)",
+                    "INSERT Arbeitstabelle",
+                    New With {
+                        .tab = tabellenname,
+                        .f = dateiname,
+                        .typ = tabellentyp,
+                        .umb = umgebung,
+                        .dat = ladeZeit,
+                        .thm = themengebiet,
+                        .bea = _bearbeiter,
+                        .z = zeile
+                    })
+
+                cntInsert += 1
 
             Catch ex As Exception
                 Throw New Exception(
@@ -294,8 +308,40 @@ IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('dbo." & _s
             End Try
         Next
 
-        Log(String.Format("  Zeilen gesamt: {0} | INSERT: {1} | UPDATE: {2} | Uebersprungen: {3}",
-            zeilenNr, cntInsert, cntUpdate, cntUebersp))
+        Log(String.Format("  Zeilen gesamt: {0} | INSERT: {1} | Uebersprungen: {2}",
+            zeilenNr, cntInsert, cntUebersp))
+
+    End Sub
+
+    ' -----------------------------------------------------------------------
+    ' DateiVerschieben - Verschiebt die verarbeitete Datei in den Ordner
+    ' 'Done'. Dateien mit Endung _perm.csv bleiben liegen. Bei Namens-
+    ' kollision im Done-Ordner wird ein Zeitstempel angehaengt.
+    ' Jeder Fehler beim Verschieben fuehrt zum Abbruch.
+    ' -----------------------------------------------------------------------
+    Private Sub DateiVerschieben(dateipfad As String, dateiname As String)
+
+        If dateiname.ToLower().EndsWith(PERM_ENDUNG) Then
+            Log("Datei endet auf " & PERM_ENDUNG & " -> bleibt im Quellordner")
+            Return
+        End If
+
+        Dim doneOrdner As String = Path.Combine(_stlOrdner, DONE_ORDNER)
+        If Not Directory.Exists(doneOrdner) Then
+            Directory.CreateDirectory(doneOrdner)
+            Log("Done-Ordner angelegt: " & doneOrdner)
+        End If
+
+        Dim zielPfad As String = Path.Combine(doneOrdner, dateiname)
+        If File.Exists(zielPfad) Then
+            zielPfad = Path.Combine(doneOrdner,
+                Path.GetFileNameWithoutExtension(dateiname) &
+                "_" & DateTime.Now.ToString("yyyyMMdd_HHmmss") &
+                Path.GetExtension(dateiname))
+        End If
+
+        File.Move(dateipfad, zielPfad)
+        Log("Datei verschoben nach: " & zielPfad)
 
     End Sub
 
@@ -360,44 +406,6 @@ IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('dbo." & _s
     End Function
 
     ' -----------------------------------------------------------------------
-    ' SqlSkalarAusfuehren - Fuehrt eine skalare SQL-Abfrage mit
-    ' Wiederholung aus.
-    ' -----------------------------------------------------------------------
-    Private Function SqlSkalarAusfuehren(connStr As String,
-                                         sql As String,
-                                         beschreibung As String,
-                                         params As Object) As Object
-        Dim versuch As Integer = 0
-        Dim letzterFehler As Exception = Nothing
-
-        While versuch < MAX_VERSUCHE
-            versuch += 1
-            Try
-                Using conn As New SqlConnection(connStr)
-                    conn.Open()
-                    Using cmd As New SqlCommand(sql, conn)
-                        cmd.CommandTimeout = 0
-                        ParameterHinzufuegen(cmd, params)
-                        Return cmd.ExecuteScalar()
-                    End Using
-                End Using
-            Catch ex As Exception
-                letzterFehler = ex
-                Log(String.Format("WARNUNG [{0}] Versuch {1}/{2}: {3}",
-                    beschreibung, versuch, MAX_VERSUCHE, ex.Message))
-                If versuch < MAX_VERSUCHE Then
-                    System.Threading.Thread.Sleep(WARTE_SEK * 1000)
-                End If
-            End Try
-        End While
-
-        Throw New Exception(String.Format(
-            "[{0}] fehlgeschlagen nach {1} Versuchen: {2}",
-            beschreibung, MAX_VERSUCHE,
-            If(letzterFehler IsNot Nothing, letzterFehler.Message, "Unbekannt")))
-    End Function
-
-    ' -----------------------------------------------------------------------
     ' SqlMitParameternAusfuehren - Fuehrt eine parametrisierte
     ' SQL-Anweisung aus.
     ' -----------------------------------------------------------------------
@@ -424,6 +432,7 @@ IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('dbo." & _s
                 letzterFehler = ex
                 Log(String.Format("WARNUNG [{0}] Versuch {1}/{2}: {3}",
                     beschreibung, versuch, MAX_VERSUCHE, ex.Message))
+                If versuch = 1 Then Log("SQL Statement [" & beschreibung & "]: " & sql)
                 If versuch < MAX_VERSUCHE Then
                     System.Threading.Thread.Sleep(WARTE_SEK * 1000)
                 End If

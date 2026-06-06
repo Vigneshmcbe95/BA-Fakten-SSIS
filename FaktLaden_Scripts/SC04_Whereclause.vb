@@ -211,9 +211,7 @@ Partial Public Class ScriptMain
 "IF NOT EXISTS(SELECT 1 FROM sys.columns WHERE object_id=OBJECT_ID('dbo." & _stlTabelle & "') AND name='where_klausel')
     ALTER TABLE dbo." & _stlTabelle & " ADD where_klausel  NVARCHAR(1000) NULL;
 IF NOT EXISTS(SELECT 1 FROM sys.columns WHERE object_id=OBJECT_ID('dbo." & _stlTabelle & "') AND name='partition_wert')
-    ALTER TABLE dbo." & _stlTabelle & " ADD partition_wert NVARCHAR(500)  NULL;
-IF NOT EXISTS(SELECT 1 FROM sys.columns WHERE object_id=OBJECT_ID('dbo." & _stlTabelle & "') AND name='ref_datum')
-    ALTER TABLE dbo." & _stlTabelle & " ADD ref_datum      DATETIME       NULL;")
+    ALTER TABLE dbo." & _stlTabelle & " ADD partition_wert NVARCHAR(500)  NULL;")
         Log("Spalten geprueft/angelegt OK")
     End Sub
 
@@ -271,12 +269,11 @@ IF NOT EXISTS(SELECT 1 FROM sys.columns WHERE object_id=OBJECT_ID('dbo." & _stlT
                     conn.Open()
                     Using cmd As New SqlCommand(
                         "UPDATE dbo." & _stlTabelle &
-                        " SET where_klausel=@w, partition_wert=@p, ref_datum=@r" &
+                        " SET where_klausel=@w, partition_wert=@p" &
                         " WHERE tabname_filter=@z AND FILE_NAME=@f", conn)
                         cmd.CommandTimeout = 0
                         cmd.Parameters.AddWithValue("@w", If(whereKlausel Is Nothing, CObj(DBNull.Value), CObj(whereKlausel)))
                         cmd.Parameters.AddWithValue("@p", If(partWert Is Nothing, CObj(DBNull.Value), CObj(partWert)))
-                        cmd.Parameters.AddWithValue("@r", _refDatum)
                         cmd.Parameters.AddWithValue("@z", tabFilter)
                         cmd.Parameters.AddWithValue("@f", fileName)
                         cmd.ExecuteNonQuery()
