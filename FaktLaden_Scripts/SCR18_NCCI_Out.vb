@@ -63,7 +63,7 @@ Partial Public Class ScriptMain
                         Try
                             Using conn As New SqlConnection(connStr)
                                 conn.Open()
-                                Using cmd As New SqlCommand("SELECT name FROM sys.tables WHERE schema_id=SCHEMA_ID('dbo') AND name LIKE '" & v.Faktentabelle.ToLower() & "_out_%' ORDER BY name", conn)
+                                Using cmd As New SqlCommand("SELECT name FROM sys.tables WHERE schema_id=SCHEMA_ID('dbo') AND name LIKE '" & v.Faktentabelle.ToLower() & "[_]out[_]%' ORDER BY name", conn)
                                     cmd.CommandTimeout = 0
                                     Using rdr As SqlDataReader = cmd.ExecuteReader()
                                         While rdr.Read()
