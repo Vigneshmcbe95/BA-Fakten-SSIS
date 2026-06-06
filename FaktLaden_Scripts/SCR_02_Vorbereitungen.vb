@@ -442,8 +442,8 @@ WITH (
             Catch ex As Exception
                 letzterFehler = ex
                 Log(String.Format("WARNUNG [{0}] Versuch {1}/{2}: {3}",
-                If versuch = 1 Then Log("SQL Statement [" & beschreibung & "]: " & sql)
                     beschreibung, versuch, MAX_VERSUCHE, ex.Message))
+                If versuch = 1 Then Log("SQL Statement [" & beschreibung & "]: " & sql)
                 If versuch < MAX_VERSUCHE Then
                     System.Threading.Thread.Sleep(WARTE_SEK * 1000)
                 End If
