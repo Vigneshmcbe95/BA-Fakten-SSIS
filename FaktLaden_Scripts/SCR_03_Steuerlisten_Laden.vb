@@ -132,10 +132,10 @@ Partial Public Class ScriptMain
     End Function
 
     ' -----------------------------------------------------------------------
-    ' TabellenSicherstellen - Stellt Arbeitstabelle und Audit-Tabelle sicher.
+    ' TabellenSicherstellen - Stellt Arbeitstabelle und Audit-Tabelle sicher
+    ' (CREATE IF NOT EXISTS).
     ' Arbeitstabelle: technische Tabelle, SC04 fuellt where_klausel /
-    '                 partition_wert. Altspalten obj_gefunden / ref_datum
-    '                 werden entfernt.
+    '                 partition_wert.
     ' Audit-Tabelle : stlid IDENTITY PRIMARY KEY, nur INSERT.
     ' -----------------------------------------------------------------------
     Private Sub TabellenSicherstellen(connStr As String)
@@ -163,24 +163,6 @@ BEGIN
         partition_wert NVARCHAR(500)  NULL
     );
 END;
-
--- Migration bestehender Arbeitstabelle (idempotent)
-IF EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('dbo." & w & "') AND name = 'obj_gefunden')
-    ALTER TABLE dbo." & w & " DROP COLUMN obj_gefunden;
-IF EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('dbo." & w & "') AND name = 'ref_datum')
-    ALTER TABLE dbo." & w & " DROP COLUMN ref_datum;
-IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('dbo." & w & "') AND name = 'tabname_filter')
-    ALTER TABLE dbo." & w & " ADD tabname_filter NVARCHAR(500) NULL;
-IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('dbo." & w & "') AND name = 'where_klausel')
-    ALTER TABLE dbo." & w & " ADD where_klausel NVARCHAR(1000) NULL;
-IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('dbo." & w & "') AND name = 'partition_wert')
-    ALTER TABLE dbo." & w & " ADD partition_wert NVARCHAR(500) NULL;
-ALTER TABLE dbo." & w & " ALTER COLUMN tabelle      NVARCHAR(255) NULL;
-ALTER TABLE dbo." & w & " ALTER COLUMN FILE_NAME    NVARCHAR(255) NULL;
-ALTER TABLE dbo." & w & " ALTER COLUMN tabellentyp  NVARCHAR(255) NULL;
-ALTER TABLE dbo." & w & " ALTER COLUMN umgebung     NVARCHAR(255) NULL;
-ALTER TABLE dbo." & w & " ALTER COLUMN themengebiet NVARCHAR(255) NULL;
-ALTER TABLE dbo." & w & " ALTER COLUMN bearbeiter   NVARCHAR(255) NULL;
 
 -- =====================================================================
 -- 2. Audit-Tabelle sicherstellen (nur INSERT, nie UPDATE / DELETE)
