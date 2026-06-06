@@ -1,0 +1,104 @@
+Imports System
+Imports System.Data
+Imports System.Data.SqlClient
+Imports Microsoft.SqlServer.Dts.Runtime
+
+<Microsoft.SqlServer.Dts.Tasks.ScriptTask.SSISScriptTaskEntryPointAttribute()>
+<CLSCompliant(False)>
+Partial Public Class ScriptMain
+    Inherits Microsoft.SqlServer.Dts.Tasks.ScriptTask.VSTARTScriptObjectModelBase
+
+    Private ReadOnly ConnectionName As String = "Verbindung"
+
+    Enum ScriptResults
+        Success = DTSExecResult.Success
+        Failure = DTSExecResult.Failure
+    End Enum
+
+    Public Sub Main()
+        Dim sqlConn As SqlConnection = Nothing
+        Try
+            Dim runID As Integer = CInt(Dts.Variables("BA::RunID").Value)
+
+            Dim cm As ConnectionManager = Dts.Connections(ConnectionName)
+            Dim builder As New SqlConnectionStringBuilder(cm.ConnectionString)
+            sqlConn = New SqlConnection(builder.ConnectionString)
+            sqlConn.Open()
+
+            Dim sql As String =
+"SET NOCOUNT ON;
+DECLARE @ID INT = @RunID, @Start DATETIME, @End DATETIME = GETDATE();
+
+SELECT @Start = PaketStartzeit FROM dbo.ETL_Fakt_LaufHistorie WHERE ID = @ID;
+
+DECLARE
+    @GesamtAnzahl              INT,
+    @ErfolgreichAnzahl         INT,
+    @FehlerAnzahl              INT,
+    @AnzahlTemplateErstellt    INT,
+    @AnzahlExtTabelle          INT,
+    @AnzahlFaktentabelle       INT,
+    @AnzahlPartitionsgrenzen   INT,
+    @AnzahlStagingErstellt     INT,
+    @AnzahlDatenGeladen        INT,
+    @AnzahlIndexInOut          INT,
+    @AnzahlKomprimierung       INT,
+    @AnzahlNcciOut             INT,
+    @AnzahlPartitionstausch    INT;
+
+SELECT
+    @GesamtAnzahl            = COUNT(*),
+    @ErfolgreichAnzahl       = SUM(CASE WHEN Status = 'ERFOLG'                     THEN 1 ELSE 0 END),
+    @FehlerAnzahl            = SUM(CASE WHEN Status = 'FEHLER'                     THEN 1 ELSE 0 END),
+    @AnzahlTemplateErstellt  = SUM(CASE WHEN Status = 'TEMPLATE_ERSTELLT'          THEN 1 ELSE 0 END),
+    @AnzahlExtTabelle        = SUM(CASE WHEN Status = 'EXT_TABELLE_ERSTELLT'       THEN 1 ELSE 0 END),
+    @AnzahlFaktentabelle     = SUM(CASE WHEN Status = 'FAKTENTABELLE_ERSTELLT'     THEN 1 ELSE 0 END),
+    @AnzahlPartitionsgrenzen = SUM(CASE WHEN Status = 'PARTITIONSGRENZEN_ERSTELLT' THEN 1 ELSE 0 END),
+    @AnzahlStagingErstellt   = SUM(CASE WHEN Status = 'STAGING_ERSTELLT'           THEN 1 ELSE 0 END),
+    @AnzahlDatenGeladen      = SUM(CASE WHEN Status = 'DATEN_GELADEN'              THEN 1 ELSE 0 END),
+    @AnzahlIndexInOut        = SUM(CASE WHEN Status = 'INDEX_IN_OUT'               THEN 1 ELSE 0 END),
+    @AnzahlKomprimierung     = SUM(CASE WHEN Status = 'KOMPRIMIERUNG_OUT'          THEN 1 ELSE 0 END),
+    @AnzahlNcciOut           = SUM(CASE WHEN Status = 'NCCI_OUT'                   THEN 1 ELSE 0 END),
+    @AnzahlPartitionstausch  = SUM(CASE WHEN Status = 'PARTITIONSTAUSCH'           THEN 1 ELSE 0 END)
+FROM dbo.ETL_Fkt_Arbeitsliste
+WHERE RunID = @ID;
+
+UPDATE dbo.ETL_Fakt_LaufHistorie
+SET
+    RunStatus                   = 'FEHLER',
+    Paketfehlerzeit             = @End,
+    PaketLaufgestamzeitSekunden = DATEDIFF(SECOND, @Start, @End),
+    GesamtAnzahl                = @GesamtAnzahl,
+    ErfolgreichAnzahl           = @ErfolgreichAnzahl,
+    FehlerAnzahl                = @FehlerAnzahl,
+    AnzahlTemplateErstellt      = @AnzahlTemplateErstellt,
+    AnzahlExtTabelle            = @AnzahlExtTabelle,
+    AnzahlFaktentabelle         = @AnzahlFaktentabelle,
+    AnzahlPartitionsgrenzen     = @AnzahlPartitionsgrenzen,
+    AnzahlStagingErstellt       = @AnzahlStagingErstellt,
+    AnzahlDatenGeladen          = @AnzahlDatenGeladen,
+    AnzahlIndexInOut            = @AnzahlIndexInOut,
+    AnzahlKomprimierung         = @AnzahlKomprimierung,
+    AnzahlNcciOut               = @AnzahlNcciOut,
+    AnzahlPartitionstausch      = @AnzahlPartitionstausch
+WHERE ID = @ID;"
+
+            Using cmd As New SqlCommand(sql, sqlConn)
+                cmd.CommandTimeout = 0
+                cmd.Parameters.Add("@RunID", SqlDbType.Int).Value = runID
+                cmd.ExecuteNonQuery()
+            End Using
+
+            Dts.TaskResult = ScriptResults.Success
+
+        Catch ex As Exception
+            Dts.Events.FireError(0, "PaketEnd_OnTaskFailed", ex.Message, "", 0)
+            Dts.TaskResult = ScriptResults.Failure
+        Finally
+            If sqlConn IsNot Nothing AndAlso sqlConn.State <> ConnectionState.Closed Then
+                sqlConn.Close()
+            End If
+        End Try
+    End Sub
+
+End Class
