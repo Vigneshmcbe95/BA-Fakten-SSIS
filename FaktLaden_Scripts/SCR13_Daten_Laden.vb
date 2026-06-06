@@ -72,18 +72,90 @@ Partial Public Class ScriptMain
                 Return
             End If
 
-            Dim opts As New ParallelOptions With {.MaxDegreeOfParallelism = _maxparallel}
+            ' ─────────────────────────────────────────────────────────────────
+            ' Phase 1 (sequentiell): Arbeitspakete (Verfahren x Partition)
+            ' aufbauen - EIN gemeinsames Parallel-Limit statt verschachtelter
+            ' Parallel.ForEach (verhindert Ueberbuchung der Oracle-Sessions:
+            ' frueher Verfahren x Partitionen = bis zu Maxparallel^2 Sessions)
+            ' ─────────────────────────────────────────────────────────────────
+            Dim arbeitspakete As New List(Of ArbeitsPaket)()
+            Dim aktiveVerfahren As New List(Of VerfahrenInfo)()
 
-            Parallel.ForEach(verfahren, opts,
-                Sub(v As VerfahrenInfo)
+            For Each v As VerfahrenInfo In verfahren
+                Log("Verfahren: " & v.Verfahren & " | Spalte: " & v.PartitionColumn)
+
+                If v.LetzterSchritt = "DATEN_GELADEN" Then
+                    Log("  bereits abgeschlossen uebersprungen OK")
+                    Continue For
+                End If
+
+                Dim partWerte As List(Of String) = Nothing
+                If Not partDict.TryGetValue(v.Verfahren, partWerte) OrElse partWerte.Count = 0 Then
+                    Log("  WARNUNG: Keine Partitionswerte in BA::objPartitionValues fuer '" & v.Verfahren & "' uebersprungen")
+                    Continue For
+                End If
+
+                Log("  Partitionswerte: " & partWerte.Count.ToString())
+
+                Try
+                    StatusSetzen(connStr, v.ID, "DATEN_LADEN")
+                    aktiveVerfahren.Add(v)
+                    For Each pv As String In partWerte
+                        arbeitspakete.Add(New ArbeitsPaket With {.V = v, .Pv = pv})
+                    Next
+                Catch ex As Exception
+                    Interlocked.Increment(_cntFehler)
+                    _fehlerListe.Add("FEHLER '" & v.Verfahren & "': " & ex.Message)
+                    FehlerSetzen(connStr, v.ID, ex.Message)
+                    LogFehler("FEHLER '" & v.Verfahren & "': " & ex.Message)
+                End Try
+            Next
+
+            Log("Arbeitspakete gesamt (Verfahren x Partition): " & arbeitspakete.Count.ToString() &
+                " | Parallelitaet: " & _maxparallel.ToString())
+
+            ' ─────────────────────────────────────────────────────────────────
+            ' Phase 2 (parallel): alle Partitionen aller Verfahren ueber EINE
+            ' Drossel laden - maximal _maxparallel gleichzeitige Oracle-Sessions
+            ' ─────────────────────────────────────────────────────────────────
+            Dim zeilenJeVerfahren As New ConcurrentDictionary(Of Integer, Long)()
+            Dim fehlerJeVerfahren As New ConcurrentDictionary(Of Integer, Integer)()
+
+            Dim opts As New ParallelOptions With {.MaxDegreeOfParallelism = _maxparallel}
+            Parallel.ForEach(arbeitspakete, opts,
+                Sub(p As ArbeitsPaket)
                     Try
-                        VerarbeiteVerfahren(v, connStr, partDict)
+                        Dim zeilen As Long = VerarbeitePartition(p.V, p.Pv, connStr)
+                        zeilenJeVerfahren.AddOrUpdate(p.V.ID, zeilen, Function(k, alt) alt + zeilen)
                     Catch ex As Exception
-                        SyncLock _logSperre
-                            Log("Verfahren " & v.Verfahren & " uebersprungen wegen kritischem Fehler: " & ex.Message)
-                        End SyncLock
+                        fehlerJeVerfahren.AddOrUpdate(p.V.ID, 1, Function(k, alt) alt + 1)
+                        Interlocked.Increment(_cntFehler)
+                        _fehlerListe.Add("FEHLER '" & p.V.Verfahren & "' pv=" & p.Pv & ": " & ex.Message)
+                        LogFehler("FEHLER bei pv=" & p.Pv & " (" & p.V.Faktentabelle.ToLower() & "_in_" & p.Pv & "): " & ex.Message)
                     End Try
                 End Sub)
+
+            ' ─────────────────────────────────────────────────────────────────
+            ' Phase 3 (sequentiell): Status je Verfahren abschliessen
+            ' ─────────────────────────────────────────────────────────────────
+            For Each v As VerfahrenInfo In aktiveVerfahren
+                Dim fehlerAnzahl As Integer = 0
+                fehlerJeVerfahren.TryGetValue(v.ID, fehlerAnzahl)
+                Dim gesamtZeilen As Long = 0
+                zeilenJeVerfahren.TryGetValue(v.ID, gesamtZeilen)
+
+                If fehlerAnzahl > 0 Then
+                    FehlerSetzen(connStr, v.ID, fehlerAnzahl.ToString() & " Partition(en) fehlgeschlagen")
+                    LogSchreiben(connStr, v.Verfahren, "FEHLER_SCR13",
+                        fehlerAnzahl.ToString() & " Partition(en) fehlgeschlagen")
+                Else
+                    StatusSetzen(connStr, v.ID, "DATEN_GELADEN")
+                    LogSchreiben(connStr, v.Verfahren, "SCHRITT_6",
+                        "Daten geladen. Zeilen gesamt: " & gesamtZeilen.ToString())
+                    Interlocked.Increment(_cntOK)
+                    Log("  Schritt 6 abgeschlossen OK (" & v.Verfahren & ")")
+                End If
+            Next
 
             Log("Erfolgreich: " & _cntOK.ToString() & " | Fehler: " & _cntFehler.ToString())
 
@@ -125,132 +197,66 @@ Partial Public Class ScriptMain
     End Function
 
     ' -----------------------------------------------------------------------
-    ' VerarbeiteVerfahren - Verarbeitet ein einzelnes Verfahren (paralleler
-    ' Worker).
+    ' VerarbeitePartition - Laedt EINE Partition eines Verfahrens (paralleler
+    ' Worker, ein Arbeitspaket). Liefert die geladenen / vorhandenen Zeilen
+    ' zurueck. Resume: bereits gefuellte _in_-Tabellen werden uebersprungen.
     ' -----------------------------------------------------------------------
-    Private Sub VerarbeiteVerfahren(v As VerfahrenInfo, connStr As String,
-                                    partDict As Dictionary(Of String, List(Of String)))
+    Private Function VerarbeitePartition(v As VerfahrenInfo, pv As String,
+                                         connStr As String) As Long
 
-        SyncLock _logSperre
-            Log("Verfahren: " & v.Verfahren & " | Spalte: " & v.PartitionColumn)
-        End SyncLock
+        Dim inTable As String = v.Faktentabelle.ToLower() & "_in_" & pv
+        Dim loadingTable As String = inTable & "_LOADING"
 
-        If v.LetzterSchritt = "DATEN_GELADEN" Then
-            SyncLock _logSperre
-                Log("  bereits abgeschlossen uebersprungen OK")
-            End SyncLock
-            Return
+        ' ─── RESUME: inTable existiert UND hat Zeilen → bereits geladen ───
+        Dim inExists As Boolean = Convert.ToInt32(SqlSkalar(connStr,
+            "SELECT COUNT(*) FROM sys.tables WHERE schema_id=SCHEMA_ID('dbo') AND name='" & inTable & "'",
+            "inTable check")) > 0
+
+        If inExists Then
+            Dim zeilenCount As Integer = Convert.ToInt32(SqlSkalar(connStr,
+                "SELECT COUNT(*) FROM dbo.[" & inTable & "]",
+                "rows check"))
+            If zeilenCount > 0 Then
+                Log("  " & inTable & " bereits gefuellt (" & zeilenCount.ToString() & " Zeilen) uebersprungen OK")
+                Return CLng(zeilenCount)
+            End If
         End If
 
-        ' Partitionswerte fuer dieses Verfahren aus dem Dictionary holen
-        Dim partWerte As List(Of String) = Nothing
-        If Not partDict.TryGetValue(v.Verfahren, partWerte) OrElse partWerte.Count = 0 Then
-            SyncLock _logSperre
-                Log("  WARNUNG: Keine Partitionswerte in BA::objPartitionValues fuer '" & v.Verfahren & "' uebersprungen")
-            End SyncLock
-            Return
+        ' ─── CLEANUP: _LOADING von abgebrochenem Lauf loeschen ───
+        SqlAusfuehren(connStr,
+            "IF OBJECT_ID('dbo.[" & loadingTable & "]','U') IS NOT NULL DROP TABLE dbo.[" & loadingTable & "];",
+            "DROP _LOADING " & pv)
+
+        ' ─── CLEANUP: leere _in_ Tabelle loeschen ───
+        SqlAusfuehren(connStr,
+            "IF OBJECT_ID('dbo.[" & inTable & "]','U') IS NOT NULL DROP TABLE dbo.[" & inTable & "];",
+            "DROP _in_ leer " & pv)
+
+        ' ─── Ext-Tabelle pruefen ───
+        Dim extTable As String = v.Faktentabelle.ToLower()
+        Dim extExists As Boolean = Convert.ToInt32(SqlSkalar(connStr,
+            "SELECT COUNT(*) FROM sys.external_tables WHERE schema_id=SCHEMA_ID('ext') AND name='" & extTable & "'",
+            "ext pruefen")) > 0
+
+        If Not extExists Then
+            Throw New Exception("ext." & extTable & " nicht gefunden")
         End If
 
-        SyncLock _logSperre
-            Log("  Partitionswerte: " & partWerte.Count.ToString())
-        End SyncLock
+        ' ─── SELECT INTO _LOADING (atomar) ───
+        Dim zeilen As Integer = DatenLadenSelectInto(connStr, v, loadingTable, extTable, pv)
 
-        Try
-            StatusSetzen(connStr, v.ID, "DATEN_LADEN")
+        ' ─── RENAME _LOADING → _in_ (atomar abschliessen) ───
+        SqlAusfuehren(connStr,
+            "EXEC sp_rename 'dbo.[" & loadingTable & "]', '" & inTable & "';",
+            "RENAME " & pv)
 
-            Dim cntGesamtZeilen As Long = 0
-            Dim innerOpts As New ParallelOptions With {.MaxDegreeOfParallelism = _maxparallel}
+        Log("  Zeilen geladen (" & inTable & "): " & zeilen.ToString())
+        LogSchreiben(connStr, v.Verfahren, "LOAD_" & pv,
+            "SELECT INTO dbo." & inTable & " | Zeilen: " & zeilen.ToString())
 
-            Parallel.ForEach(partWerte, innerOpts,
-            Sub(pv As String)
-                Try
-                    Dim inTable As String = v.Faktentabelle.ToLower() & "_in_" & pv
-                    Dim loadingTable As String = inTable & "_LOADING"
+        Return CLng(zeilen)
 
-                    ' ─── RESUME: inTable existiert UND hat Zeilen → bereits geladen ───
-                    Dim inExists As Boolean = Convert.ToInt32(SqlSkalar(connStr,
-                        "SELECT COUNT(*) FROM sys.tables WHERE schema_id=SCHEMA_ID('dbo') AND name='" & inTable & "'",
-                        "inTable check")) > 0
-
-                    If inExists Then
-                        Dim zeilenCount As Integer = Convert.ToInt32(SqlSkalar(connStr,
-                            "SELECT COUNT(*) FROM dbo.[" & inTable & "]",
-                            "rows check"))
-                        If zeilenCount > 0 Then
-                            SyncLock _logSperre
-                                Log("  " & inTable & " bereits gefuellt (" & zeilenCount.ToString() & " Zeilen) uebersprungen OK")
-                            End SyncLock
-                            Interlocked.Add(cntGesamtZeilen, CLng(zeilenCount))
-                            Return
-                        End If
-                    End If
-
-                    ' ─── CLEANUP: _LOADING von abgebrochenem Lauf loeschen ───
-                    SqlAusfuehren(connStr,
-                        "IF OBJECT_ID('dbo.[" & loadingTable & "]','U') IS NOT NULL DROP TABLE dbo.[" & loadingTable & "];",
-                        "DROP _LOADING " & pv)
-
-                    ' ─── CLEANUP: leere _in_ Tabelle loeschen ───
-                    SqlAusfuehren(connStr,
-                        "IF OBJECT_ID('dbo.[" & inTable & "]','U') IS NOT NULL DROP TABLE dbo.[" & inTable & "];",
-                        "DROP _in_ leer " & pv)
-
-                    ' ─── Ext-Tabelle pruefen ───
-                    Dim extTable As String = v.Faktentabelle.ToLower()
-                    Dim extExists As Boolean = Convert.ToInt32(SqlSkalar(connStr,
-                        "SELECT COUNT(*) FROM sys.external_tables WHERE schema_id=SCHEMA_ID('ext') AND name='" & extTable & "'",
-                        "ext pruefen")) > 0
-
-                    If Not extExists Then
-                        SyncLock _logSperre
-                            Log("  WARNUNG: ext." & extTable & " nicht gefunden uebersprungen")
-                        End SyncLock
-                        Return
-                    End If
-
-                    ' ─── SELECT INTO _LOADING (atomar) ───
-                    Dim zeilen As Integer = DatenLadenSelectInto(connStr, v, loadingTable, extTable, pv)
-
-                    ' ─── RENAME _LOADING → _in_ (atomar abschliessen) ───
-                    SqlAusfuehren(connStr,
-                        "EXEC sp_rename 'dbo.[" & loadingTable & "]', '" & inTable & "';",
-                        "RENAME " & pv)
-
-                    SyncLock _logSperre
-                        Log("  Zeilen geladen (" & inTable & "): " & zeilen.ToString())
-                    End SyncLock
-
-                    LogSchreiben(connStr, v.Verfahren, "LOAD_" & pv,
-                        "SELECT INTO dbo." & inTable & " | Zeilen: " & zeilen.ToString())
-
-                    Interlocked.Add(cntGesamtZeilen, CLng(zeilen))
-
-                Catch ex As Exception
-                    Interlocked.Increment(_cntFehler)
-                    _fehlerListe.Add("FEHLER '" & v.Verfahren & "' pv=" & pv & ": " & ex.Message)
-                    LogFehler("FEHLER bei pv=" & pv & " (" & v.Faktentabelle.ToLower() & "_in_" & pv & "): " & ex.Message)
-                End Try
-            End Sub)
-
-            StatusSetzen(connStr, v.ID, "DATEN_GELADEN")
-            LogSchreiben(connStr, v.Verfahren, "SCHRITT_6",
-                "Daten geladen. Partitionen: " & partWerte.Count.ToString() &
-                " | Zeilen gesamt: " & cntGesamtZeilen.ToString())
-
-            Interlocked.Increment(_cntOK)
-            SyncLock _logSperre
-                Log("  Schritt 6 abgeschlossen OK")
-            End SyncLock
-
-        Catch ex As Exception
-            Interlocked.Increment(_cntFehler)
-            _fehlerListe.Add("FEHLER '" & v.Verfahren & "': " & ex.Message)
-            FehlerSetzen(connStr, v.ID, ex.Message)
-            LogSchreiben(connStr, v.Verfahren, "FEHLER_SCR13", ex.Message)
-            LogFehler("FEHLER '" & v.Verfahren & "': " & ex.Message)
-        End Try
-
-    End Sub
+    End Function
 
     ' -----------------------------------------------------------------------
     ' DatenLadenSelectInto - Laedt eine Partition per SELECT INTO _LOADING
@@ -492,6 +498,15 @@ Partial Public Class ScriptMain
             Dts.Events.FireError(0, SKRIPT_NAME, n, "", 0)
         End SyncLock
     End Sub
+
+    ' -----------------------------------------------------------------------
+    ' ArbeitsPaket - Datencontainer fuer ein Arbeitspaket
+    ' (Verfahren x Partitionswert) der flachen Parallel-Verarbeitung.
+    ' -----------------------------------------------------------------------
+    Private Class ArbeitsPaket
+        Public Property V As VerfahrenInfo
+        Public Property Pv As String
+    End Class
 
     ' -----------------------------------------------------------------------
     ' VerfahrenInfo - Datencontainer fuer ein Verfahren der Arbeitsliste.
