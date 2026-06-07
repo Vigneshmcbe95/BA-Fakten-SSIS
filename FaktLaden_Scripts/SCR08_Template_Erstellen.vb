@@ -69,7 +69,7 @@ Partial Public Class ScriptMain
                     TemplateErstellen(connStr, v)
                     StatusSetzen(connStr, v.ID, "TEMPLATE_ERSTELLT")
                     LogSchreiben(connStr, v.Verfahren, "SCHRITT_1",
-                        "Template erstellt: dwh.dbo." & v.Faktentabelle.ToLower() & "_template")
+                        "Template erstellt/geprueft: " & _datenbank & ".dbo." & v.Faktentabelle.ToLower() & "_template")
                     cntOK += 1
                     Log("  Template erstellt OK")
                 Catch ex As Exception
@@ -99,30 +99,40 @@ Partial Public Class ScriptMain
             "DECLARE @t  nvarchar(128) = N'" & v.Faktentabelle.ToLower() & "';" & vbCrLf &
             "DECLARE @s  nvarchar(128) = N'" & v.Themengebiet.Trim().ToLower() & "';" & vbCrLf &
             "DECLARE @db nvarchar(128) = N'" & _datenbank & "';" & vbCrLf &
-            "DECLARE @cols nvarchar(max), @sql nvarchar(max);" & vbCrLf & vbCrLf &
-            "-- columns_dbo aus tm_polybase_struktur laden" & vbCrLf &
-            "SELECT @cols = STRING_AGG(" & vbCrLf &
-            "    CAST(columns_dbo AS nvarchar(max))," & vbCrLf &
-            "    CONCAT(N',', CHAR(13), CHAR(10))" & vbCrLf &
-            ") WITHIN GROUP (ORDER BY colno)" & vbCrLf &
+            "DECLARE @cols nvarchar(max), @sql nvarchar(max), @tmpl nvarchar(300), @tmplObj int, @d int;" & vbCrLf & vbCrLf &
+            "-- Soll-Spalten (columns_dbo) aus tm_polybase_struktur laden" & vbCrLf &
+            "SELECT @cols = STRING_AGG(CAST(columns_dbo AS nvarchar(max)), CONCAT(N',', CHAR(13), CHAR(10)))" & vbCrLf &
+            "                 WITHIN GROUP (ORDER BY colno)" & vbCrLf &
             "FROM dbo.tm_polybase_struktur" & vbCrLf &
-            "WHERE tabname = LOWER(@t)" & vbCrLf &
-            "  AND themengebiet = @s;" & vbCrLf & vbCrLf &
-            "-- Validierung" & vbCrLf &
+            "WHERE tabname = LOWER(@t) AND themengebiet = @s;" & vbCrLf & vbCrLf &
             "IF @cols IS NULL" & vbCrLf &
             "    THROW 50001, 'Keine columns_dbo Metadaten gefunden', 1;" & vbCrLf & vbCrLf &
-            "-- Template nur erstellen wenn noch nicht vorhanden" & vbCrLf &
-            "IF OBJECT_ID(CONCAT('[', @db, '].dbo.[', @t, '_template]'), 'U') IS NULL" & vbCrLf &
+            "SET @tmpl    = CONCAT('[', @db, '].dbo.[', @t, '_template]');" & vbCrLf &
+            "SET @tmplObj = OBJECT_ID(@tmpl);" & vbCrLf & vbCrLf &
+            "IF @tmplObj IS NULL" & vbCrLf &
             "BEGIN" & vbCrLf &
-            "    SET @sql = N'SELECT TOP 0 ' + @cols +" & vbCrLf &
-            "               N' INTO [' + @db + N'].dbo.[' + @t + N'_template]' +" & vbCrLf &
-            "               N' FROM ext.[' + @t + N'];';" & vbCrLf &
+            "    -- Template existiert nicht -> aus columns_dbo erstellen (nur Struktur)" & vbCrLf &
+            "    SET @sql = N'SELECT TOP 0 ' + @cols + N' INTO ' + @tmpl + N' FROM ext.[' + @t + N'];';" & vbCrLf &
             "    EXEC sp_executesql @sql;" & vbCrLf &
+            "END" & vbCrLf &
+            "ELSE" & vbCrLf &
+            "BEGIN" & vbCrLf &
+            "    -- Template existiert -> Struktur (Spaltenname/Typ/Laenge/Nullable) gegen Soll pruefen" & vbCrLf &
+            "    SET @sql =" & vbCrLf &
+            "        N'SELECT TOP 0 ' + @cols + N' INTO #soll FROM ext.[' + @t + N'];' +" & vbCrLf &
+            "        N';WITH soll AS (SELECT c.name COLLATE DATABASE_DEFAULT AS nm, ty.name COLLATE DATABASE_DEFAULT AS typ, c.max_length AS ml, c.is_nullable AS nu' +" & vbCrLf &
+            "          N' FROM tempdb.sys.columns c JOIN tempdb.sys.types ty ON ty.user_type_id=c.user_type_id WHERE c.object_id=OBJECT_ID(N''tempdb..#soll'')),' +" & vbCrLf &
+            "          N' ist AS (SELECT c.name COLLATE DATABASE_DEFAULT AS nm, ty.name COLLATE DATABASE_DEFAULT AS typ, c.max_length AS ml, c.is_nullable AS nu' +" & vbCrLf &
+            "          N' FROM ' + QUOTENAME(@db) + N'.sys.columns c JOIN ' + QUOTENAME(@db) + N'.sys.types ty ON ty.user_type_id=c.user_type_id WHERE c.object_id=@po)' +" & vbCrLf &
+            "          N' SELECT @cnt = COUNT(*) FROM ((SELECT * FROM soll EXCEPT SELECT * FROM ist) UNION ALL (SELECT * FROM ist EXCEPT SELECT * FROM soll)) x;';" & vbCrLf &
+            "    EXEC sp_executesql @sql, N'@po int, @cnt int OUTPUT', @po=@tmplObj, @cnt=@d OUTPUT;" & vbCrLf &
+            "    IF @d > 0" & vbCrLf &
+            "        THROW 50010, 'Template-Struktur weicht von columns_dbo (Soll) ab', 1;" & vbCrLf &
             "END"
 
         Log("  Template fuer: " & v.Faktentabelle.ToLower())
-        SqlAusfuehren(connStr, sql, "Template erstellen")
-        Log("  Template erstellt / bereits vorhanden OK")
+        SqlAusfuehren(connStr, sql, "Template erstellen/pruefen")
+        Log("  Template erstellt bzw. Struktur geprueft OK")
     End Sub
 
     ' -----------------------------------------------------------------------
