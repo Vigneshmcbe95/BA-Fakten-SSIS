@@ -5,6 +5,7 @@
       (Vorlage: tf_bst_aufenthalt), Partitionsspalte = mow_id, Datentyp = BIGINT.
    2) Korrigiert tf_bst_hr / tf_bst_hr_25: Faktenpartitionsspalte mon_id_v -> mow_id.
    3) Stellt sicher, dass jedes Verfahren Faktenpartitionsdatentyp = BIGINT hat.
+   Hinweis: Spalte Id ist KEINE Identity -> Id wird manuell vergeben (MAX+1...).
    Lauf: auf msi_dm_bst_v3 ausfuehren.
    ============================================================================= */
 
@@ -20,26 +21,28 @@ INSERT INTO @verf (v) VALUES
     ('vf_bst_geb_vm'),('vf_bst_bv_sonst'),('vf_bst_bv'),('vf_bst_bew_sv'),
     ('vf_bst_btg_v2_vm');
 
-/* Parametervorlage (Wert '' = wird je Verfahren auf den Verfahrensnamen gesetzt) */
-;WITH vorlage(Parameter, Wert, Beschreibung) AS (
-    SELECT * FROM (VALUES
-        ('FaktentabelleTemplate',    '',      'Spaltenschema für die Erstellung der Partitionstabelle'),
-        ('Faktentabelle',            '',      'Name der Partitionstabelle'),
-        ('Faktenpartitionsspalte',   'mow_id','mon_id oder mow_id'),
-        ('Faktenkomprimierung',      'NONE',  'PAGE oder NONE'),
-        ('FaktenClusteredIndex',     'CCI',   'Clustered Index auf Partitionsspalte erstellen TRUE oder FALSE'),
-        ('ZeilenTrennzeichen',       '2',     'Bulk Insert - Zeilentrenner 1=LF, 2=Spaltentrenner+LF, 3=CR+LF, 4=Spaltentrenner+CR+LF'),
-        ('SpaltenTrennzeichen',      '{|}',   'Bulk Insert - Spaltentrenner'),
-        ('DateFormat',               'dmy',   'Bulk Insert - DateFormat z.B.: dmy'),
-        ('Faktendatei',              '',      'Faktenquelldatei'),
-        ('EndungUnload',             '.unl',  'Endung der Unload-Dateien (z.B.: .unl) oder leer'),
-        ('Anzahl_ParallelTasks',     '0',     'Überschreibt Package.MaxConcurrentExecutables'),
-        ('FaktenNccIndex',           'FALSE', 'Nonclustered Columnstore Index TRUE oder FALSE'),
-        ('Faktenpartitionsdatentyp', 'BIGINT','INT oder BIGINT')
-    ) t(Parameter, Wert, Beschreibung)
-)
-INSERT INTO dbo.tm_msi_dm_bst_v3_param (Datamart, Verfahren, Parameter, Wert, Beschreibung)
-SELECT @Datamart, v.v, x.Parameter,
+/* Parametervorlage in eine Tabellenvariable */
+DECLARE @vorlage TABLE (Parameter sysname, Wert nvarchar(400), Beschreibung nvarchar(1000));
+INSERT INTO @vorlage (Parameter, Wert, Beschreibung) VALUES
+    ('FaktentabelleTemplate',    '',      'Spaltenschema für die Erstellung der Partitionstabelle'),
+    ('Faktentabelle',            '',      'Name der Partitionstabelle'),
+    ('Faktenpartitionsspalte',   'mow_id','mon_id oder mow_id'),
+    ('Faktenkomprimierung',      'NONE',  'PAGE oder NONE'),
+    ('FaktenClusteredIndex',     'CCI',   'Clustered Index auf Partitionsspalte erstellen TRUE oder FALSE'),
+    ('ZeilenTrennzeichen',       '2',     'Bulk Insert - Zeilentrenner 1=LF, 2=Spaltentrenner+LF, 3=CR+LF, 4=Spaltentrenner+CR+LF'),
+    ('SpaltenTrennzeichen',      '{|}',   'Bulk Insert - Spaltentrenner'),
+    ('DateFormat',               'dmy',   'Bulk Insert - DateFormat z.B.: dmy'),
+    ('Faktendatei',              '',      'Faktenquelldatei'),
+    ('EndungUnload',             '.unl',  'Endung der Unload-Dateien (z.B.: .unl) oder leer'),
+    ('Anzahl_ParallelTasks',     '0',     'Überschreibt Package.MaxConcurrentExecutables'),
+    ('FaktenNccIndex',           'FALSE', 'Nonclustered Columnstore Index TRUE oder FALSE'),
+    ('Faktenpartitionsdatentyp', 'BIGINT','INT oder BIGINT');
+
+DECLARE @maxId INT = (SELECT ISNULL(MAX(Id),0) FROM dbo.tm_msi_dm_bst_v3_param);
+
+INSERT INTO dbo.tm_msi_dm_bst_v3_param (Id, Datamart, Verfahren, Parameter, Wert, Beschreibung)
+SELECT @maxId + ROW_NUMBER() OVER (ORDER BY v.v, x.Parameter),
+       @Datamart, v.v, x.Parameter,
        CASE x.Parameter
            WHEN 'FaktentabelleTemplate' THEN v.v + '_template'
            WHEN 'Faktentabelle'         THEN v.v
@@ -48,7 +51,7 @@ SELECT @Datamart, v.v, x.Parameter,
        END,
        x.Beschreibung
 FROM   @verf v
-CROSS JOIN vorlage x
+CROSS JOIN @vorlage x
 WHERE  NOT EXISTS (SELECT 1 FROM dbo.tm_msi_dm_bst_v3_param p
                    WHERE p.Verfahren = v.v AND p.Parameter = x.Parameter);
 
@@ -71,11 +74,18 @@ WHERE  Parameter = 'Faktenpartitionsdatentyp'
   AND  UPPER(LTRIM(RTRIM(ISNULL(Wert,'')))) <> 'BIGINT';
 
 -- fehlende anlegen (fuer Verfahren, die den Parameter noch nicht haben)
-INSERT INTO dbo.tm_msi_dm_bst_v3_param (Datamart, Verfahren, Parameter, Wert, Beschreibung)
-SELECT DISTINCT @Datamart, p.Verfahren, 'Faktenpartitionsdatentyp', 'BIGINT', 'INT oder BIGINT'
-FROM   dbo.tm_msi_dm_bst_v3_param p
-WHERE  NOT EXISTS (SELECT 1 FROM dbo.tm_msi_dm_bst_v3_param q
-                   WHERE q.Verfahren = p.Verfahren AND q.Parameter = 'Faktenpartitionsdatentyp');
+DECLARE @maxId2 INT = (SELECT ISNULL(MAX(Id),0) FROM dbo.tm_msi_dm_bst_v3_param);
+
+;WITH fehlend AS (
+    SELECT DISTINCT p.Verfahren
+    FROM   dbo.tm_msi_dm_bst_v3_param p
+    WHERE  NOT EXISTS (SELECT 1 FROM dbo.tm_msi_dm_bst_v3_param q
+                       WHERE q.Verfahren = p.Verfahren AND q.Parameter = 'Faktenpartitionsdatentyp')
+)
+INSERT INTO dbo.tm_msi_dm_bst_v3_param (Id, Datamart, Verfahren, Parameter, Wert, Beschreibung)
+SELECT @maxId2 + ROW_NUMBER() OVER (ORDER BY Verfahren),
+       @Datamart, Verfahren, 'Faktenpartitionsdatentyp', 'BIGINT', 'INT oder BIGINT'
+FROM   fehlend;
 
 PRINT 'Faktenpartitionsdatentyp ueberall auf BIGINT gesetzt/ergaenzt.';
 
