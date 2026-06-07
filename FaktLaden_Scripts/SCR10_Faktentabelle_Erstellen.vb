@@ -159,7 +159,15 @@ Partial Public Class ScriptMain
             If Convert.ToInt32(SqlSkalar(connStr, "SELECT COUNT(*) FROM sys.partition_functions WHERE name='" & pf & "'", "PF pruefen")) > 0 Then
                 SqlAusfuehren(connStr, "DROP PARTITION FUNCTION [" & pf & "];", "PF loeschen")
             End If
-            SqlAusfuehren(connStr, "CREATE PARTITION FUNCTION [" & pf & "](INT) AS RANGE LEFT FOR VALUES(0);", "PF erstellen")
+            ' Partitionsdatentyp aus Parametertabelle lesen (Faktenpartitionsdatentyp: INT oder BIGINT)
+            Dim pfTypRaw As String = Convert.ToString(SqlSkalar(connStr,
+                "SELECT TOP 1 Wert FROM " & _parameterDB & ".dbo." & _parametertab &
+                " WHERE Verfahren='" & v.Verfahren & "' AND Parameter='Faktenpartitionsdatentyp'",
+                "Partitionsdatentyp"))
+            Dim pfTyp As String = "INT"
+            If pfTypRaw IsNot Nothing AndAlso pfTypRaw.Trim().ToUpper() = "BIGINT" Then pfTyp = "BIGINT"
+            Log("  Partitionsdatentyp: " & pfTyp)
+            SqlAusfuehren(connStr, "CREATE PARTITION FUNCTION [" & pf & "](" & pfTyp & ") AS RANGE LEFT FOR VALUES(0);", "PF erstellen")
             SqlAusfuehren(connStr, "CREATE PARTITION SCHEME [" & ps & "] AS PARTITION [" & pf & "] ALL TO ([" & filegroup & "]);", "PS erstellen")
             Log("  PF und PS erstellt: " & pf & " / " & ps)
         Else
