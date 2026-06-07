@@ -21,11 +21,12 @@ DECLARE @ExtSchema  sysname = N'ext';
 
 DECLARE @tab sysname, @thema sysname, @cols nvarchar(max), @loc nvarchar(400), @sql nvarchar(max);
 
+-- Nur Verfahren, die in der Arbeitsliste vorhanden sind
 DECLARE cur CURSOR LOCAL FAST_FORWARD FOR
     SELECT DISTINCT ps.tabname, ps.themengebiet
     FROM   dbo.tm_polybase_struktur ps
-    WHERE  EXISTS (SELECT 1 FROM dbo.tm_steuerlistenfile_Fakten s
-                   WHERE LOWER(LTRIM(RTRIM(s.tabelle))) = LOWER(ps.tabname));
+    WHERE  EXISTS (SELECT 1 FROM dbo.ETL_Fkt_Arbeitsliste a
+                   WHERE LOWER(LTRIM(RTRIM(a.Verfahren))) = LOWER(ps.tabname));
 
 OPEN cur;
 FETCH NEXT FROM cur INTO @tab, @thema;
