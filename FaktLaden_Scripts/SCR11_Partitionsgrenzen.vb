@@ -68,12 +68,12 @@ Partial Public Class ScriptMain
                     ' ═════════════════════════════════════════════════════════
                     ' SCHRITT 1: Versuche partition_wert aus CSV zu lesen
                     ' ═════════════════════════════════════════════════════════
-                    Dim benutzerWerte As List(Of Long) = PartitionWerteLaden(connStr, v.Verfahren)
+                    Dim benutzerWerte As List(Of Integer) = PartitionWerteLaden(connStr, v.Verfahren)
 
                     Dim zuVerarbeiten As New List(Of PartitionsEintrag)()
                     Dim modus As String = String.Empty
-                    Dim oracleAlleWerte As List(Of Long) = Nothing
-                    Dim mssqlWerte As List(Of Long) = Nothing
+                    Dim oracleAlleWerte As List(Of Integer) = Nothing
+                    Dim mssqlWerte As List(Of Integer) = Nothing
 
                     If benutzerWerte.Count > 0 Then
                         ' ═════════════════════════════════════════════════════
@@ -89,7 +89,7 @@ Partial Public Class ScriptMain
                         Log("  Oracle Werte gesamt: " & oracleAlleWerte.Count.ToString())
 
                         ' Validierung - Benutzer-Werte muessen in Oracle existieren
-                        Dim nichtInOracle As List(Of Long) = benutzerWerte.Where(Function(w) Not oracleAlleWerte.Contains(w)).ToList()
+                        Dim nichtInOracle As List(Of Integer) = benutzerWerte.Where(Function(w) Not oracleAlleWerte.Contains(w)).ToList()
                         If nichtInOracle.Count > 0 Then
                             Dim fehlermeldung As String =
                                 "FEHLER: " & nichtInOracle.Count.ToString() & " partition_wert nicht in Oracle: " &
@@ -112,7 +112,7 @@ Partial Public Class ScriptMain
                         Dim cntAktualisierung As Integer = 0
                         Dim cntNeu As Integer = 0
 
-                        For Each bw As Long In benutzerWerte
+                        For Each bw As Integer In benutzerWerte
                             If mssqlWerte.Contains(bw) Then
                                 zuVerarbeiten.Add(New PartitionsEintrag With {.Wert = bw, .Modus = "AKTUALISIERUNG"})
                                 cntAktualisierung += 1
@@ -154,7 +154,7 @@ Partial Public Class ScriptMain
                             Log("  Entscheidung: FULL LOAD (MSSQL leer)")
                             Log("  Lade alle " & oracleAlleWerte.Count.ToString() & " Oracle-Werte")
 
-                            For Each ow As Long In oracleAlleWerte
+                            For Each ow As Integer In oracleAlleWerte
                                 zuVerarbeiten.Add(New PartitionsEintrag With {.Wert = ow, .Modus = "NEU"})
                             Next
 
@@ -170,7 +170,7 @@ Partial Public Class ScriptMain
                             ' - Gap values between MSSQL MIN and MAX
                             ' - Future values after MSSQL MAX
                             ' ═════════════════════════════════════════════════════════
-                            Dim neueWerte As List(Of Long) = oracleAlleWerte.Where(Function(w) Not mssqlWerte.Contains(w)).ToList()
+                            Dim neueWerte As List(Of Integer) = oracleAlleWerte.Where(Function(w) Not mssqlWerte.Contains(w)).ToList()
 
                             Log("  Oracle gesamt: " & oracleAlleWerte.Count.ToString())
                             Log("  MSSQL vorhanden: " & mssqlWerte.Count.ToString())
@@ -195,7 +195,7 @@ Partial Public Class ScriptMain
                             Log("  Fehlend ZWISCHEN MIN-MAX: " & dazwischen.ToString())
                             Log("  Fehlend NACH MSSQL MAX: " & nachMax.ToString())
 
-                            For Each nw As Long In neueWerte
+                            For Each nw As Integer In neueWerte
                                 zuVerarbeiten.Add(New PartitionsEintrag With {.Wert = nw, .Modus = "NEU"})
                             Next
                         End If
@@ -217,8 +217,8 @@ Partial Public Class ScriptMain
 
                     ' Show value range in ONE line
                     If zuVerarbeiten.Count > 0 Then
-                        Dim minVal As Long = zuVerarbeiten.Min(Function(z) z.Wert)
-                        Dim maxVal As Long = zuVerarbeiten.Max(Function(z) z.Wert)
+                        Dim minVal As Integer = zuVerarbeiten.Min(Function(z) z.Wert)
+                        Dim maxVal As Integer = zuVerarbeiten.Max(Function(z) z.Wert)
                         Log("  Werte-Bereich: " & minVal.ToString() & " bis " & maxVal.ToString() &
                             " (" & zuVerarbeiten.Count.ToString() & " Partitionen)")
                     End If
@@ -303,8 +303,8 @@ Partial Public Class ScriptMain
 
                 ' Show summary by Verfahren (compact)
                 For Each kvp As KeyValuePair(Of String, List(Of PartitionsEintrag)) In gesamtErgebnis
-                    Dim minV As Long = kvp.Value.Min(Function(p) p.Wert)
-                    Dim maxV As Long = kvp.Value.Max(Function(p) p.Wert)
+                    Dim minV As Integer = kvp.Value.Min(Function(p) p.Wert)
+                    Dim maxV As Integer = kvp.Value.Max(Function(p) p.Wert)
                     Log("  " & kvp.Key & ": " & kvp.Value.Count.ToString() & " Partitionen (" & minV.ToString() & "-" & maxV.ToString() & ")")
                 Next
 
@@ -326,8 +326,8 @@ Partial Public Class ScriptMain
     ' -----------------------------------------------------------------------
     ' PartitionWerteLaden - Laedt die Partitionswerte eines Verfahrens.
     ' -----------------------------------------------------------------------
-    Private Function PartitionWerteLaden(connStr As String, verfahren As String) As List(Of Long)
-        Dim alleWerte As New HashSet(Of Long)()
+    Private Function PartitionWerteLaden(connStr As String, verfahren As String) As List(Of Integer)
+        Dim alleWerte As New HashSet(Of Integer)()
         Dim sql As String =
             "SELECT partition_wert FROM dbo." & _stlTabelle &
             " WHERE LOWER(LTRIM(RTRIM(tabelle))) = @verf" &
@@ -348,8 +348,8 @@ Partial Public Class ScriptMain
                                 Dim teile() As String = rohWert.Split(","c)
                                 For Each teil As String In teile
                                     Dim sauber As String = teil.Trim()
-                                    Dim intWert As Long
-                                    If Long.TryParse(sauber, intWert) Then
+                                    Dim intWert As Integer
+                                    If Integer.TryParse(sauber, intWert) Then
                                         alleWerte.Add(intWert)
                                     End If
                                 Next
@@ -369,8 +369,8 @@ Partial Public Class ScriptMain
     ' OracleAlleWerteLaden - Laedt alle eindeutigen Partitionswerte aus der
     ' Oracle-ext-Tabelle.
     ' -----------------------------------------------------------------------
-    Private Function OracleAlleWerteLaden(connStr As String, v As VerfahrenInfo) As List(Of Long)
-        Dim liste As New List(Of Long)()
+    Private Function OracleAlleWerteLaden(connStr As String, v As VerfahrenInfo) As List(Of Integer)
+        Dim liste As New List(Of Integer)()
         Dim sql As String = "SELECT DISTINCT [" & v.PartitionsSpalte & "] FROM ext.[" & v.Faktentabelle.ToLower() &
             "] WHERE [" & v.PartitionsSpalte & "] IS NOT NULL ORDER BY [" & v.PartitionsSpalte & "]"
 
@@ -384,7 +384,7 @@ Partial Public Class ScriptMain
                         cmd.CommandTimeout = 0
                         Using rdr As SqlDataReader = cmd.ExecuteReader()
                             While rdr.Read()
-                                If Not rdr.IsDBNull(0) Then liste.Add(Convert.ToInt64(rdr.GetValue(0)))
+                                If Not rdr.IsDBNull(0) Then liste.Add(rdr.GetInt32(0))
                             End While
                         End Using
                     End Using
@@ -401,8 +401,8 @@ Partial Public Class ScriptMain
     ' MssqlWerteLaden - Laedt die bereits vorhandenen Partitionswerte aus
     ' der MSSQL-Faktentabelle.
     ' -----------------------------------------------------------------------
-    Private Function MssqlWerteLaden(connStr As String, v As VerfahrenInfo) As List(Of Long)
-        Dim liste As New List(Of Long)()
+    Private Function MssqlWerteLaden(connStr As String, v As VerfahrenInfo) As List(Of Integer)
+        Dim liste As New List(Of Integer)()
         Dim sql As String = "SELECT DISTINCT [" & v.PartitionsSpalte & "] FROM dbo.[" & v.Faktentabelle &
             "] WHERE [" & v.PartitionsSpalte & "] IS NOT NULL ORDER BY [" & v.PartitionsSpalte & "]"
 
@@ -416,7 +416,7 @@ Partial Public Class ScriptMain
                         cmd.CommandTimeout = 0
                         Using rdr As SqlDataReader = cmd.ExecuteReader()
                             While rdr.Read()
-                                If Not rdr.IsDBNull(0) Then liste.Add(Convert.ToInt64(rdr.GetValue(0)))
+                                If Not rdr.IsDBNull(0) Then liste.Add(rdr.GetInt32(0))
                             End While
                         End Using
                     End Using
@@ -435,13 +435,13 @@ Partial Public Class ScriptMain
     ' -----------------------------------------------------------------------
     Private Sub PartitionSplitDurchfuehren(connStr As String, v As VerfahrenInfo,
                                             pf As String, ps As String,
-                                            dateigruppe As String, partWert As Long)
+                                            dateigruppe As String, partWert As Integer)
 
         ' Direct check: is this boundary already in the partition function?
         Dim sqlBoundExists As String =
             "SELECT COUNT(*) FROM sys.partition_range_values prv " &
             "JOIN sys.partition_functions pfn ON prv.function_id=pfn.function_id " &
-            "WHERE pfn.name='" & pf & "' AND CONVERT(bigint,prv.value)=" & partWert
+            "WHERE pfn.name='" & pf & "' AND CONVERT(int,prv.value)=" & partWert
         Dim boundCount As Object = SqlSkalar(connStr, sqlBoundExists, "Boundary prüfen")
         If Convert.ToInt32(If(boundCount, 0)) > 0 Then
             Log("    Boundary " & partWert & " bereits vorhanden uebersprungen")
@@ -449,9 +449,9 @@ Partial Public Class ScriptMain
         End If
 
         Dim sqlInfo As String =
-"SELECT MAX(CASE WHEN CONVERT(bigint,r.value)=@pv THEN 1 ELSE 0 END) AS treffer,
+"SELECT MAX(CASE WHEN CONVERT(int,r.value)=@pv THEN 1 ELSE 0 END) AS treffer,
         MAX(CASE WHEN p.rows=0 THEN 1 ELSE 0 END) AS leer,
-        MAX(ISNULL(CONVERT(bigint,r.value),9223372036854775807)) AS partname,
+        MAX(ISNULL(CONVERT(int,r.value),2147483647)) AS partname,
         MAX(p.partition_number) AS partid
  FROM sys.indexes i
  JOIN sys.tables t ON i.object_id=t.object_id
@@ -460,14 +460,14 @@ Partial Public Class ScriptMain
  LEFT JOIN sys.partition_schemes s ON d.name=s.name
  LEFT JOIN sys.partition_functions f ON s.function_id=f.function_id
  LEFT JOIN sys.partition_range_values r ON r.function_id=f.function_id AND r.boundary_id+f.boundary_value_on_right=p.partition_number
- LEFT JOIN sys.partition_range_values vv ON vv.function_id=f.function_id AND CONVERT(bigint,vv.value)<ISNULL(CONVERT(bigint,r.value),9223372036854775807)
+ LEFT JOIN sys.partition_range_values vv ON vv.function_id=f.function_id AND CONVERT(int,vv.value)<ISNULL(CONVERT(int,r.value),2147483647)
  WHERE t.schema_id=SCHEMA_ID('dbo') AND t.name=@ft AND t.type='U'
  GROUP BY r.value,p.partition_number,p.rows
- HAVING @pv>ISNULL(MAX(CONVERT(bigint,vv.value)),-9223372036854775808) AND @pv<=ISNULL(CONVERT(bigint,r.value),9223372036854775807)"
+ HAVING @pv>ISNULL(MAX(CONVERT(int,vv.value)),-2147483648) AND @pv<=ISNULL(CONVERT(int,r.value),2147483647)"
 
         Dim treffer As Integer = 0
         Dim leer As Integer = 0
-        Dim partName As Long = 0
+        Dim partName As Integer = 0
         Dim partId As Integer = 0
 
         Dim versuch As Integer = 0
@@ -484,7 +484,7 @@ Partial Public Class ScriptMain
                             If rdr.Read() Then
                                 treffer = If(rdr.IsDBNull(0), 0, rdr.GetInt32(0))
                                 leer = If(rdr.IsDBNull(1), 0, rdr.GetInt32(1))
-                                partName = If(rdr.IsDBNull(2), 0L, Convert.ToInt64(rdr.GetValue(2)))
+                                partName = If(rdr.IsDBNull(2), 0, rdr.GetInt32(2))
                                 partId = If(rdr.IsDBNull(3), 0, rdr.GetInt32(3))
                             End If
                         End Using
@@ -803,7 +803,7 @@ Partial Public Class ScriptMain
     ' PartitionsEintrag - Datencontainer fuer einen Partitionswert.
     ' -----------------------------------------------------------------------
     Private Class PartitionsEintrag
-        Public Property Wert As Long
+        Public Property Wert As Integer
         Public Property Modus As String
     End Class
 
