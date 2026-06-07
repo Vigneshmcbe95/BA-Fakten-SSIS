@@ -1,12 +1,1 @@
-Msg 515, Level 16, State 2, Line 24
-Cannot insert the value NULL into column 'Id', table 'msi_dm_bst_v3.dbo.tm_msi_dm_bst_v3_param'; column does not allow nulls. INSERT fails.
-The statement has been terminated.
-Parameter fuer leere vf_-Verfahren ergaenzt.
-Partitionsspalte fuer tf_bst_hr / tf_bst_hr_25 auf mow_id gesetzt.
-Msg 515, Level 16, State 2, Line 74
-Cannot insert the value NULL into column 'Id', table 'msi_dm_bst_v3.dbo.tm_msi_dm_bst_v3_param'; column does not allow nulls. INSERT fails.
-The statement has been terminated.
-Faktenpartitionsdatentyp ueberall auf BIGINT gesetzt/ergaenzt.
-Warning: Null value is eliminated by an aggregate or other SET operation.
-
-Completion time: 2026-06-07T23:09:50.3315364+02:00
+ARNUNG [Faktentabelle erstellen] Versuch 1/3: Partition column 'mow_id' has data type int which is different from the partition function 'PF_mow_id_vf_bst_bew_bm_denorm' parameter data type bigint.
