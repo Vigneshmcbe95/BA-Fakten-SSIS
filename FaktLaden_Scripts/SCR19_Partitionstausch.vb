@@ -107,7 +107,7 @@ Partial Public Class ScriptMain
                     ' Abschlussstatus MSSQL
                     Dim finalMin As Object = SqlSkalar(connStr, "SELECT MIN([" & v.PartitionColumn & "]) FROM dbo.[" & v.Faktentabelle & "]", "Final MIN")
                     Dim finalMax As Object = SqlSkalar(connStr, "SELECT MAX([" & v.PartitionColumn & "]) FROM dbo.[" & v.Faktentabelle & "]", "Final MAX")
-                    Dim finalCnt As Object = SqlSkalar(connStr, "SELECT COUNT(*) FROM dbo.[" & v.Faktentabelle & "]", "Final COUNT")
+                    Dim finalCnt As Object = SqlSkalar(connStr, "SELECT COUNT_BIG(*) FROM dbo.[" & v.Faktentabelle & "]", "Final COUNT")
                     Log("  ABSCHLUSSSTATUS: " & v.Faktentabelle)
                     Log("  Zeilen: " & Convert.ToString(finalCnt))
                     Log("  MIN:    " & If(finalMin Is Nothing OrElse finalMin Is DBNull.Value, "NULL", Convert.ToString(finalMin)))
