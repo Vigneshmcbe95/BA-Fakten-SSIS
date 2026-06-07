@@ -20,8 +20,10 @@ DECLARE @PflichtAnzahl INT = (SELECT COUNT(*) FROM @Pflicht);
 ;WITH prm AS (
     SELECT p.Verfahren,
            LTRIM(RTRIM(p.Parameter)) AS Parameter,
-           p.Wert
+           p.Wert,
+           CASE WHEN pf.Parameter IS NOT NULL THEN 1 ELSE 0 END AS istPflicht
     FROM   [msi_dm_bst_v3].[dbo].[tm_msi_dm_bst_v3_param] p
+    LEFT JOIN @Pflicht pf ON pf.Parameter = LTRIM(RTRIM(p.Parameter))
     WHERE  EXISTS (SELECT 1 FROM dbo.ETL_Fkt_Arbeitsliste a
                    WHERE LOWER(LTRIM(RTRIM(a.Verfahren))) = LOWER(LTRIM(RTRIM(p.Verfahren))))
 )
@@ -38,10 +40,10 @@ SELECT
     CASE WHEN SUM(CASE WHEN prm.Wert IS NULL OR LTRIM(RTRIM(prm.Wert)) = '' THEN 1 ELSE 0 END) = 0
          THEN 'JA' ELSE 'NEIN' END                                              AS alle_werte_befuellt,
     -- alle Pflichtparameter vorhanden UND befuellt?
-    COUNT(DISTINCT CASE WHEN prm.Parameter IN (SELECT Parameter FROM @Pflicht)
+    COUNT(DISTINCT CASE WHEN prm.istPflicht = 1
                          AND prm.Wert IS NOT NULL AND LTRIM(RTRIM(prm.Wert)) <> ''
                         THEN prm.Parameter END)                                 AS pflicht_ok,
-    CASE WHEN COUNT(DISTINCT CASE WHEN prm.Parameter IN (SELECT Parameter FROM @Pflicht)
+    CASE WHEN COUNT(DISTINCT CASE WHEN prm.istPflicht = 1
                          AND prm.Wert IS NOT NULL AND LTRIM(RTRIM(prm.Wert)) <> ''
                         THEN prm.Parameter END) = @PflichtAnzahl
          THEN 'JA' ELSE 'NEIN' END                                             AS pflicht_vollstaendig
