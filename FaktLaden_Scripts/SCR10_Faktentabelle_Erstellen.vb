@@ -159,14 +159,23 @@ Partial Public Class ScriptMain
             If Convert.ToInt32(SqlSkalar(connStr, "SELECT COUNT(*) FROM sys.partition_functions WHERE name='" & pf & "'", "PF pruefen")) > 0 Then
                 SqlAusfuehren(connStr, "DROP PARTITION FUNCTION [" & pf & "];", "PF loeschen")
             End If
-            ' Partitionsdatentyp aus Parametertabelle lesen (Faktenpartitionsdatentyp: INT oder BIGINT)
-            Dim pfTypRaw As String = Convert.ToString(SqlSkalar(connStr,
+            ' Partitionsdatentyp = TATSAECHLICHER Typ der Partitionsspalte im Template.
+            ' Die Partitionsfunktion muss exakt dem Spaltentyp entsprechen, sonst:
+            ' "Partition column has data type X which is different from the partition function parameter data type Y".
+            Dim colTyp As String = Convert.ToString(SqlSkalar(connStr,
+                "SELECT TOP 1 DATA_TYPE FROM [" & _datenbank & "].INFORMATION_SCHEMA.COLUMNS " &
+                "WHERE TABLE_SCHEMA='dbo' AND TABLE_NAME='" & v.Faktentabelle.ToLower() & "_template' " &
+                "AND COLUMN_NAME='" & v.PartitionColumn & "'", "Partitionsspalte-Typ"))
+            Dim pfTyp As String = If(colTyp IsNot Nothing AndAlso colTyp.Trim().ToLower() = "bigint", "BIGINT", "INT")
+            ' Parameter nur zum Abgleich / Warnung (Spaltentyp ist massgeblich)
+            Dim paramTyp As String = Convert.ToString(SqlSkalar(connStr,
                 "SELECT TOP 1 Wert FROM " & _parameterDB & ".dbo." & _parametertab &
-                " WHERE Verfahren='" & v.Verfahren & "' AND Parameter='Faktenpartitionsdatentyp'",
-                "Partitionsdatentyp"))
-            Dim pfTyp As String = "INT"
-            If pfTypRaw IsNot Nothing AndAlso pfTypRaw.Trim().ToUpper() = "BIGINT" Then pfTyp = "BIGINT"
-            Log("  Partitionsdatentyp: " & pfTyp)
+                " WHERE Verfahren='" & v.Verfahren & "' AND Parameter='Faktenpartitionsdatentyp'", "Parameter-Datentyp"))
+            If paramTyp IsNot Nothing AndAlso paramTyp.Trim() <> "" AndAlso paramTyp.Trim().ToUpper() <> pfTyp Then
+                Log("  WARNUNG: Faktenpartitionsdatentyp=" & paramTyp.Trim() &
+                    " weicht vom tatsaechlichen Spaltentyp '" & pfTyp & "' ab -> verwende Spaltentyp")
+            End If
+            Log("  Partitionsdatentyp (aus Spalte): " & pfTyp)
             SqlAusfuehren(connStr, "CREATE PARTITION FUNCTION [" & pf & "](" & pfTyp & ") AS RANGE LEFT FOR VALUES(0);", "PF erstellen")
             SqlAusfuehren(connStr, "CREATE PARTITION SCHEME [" & ps & "] AS PARTITION [" & pf & "] ALL TO ([" & filegroup & "]);", "PS erstellen")
             Log("  PF und PS erstellt: " & pf & " / " & ps)
