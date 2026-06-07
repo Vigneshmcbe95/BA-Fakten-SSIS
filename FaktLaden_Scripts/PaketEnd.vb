@@ -45,6 +45,13 @@ DECLARE @ID INT = @RunID, @Start DATETIME, @End DATETIME = GETDATE();
 
 SELECT @Start = PaketStartzeit FROM dbo.ETL_Fakt_LaufHistorie WHERE ID = @ID;
 
+-- Abschluss: Alle Verfahren dieses Laufs, die NICHT auf FEHLER stehen, auf ERFOLG setzen.
+-- Ein Verfahren durchlaeuft alle Skripte (verarbeitet oder uebersprungen); am Paketende
+-- gilt es als erfolgreich, sofern es nirgends einen Fehler gab.
+UPDATE dbo.ETL_Fkt_Arbeitsliste
+SET    Status = 'ERFOLG', LetzterSchritt = 'ERFOLG', AktualisiertAm = GETDATE()
+WHERE  RunID = @ID AND Status <> 'FEHLER' AND Status <> 'ERFOLG';
+
 DECLARE
     @GesamtAnzahl              INT,
     @ErfolgreichAnzahl         INT,
