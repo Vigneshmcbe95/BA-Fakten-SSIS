@@ -1,37 +1,12 @@
-now i chaekd this all doesnot have any value so auto fill with al filled and partion cols as mow_id
+Msg 515, Level 16, State 2, Line 24
+Cannot insert the value NULL into column 'Id', table 'msi_dm_bst_v3.dbo.tm_msi_dm_bst_v3_param'; column does not allow nulls. INSERT fails.
+The statement has been terminated.
+Parameter fuer leere vf_-Verfahren ergaenzt.
+Partitionsspalte fuer tf_bst_hr / tf_bst_hr_25 auf mow_id gesetzt.
+Msg 515, Level 16, State 2, Line 74
+Cannot insert the value NULL into column 'Id', table 'msi_dm_bst_v3.dbo.tm_msi_dm_bst_v3_param'; column does not allow nulls. INSERT fails.
+The statement has been terminated.
+Faktenpartitionsdatentyp ueberall auf BIGINT gesetzt/ergaenzt.
+Warning: Null value is eliminated by an aggregate or other SET operation.
 
-
-  --not filled
-  --vf_bst_bew_bm_denorm
-  --vf_bst_gb
-  --vf_bst_sv_vm
-  --vf_bst_sv
-  --vf_bst_sonst
-  --vf_bst_kfb_vm
-  --vf_bst_bew_bv
-  --vf_bst_bew_gb
-  --vf_bst_geb_vm
-  --vf_bst_bv_sonst
-  --vf_bst_bv
-  --vf_bst_bew_sv
-  --vf_bst_btg_v2_vm
-these two are filled with mon_id_v replace with mow_id 
-  --'tf_bst_hr
-  --tf_bst_hr_25
-3rd and fill faktpartdatape -BEGINT and use it the code preoviswe dsuues to add begint instad of int so ger it from thisparametr tbale ans use it am i right?
-use this all tof ill
-Datamart	Verfahren	Parameter	Wert	Beschreibung
-msi_dm_bst_v3_fakten	tf_bst_aufenthalt	FaktentabelleTemplate	tf_bst_aufenthalt_template	Spaltenschema für die Erstellung der Partitionstabelle
-msi_dm_bst_v3_fakten	tf_bst_aufenthalt	Faktentabelle	tf_bst_aufenthalt	Name der Partitionstabelle
-msi_dm_bst_v3_fakten	tf_bst_aufenthalt	Faktenpartitionsspalte	mow_id	mon_id oder mow_id
-msi_dm_bst_v3_fakten	tf_bst_aufenthalt	Faktenkomprimierung	NONE	PAGE oder NONE
-msi_dm_bst_v3_fakten	tf_bst_aufenthalt	FaktenClusteredIndex	CCI	Clustered Index auf Partitionsspalte erstellen TRUE oder FALSE
-msi_dm_bst_v3_fakten	tf_bst_aufenthalt	ZeilenTrennzeichen	2	Bulk Insert - Zeilentrenner 1=LF,  2=Spaltentrenner+LF, 3=CR+LF,  4=Spaltentrenner+CR+LF oder z.B.: '|' + CHAR(10)
-msi_dm_bst_v3_fakten	tf_bst_aufenthalt	SpaltenTrennzeichen	{|}	Bulk Insert - Spaltentrenner
-msi_dm_bst_v3_fakten	tf_bst_aufenthalt	DateFormat	dmy	Bulk Insert - DateFormat z.B.: dmy - siehe Online-Hilfe
-msi_dm_bst_v3_fakten	tf_bst_aufenthalt	Faktendatei	tf_bst_aufenthalt	Faktenquelldatei
-msi_dm_bst_v3_fakten	tf_bst_aufenthalt	EndungUnload	.unl	.Endung der Unload-Dateien (z.B.: .unl) oder leer
-msi_dm_bst_v3_fakten	tf_bst_aufenthalt	Anzahl_ParallelTasks	0	Überschreibt Package.MaxConcurrentExecutables: Anzahl von Threads per Paket
-msi_dm_bst_v3_fakten	tf_bst_aufenthalt	FaktenNccIndex	FALSE	Nonclustered Columnstore Index auf Partitionsspalte erstellen TRUE oder FALSE
-msi_dm_bst_v3_fakten	tf_bst_aufenthalt	Faktenpartitionsdatentyp	BIGINT	INT oder BIGINT
-
+Completion time: 2026-06-07T23:09:50.3315364+02:00
