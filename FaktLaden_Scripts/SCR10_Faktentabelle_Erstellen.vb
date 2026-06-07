@@ -159,7 +159,15 @@ Partial Public Class ScriptMain
             If Convert.ToInt32(SqlSkalar(connStr, "SELECT COUNT(*) FROM sys.partition_functions WHERE name='" & pf & "'", "PF pruefen")) > 0 Then
                 SqlAusfuehren(connStr, "DROP PARTITION FUNCTION [" & pf & "];", "PF loeschen")
             End If
-            SqlAusfuehren(connStr, "CREATE PARTITION FUNCTION [" & pf & "](INT) AS RANGE LEFT FOR VALUES(0);", "PF erstellen")
+            ' Datentyp der Partitionsspalte aus dem Template ermitteln (INT vs. BIGINT)
+            ' Verhindert "Arithmetic overflow ... int" bei Partitionswerten > 2.147.483.647
+            Dim pfType As String = Convert.ToString(SqlSkalar(connStr,
+                "SELECT TOP 1 DATA_TYPE FROM [" & _datenbank & "].INFORMATION_SCHEMA.COLUMNS " &
+                "WHERE TABLE_SCHEMA='dbo' AND TABLE_NAME='" & v.Faktentabelle.ToLower() & "_template' " &
+                "AND COLUMN_NAME='" & v.PartitionColumn & "'", "Partitionsspalte-Typ"))
+            If String.IsNullOrEmpty(pfType) Then pfType = "bigint"
+            Log("  Partitionsspalte " & v.PartitionColumn & " -> Typ " & pfType)
+            SqlAusfuehren(connStr, "CREATE PARTITION FUNCTION [" & pf & "](" & pfType & ") AS RANGE LEFT FOR VALUES(0);", "PF erstellen")
             SqlAusfuehren(connStr, "CREATE PARTITION SCHEME [" & ps & "] AS PARTITION [" & pf & "] ALL TO ([" & filegroup & "]);", "PS erstellen")
             Log("  PF und PS erstellt: " & pf & " / " & ps)
         Else
