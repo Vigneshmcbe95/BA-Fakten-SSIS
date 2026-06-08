@@ -2,42 +2,32 @@
    Tool: Oracle-Partitionswerte schnell ueber PolyBase lesen
    -----------------------------------------------------------------------------
    Ziel : Statt "SELECT DISTINCT mow_id FROM ext.<fakt>" (scannt Milliarden Zeilen)
-          die Partitions-Grenzwerte aus dem Oracle Data Dictionary lesen
-          (ALL_TAB_PARTITIONS) -> sofort verfuegbar.
+          die Partitionswerte aus dem Oracle Data Dictionary lesen.
 
-   WICHTIG: ALL_TAB_PARTITIONS.HIGH_VALUE ist in Oracle vom Typ LONG.
-            PolyBase kann LONG NICHT lesen. Deshalb:
-            (1) Oracle-View anlegen, die HIGH_VALUE als ZAHL liefert
-            (2) PolyBase External Table auf DIESE View
-            (3) Werte je Tabelle abfragen
+   ERKENNTNIS (aus Diskussion):
+     - Der PARTITIONSNAME enthaelt den Wert, z.B.  PARTITION_19990101
+       -> mow_id = numerischer Teil des Partitionsnamens (hier 19990101).
+     - PARTITION_NAME ist ein lesbarer VARCHAR2 -> KEIN LONG-Problem.
+     - HIGH_VALUE (z.B. TO_DATE('1999-01-02'...)) ist die EXKLUSIVE Obergrenze
+       (alles "less than" landet in der Partition) und ist Typ LONG.
+       => HIGH_VALUE wird NICHT gelesen, wir nehmen nur den Partitionsnamen.
    ============================================================================= */
 
 
 /* =============================================================================
-   TEIL 1  -  AUF ORACLE ausfuehren (vom DBA / mit passenden Rechten)
+   TEIL 1  -  AUF ORACLE ausfuehren
    -----------------------------------------------------------------------------
-   Legt eine View an, die je Tabelle/Partition den Grenzwert (HIGH_VALUE)
-   als NUMBER bereitstellt. Der DBMS_XMLGEN-Trick liest den LONG als Text.
-   Owner/Schema (XRO_DM_STAT_BST) ggf. anpassen.
+   View OHNE HIGH_VALUE (nur lesbare Spalten). Owner ggf. anpassen.
    =============================================================================
 
 CREATE OR REPLACE VIEW STATRT.VM_TAB_PARTITIONS AS
-SELECT tp.table_owner,
-       tp.table_name,
-       tp.partition_name,
-       tp.partition_position,
-       TO_NUMBER(
-         EXTRACTVALUE(
-           DBMS_XMLGEN.GETXMLTYPE(
-                'SELECT high_value FROM all_tab_partitions'
-             || ' WHERE table_owner='''||tp.table_owner||''''
-             || ' AND table_name='''  ||tp.table_name ||''''
-             || ' AND partition_name='''||tp.partition_name||''''
-           ), '//text()'
-         )
-       ) AS high_value_num
-FROM   all_tab_partitions tp
-WHERE  tp.table_owner = 'XRO_DM_STAT_BST';     -- <-- Oracle-Owner der Faktentabellen
+SELECT table_owner,
+       table_name,
+       partition_name,
+       partition_position
+FROM   dba_tab_partitions
+WHERE  table_owner = 'XRO_DM_STAT_BST';     -- <-- Oracle-Owner der Faktentabellen
+-- (falls keine DBA-Rechte: all_tab_partitions statt dba_tab_partitions)
 
 -- Test in Oracle:
 -- SELECT * FROM STATRT.VM_TAB_PARTITIONS WHERE table_name='TF_BST_AUFENTHALT';
@@ -48,8 +38,8 @@ WHERE  tp.table_owner = 'XRO_DM_STAT_BST';     -- <-- Oracle-Owner der Faktentab
 /* =============================================================================
    TEIL 2  -  AUF SQL SERVER (msi_dm_bst_v3) ausfuehren
    -----------------------------------------------------------------------------
-   External Table auf die Oracle-View. DATA_SOURCE = vorhandene Quelle eurer
-   Fakt-ext-Tabellen (Oracle-istat). LOCATION = Owner.Schema.View (UPPER).
+   External Table auf die Oracle-View. KEINE HIGH_VALUE-Spalte (kein LONG).
+   DATA_SOURCE = vorhandene Quelle eurer Fakt-ext-Tabellen.
    ============================================================================= */
 
 IF EXISTS (SELECT 1 FROM sys.external_tables
@@ -61,8 +51,7 @@ CREATE EXTERNAL TABLE ext.[vm_tab_partitions]
     TABLE_OWNER         NVARCHAR(128) NULL,
     TABLE_NAME          NVARCHAR(128) NULL,
     PARTITION_NAME      NVARCHAR(128) NULL,
-    PARTITION_POSITION  INT           NULL,
-    HIGH_VALUE_NUM      BIGINT        NULL
+    PARTITION_POSITION  INT           NULL
 )
 WITH (
     DATA_SOURCE = [Oracle-istat],
@@ -71,25 +60,27 @@ WITH (
 
 
 /* =============================================================================
-   TEIL 3  -  Partitionswerte je Faktentabelle abfragen (schnell)
+   TEIL 3  -  Partitionswerte (mow_id) je Faktentabelle - schnell
    -----------------------------------------------------------------------------
-   HINWEIS zur Bedeutung von HIGH_VALUE_NUM:
-     - RANGE-Partition ("VALUES LESS THAN (X)"): Grenze ist X (exklusiv).
-       Der enthaltene mow_id-Wert ist dann i.d.R. X-1  -> ggf. -1 rechnen.
-     - LIST-Partition  ("VALUES (X)"): Grenze IST der Wert X.
-   Prueft an einer bekannten Tabelle, welcher Fall vorliegt, und passt
-   die Spalte (HIGH_VALUE_NUM bzw. HIGH_VALUE_NUM-1) entsprechend an.
+   mow_id = Ziffern aus dem Partitionsnamen (z.B. PARTITION_19990101 -> 19990101).
+   TRY_CONVERT liefert NULL fuer nicht-numerische Namen (z.B. SYS_P123) -> gefiltert.
    ============================================================================= */
 
--- Alle Partitionswerte einer Faktentabelle:
-SELECT PARTITION_POSITION, HIGH_VALUE_NUM
+SELECT DISTINCT
+       TRY_CONVERT(BIGINT,
+            -- nur die Ziffern aus dem Partitionsnamen ziehen:
+            STUFF(PARTITION_NAME, 1, PATINDEX('%[0-9]%', PARTITION_NAME + '0') - 1, '')
+       ) AS mow_id
 FROM   ext.[vm_tab_partitions]
-WHERE  TABLE_NAME = 'TF_BST_AUFENTHALT'      -- Oracle-Name (UPPER)
-ORDER  BY PARTITION_POSITION;
+WHERE  TABLE_NAME = 'TF_BST_AUFENTHALT'        -- Oracle-Name (UPPER)
+  AND  TRY_CONVERT(BIGINT,
+            STUFF(PARTITION_NAME, 1, PATINDEX('%[0-9]%', PARTITION_NAME + '0') - 1, '')
+       ) IS NOT NULL
+ORDER  BY mow_id;
 
--- Distinct-Liste der mow_id-Werte (Beispiel LIST-Partition: Wert = HIGH_VALUE_NUM):
--- SELECT DISTINCT HIGH_VALUE_NUM AS mow_id
+/* Einfachere Variante, falls der Praefix immer 'PARTITION_' ist: */
+-- SELECT DISTINCT TRY_CONVERT(BIGINT, REPLACE(PARTITION_NAME,'PARTITION_','')) AS mow_id
 -- FROM   ext.[vm_tab_partitions]
 -- WHERE  TABLE_NAME = 'TF_BST_AUFENTHALT'
---   AND  HIGH_VALUE_NUM IS NOT NULL
+--   AND  TRY_CONVERT(BIGINT, REPLACE(PARTITION_NAME,'PARTITION_','')) IS NOT NULL
 -- ORDER  BY mow_id;
