@@ -160,6 +160,9 @@ set PARAM_EXT_TABLE_LOCATION=!ATOMIC_ENVIRONMENT!.STATRT.VM_DDL_SQL_SERVER
 set PARAM_EXT_TABLE_SCHEMA=ext
 set PARAM_EXT_TABLE_NAME=vm_ddl_sql_server
 
+:: --- Oracle-Schema der Partitionssicht V_PARTITION_INFO (Owner-Filter in SCR11) ---
+set PARAM_PARTITION_SCHEMA=BI_DM_EXPORT
+
 :: --- CONNECTION_OPTIONS fuer Failover (nur Logging - nicht ans SSIS-Paket uebergeben) ---
 set PARAM_EXT_CONNECTION_OPTIONS=
 set FAILOVER_CONFIGURED=0
@@ -451,6 +454,13 @@ if "!PARAM_EXT_TABLE_NAME!"=="" (
     echo [%DATE% %TIME%] [OK]       PARAM_EXT_TABLE_NAME     = !PARAM_EXT_TABLE_NAME! >> "!LOGFILE!"
 )
 
+if "!PARAM_PARTITION_SCHEMA!"=="" (
+    echo [%DATE% %TIME%] [FEHLEND]  PARAM_PARTITION_SCHEMA >> "!LOGFILE!"
+    set VALIDATION_FAILED=1
+) else (
+    echo [%DATE% %TIME%] [OK]       PARAM_PARTITION_SCHEMA   = !PARAM_PARTITION_SCHEMA! >> "!LOGFILE!"
+)
+
 if "!PARAM_STEUERLISTEN_TABELLE!"=="" (
     echo [%DATE% %TIME%] [FEHLEND]  PARAM_STEUERLISTEN_TABELLE >> "!LOGFILE!"
     set VALIDATION_FAILED=1
@@ -516,6 +526,7 @@ echo ----------------------------------------------- >> "!LOGFILE!"
   /SET \Package.Variables[BA::ExtTableLocation].Value;"!PARAM_EXT_TABLE_LOCATION!" ^
   /SET \Package.Variables[BA::ExtTableSchema].Value;"!PARAM_EXT_TABLE_SCHEMA!" ^
   /SET \Package.Variables[BA::ExtTableName].Value;"!PARAM_EXT_TABLE_NAME!" ^
+  /SET \Package.Variables[BA::partition_schema].Value;"!PARAM_PARTITION_SCHEMA!" ^
   /SET \Package.Variables[BA::SteuerlistenTabelle].Value;"!PARAM_STEUERLISTEN_TABELLE!" ^
   /SET \Package.Variables[BA::ParameterDB].Value;"!PARAM_PARAMETER_DB!" ^
   /SET \Package.Variables[BA::Parametertabelle].Value;"!PARAM_PARAMETERTABELLE!" ^
