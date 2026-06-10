@@ -31,6 +31,7 @@ Partial Public Class ScriptMain
     Private _parameterDB As String = String.Empty
     Private _parametertab As String = String.Empty
     Private _stlTabelle As String = String.Empty
+    Private _partitionSchema As String = String.Empty
 
     ' -----------------------------------------------------------------------
     ' Main - Einstiegspunkt - steuert den Ablauf des Skripts.
@@ -44,6 +45,7 @@ Partial Public Class ScriptMain
             _parameterDB = Dts.Variables("BA::ParameterDB").Value.ToString().Trim()
             _parametertab = Dts.Variables("BA::Parametertabelle").Value.ToString().Trim()
             _stlTabelle = Dts.Variables("BA::SteuerlistenTabelle").Value.ToString().Trim()
+            _partitionSchema = Dts.Variables("BA::partition_schema").Value.ToString().Trim()
 
             Dim connStr As String = HoleVerbindungszeichenfolge()
             Dim verfahren As List(Of VerfahrenInfo) = VerfahrenLaden(connStr)
@@ -367,12 +369,18 @@ Partial Public Class ScriptMain
 
     ' -----------------------------------------------------------------------
     ' OracleAlleWerteLaden - Laedt alle eindeutigen Partitionswerte aus der
-    ' Oracle-ext-Tabelle.
+    ' Oracle-Partitionssicht ext.v_partition_info (DISTINCT HIGH_VALUE je
+    ' Faktentabelle, Owner = BA::partition_schema). HIGH_VALUE enthaelt den
+    ' bereits bereinigten ganzzahligen Partitionswert; nicht-numerische Werte
+    ' werden uebersprungen.
     ' -----------------------------------------------------------------------
     Private Function OracleAlleWerteLaden(connStr As String, v As VerfahrenInfo) As List(Of Integer)
         Dim liste As New List(Of Integer)()
-        Dim sql As String = "SELECT DISTINCT [" & v.PartitionsSpalte & "] FROM ext.[" & v.Faktentabelle.ToLower() &
-            "] WHERE [" & v.PartitionsSpalte & "] IS NOT NULL ORDER BY [" & v.PartitionsSpalte & "]"
+        Dim sql As String =
+            "SELECT DISTINCT HIGH_VALUE FROM ext.[v_partition_info] " &
+            "WHERE TABLE_NAME = UPPER('" & v.Faktentabelle & "') " &
+            "  AND OWNER      = UPPER('" & _partitionSchema & "') " &
+            "  AND HIGH_VALUE IS NOT NULL"
 
         Dim versuch As Integer = 0
         While versuch < MAX_VERSUCHE
@@ -384,7 +392,12 @@ Partial Public Class ScriptMain
                         cmd.CommandTimeout = 0
                         Using rdr As SqlDataReader = cmd.ExecuteReader()
                             While rdr.Read()
-                                If Not rdr.IsDBNull(0) Then liste.Add(rdr.GetInt32(0))
+                                If Not rdr.IsDBNull(0) Then
+                                    Dim intWert As Integer
+                                    If Integer.TryParse(rdr(0).ToString().Trim(), intWert) Then
+                                        liste.Add(intWert)
+                                    End If
+                                End If
                             End While
                         End Using
                     End Using

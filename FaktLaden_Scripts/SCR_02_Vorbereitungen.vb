@@ -41,6 +41,7 @@ Partial Public Class ScriptMain
     Private _extTabDDLName As String = String.Empty
     Private _extTabDDLLocation As String = String.Empty
     Private _steuerlistenTabelle As String = String.Empty
+    Private _partitionSchema As String = String.Empty
     Private _credName As String = String.Empty
 
     ' -----------------------------------------------------------------------
@@ -89,6 +90,10 @@ Partial Public Class ScriptMain
             ' -- Schritt 7: Externe DDL-Tabelle ------------------------------
             Log("Schritt 7: Externe DDL-Tabelle [" & _extTabSchema & "." & _extTabDDLName & "] pruefen")
             ExtDDLTabellePruefen(connStr)
+
+            ' -- Schritt 7a: Externe Partitionssicht-Tabelle -----------------
+            Log("Schritt 7a: Externe Partitionssicht [" & _extTabSchema & ".v_partition_info] pruefen")
+            ExtPartitionInfoTabellePruefen(connStr)
 
             ' -- Schritt 8: Lokale DBO-Kopie der DDL-Tabelle erstellen -------
             Log("Schritt 8: Lokale dbo-Kopie [dbo." & _extTabDDLName & "] erstellen")
@@ -163,6 +168,7 @@ Partial Public Class ScriptMain
         _extTabDDLName = Dts.Variables("BA::ExtTableName").Value.ToString().Trim()
         _extTabDDLLocation = Dts.Variables("BA::ExtTableLocation").Value.ToString().Trim()
         _steuerlistenTabelle = Dts.Variables("BA::SteuerlistenTabelle").Value.ToString().Trim()
+        _partitionSchema = Dts.Variables("BA::partition_schema").Value.ToString().Trim()
         _credName = _server & "_" & _credBenutzer
 
         Log("Steuerlisten-Tabelle: dbo." & _steuerlistenTabelle)
@@ -186,6 +192,7 @@ Partial Public Class ScriptMain
         If String.IsNullOrEmpty(_extTabSchema) Then fehlend.AppendLine("  → BA::ExtTableSchema")
         If String.IsNullOrEmpty(_extTabDDLName) Then fehlend.AppendLine("  → BA::ExtTableName")
         If String.IsNullOrEmpty(_extTabDDLLocation) Then fehlend.AppendLine("  → BA::ExtTableLocation")
+        If String.IsNullOrEmpty(_partitionSchema) Then fehlend.AppendLine("  → BA::partition_schema")
 
         If fehlend.Length > 0 Then
             LogFehler("Pflichtfelder fehlen:" & Environment.NewLine & fehlend.ToString())
@@ -415,6 +422,62 @@ WITH (
 
         SqlAusfuehren(connStr, sqlErstellen, "DDL-Tabelle anlegen")
         Log("Externe DDL-Tabelle [" & vollName & "]: erfolgreich angelegt ")
+
+    End Sub
+
+    ' -----------------------------------------------------------------------
+    ' ExtPartitionInfoTabellePruefen - Stellt sicher, dass die externe
+    ' Partitionssicht-Tabelle <ext>.v_partition_info existiert. Diese Sicht
+    ' liefert die Oracle-Partitionsmetadaten (HIGH_VALUE etc.), aus denen
+    ' SCR11 die zu ladenden Partitionswerte ermittelt.
+    '   DATA_SOURCE : BA::ExtSourceName        (z. B. Oracle-istat)
+    '   LOCATION    : <ENV>.<BA::partition_schema>.V_PARTITION_INFO
+    '                 ENV = erstes Segment aus BA::ExtTableLocation (z. B. ISTAT)
+    ' -----------------------------------------------------------------------
+    Private Sub ExtPartitionInfoTabellePruefen(connStr As String)
+
+        Dim partInfoName As String = "v_partition_info"
+        Dim vollName As String = _extTabSchema & ".[" & partInfoName & "]"
+
+        Dim sqlPruefen As String =
+"SELECT COUNT(*) FROM sys.external_tables
+ WHERE  schema_id = SCHEMA_ID('" & _extTabSchema & "')
+ AND    name      = '" & partInfoName & "'"
+
+        Dim vorhanden As Boolean =
+            Convert.ToInt32(SqlSkalarAusfuehren(connStr, sqlPruefen, "Partitionssicht prüfen")) > 0
+
+        If vorhanden Then
+            Log("Externe Partitionssicht [" & vollName & "]: bereits vorhanden uebersprungen ")
+            Return
+        End If
+
+        ' Oracle-Umgebung (z. B. ISTAT) aus BA::ExtTableLocation ableiten
+        Dim oracleEnvironment As String = _extTabDDLLocation.Split("."c)(0).ToUpper()
+        Dim location As String = oracleEnvironment & "." & _partitionSchema.ToUpper() & ".V_PARTITION_INFO"
+
+        Log("Externe Partitionssicht [" & vollName & "]: nicht vorhanden wird angelegt")
+        Log("  Oracle Location: " & location)
+
+        Dim sqlErstellen As String =
+"CREATE EXTERNAL TABLE " & vollName & "
+(
+    OWNER                 VARCHAR(512)  NULL,
+    TABLE_NAME            VARCHAR(512)  NULL,
+    PARTITIONING_TYPE     VARCHAR(120)  NULL,
+    SUBPARTITIONING_TYPE  VARCHAR(120)  NULL,
+    PARTITION_KEY         VARCHAR(4000) NULL,
+    PARTITION_POSITION    FLOAT         NULL,
+    PARTITION_NAME        VARCHAR(512)  NULL,
+    HIGH_VALUE            VARCHAR(4000) NULL
+)
+WITH (
+    DATA_SOURCE = [" & _extSourceName & "],
+    LOCATION    = N'" & location & "'
+);"
+
+        SqlAusfuehren(connStr, sqlErstellen, "Partitionssicht anlegen")
+        Log("Externe Partitionssicht [" & vollName & "]: erfolgreich angelegt ")
 
     End Sub
 
