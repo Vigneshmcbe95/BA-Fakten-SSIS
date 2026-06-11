@@ -319,16 +319,28 @@ END;"
     ' -----------------------------------------------------------------------
     Private Function TabellennameBestimmen(zeile As String) As String
 
+        ' :YYYYMM( / :YYYY( / :YY( / :MM( etc.
         Dim t As Match = Regex.Match(zeile, ":[YM]{2,6}\(", RegexOptions.IgnoreCase)
         If Not t.Success Then
+            ' :LAST_YYYYMM( / :LAST_YYYY( / :LAST_MM( etc.
             t = Regex.Match(zeile, ":LAST_[YM]{2,6}\(", RegexOptions.IgnoreCase)
         End If
         If t.Success Then Return zeile.Substring(0, t.Index).ToLower().Trim()
 
-        t = Regex.Match(zeile, "_:MONID", RegexOptions.IgnoreCase)
+        ' bare date digits after colon: tf_table:20260400 or tf_table:202604
+        t = Regex.Match(zeile, ":((?:19|20)\d{4,})", RegexOptions.IgnoreCase)
         If t.Success Then Return zeile.Substring(0, t.Index).ToLower().Trim()
 
-        t = Regex.Match(zeile, "_:YEAR", RegexOptions.IgnoreCase)
+        ' date suffix embedded in table name: tf_table_20240606
+        t = Regex.Match(zeile, "_((?:19|20)\d{4,})$", RegexOptions.IgnoreCase)
+        If t.Success Then Return zeile.Substring(0, t.Index).ToLower().Trim()
+
+        ' :MONID token (with or without leading underscore)
+        t = Regex.Match(zeile, "_?:MONID", RegexOptions.IgnoreCase)
+        If t.Success Then Return zeile.Substring(0, t.Index).ToLower().Trim()
+
+        ' :YEAR token (with or without leading underscore)
+        t = Regex.Match(zeile, "_?:YEAR", RegexOptions.IgnoreCase)
         If t.Success Then Return zeile.Substring(0, t.Index).ToLower().Trim()
 
         Return zeile.ToLower().Trim()
