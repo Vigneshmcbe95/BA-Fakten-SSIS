@@ -11,7 +11,9 @@ Imports Microsoft.SqlServer.Dts.Runtime
 '  Paket        : Fakten Laden (SSIS)
 '  Zweck        : Erstellt die strukturelle Template-Tabelle
 '                 dbo.<fakt>_template per dynamischem SQL: SELECT TOP 0
-'                 <columns_dbo> INTO Template FROM ext.<fakt>.
+'                 <columns_dbo> INTO Template FROM #ext_struct.
+'                 #ext_struct wird aus columns_ext (tm_polybase_struktur)
+'                 aufgebaut - ext.<fakt> existiert erst ab SCR09.
 '  Ablauf       : SCHEMADATEN_KOPIERT -> TEMPLATE_ERSTELLT
 '  Wiederholung : 3 Versuche je SQL-Anweisung, 30 s Wartezeit
 '  Protokoll    : Nur SSIS-Events (FireInformation / FireError)
@@ -92,34 +94,41 @@ Partial Public Class ScriptMain
 
     ' -----------------------------------------------------------------------
     ' TemplateErstellen - Erstellt dbo.<fakt>_template per dynamischem SQL:
-    ' SELECT TOP 0 <columns_dbo> INTO Template FROM ext.<fakt>.
+    ' SELECT TOP 0 <columns_dbo> INTO Template FROM #ext_struct.
+    ' #ext_struct wird aus columns_ext nachgebildet, da die externe Tabelle
+    ' ext.<fakt> erst in SCR09 angelegt wird.
     ' -----------------------------------------------------------------------
     Private Sub TemplateErstellen(connStr As String, v As VerfahrenInfo)
         Dim sql As String =
             "DECLARE @t  nvarchar(128) = N'" & v.Faktentabelle.ToLower() & "';" & vbCrLf &
             "DECLARE @s  nvarchar(128) = N'" & v.Themengebiet.Trim().ToLower() & "';" & vbCrLf &
             "DECLARE @db nvarchar(128) = N'" & _datenbank & "';" & vbCrLf &
-            "DECLARE @cols nvarchar(max), @sql nvarchar(max), @tmpl nvarchar(300), @tmplObj int, @d int;" & vbCrLf & vbCrLf &
-            "-- Soll-Spalten (columns_dbo) aus tm_polybase_struktur laden" & vbCrLf &
-            "SELECT @cols = STRING_AGG(CAST(columns_dbo AS nvarchar(max)), CONCAT(N',', CHAR(13), CHAR(10)))" & vbCrLf &
-            "                 WITHIN GROUP (ORDER BY colno)" & vbCrLf &
+            "DECLARE @cols nvarchar(max), @colsExt nvarchar(max), @sql nvarchar(max), @tmpl nvarchar(300), @tmplObj int, @d int;" & vbCrLf & vbCrLf &
+            "-- Soll-Spalten (columns_dbo) und ext-Struktur (columns_ext) aus tm_polybase_struktur laden" & vbCrLf &
+            "SELECT @cols    = STRING_AGG(CAST(columns_dbo AS nvarchar(max)), CONCAT(N',', CHAR(13), CHAR(10)))" & vbCrLf &
+            "                    WITHIN GROUP (ORDER BY colno)," & vbCrLf &
+            "       @colsExt = STRING_AGG(CAST(columns_ext AS nvarchar(max)), CONCAT(N',', CHAR(13), CHAR(10)))" & vbCrLf &
+            "                    WITHIN GROUP (ORDER BY colno)" & vbCrLf &
             "FROM dbo.tm_polybase_struktur" & vbCrLf &
             "WHERE tabname = LOWER(@t) AND themengebiet = @s;" & vbCrLf & vbCrLf &
-            "IF @cols IS NULL" & vbCrLf &
-            "    THROW 50001, 'Keine columns_dbo Metadaten gefunden', 1;" & vbCrLf & vbCrLf &
+            "IF @cols IS NULL OR @colsExt IS NULL" & vbCrLf &
+            "    THROW 50001, 'Keine columns_dbo/columns_ext Metadaten gefunden', 1;" & vbCrLf & vbCrLf &
             "SET @tmpl    = CONCAT('[', @db, '].dbo.[', @t, '_template]');" & vbCrLf &
             "SET @tmplObj = OBJECT_ID(@tmpl);" & vbCrLf & vbCrLf &
             "IF @tmplObj IS NULL" & vbCrLf &
             "BEGIN" & vbCrLf &
             "    -- Template existiert nicht -> aus columns_dbo erstellen (nur Struktur)" & vbCrLf &
-            "    SET @sql = N'SELECT TOP 0 ' + @cols + N' INTO ' + @tmpl + N' FROM ext.[' + @t + N'];';" & vbCrLf &
+            "    -- ext.<t> existiert erst ab SCR09 -> Struktur lokal als #ext_struct nachbilden" & vbCrLf &
+            "    SET @sql = N'CREATE TABLE #ext_struct (' + @colsExt + N');' +" & vbCrLf &
+            "               N'SELECT TOP 0 ' + @cols + N' INTO ' + @tmpl + N' FROM #ext_struct;';" & vbCrLf &
             "    EXEC sp_executesql @sql;" & vbCrLf &
             "END" & vbCrLf &
             "ELSE" & vbCrLf &
             "BEGIN" & vbCrLf &
             "    -- Template existiert -> Struktur (Spaltenname/Typ/Laenge/Nullable) gegen Soll pruefen" & vbCrLf &
             "    SET @sql =" & vbCrLf &
-            "        N'SELECT TOP 0 ' + @cols + N' INTO #soll FROM ext.[' + @t + N'];' +" & vbCrLf &
+            "        N'CREATE TABLE #ext_struct (' + @colsExt + N');' +" & vbCrLf &
+            "        N'SELECT TOP 0 ' + @cols + N' INTO #soll FROM #ext_struct;' +" & vbCrLf &
             "        N';WITH soll AS (SELECT c.name COLLATE DATABASE_DEFAULT AS nm, ty.name COLLATE DATABASE_DEFAULT AS typ, c.max_length AS ml, c.precision AS pr, c.scale AS sc, c.is_nullable AS nu' +" & vbCrLf &
             "          N' FROM tempdb.sys.columns c JOIN tempdb.sys.types ty ON ty.user_type_id=c.user_type_id WHERE c.object_id=OBJECT_ID(N''tempdb..#soll'')),' +" & vbCrLf &
             "          N' ist AS (SELECT c.name COLLATE DATABASE_DEFAULT AS nm, ty.name COLLATE DATABASE_DEFAULT AS typ, c.max_length AS ml, c.precision AS pr, c.scale AS sc, c.is_nullable AS nu' +" & vbCrLf &
