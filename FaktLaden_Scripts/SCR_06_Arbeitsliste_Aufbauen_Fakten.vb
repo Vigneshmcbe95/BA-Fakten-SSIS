@@ -27,17 +27,55 @@ Partial Public Class ScriptMain
     Private _parametertabelle As String = String.Empty
     Private _steuerlistenTabelle As String = String.Empty
     Private _stlDateiname As String = String.Empty
+    Private _geladeneTabellen As New List(Of String)()
     Private _connectionString As String = String.Empty
 
     ' -----------------------------------------------------------------------
-    ' DateiFilter - SQL-Zusatzbedingung: nur Steuerlisten-Zeilen der aktuell
-    ' geladenen STL-Datei (BA::STLDateiname) betrachten. Dadurch wirken
-    ' Status-Analyse / Reset / RunID nur auf die Tabellen des aktuellen
-    ' Uploads - FEHLER aelterer Dateien blockieren den Lauf nicht und
-    ' bleiben unangetastet.
+    ' DateiFilter - SQL-Zusatzbedingung: nur Steuerlisten-Zeilen, die BEIDE
+    ' Bedingungen erfuellen:
+    '   1. FILE_NAME = aktuell geladene STL-Datei (BA::STLDateiname)
+    '   2. tabelle IN (von SCR03 in diesem Lauf geladene Tabellen,
+    '      uebergeben via BA::objSteuerliste)
+    ' Dadurch wirken Status-Analyse / Reset / RunID nur auf die Tabellen
+    ' des aktuellen Uploads - FEHLER aelterer Dateien blockieren den Lauf
+    ' nicht und bleiben unangetastet.
     ' -----------------------------------------------------------------------
     Private Function DateiFilter() As String
-        Return " AND LOWER(LTRIM(RTRIM(f.FILE_NAME))) = '" & _stlDateiname.Trim().ToLower().Replace("'", "''") & "'"
+        Dim filter As String =
+            " AND LOWER(LTRIM(RTRIM(f.FILE_NAME))) = '" & _stlDateiname.Trim().ToLower().Replace("'", "''") & "'"
+        If _geladeneTabellen.Count > 0 Then
+            Dim inListe As New System.Text.StringBuilder()
+            For Each t As String In _geladeneTabellen
+                If inListe.Length > 0 Then inListe.Append(",")
+                inListe.Append("'").Append(t.Trim().ToLower().Replace("'", "''")).Append("'")
+            Next
+            filter &= " AND LOWER(LTRIM(RTRIM(f.tabelle))) IN (" & inListe.ToString() & ")"
+        End If
+        Return filter
+    End Function
+
+    ' -----------------------------------------------------------------------
+    ' ObjSteuerlisteLaden - Liest BA::objSteuerliste (von SCR03 gesetzt):
+    ' Element 0 = Dateiname der geladenen STL-Datei, danach Tabellennamen.
+    ' Prueft, dass der Dateiname zu BA::STLDateiname passt.
+    ' -----------------------------------------------------------------------
+    Private Function ObjSteuerlisteLaden() As Boolean
+        Dim arr As String() = TryCast(Dts.Variables("BA::objSteuerliste").Value, String())
+        If arr Is Nothing OrElse arr.Length < 2 Then
+            LogFehler("BA::objSteuerliste ist leer - SCR03 hat keine Tabellen aus der aktuellen STL-Datei geladen. Abbruch.")
+            Return False
+        End If
+        Dim objDatei As String = arr(0).Trim()
+        If Not String.Equals(objDatei, _stlDateiname.Trim(), StringComparison.OrdinalIgnoreCase) Then
+            LogFehler("BA::objSteuerliste Datei [" & objDatei & "] passt nicht zu BA::STLDateiname [" & _stlDateiname & "]. Abbruch.")
+            Return False
+        End If
+        For i As Integer = 1 To arr.Length - 1
+            If Not String.IsNullOrEmpty(arr(i)) Then _geladeneTabellen.Add(arr(i).Trim().ToLower())
+        Next
+        Log("Aktueller Lauf: Datei [" & _stlDateiname & "] | Tabellen (" &
+            _geladeneTabellen.Count.ToString() & "): " & String.Join(", ", _geladeneTabellen))
+        Return True
     End Function
 
     ' -----------------------------------------------------------------------
@@ -53,6 +91,12 @@ Partial Public Class ScriptMain
 
             ' Pflichtfelder prüfen
             If Not PflichtfelderPruefen() Then
+                Dts.TaskResult = ScriptResults.Failure
+                Return
+            End If
+
+            ' Geladene Tabellen des aktuellen Laufs uebernehmen (von SCR03)
+            If Not ObjSteuerlisteLaden() Then
                 Dts.TaskResult = ScriptResults.Failure
                 Return
             End If
@@ -225,7 +269,13 @@ WHERE p.Verfahren IS NOT NULL;"
         Log("  - ANDERE   : " & countOther.ToString())
 
         If total = 0 Then
-            Return "Keine Verfahren in Steuerliste gefunden."
+            ' Datei wurde geladen, aber keine der Tabellen existiert als
+            ' Verfahren in der Parametertabelle -> Konfigurationsfehler,
+            ' lauter Abbruch statt leerem "Erfolgs"-Lauf.
+            Throw New Exception("Keine der aus [" & _stlDateiname & "] geladenen Tabellen (" &
+                String.Join(", ", _geladeneTabellen) &
+                ") ist als Verfahren in der Parametertabelle [" &
+                _parameterDB & ".dbo." & _parametertabelle & "] vorhanden.")
         End If
 
         Dim rowsAffected As Integer = 0

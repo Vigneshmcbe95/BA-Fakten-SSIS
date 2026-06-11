@@ -47,6 +47,11 @@ Partial Public Class ScriptMain
     Private _auditTabelle As String = String.Empty
     Private _bearbeiter As String = String.Empty
 
+    ' Tabellen, die aus der aktuellen STL-Datei geladen wurden -
+    ' wird nach dem Laden in BA::objSteuerliste (Object) abgelegt,
+    ' damit SCR06 exakt diese Liste verarbeitet.
+    Private _geladeneTabellen As New List(Of String)()
+
     ' -----------------------------------------------------------------------
     ' Main - Einstiegspunkt - steuert den Ablauf des Skripts.
     ' -----------------------------------------------------------------------
@@ -89,6 +94,20 @@ Partial Public Class ScriptMain
 
             VerarbeiteDatei(dateipfad, dateiname, connStr)
             Log("Datei erfolgreich verarbeitet: " & dateiname & " OK")
+
+            ' Geladene Tabellen fuer SCR06 bereitstellen:
+            ' Element 0 = Dateiname, danach die Tabellennamen
+            Dim lauflisteneintrag As New List(Of String)()
+            lauflisteneintrag.Add(dateiname)
+            lauflisteneintrag.AddRange(_geladeneTabellen)
+            Dts.Variables("BA::objSteuerliste").Value = lauflisteneintrag.ToArray()
+            Log("BA::objSteuerliste gesetzt: Datei [" & dateiname & "] | Tabellen (" &
+                _geladeneTabellen.Count.ToString() & "): " & String.Join(", ", _geladeneTabellen))
+            If _geladeneTabellen.Count = 0 Then
+                LogFehler("STL-Datei [" & dateiname & "] enthielt keine verwertbaren Tabellenzeilen - Abbruch.")
+                Dts.TaskResult = ScriptResults.Failure
+                Return
+            End If
 
             ' Datei nach Done verschieben (ausser *_perm.csv)
             DateiVerschieben(dateipfad, dateiname)
@@ -283,6 +302,9 @@ END;"
                     })
 
                 cntInsert += 1
+                If Not _geladeneTabellen.Contains(tabellenname) Then
+                    _geladeneTabellen.Add(tabellenname)
+                End If
 
             Catch ex As Exception
                 Throw New Exception(
