@@ -1,1 +1,88 @@
-WARNUNG [Partitionssicht anlegen] Versuch 2/3: 105083;The following columns in the user defined schema are incompatible with the external table schema for table 'v_partition_info': user defined column: ([OWNER] VARCHAR(512)) is not compatible with the type of detected external table column: ([OWNER] VARCHAR(512) COLLATE Latin1_General_100_CS_AS_SC_UTF8), user defined column: ([TABLE_NAME] VARCHAR(512)) is not compatible with the type of detected external table column: ([TABLE_NAME] VARCHAR(512) COLLATE Latin1_General_100_CS_AS_SC_UTF8), user defined column: ([PARTITIONING_TYPE] VARCHAR(120)) is not compatible with the type of detected external table column: ([PARTITIONING_TYPE] VARCHAR(120) COLLATE Latin1_General_100_CS_AS_SC_UTF8), user defined column: ([SUBPARTITIONING_TYPE] VARCHAR(120)) is not compatible with the type of detected external table column: ([SUBPARTITIONING_TYPE] VARCHAR(120) COLLATE Latin1_General_100_CS_AS_SC_UTF8), user defined column: ([PARTITION_KEY] VARCHAR(4000)) is not compatible with the type of detected external table column: ([PARTITION_KEY] VARCHAR(4000) COLLATE Latin1_General_100_CS_AS_SC_UTF8), user defined column: ([PARTITION_NAME] VARCHAR(512)) is not compatible with the type of detected external table column: ([PARTITION_NAME] VARCHAR(512) COLLATE Latin1_General_100_CS_AS_SC_UTF8), user defined column: ([HIGH_VALUE] VARCHAR(4000)) is not compatible with the type of detected external table column: ([HIGH_VALUE] VARCHAR(4000) COLLATE Latin1_General_100_CS_AS_SC_UTF8). The detected external table schema is: ([OWNER] VARCHAR(512) COLLATE Latin1_General_100_CS_AS_SC_UTF8, [TABLE_NAME] VARCHAR(512) COLLATE Latin1_General_100_CS_AS_SC_UTF8, [PARTITIONING_TYPE] VARCHAR(120) COLLATE Latin1_General_100_CS_AS_SC_UTF8, [SUBPARTITIONING_TYPE] VARCHAR(120) COLLATE Latin1_General_100_CS_AS_SC_UTF8, [PARTITION_KEY] VARCHAR(4000) COLLATE Latin1_General_100_CS_AS_SC_UTF8, [PARTITION_POSITION] FLOAT(53), [PARTITION_NAME] VARCHAR(512) COLLATE Latin1_General_100_CS_AS_SC_UTF8, [HIGH_VALUE] VARCHAR(4000) COLLATE Latin1_General_100_CS_AS_SC_UTF8).
+Task	Meldungstyp	Meldung
+SCR08_Template_Erstellen	info	WARNUNG [Template erstellen/pruefen] Versuch 2/3: Invalid object name 'ext.tf_bst_aufenthalt'.
+SCR08_Template_Erstellen	info	SQL Statement [Template erstellen/pruefen]: DECLARE @t  nvarchar(128) = N'tf_bst_aufenthalt';
+DECLARE @s  nvarchar(128) = N'xro_dm_stat_bst';
+DECLARE @db nvarchar(128) = N'msi_dm_bst_v3';
+DECLARE @cols nvarchar(max), @sql nvarchar(max), @tmpl nvarchar(300), @tmplObj int, @d int;
+
+-- Soll-Spalten (columns_dbo) aus tm_polybase_struktur laden
+SELECT @cols = STRING_AGG(CAST(columns_dbo AS nvarchar(max)), CONCAT(N',', CHAR(13), CHAR(10)))
+                 WITHIN GROUP (ORDER BY colno)
+FROM dbo.tm_polybase_struktur
+WHERE tabname = LOWER(@t) AND themengebiet = @s;
+
+IF @cols IS NULL
+    THROW 50001, 'Keine columns_dbo Metadaten gefunden', 1;
+
+SET @tmpl    = CONCAT('[', @db, '].dbo.[', @t, '_template]');
+SET @tmplObj = OBJECT_ID(@tmpl);
+
+IF @tmplObj IS NULL
+BEGIN
+    -- Template existiert nicht -> aus columns_dbo erstellen (nur Struktur)
+    SET @sql = N'SELECT TOP 0 ' + @cols + N' INTO ' + @tmpl + N' FROM ext.[' + @t + N'];';
+    EXEC sp_executesql @sql;
+END
+ELSE
+BEGIN
+    -- Template existiert -> Struktur (Spaltenname/Typ/Laenge/Nullable) gegen Soll pruefen
+    SET @sql =
+        N'SELECT TOP 0 ' + @cols + N' INTO #soll FROM ext.[' + @t + N'];' +
+        N';WITH soll AS (SELECT c.name COLLATE DATABASE_DEFAULT AS nm, ty.name COLLATE DATABASE_DEFAULT AS typ, c.max_length AS ml, c.precision AS pr, c.scale AS sc, c.is_nullable AS nu' +
+          N' FROM tempdb.sys.columns c JOIN tempdb.sys.types ty ON ty.user_type_id=c.user_type_id WHERE c.object_id=OBJECT_ID(N''tempdb..#soll'')),' +
+          N' ist AS (SELECT c.name COLLATE DATABASE_DEFAULT AS nm, ty.name COLLATE DATABASE_DEFAULT AS typ, c.max_length AS ml, c.precision AS pr, c.scale AS sc, c.is_nullable AS nu' +
+          N' FROM ' + QUOTENAME(@db) + N'.sys.columns c JOIN ' + QUOTENAME(@db) + N'.sys.types ty ON ty.user_type_id=c.user_type_id WHERE c.object_id=@po)' +
+          N' SELECT @cnt = COUNT(*) FROM ((SELECT * FROM soll EXCEPT SELECT * FROM ist) UNION ALL (SELECT * FROM ist EXCEPT SELECT * FROM soll)) x;';
+    EXEC sp_executesql @sql, N'@po int, @cnt int OUTPUT', @po=@tmplObj, @cnt=@d OUTPUT;
+    IF @d > 0
+        THROW 50010, 'Template-Struktur weicht von columns_dbo (Soll) ab', 1;
+END
+SCR08_Template_Erstellen	info	WARNUNG [Template erstellen/pruefen] Versuch 1/3: Invalid object name 'ext.tf_bst_aufenthalt'.
+SCR08_Template_Erstellen	info	  Template fuer: tf_bst_aufenthalt
+SCR08_Template_Erstellen	info	Verfahren zur Verarbeitung: 6
+SCR08_Template_Erstellen	info	Verfahren: tf_bst_aufenthalt | Themengebiet: xro_dm_stat_bst
+SCR08_Template_Erstellen	info	SCR08_Template_Erstellen - Start
+SCR07_Schemadaten_Kopieren	info	Erfolgreich: 6 | Fehler: 0
+SCR07_Schemadaten_Kopieren	info	Staging-Tabelle dbo.ddl_staging bleibt fuer Debugging erhalten
+SCR07_Schemadaten_Kopieren	info	  13 Spalten kopiert OK
+SCR07_Schemadaten_Kopieren	info	[SCHRITT_5] tf_bst_laufzeit_v2: Schemadaten kopiert: 13 Spalten
+SCR07_Schemadaten_Kopieren	info	Verfahren: tf_bst_laufzeit_v2 | Themengebiet: xro_dm_stat_bst
+SCR07_Schemadaten_Kopieren	info	  14 Spalten kopiert OK
+SCR07_Schemadaten_Kopieren	info	[SCHRITT_5] tf_bst_hr: Schemadaten kopiert: 14 Spalten
+SCR07_Schemadaten_Kopieren	info	  22 Spalten kopiert OK
+SCR07_Schemadaten_Kopieren	info	Verfahren: tf_bst_hr | Themengebiet: xro_dm_stat_bst
+SCR07_Schemadaten_Kopieren	info	[SCHRITT_5] tf_bst_btg_v2: Schemadaten kopiert: 22 Spalten
+SCR07_Schemadaten_Kopieren	info	Verfahren: tf_bst_btg_v2 | Themengebiet: xro_dm_stat_bst
+SCR07_Schemadaten_Kopieren	info	  23 Spalten kopiert OK
+SCR07_Schemadaten_Kopieren	info	[SCHRITT_5] tf_bst_bew_btg: Schemadaten kopiert: 23 Spalten
+SCR07_Schemadaten_Kopieren	info	Verfahren: tf_bst_bew_btg | Themengebiet: xro_dm_stat_bst
+SCR07_Schemadaten_Kopieren	info	  9 Spalten kopiert OK
+SCR07_Schemadaten_Kopieren	info	[SCHRITT_5] tf_bst_bew_aufenthalt: Schemadaten kopiert: 9 Spalten
+SCR07_Schemadaten_Kopieren	info	Verfahren: tf_bst_bew_aufenthalt | Themengebiet: xro_dm_stat_bst
+SCR07_Schemadaten_Kopieren	info	  8 Spalten kopiert OK
+SCR07_Schemadaten_Kopieren	info	[SCHRITT_5] tf_bst_aufenthalt: Schemadaten kopiert: 8 Spalten
+SCR07_Schemadaten_Kopieren	info	Verfahren: tf_bst_aufenthalt | Themengebiet: xro_dm_stat_bst
+SCR07_Schemadaten_Kopieren	info	Staging abgeschlossen: 1016784 Zeilen geladen.
+SCR07_Schemadaten_Kopieren	info	Oracle-Abfrage laeuft (kann 20-60 Sekunden dauern)...
+SCR07_Schemadaten_Kopieren	info	Quelle: [msi_dm_bst_v3].[ext].[vm_ddl_sql_server]
+SCR07_Schemadaten_Kopieren	info	Verfahren zur Verarbeitung: 6
+SCR07_Schemadaten_Kopieren	info	Oracle-Daten werden in Staging-Tabelle geladen...
+SCR07_Schemadaten_Kopieren	info	Ziel-Tabelle tm_polybase_struktur geprueft/erstellt.
+SCR07_Schemadaten_Kopieren	info	SCR07_Schemadaten_Kopieren - Start
+SCR06 Arbeitsliste Aufbauen	info	Neue Verfahren : 0
+SCR06 Arbeitsliste Aufbauen	info	SCR_Arbeitsliste_Aufbauen_Fakten erfolgreich abgeschlossen OK
+SCR06 Arbeitsliste Aufbauen	info	ZUSAMMENFASSUNG
+SCR06 Arbeitsliste Aufbauen	info	Nur ERFOLG vorhanden → Alle ERFOLG zu AUSSTEHEND (kompletter Neulauf) → 6 Zeilen zurückgesetzt
+SCR06 Arbeitsliste Aufbauen	info	  - FEHLER   : 0
+SCR06 Arbeitsliste Aufbauen	info	  - ANDERE   : 0
+SCR06 Arbeitsliste Aufbauen	info	  - Total    : 78
+SCR06 Arbeitsliste Aufbauen	info	  - ERFOLG   : 78
+SCR06 Arbeitsliste Aufbauen	info	Status-Analyse (alle Verfahren aus Steuerliste):
+SCR06 Arbeitsliste Aufbauen	info	Schritt 2: Status analysieren und zuruecksetzen
+SCR06 Arbeitsliste Aufbauen	info	Neue Verfahren eingetragen: 0
+SCR06 Arbeitsliste Aufbauen	info	Schritt 1: Neue Verfahren aus Steuerliste eintragen
+SCR06 Arbeitsliste Aufbauen	info	Pflichtfelder-Pruefung: alle Variablen vorhanden OK
+SCR06 Arbeitsliste Aufbauen	info	SCR_06_Arbeitsliste_Aufbauen_Fakten - Start
+SCR05 Parameter_Vollstaendigkeitspruefung	info	Ohne Partitionsspalte : 0
+SCR05 Parameter_Vollstaendigkeitspruefung	info	  where_klausel gefuellt: tf_bst_laufzeit_v2 | Spalte: mow_id
+SCR05 Parameter_Vollstaendigkeitspruefung	info	where_klausel gefuellt : 6
