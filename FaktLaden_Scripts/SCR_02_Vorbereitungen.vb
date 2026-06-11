@@ -426,10 +426,12 @@ WITH (
     End Sub
 
     ' -----------------------------------------------------------------------
-    ' ExtPartitionInfoTabellePruefen - Stellt sicher, dass die externe
-    ' Partitionssicht-Tabelle <ext>.v_partition_info existiert. Diese Sicht
-    ' liefert die Oracle-Partitionsmetadaten (HIGH_VALUE etc.), aus denen
-    ' SCR11 die zu ladenden Partitionswerte ermittelt.
+    ' ExtPartitionInfoTabellePruefen - Legt die externe Partitionssicht-
+    ' Tabelle <ext>.v_partition_info an. Eine vorhandene Tabelle wird immer
+    ' geloescht und neu erstellt, damit Schemaaenderungen (z. B. Collation)
+    ' stets uebernommen werden. Diese Sicht liefert die Oracle-
+    ' Partitionsmetadaten (HIGH_VALUE etc.), aus denen SCR11 die zu
+    ' ladenden Partitionswerte ermittelt.
     '   DATA_SOURCE : BA::ExtSourceName        (z. B. Oracle-istat)
     '   LOCATION    : <ENV>.<BA::partition_schema>.V_PARTITION_INFO
     '                 ENV = erstes Segment aus BA::ExtTableLocation (z. B. ISTAT)
@@ -439,24 +441,19 @@ WITH (
         Dim partInfoName As String = "v_partition_info"
         Dim vollName As String = _extTabSchema & ".[" & partInfoName & "]"
 
-        Dim sqlPruefen As String =
-"SELECT COUNT(*) FROM sys.external_tables
- WHERE  schema_id = SCHEMA_ID('" & _extTabSchema & "')
- AND    name      = '" & partInfoName & "'"
+        Dim sqlDrop As String =
+"IF EXISTS (SELECT 1 FROM sys.external_tables
+            WHERE schema_id = SCHEMA_ID('" & _extTabSchema & "')
+            AND   name      = '" & partInfoName & "')
+    DROP EXTERNAL TABLE " & vollName & ";"
 
-        Dim vorhanden As Boolean =
-            Convert.ToInt32(SqlSkalarAusfuehren(connStr, sqlPruefen, "Partitionssicht prüfen")) > 0
-
-        If vorhanden Then
-            Log("Externe Partitionssicht [" & vollName & "]: bereits vorhanden uebersprungen ")
-            Return
-        End If
+        SqlAusfuehren(connStr, sqlDrop, "Partitionssicht loeschen")
+        Log("Externe Partitionssicht [" & vollName & "]: geloescht (falls vorhanden) wird neu angelegt")
 
         ' Oracle-Umgebung (z. B. ISTAT) aus BA::ExtTableLocation ableiten
         Dim oracleEnvironment As String = _extTabDDLLocation.Split("."c)(0).ToUpper()
         Dim location As String = oracleEnvironment & "." & _partitionSchema.ToUpper() & ".V_PARTITION_INFO"
 
-        Log("Externe Partitionssicht [" & vollName & "]: nicht vorhanden wird angelegt")
         Log("  Oracle Location: " & location)
 
         Dim sqlErstellen As String =
