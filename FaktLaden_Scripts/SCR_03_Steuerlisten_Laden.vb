@@ -13,9 +13,9 @@ Imports Microsoft.SqlServer.Dts.Runtime
 '  Zweck        : Laedt die Steuerliste in zwei Tabellen:
 '                 1. Audit-Tabelle (<Tabelle>_audit): nur INSERT, nie UPDATE
 '                    oder DELETE - vollstaendige Historie (wer, wann, was).
-'                 2. Arbeitstabelle (<Tabelle>): DELETE + INSERT je Datei -
-'                    die Datei ist die Wahrheit; SC04 fuellt hier
-'                    where_klausel / partition_wert.
+'                 2. Arbeitstabelle (<Tabelle>): DELETE (nur aktuelle Datei)
+'                    + INSERT je Datei - die Datei ist die Wahrheit; SC04
+'                    fuellt hier where_klausel / partition_wert.
 '                 Danach wird die Datei in den Ordner 'Done' verschoben;
 '                 Dateien mit Endung _perm.csv bleiben liegen.
 '                 Jeder Fehler (Datei fehlt / nicht lesbar / SQL) fuehrt zum
@@ -47,8 +47,6 @@ Partial Public Class ScriptMain
     Private _auditTabelle As String = String.Empty
     Private _bearbeiter As String = String.Empty
 
-    ' Tabellen, die aus der aktuellen STL-Datei geladen wurden (fuer
-    ' Protokoll und Leer-Datei-Pruefung)
     Private _geladeneTabellen As New List(Of String)()
 
     ' -----------------------------------------------------------------------
@@ -66,18 +64,15 @@ Partial Public Class ScriptMain
                 Return
             End If
 
-            ' Ordnerpfad normalisieren
             If Not _stlOrdner.EndsWith("\") Then _stlOrdner &= "\"
 
             _auditTabelle = _steuerlistenTabelle & "_audit"
             Log("Arbeitstabelle : dbo." & _steuerlistenTabelle)
             Log("Audit-Tabelle  : dbo." & _auditTabelle)
 
-            ' Tabellen sicherstellen (Arbeitstabelle + Audit)
             Dim connStr As String = HoleVerbindungszeichenfolge()
             TabellenSicherstellen(connStr)
 
-            ' Exakte Datei aus BA::STLDateiname - fehlt sie, ist das ein Fehler
             Dim dateipfad As String = Path.Combine(_stlOrdner, _stlDateiname)
             Log("Vollstaendiger Pfad : " & dateipfad)
 
@@ -87,14 +82,12 @@ Partial Public Class ScriptMain
                 Return
             End If
 
-            ' Datei verarbeiten - jeder Fehler fuehrt zum Abbruch
             Dim dateiname As String = Path.GetFileName(dateipfad)
             Log("Verarbeite Datei: " & dateiname)
 
             VerarbeiteDatei(dateipfad, dateiname, connStr)
             Log("Datei erfolgreich verarbeitet: " & dateiname & " OK")
 
-            ' Geladene Tabellen protokollieren - leere Datei ist ein Fehler
             Log("Geladene Tabellen aus [" & dateiname & "] (" &
                 _geladeneTabellen.Count.ToString() & "): " & String.Join(", ", _geladeneTabellen))
             If _geladeneTabellen.Count = 0 Then
@@ -103,7 +96,6 @@ Partial Public Class ScriptMain
                 Return
             End If
 
-            ' Datei nach Done verschieben (ausser *_perm.csv)
             DateiVerschieben(dateipfad, dateiname)
 
             Log("SCR_03_Steuerlisten_Laden erfolgreich abgeschlossen OK")
@@ -117,8 +109,7 @@ Partial Public Class ScriptMain
     End Sub
 
     ' -----------------------------------------------------------------------
-    ' VariablenLaden - Liest die benoetigten SSIS-Variablen in Modulfelder
-    ' ein.
+    ' VariablenLaden
     ' -----------------------------------------------------------------------
     Private Sub VariablenLaden()
         _stlOrdner = Dts.Variables("BA::STLOrdner").Value.ToString().Trim()
@@ -128,8 +119,7 @@ Partial Public Class ScriptMain
     End Sub
 
     ' -----------------------------------------------------------------------
-    ' PflichtfelderPruefen - Prueft, ob alle Pflichtvariablen / -parameter
-    ' vorhanden sind.
+    ' PflichtfelderPruefen
     ' -----------------------------------------------------------------------
     Private Function PflichtfelderPruefen() As Boolean
         Dim fehlend As New System.Text.StringBuilder()
@@ -145,11 +135,7 @@ Partial Public Class ScriptMain
     End Function
 
     ' -----------------------------------------------------------------------
-    ' TabellenSicherstellen - Stellt Arbeitstabelle und Audit-Tabelle sicher
-    ' (CREATE IF NOT EXISTS).
-    ' Arbeitstabelle: technische Tabelle, SC04 fuellt where_klausel /
-    '                 partition_wert.
-    ' Audit-Tabelle : stlid IDENTITY PRIMARY KEY, nur INSERT.
+    ' TabellenSicherstellen
     ' -----------------------------------------------------------------------
     Private Sub TabellenSicherstellen(connStr As String)
 
@@ -157,10 +143,7 @@ Partial Public Class ScriptMain
         Dim a As String = _auditTabelle
 
         Dim sql As String =
-"-- =====================================================================
--- 1. Arbeitstabelle sicherstellen
--- =====================================================================
-IF NOT EXISTS (SELECT 1 FROM sys.tables WHERE name = '" & w & "' AND schema_id = SCHEMA_ID('dbo'))
+"IF NOT EXISTS (SELECT 1 FROM sys.tables WHERE name = '" & w & "' AND schema_id = SCHEMA_ID('dbo'))
 BEGIN
     CREATE TABLE dbo." & w & "
     (
@@ -177,9 +160,6 @@ BEGIN
     );
 END;
 
--- =====================================================================
--- 2. Audit-Tabelle sicherstellen (nur INSERT, nie UPDATE / DELETE)
--- =====================================================================
 IF NOT EXISTS (SELECT 1 FROM sys.tables WHERE name = '" & a & "' AND schema_id = SCHEMA_ID('dbo'))
 BEGIN
     CREATE TABLE dbo." & a & "
@@ -203,17 +183,15 @@ END;"
     End Sub
 
     ' -----------------------------------------------------------------------
-    ' VerarbeiteDatei - Verarbeitet eine einzelne Steuerlisten-Datei:
-    ' 1. INSERT jeder Zeile in die Audit-Tabelle (Historie)
-    ' 2. DELETE + INSERT in der Arbeitstabelle je FILE_NAME
-    '    (die Datei ist die Wahrheit - entfernte Zeilen verschwinden)
+    ' VerarbeiteDatei
+    '   Audit-Tabelle  : INSERT only – tabelle = parsed name,
+    '                                  tabname_filter = raw line
+    '   Arbeitstabelle : DELETE by FILE_NAME, then INSERT
     ' -----------------------------------------------------------------------
     Private Sub VerarbeiteDatei(dateipfad As String,
                                 dateiname As String,
                                 connStr As String)
 
-        ' Metadaten aus Dateiname ableiten
-        ' Format: tabellentyp.umgebung.themengebiet_perm.csv
         Dim teile() As String =
             Path.GetFileNameWithoutExtension(dateiname).Split("."c)
 
@@ -225,15 +203,13 @@ END;"
         Log("  Umgebung     : " & umgebung)
         Log("  Themengebiet : " & themengebiet)
 
-        ' Arbeitstabelle: komplett leeren - sie spiegelt ausschliesslich den
-        ' aktuellen Lauf (Datei + Tabellenliste). Alle Folgeskripte (SC04,
-        ' SCR05, SCR06, SCR11) lesen diese Tabelle und sind damit automatisch
-        ' auf den aktuellen Upload begrenzt. Historie: Audit-Tabelle.
+        ' Arbeitstabelle: nur Zeilen der aktuellen Datei loeschen
         SqlMitParameternAusfuehren(connStr,
-            "DELETE FROM dbo." & _steuerlistenTabelle,
+            "DELETE FROM dbo." & _steuerlistenTabelle &
+            " WHERE LOWER(LTRIM(RTRIM(FILE_NAME))) = LOWER(@f)",
             "DELETE Arbeitstabelle",
             New With {.f = dateiname})
-        Log("  Arbeitstabelle: geleert - enthaelt gleich nur die aktuelle Datei")
+        Log("  Arbeitstabelle: Zeilen fuer [" & dateiname & "] geloescht")
 
         Dim ladeZeit As DateTime = DateTime.Now
         Dim zeilenNr As Integer = 0
@@ -243,7 +219,6 @@ END;"
         For Each rohzeile As String In File.ReadAllLines(dateipfad)
             zeilenNr += 1
 
-            ' Zeile bereinigen
             Dim zeile As String = rohzeile _
                 .Replace(Chr(13), "") _
                 .Replace(Chr(10), "") _
@@ -252,22 +227,20 @@ END;"
                 .TrimEnd(";"c) _
                 .Trim()
 
-            ' Leerzeilen und Kommentare ueberspringen
             If String.IsNullOrEmpty(zeile) OrElse zeile.StartsWith("#") Then
                 cntUebersp += 1
                 Continue For
             End If
 
-            ' Tabellenname aus Zeile ableiten
             Dim tabellenname As String = TabellennameBestimmen(zeile)
 
             Try
-                ' 1. Audit-Tabelle: immer INSERT (Historie, nie aendern)
+                ' 1. Audit-Tabelle: tabelle = parsed name, tabname_filter = raw line
                 SqlMitParameternAusfuehren(connStr,
                     "INSERT INTO dbo." & _auditTabelle &
                     " (tabelle, FILE_NAME, tabellentyp, umgebung," &
                     "  load_Date, themengebiet, bearbeiter, tabname_filter)" &
-                    " VALUES (@tab, @f, @typ, @umb, @dat, @thm, @bea, @z)",
+                    " VALUES (@tab, @f, @typ, @umb, @dat, @thm, @bea, @filter)",
                     "INSERT Audit",
                     New With {
                         .tab = tabellenname,
@@ -277,15 +250,15 @@ END;"
                         .dat = ladeZeit,
                         .thm = themengebiet,
                         .bea = _bearbeiter,
-                        .z = zeile
+                        .filter = zeile
                     })
 
-                ' 2. Arbeitstabelle: INSERT (vorher je Datei geleert)
+                ' 2. Arbeitstabelle: tabelle = parsed name, tabname_filter = raw line
                 SqlMitParameternAusfuehren(connStr,
                     "INSERT INTO dbo." & _steuerlistenTabelle &
                     " (tabelle, FILE_NAME, tabellentyp, umgebung," &
                     "  load_Date, themengebiet, bearbeiter, tabname_filter)" &
-                    " VALUES (@tab, @f, @typ, @umb, @dat, @thm, @bea, @z)",
+                    " VALUES (@tab, @f, @typ, @umb, @dat, @thm, @bea, @filter)",
                     "INSERT Arbeitstabelle",
                     New With {
                         .tab = tabellenname,
@@ -295,7 +268,7 @@ END;"
                         .dat = ladeZeit,
                         .thm = themengebiet,
                         .bea = _bearbeiter,
-                        .z = zeile
+                        .filter = zeile
                     })
 
                 cntInsert += 1
@@ -315,10 +288,7 @@ END;"
     End Sub
 
     ' -----------------------------------------------------------------------
-    ' DateiVerschieben - Verschiebt die verarbeitete Datei in den Ordner
-    ' 'Done'. Dateien mit Endung _perm.csv bleiben liegen. Bei Namens-
-    ' kollision im Done-Ordner wird ein Zeitstempel angehaengt.
-    ' Jeder Fehler beim Verschieben fuehrt zum Abbruch.
+    ' DateiVerschieben
     ' -----------------------------------------------------------------------
     Private Sub DateiVerschieben(dateipfad As String, dateiname As String)
 
@@ -347,8 +317,7 @@ END;"
     End Sub
 
     ' -----------------------------------------------------------------------
-    ' TabellennameBestimmen - Ermittelt den Zieltabellennamen eines
-    ' Verfahrens.
+    ' TabellennameBestimmen
     ' -----------------------------------------------------------------------
     Private Function TabellennameBestimmen(zeile As String) As String
 
@@ -369,9 +338,7 @@ END;"
     End Function
 
     ' -----------------------------------------------------------------------
-    ' SqlAusfuehren - Fuehrt eine SQL-Anweisung (Non-Query) mit
-    ' Wiederholung aus; protokolliert Warnung und vollstaendiges
-    ' SQL-Statement bei Fehlern.
+    ' SqlAusfuehren
     ' -----------------------------------------------------------------------
     Private Function SqlAusfuehren(connStr As String,
                                    sql As String,
@@ -407,8 +374,7 @@ END;"
     End Function
 
     ' -----------------------------------------------------------------------
-    ' SqlMitParameternAusfuehren - Fuehrt eine parametrisierte
-    ' SQL-Anweisung aus.
+    ' SqlMitParameternAusfuehren
     ' -----------------------------------------------------------------------
     Private Sub SqlMitParameternAusfuehren(connStr As String,
                                            sql As String,
@@ -447,7 +413,7 @@ END;"
     End Sub
 
     ' -----------------------------------------------------------------------
-    ' ParameterHinzufuegen - Fuegt einem SQL-Command einen Parameter hinzu.
+    ' ParameterHinzufuegen
     ' -----------------------------------------------------------------------
     Private Sub ParameterHinzufuegen(cmd As SqlCommand, params As Object)
         If params Is Nothing Then Return
@@ -460,16 +426,14 @@ END;"
     End Sub
 
     ' -----------------------------------------------------------------------
-    ' HoleVerbindungszeichenfolge - Liefert den Connection String des
-    ' Paket-Verbindungsmanagers.
+    ' HoleVerbindungszeichenfolge
     ' -----------------------------------------------------------------------
     Private Function HoleVerbindungszeichenfolge() As String
         Return Dts.Connections(CONN_NAME).ConnectionString
     End Function
 
     ' -----------------------------------------------------------------------
-    ' Log - Schreibt eine Informationsmeldung in das SSIS-Protokoll
-    ' (FireInformation).
+    ' Log
     ' -----------------------------------------------------------------------
     Private Sub Log(nachricht As String)
         Dim fireAgain As Boolean = False
@@ -477,15 +441,14 @@ END;"
     End Sub
 
     ' -----------------------------------------------------------------------
-    ' LogFehler - Schreibt eine Fehlermeldung in das SSIS-Protokoll
-    ' (FireError).
+    ' LogFehler
     ' -----------------------------------------------------------------------
     Private Sub LogFehler(nachricht As String)
         Dts.Events.FireError(0, SKRIPT_NAME, nachricht, "", 0)
     End Sub
 
     ' -----------------------------------------------------------------------
-    ' ScriptResults - SSIS-Task-Ergebniscodes.
+    ' ScriptResults
     ' -----------------------------------------------------------------------
     Public Enum ScriptResults
         Success = DTSExecResult.Success
