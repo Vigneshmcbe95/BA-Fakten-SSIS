@@ -1,4 +1,4 @@
-﻿Option Explicit On
+﻿﻿Option Explicit On
 Option Strict On
 
 Imports System
@@ -377,7 +377,7 @@ Partial Public Class ScriptMain
     Private Function OracleAlleWerteLaden(connStr As String, v As VerfahrenInfo) As List(Of Integer)
         Dim liste As New List(Of Integer)()
         Dim sql As String =
-            "SELECT DISTINCT HIGH_VALUE FROM ext.[v_partition_info] " &
+            "SELECT DISTINCT HIGH_VALUE FROM ext.[vm_tab_partitions] " &
             "WHERE TABLE_NAME = UPPER('" & v.Faktentabelle & "') " &
             "  AND OWNER      = UPPER('" & _partitionSchema & "') " &
             "  AND HIGH_VALUE IS NOT NULL"
