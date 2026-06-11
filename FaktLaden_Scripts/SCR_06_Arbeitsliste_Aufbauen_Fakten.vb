@@ -26,7 +26,19 @@ Partial Public Class ScriptMain
     Private _parameterDB As String = String.Empty
     Private _parametertabelle As String = String.Empty
     Private _steuerlistenTabelle As String = String.Empty
+    Private _stlDateiname As String = String.Empty
     Private _connectionString As String = String.Empty
+
+    ' -----------------------------------------------------------------------
+    ' DateiFilter - SQL-Zusatzbedingung: nur Steuerlisten-Zeilen der aktuell
+    ' geladenen STL-Datei (BA::STLDateiname) betrachten. Dadurch wirken
+    ' Status-Analyse / Reset / RunID nur auf die Tabellen des aktuellen
+    ' Uploads - FEHLER aelterer Dateien blockieren den Lauf nicht und
+    ' bleiben unangetastet.
+    ' -----------------------------------------------------------------------
+    Private Function DateiFilter() As String
+        Return " AND LOWER(LTRIM(RTRIM(f.FILE_NAME))) = '" & _stlDateiname.Trim().ToLower().Replace("'", "''") & "'"
+    End Function
 
     ' -----------------------------------------------------------------------
     ' Main - Einstiegspunkt - steuert den Ablauf des Skripts.
@@ -57,7 +69,8 @@ Partial Public Class ScriptMain
             ' ┌─────────────────────────────────────────────────────────┐
             ' │ SCHRITT 2: Status analysieren und zurücksetzen         │
             ' │           KEINE RunID-Filterung!                       │
-            ' │           Betrachtet ALLE Verfahren aus Steuerliste     │
+            ' │           Betrachtet NUR Verfahren der aktuellen        │
+            ' │           STL-Datei (BA::STLDateiname)                  │
             ' └─────────────────────────────────────────────────────────┘
             Log("Schritt 2: Status analysieren und zuruecksetzen")
             Dim resetResult As String = StatusAnalysierenUndZuruecksetzen()
@@ -94,6 +107,7 @@ Partial Public Class ScriptMain
         _parameterDB = Dts.Variables("BA::ParameterDB").Value.ToString().Trim()
         _parametertabelle = Dts.Variables("BA::Parametertabelle").Value.ToString().Trim()
         _steuerlistenTabelle = Dts.Variables("BA::SteuerlistenTabelle").Value.ToString().Trim()
+        _stlDateiname = Dts.Variables("BA::STLDateiname").Value.ToString().Trim()
 
     End Sub
 
@@ -107,6 +121,7 @@ Partial Public Class ScriptMain
         If String.IsNullOrEmpty(_parameterDB) Then fehlend.AppendLine("  → BA::ParameterDB")
         If String.IsNullOrEmpty(_parametertabelle) Then fehlend.AppendLine("  → BA::Parametertabelle")
         If String.IsNullOrEmpty(_steuerlistenTabelle) Then fehlend.AppendLine("  → BA::SteuerlistenTabelle")
+        If String.IsNullOrEmpty(_stlDateiname) Then fehlend.AppendLine("  → BA::STLDateiname")
         If fehlend.Length > 0 Then
             LogFehler("Pflichtfelder fehlen:" & Environment.NewLine & fehlend.ToString())
             Return False
@@ -134,7 +149,7 @@ SELECT DISTINCT
     GETDATE()
 FROM " & _parameterDB & ".dbo." & _parametertabelle & " p
 INNER JOIN dbo." & _steuerlistenTabelle & " f
-    ON LOWER(LTRIM(RTRIM(f.tabelle))) = LOWER(LTRIM(RTRIM(p.Verfahren)))
+    ON LOWER(LTRIM(RTRIM(f.tabelle))) = LOWER(LTRIM(RTRIM(p.Verfahren)))" & DateiFilter() & "
 WHERE p.Verfahren IS NOT NULL
   AND NOT EXISTS (
       SELECT 1 FROM dbo.ETL_Fkt_Arbeitsliste a
@@ -173,7 +188,7 @@ SELECT
     COUNT(*) AS Total
 FROM " & _parameterDB & ".dbo." & _parametertabelle & " p
 INNER JOIN dbo." & _steuerlistenTabelle & " f
-    ON LOWER(LTRIM(RTRIM(f.tabelle))) = LOWER(LTRIM(RTRIM(p.Verfahren)))
+    ON LOWER(LTRIM(RTRIM(f.tabelle))) = LOWER(LTRIM(RTRIM(p.Verfahren)))" & DateiFilter() & "
 LEFT JOIN dbo.ETL_Fkt_Arbeitsliste a
     ON a.Verfahren = LOWER(p.Verfahren)
 WHERE p.Verfahren IS NOT NULL;"
@@ -229,7 +244,7 @@ SET a.Status = 'AUSSTEHEND',
     a.AktualisiertAm = GETDATE()
 FROM dbo.ETL_Fkt_Arbeitsliste a
 INNER JOIN " & _parameterDB & ".dbo." & _parametertabelle & " p ON LOWER(p.Verfahren) = a.Verfahren
-INNER JOIN dbo." & _steuerlistenTabelle & " f ON LOWER(LTRIM(RTRIM(f.tabelle))) = LOWER(LTRIM(RTRIM(p.Verfahren)))
+INNER JOIN dbo." & _steuerlistenTabelle & " f ON LOWER(LTRIM(RTRIM(f.tabelle))) = LOWER(LTRIM(RTRIM(p.Verfahren)))" & DateiFilter() & "
 WHERE a.Status = 'ERFOLG'
   AND p.Verfahren IS NOT NULL;"
             resetReason = "Nur ERFOLG vorhanden → Alle ERFOLG zu AUSSTEHEND (kompletter Neulauf)"
@@ -245,7 +260,7 @@ SET a.Status = 'AUSSTEHEND',
     a.AktualisiertAm = GETDATE()
 FROM dbo.ETL_Fkt_Arbeitsliste a
 INNER JOIN " & _parameterDB & ".dbo." & _parametertabelle & " p ON LOWER(p.Verfahren) = a.Verfahren
-INNER JOIN dbo." & _steuerlistenTabelle & " f ON LOWER(LTRIM(RTRIM(f.tabelle))) = LOWER(LTRIM(RTRIM(p.Verfahren)))
+INNER JOIN dbo." & _steuerlistenTabelle & " f ON LOWER(LTRIM(RTRIM(f.tabelle))) = LOWER(LTRIM(RTRIM(p.Verfahren)))" & DateiFilter() & "
 WHERE a.Status = 'FEHLER'
   AND p.Verfahren IS NOT NULL;"
             resetReason = "FEHLER vorhanden → Nur FEHLER zu AUSSTEHEND (Erfolge bleiben)"
@@ -261,7 +276,7 @@ SET a.Status = 'AUSSTEHEND',
     a.AktualisiertAm = GETDATE()
 FROM dbo.ETL_Fkt_Arbeitsliste a
 INNER JOIN " & _parameterDB & ".dbo." & _parametertabelle & " p ON LOWER(p.Verfahren) = a.Verfahren
-INNER JOIN dbo." & _steuerlistenTabelle & " f ON LOWER(LTRIM(RTRIM(f.tabelle))) = LOWER(LTRIM(RTRIM(p.Verfahren)))
+INNER JOIN dbo." & _steuerlistenTabelle & " f ON LOWER(LTRIM(RTRIM(f.tabelle))) = LOWER(LTRIM(RTRIM(p.Verfahren)))" & DateiFilter() & "
 WHERE a.Status NOT IN ('ERFOLG', 'AUSSTEHEND')
   AND p.Verfahren IS NOT NULL;"
             resetReason = "ANDERE Status vorhanden → Alle NICHT-ERFOLG zu AUSSTEHEND"
@@ -300,7 +315,7 @@ SET a.RunID = @runID,
     a.AktualisiertAm = GETDATE()
 FROM dbo.ETL_Fkt_Arbeitsliste a
 INNER JOIN " & _parameterDB & ".dbo." & _parametertabelle & " p ON LOWER(p.Verfahren) = a.Verfahren
-INNER JOIN dbo." & _steuerlistenTabelle & " f ON LOWER(LTRIM(RTRIM(f.tabelle))) = LOWER(LTRIM(RTRIM(p.Verfahren)))
+INNER JOIN dbo." & _steuerlistenTabelle & " f ON LOWER(LTRIM(RTRIM(f.tabelle))) = LOWER(LTRIM(RTRIM(p.Verfahren)))" & DateiFilter() & "
 WHERE p.Verfahren IS NOT NULL;"
 
         Try
