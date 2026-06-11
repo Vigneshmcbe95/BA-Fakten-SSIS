@@ -68,8 +68,9 @@ Partial Public Class ScriptMain
                     StatusSetzen(connStr, v.ID, "PARTITIONSGRENZEN")
 
                     ' ═════════════════════════════════════════════════════════
-                    ' SCHRITT 1: Versuche partition_wert aus CSV zu lesen
+                    ' SCHRITT 1: where_klausel pruefen → Modus bestimmen
                     ' ═════════════════════════════════════════════════════════
+                    Dim whereKlausel As String = WhereKlauselLaden(connStr, v.Verfahren)
                     Dim benutzerWerte As List(Of Integer) = PartitionWerteLaden(connStr, v.Verfahren)
 
                     Dim zuVerarbeiten As New List(Of PartitionsEintrag)()
@@ -77,40 +78,24 @@ Partial Public Class ScriptMain
                     Dim oracleAlleWerte As List(Of Integer) = Nothing
                     Dim mssqlWerte As List(Of Integer) = Nothing
 
-                    If benutzerWerte.Count > 0 Then
+                    If Not String.IsNullOrEmpty(whereKlausel) Then
                         ' ═════════════════════════════════════════════════════
-                        ' MODE 1: MANUAL (partition_wert aus CSV)
+                        ' MODE 1: MANUAL (where_klausel gesetzt)
+                        ' Oracle-Pruefung wird uebersprungen - partition_wert
+                        ' direkt aus Steuerliste verwenden
                         ' ═════════════════════════════════════════════════════
                         modus = "MANUAL"
-                        Log("  MODE: MANUAL (partition_wert aus CSV)")
+                        Log("  MODE: MANUAL (where_klausel gesetzt - Oracle-Pruefung uebersprungen)")
+                        Log("  where_klausel: " & whereKlausel)
                         Log("  Benutzer partition_wert: " & benutzerWerte.Count.ToString() & " Werte")
-                        Log("  MIN: " & benutzerWerte.Min().ToString() & " | MAX: " & benutzerWerte.Max().ToString())
-
-                        ' Alle Oracle-Werte laden
-                        oracleAlleWerte = OracleAlleWerteLaden(connStr, v)
-                        Log("  Oracle Werte gesamt: " & oracleAlleWerte.Count.ToString())
-
-                        ' Validierung - Benutzer-Werte muessen in Oracle existieren
-                        Dim nichtInOracle As List(Of Integer) = benutzerWerte.Where(Function(w) Not oracleAlleWerte.Contains(w)).ToList()
-                        If nichtInOracle.Count > 0 Then
-                            Dim fehlermeldung As String =
-                                "FEHLER: " & nichtInOracle.Count.ToString() & " partition_wert nicht in Oracle: " &
-                                String.Join(", ", nichtInOracle.Take(10).Select(Function(x) x.ToString()).ToArray()) &
-                                If(nichtInOracle.Count > 10, " ...", "")
-                            Log("  " & fehlermeldung)
-                            FehlerSetzen(connStr, v.ID, fehlermeldung)
-                            ProtokollSchreiben(connStr, v.Verfahren, "FEHLER_SCR09", fehlermeldung)
-                            LogFehler(fehlermeldung)
-                            Dts.TaskResult = ScriptResults.Failure
-                            Return
+                        If benutzerWerte.Count > 0 Then
+                            Log("  MIN: " & benutzerWerte.Min().ToString() & " | MAX: " & benutzerWerte.Max().ToString())
                         End If
-                        Log("  Alle Benutzer-Werte in Oracle vorhanden OK")
 
-                        ' MSSQL Status pruefen
+                        ' MSSQL Status pruefen - NEU vs AKTUALISIERUNG
                         mssqlWerte = MssqlWerteLaden(connStr, v)
                         Log("  MSSQL Werte gesamt: " & mssqlWerte.Count.ToString())
 
-                        ' Klassifizierung - AKTUALISIERUNG vs NEU
                         Dim cntAktualisierung As Integer = 0
                         Dim cntNeu As Integer = 0
 
@@ -326,6 +311,37 @@ Partial Public Class ScriptMain
     End Sub
 
     ' -----------------------------------------------------------------------
+    ' WhereKlauselLaden - Liest where_klausel aus der Steuerliste.
+    ' Ist sie befuellt, wird MANUAL-Modus ohne Oracle-Pruefung verwendet.
+    ' -----------------------------------------------------------------------
+    Private Function WhereKlauselLaden(connStr As String, verfahren As String) As String
+        Dim sql As String =
+            "SELECT TOP 1 LTRIM(RTRIM(where_klausel)) " &
+            "FROM dbo." & _stlTabelle &
+            " WHERE LOWER(LTRIM(RTRIM(tabelle))) = @verf" &
+            "   AND where_klausel IS NOT NULL" &
+            "   AND LTRIM(RTRIM(where_klausel)) <> ''"
+        Dim versuch As Integer = 0
+        While versuch < MAX_VERSUCHE
+            versuch += 1
+            Try
+                Using conn As New SqlConnection(connStr)
+                    conn.Open()
+                    Using cmd As New SqlCommand(sql, conn)
+                        cmd.CommandTimeout = 0
+                        cmd.Parameters.AddWithValue("@verf", verfahren.ToLower().Trim())
+                        Dim result As Object = cmd.ExecuteScalar()
+                        Return If(result Is Nothing OrElse result Is DBNull.Value, String.Empty, result.ToString().Trim())
+                    End Using
+                End Using
+            Catch ex As Exception
+                If versuch < MAX_VERSUCHE Then System.Threading.Thread.Sleep(WARTE_SEK * 1000) Else Throw
+            End Try
+        End While
+        Return String.Empty
+    End Function
+
+    ' -----------------------------------------------------------------------
     ' PartitionWerteLaden - Laedt die Partitionswerte eines Verfahrens.
     ' -----------------------------------------------------------------------
     Private Function PartitionWerteLaden(connStr As String, verfahren As String) As List(Of Integer)
@@ -377,7 +393,7 @@ Partial Public Class ScriptMain
     Private Function OracleAlleWerteLaden(connStr As String, v As VerfahrenInfo) As List(Of Integer)
         Dim liste As New List(Of Integer)()
         Dim sql As String =
-            "SELECT DISTINCT HIGH_VALUE FROM ext.[vm_tab_partitions] " &
+            "SELECT DISTINCT HIGH_VALUE FROM ext.[v_partition_info] " &
             "WHERE TABLE_NAME = UPPER('" & v.Faktentabelle & "') " &
             "  AND OWNER      = UPPER('" & _partitionSchema & "') " &
             "  AND HIGH_VALUE IS NOT NULL"
