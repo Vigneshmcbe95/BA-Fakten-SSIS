@@ -1,4 +1,4 @@
-﻿Option Explicit On
+Option Explicit On
 Option Strict On
 
 Imports System
@@ -87,11 +87,7 @@ Partial Public Class ScriptMain
                     Environment.NewLine &
                     "  Bedingungen      : tabname_filter IS NOT NULL" &
                     Environment.NewLine &
-                    "                     tabelle beginnt mit 'tf_' oder 'tt_'" &
-                    Environment.NewLine &
-                    "→ Die Steuerliste enthält keine Zeilen mit befülltem 'tabname_filter'" &
-                    Environment.NewLine &
-                    "  und einem Verfahrensnamen mit Präfix 'tf_' oder 'tt_'." &
+                    "→ Die Steuerliste enthält keine Zeilen mit befülltem 'tabname_filter'." &
                     Environment.NewLine &
                     "  Bitte laden Sie die Steuerliste für das jeweilige Verfahren hoch."
                 LogFehler(fehler)
@@ -113,7 +109,6 @@ Partial Public Class ScriptMain
 
                 ' 3a: Existiert das Verfahren überhaupt in der Parametertabelle?
                 If Not VerfahrenExistiertInParametertabelle(connStr, verfahren) Then
-                    ' Verfahren fehlt komplett → Fehlermeldung + weiter mit nächstem
                     Dim fehler As String =
                         "FEHLER – Verfahren nicht in Parametertabelle gefunden:" &
                         Environment.NewLine &
@@ -143,7 +138,6 @@ Partial Public Class ScriptMain
                             Log("  [OK]      " & param)
 
                         Case "FEHLEND"
-                            ' Zeile existiert nicht in der Parametertabelle
                             Dim fehler As String =
                                 "FEHLER – Pflichtparameter fehlt in Parametertabelle:" &
                                 Environment.NewLine &
@@ -162,7 +156,6 @@ Partial Public Class ScriptMain
                             gesamtFehler = True
 
                         Case "LEER"
-                            ' Zeile existiert, aber Spalte 'Wert' ist NULL oder leer
                             Dim fehler As String =
                                 "FEHLER – Parameterwert ist leer (NULL oder ''):" &
                                 Environment.NewLine &
@@ -197,7 +190,7 @@ Partial Public Class ScriptMain
             Next
 
             ' ── Schritt 4: Zusammenfassung und Gesamtergebnis ────────────────
-            Log("ZUSAMMENFASSUNG SCR_04b_Parameter_Vollstaendigkeitspruefung")
+            Log("ZUSAMMENFASSUNG SCR_05_Parameter_Vollstaendigkeitspruefung")
             Log("Verfahren geprueft        : " & verfahrenListe.Count.ToString())
             Log("Vollstaendig (OK)         : " & cntOK.ToString())
             Log("Mit Fehlern              : " & cntFehler.ToString())
@@ -205,7 +198,7 @@ Partial Public Class ScriptMain
             If gesamtFehler Then
                 Log("ERGEBNIS: FEHLGESCHLAGEN - Pflichtparameter unvollstaendig.")
                 LogFehler(
-                    "SCR_04b: Parameterprüfung fehlgeschlagen – " & cntFehler.ToString() &
+                    "SCR_05: Parameterprüfung fehlgeschlagen – " & cntFehler.ToString() &
                     " Verfahren haben fehlende oder leere Pflichtparameter. " &
                     "Bitte prüfen Sie die obigen Fehlermeldungen und ergänzen Sie " &
                     "die fehlenden Einträge in der Parametertabelle [" &
@@ -214,33 +207,6 @@ Partial Public Class ScriptMain
                 Dts.TaskResult = ScriptResults.Failure
             Else
                 Log("ERGEBNIS: BESTANDEN - Alle Parameter vollstaendig und befuellt OK")
-
-                ' ── Schritt 4: where_klausel mit echter Partitionsspalte befüllen ──
-                Log("Schritt 4: where_klausel in Steuerliste befuellen")
-                Dim cntWhereOK As Integer = 0
-                Dim cntWhereNull As Integer = 0
-
-                For Each verfahren As String In verfahrenListe
-
-                    ' Faktenpartitionsspalte aus Parametertabelle lesen
-                    Dim partCol As String = PartitionsspalteHolen(connStr, verfahren)
-
-                    If String.IsNullOrEmpty(partCol) Then
-                        Log("  WARNUNG: Faktenpartitionsspalte leer fuer '" & verfahren & "' where_klausel bleibt unveraendert")
-                        cntWhereNull += 1
-                        Continue For
-                    End If
-
-                    ' where_klausel = "WHERE <partCol> = '<partition_wert>'"
-                    ' nur für Zeilen wo partition_wert bereits gesetzt ist (durch SCR04)
-                    WhereKlauselFuellen(connStr, verfahren, partCol)
-                    Log("  where_klausel gefuellt: " & verfahren & " | Spalte: " & partCol)
-                    cntWhereOK += 1
-
-                Next
-
-                Log("where_klausel gefuellt : " & cntWhereOK.ToString())
-                Log("Ohne Partitionsspalte : " & cntWhereNull.ToString())
                 Dts.TaskResult = ScriptResults.Success
             End If
 
@@ -281,83 +247,11 @@ Partial Public Class ScriptMain
     End Function
 
     ' -----------------------------------------------------------------------
-    ' PartitionsspalteHolen - Liest die Partitionsspalte aus der
-    ' Parametertabelle.
-    ' -----------------------------------------------------------------------
-    Private Function PartitionsspalteHolen(connStr As String, verfahren As String) As String
-        Dim sql As String =
-            "SELECT LTRIM(RTRIM(ISNULL(Wert,''))) " &
-            "FROM   " & _parameterDB & ".dbo." & _parametertabelle & " " &
-            "WHERE  LOWER(LTRIM(RTRIM(Verfahren))) = @v " &
-            "AND    LOWER(LTRIM(RTRIM(Parameter))) = 'faktenpartitionsspalte'"
-        Dim versuch As Integer = 0
-        Dim letzterFehler As Exception = Nothing
-        While versuch < MAX_VERSUCHE
-            versuch += 1
-            Try
-                Using conn As New SqlConnection(connStr)
-                    conn.Open()
-                    Using cmd As New SqlCommand(sql, conn)
-                        cmd.CommandTimeout = 0
-                        cmd.Parameters.AddWithValue("@v", verfahren.ToLower())
-                        Dim r As Object = cmd.ExecuteScalar()
-                        Return If(r Is Nothing OrElse r Is DBNull.Value, String.Empty, r.ToString().Trim())
-                    End Using
-                End Using
-            Catch ex As Exception
-                letzterFehler = ex
-                If versuch < MAX_VERSUCHE Then System.Threading.Thread.Sleep(WARTE_SEK * 1000)
-            End Try
-        End While
-        Throw New Exception(String.Format(
-            "[PartitionsspalteHolen '{0}'] fehlgeschlagen nach {1} Versuchen: {2}",
-            verfahren, MAX_VERSUCHE,
-            If(letzterFehler IsNot Nothing, letzterFehler.Message, "Unbekannt")))
-    End Function
-
-    ' -----------------------------------------------------------------------
-    ' WhereKlauselFuellen - Baut die WHERE-Klausel je Verfahren auf und
-    ' fuellt sie in die Steuerliste.
-    ' -----------------------------------------------------------------------
-    Private Sub WhereKlauselFuellen(connStr As String, verfahren As String, partCol As String)
-        ' UPDATE alle Zeilen dieses Verfahrens wo partition_wert bereits gesetzt (durch SCR04)
-        Dim sql As String =
-            "UPDATE dbo." & _steuerlistenTabelle & " " &
-            "SET    where_klausel = 'WHERE " & partCol & " = ''' + partition_wert + '''' " &
-            "WHERE  LOWER(LTRIM(RTRIM(tabelle))) = @v "
-        Dim versuch As Integer = 0
-        Dim letzterFehler As Exception = Nothing
-        While versuch < MAX_VERSUCHE
-            versuch += 1
-            Try
-                Using conn As New SqlConnection(connStr)
-                    conn.Open()
-                    Using cmd As New SqlCommand(sql, conn)
-                        cmd.CommandTimeout = 0
-                        cmd.Parameters.AddWithValue("@v", verfahren.ToLower())
-                        Dim rows As Integer = cmd.ExecuteNonQuery()
-                        Log("    " & rows.ToString() & " Zeile(n) aktualisiert")
-                        Return
-                    End Using
-                End Using
-            Catch ex As Exception
-                letzterFehler = ex
-                If versuch < MAX_VERSUCHE Then System.Threading.Thread.Sleep(WARTE_SEK * 1000)
-            End Try
-        End While
-        Throw New Exception(String.Format(
-            "[WhereKlauselFuellen '{0}'] fehlgeschlagen nach {1} Versuchen: {2}",
-            verfahren, MAX_VERSUCHE,
-            If(letzterFehler IsNot Nothing, letzterFehler.Message, "Unbekannt")))
-    End Sub
-
-    ' -----------------------------------------------------------------------
     ' SteuerlistenTabellePruefen - Stellt sicher, dass die
     ' Steuerlisten-Tabelle existiert.
     ' -----------------------------------------------------------------------
     Private Function SteuerlistenTabellePruefen(connStr As String) As Boolean
 
-        ' 1a: Tabelle überhaupt vorhanden?
         Dim sqlExistenz As String =
             "SELECT COUNT(1) FROM sys.tables " &
             "WHERE name = '" & _steuerlistenTabelle & "' " &
@@ -380,7 +274,6 @@ Partial Public Class ScriptMain
 
         Log("Steuerlisten-Tabelle [dbo." & _steuerlistenTabelle & "] vorhanden OK")
 
-        ' 1b: Enthält die Tabelle überhaupt Zeilen?
         Dim sqlAnzahl As String =
             "SELECT COUNT(1) FROM dbo." & _steuerlistenTabelle
 
@@ -499,7 +392,6 @@ Partial Public Class ScriptMain
                                        verfahren As String,
                                        parameter As String) As String
 
-        ' Prüft ob die Zeile existiert UND ob Wert befüllt ist in einem Query
         Dim sql As String =
             "SELECT CASE " &
             "  WHEN COUNT(1) = 0                          THEN 'FEHLEND' " &
@@ -544,8 +436,7 @@ Partial Public Class ScriptMain
     End Function
 
     ' -----------------------------------------------------------------------
-    ' SqlSkalar - Fuehrt eine skalare SQL-Abfrage mit Wiederholung aus;
-    ' protokolliert Warnung und vollstaendiges SQL-Statement bei Fehlern.
+    ' SqlSkalar - Fuehrt eine skalare SQL-Abfrage mit Wiederholung aus.
     ' -----------------------------------------------------------------------
     Private Function SqlSkalar(connStr As String,
                                 sql As String,
@@ -580,16 +471,14 @@ Partial Public Class ScriptMain
     End Function
 
     ' -----------------------------------------------------------------------
-    ' HoleVerbindungszeichenfolge - Liefert den Connection String des
-    ' Paket-Verbindungsmanagers.
+    ' HoleVerbindungszeichenfolge - Liefert den Connection String.
     ' -----------------------------------------------------------------------
     Private Function HoleVerbindungszeichenfolge() As String
         Return Dts.Connections(CONN_NAME).ConnectionString
     End Function
 
     ' -----------------------------------------------------------------------
-    ' Log - Schreibt eine Informationsmeldung in das SSIS-Protokoll
-    ' (FireInformation).
+    ' Log - Schreibt eine Informationsmeldung in das SSIS-Protokoll.
     ' -----------------------------------------------------------------------
     Private Sub Log(nachricht As String)
         Dim fireAgain As Boolean = False
@@ -597,8 +486,7 @@ Partial Public Class ScriptMain
     End Sub
 
     ' -----------------------------------------------------------------------
-    ' LogFehler - Schreibt eine Fehlermeldung in das SSIS-Protokoll
-    ' (FireError).
+    ' LogFehler - Schreibt eine Fehlermeldung in das SSIS-Protokoll.
     ' -----------------------------------------------------------------------
     Private Sub LogFehler(nachricht As String)
         Dts.Events.FireError(0, SKRIPT_NAME, nachricht, "", 0)
