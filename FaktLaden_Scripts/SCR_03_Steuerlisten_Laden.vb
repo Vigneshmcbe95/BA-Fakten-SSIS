@@ -47,9 +47,8 @@ Partial Public Class ScriptMain
     Private _auditTabelle As String = String.Empty
     Private _bearbeiter As String = String.Empty
 
-    ' Tabellen, die aus der aktuellen STL-Datei geladen wurden -
-    ' wird nach dem Laden in BA::objSteuerliste (Object) abgelegt,
-    ' damit SCR06 exakt diese Liste verarbeitet.
+    ' Tabellen, die aus der aktuellen STL-Datei geladen wurden (fuer
+    ' Protokoll und Leer-Datei-Pruefung)
     Private _geladeneTabellen As New List(Of String)()
 
     ' -----------------------------------------------------------------------
@@ -95,13 +94,8 @@ Partial Public Class ScriptMain
             VerarbeiteDatei(dateipfad, dateiname, connStr)
             Log("Datei erfolgreich verarbeitet: " & dateiname & " OK")
 
-            ' Geladene Tabellen fuer SCR06 bereitstellen:
-            ' Element 0 = Dateiname, danach die Tabellennamen
-            Dim lauflisteneintrag As New List(Of String)()
-            lauflisteneintrag.Add(dateiname)
-            lauflisteneintrag.AddRange(_geladeneTabellen)
-            Dts.Variables("BA::objSteuerliste").Value = lauflisteneintrag.ToArray()
-            Log("BA::objSteuerliste gesetzt: Datei [" & dateiname & "] | Tabellen (" &
+            ' Geladene Tabellen protokollieren - leere Datei ist ein Fehler
+            Log("Geladene Tabellen aus [" & dateiname & "] (" &
                 _geladeneTabellen.Count.ToString() & "): " & String.Join(", ", _geladeneTabellen))
             If _geladeneTabellen.Count = 0 Then
                 LogFehler("STL-Datei [" & dateiname & "] enthielt keine verwertbaren Tabellenzeilen - Abbruch.")
@@ -231,12 +225,15 @@ END;"
         Log("  Umgebung     : " & umgebung)
         Log("  Themengebiet : " & themengebiet)
 
-        ' Arbeitstabelle: alte Zeilen dieser Datei entfernen (Datei = Wahrheit)
+        ' Arbeitstabelle: komplett leeren - sie spiegelt ausschliesslich den
+        ' aktuellen Lauf (Datei + Tabellenliste). Alle Folgeskripte (SC04,
+        ' SCR05, SCR06, SCR11) lesen diese Tabelle und sind damit automatisch
+        ' auf den aktuellen Upload begrenzt. Historie: Audit-Tabelle.
         SqlMitParameternAusfuehren(connStr,
-            "DELETE FROM dbo." & _steuerlistenTabelle & " WHERE FILE_NAME = @f",
+            "DELETE FROM dbo." & _steuerlistenTabelle,
             "DELETE Arbeitstabelle",
             New With {.f = dateiname})
-        Log("  Arbeitstabelle: alte Zeilen der Datei entfernt")
+        Log("  Arbeitstabelle: geleert - enthaelt gleich nur die aktuelle Datei")
 
         Dim ladeZeit As DateTime = DateTime.Now
         Dim zeilenNr As Integer = 0

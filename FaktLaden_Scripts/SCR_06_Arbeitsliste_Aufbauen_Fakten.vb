@@ -27,56 +27,43 @@ Partial Public Class ScriptMain
     Private _parametertabelle As String = String.Empty
     Private _steuerlistenTabelle As String = String.Empty
     Private _stlDateiname As String = String.Empty
-    Private _geladeneTabellen As New List(Of String)()
     Private _connectionString As String = String.Empty
 
     ' -----------------------------------------------------------------------
-    ' DateiFilter - SQL-Zusatzbedingung: nur Steuerlisten-Zeilen, die BEIDE
-    ' Bedingungen erfuellen:
-    '   1. FILE_NAME = aktuell geladene STL-Datei (BA::STLDateiname)
-    '   2. tabelle IN (von SCR03 in diesem Lauf geladene Tabellen,
-    '      uebergeben via BA::objSteuerliste)
-    ' Dadurch wirken Status-Analyse / Reset / RunID nur auf die Tabellen
-    ' des aktuellen Uploads - FEHLER aelterer Dateien blockieren den Lauf
-    ' nicht und bleiben unangetastet.
+    ' DateiFilter - Sicherheitsbedingung: nur Steuerlisten-Zeilen der
+    ' aktuell geladenen STL-Datei (BA::STLDateiname). SCR03 leert die
+    ' Arbeitstabelle vor jedem Lauf komplett, daher enthaelt sie ohnehin
+    ' nur die aktuelle Datei - der Filter schuetzt zusaetzlich gegen
+    ' Altbestaende, falls SCR03 nicht lief.
     ' -----------------------------------------------------------------------
     Private Function DateiFilter() As String
-        Dim filter As String =
-            " AND LOWER(LTRIM(RTRIM(f.FILE_NAME))) = '" & _stlDateiname.Trim().ToLower().Replace("'", "''") & "'"
-        If _geladeneTabellen.Count > 0 Then
-            Dim inListe As New System.Text.StringBuilder()
-            For Each t As String In _geladeneTabellen
-                If inListe.Length > 0 Then inListe.Append(",")
-                inListe.Append("'").Append(t.Trim().ToLower().Replace("'", "''")).Append("'")
-            Next
-            filter &= " AND LOWER(LTRIM(RTRIM(f.tabelle))) IN (" & inListe.ToString() & ")"
-        End If
-        Return filter
+        Return " AND LOWER(LTRIM(RTRIM(f.FILE_NAME))) = '" & _stlDateiname.Trim().ToLower().Replace("'", "''") & "'"
     End Function
 
     ' -----------------------------------------------------------------------
-    ' ObjSteuerlisteLaden - Liest BA::objSteuerliste (von SCR03 gesetzt):
-    ' Element 0 = Dateiname der geladenen STL-Datei, danach Tabellennamen.
-    ' Prueft, dass der Dateiname zu BA::STLDateiname passt.
+    ' SteuerlisteLoggen - Protokolliert Dateiname, Anzahl und Tabellenliste
+    ' des aktuellen Laufs aus der (von SCR03 frisch befuellten)
+    ' Steuerlisten-Tabelle.
     ' -----------------------------------------------------------------------
-    Private Function ObjSteuerlisteLaden() As Boolean
-        Dim arr As String() = TryCast(Dts.Variables("BA::objSteuerliste").Value, String())
-        If arr Is Nothing OrElse arr.Length < 2 Then
-            LogFehler("BA::objSteuerliste ist leer - SCR03 hat keine Tabellen aus der aktuellen STL-Datei geladen. Abbruch.")
-            Return False
-        End If
-        Dim objDatei As String = arr(0).Trim()
-        If Not String.Equals(objDatei, _stlDateiname.Trim(), StringComparison.OrdinalIgnoreCase) Then
-            LogFehler("BA::objSteuerliste Datei [" & objDatei & "] passt nicht zu BA::STLDateiname [" & _stlDateiname & "]. Abbruch.")
-            Return False
-        End If
-        For i As Integer = 1 To arr.Length - 1
-            If Not String.IsNullOrEmpty(arr(i)) Then _geladeneTabellen.Add(arr(i).Trim().ToLower())
-        Next
-        Log("Aktueller Lauf: Datei [" & _stlDateiname & "] | Tabellen (" &
-            _geladeneTabellen.Count.ToString() & "): " & String.Join(", ", _geladeneTabellen))
-        Return True
-    End Function
+    Private Sub SteuerlisteLoggen()
+        Dim tabellen As New List(Of String)()
+        Dim sql As String =
+            "SELECT DISTINCT LOWER(LTRIM(RTRIM(f.tabelle))) FROM dbo." & _steuerlistenTabelle &
+            " f WHERE 1=1" & DateiFilter() & " ORDER BY 1"
+        Using conn As New SqlConnection(_connectionString)
+            conn.Open()
+            Using cmd As New SqlCommand(sql, conn)
+                cmd.CommandTimeout = 0
+                Using rdr As SqlDataReader = cmd.ExecuteReader()
+                    While rdr.Read()
+                        If Not rdr.IsDBNull(0) Then tabellen.Add(rdr.GetString(0))
+                    End While
+                End Using
+            End Using
+        End Using
+        Log("Aktueller Lauf: Datei [" & _stlDateiname & "] | Tabellen in Steuerliste (" &
+            tabellen.Count.ToString() & "): " & String.Join(", ", tabellen))
+    End Sub
 
     ' -----------------------------------------------------------------------
     ' Main - Einstiegspunkt - steuert den Ablauf des Skripts.
@@ -95,13 +82,10 @@ Partial Public Class ScriptMain
                 Return
             End If
 
-            ' Geladene Tabellen des aktuellen Laufs uebernehmen (von SCR03)
-            If Not ObjSteuerlisteLaden() Then
-                Dts.TaskResult = ScriptResults.Failure
-                Return
-            End If
-
             _connectionString = HoleVerbindungszeichenfolge()
+
+            ' Geladene Datei + Tabellenliste des aktuellen Laufs protokollieren
+            SteuerlisteLoggen()
 
             ' ┌─────────────────────────────────────────────────────────┐
             ' │ SCHRITT 1: Neue Verfahren aus Steuerliste eintragen     │
@@ -272,10 +256,10 @@ WHERE p.Verfahren IS NOT NULL;"
             ' Datei wurde geladen, aber keine der Tabellen existiert als
             ' Verfahren in der Parametertabelle -> Konfigurationsfehler,
             ' lauter Abbruch statt leerem "Erfolgs"-Lauf.
-            Throw New Exception("Keine der aus [" & _stlDateiname & "] geladenen Tabellen (" &
-                String.Join(", ", _geladeneTabellen) &
-                ") ist als Verfahren in der Parametertabelle [" &
-                _parameterDB & ".dbo." & _parametertabelle & "] vorhanden.")
+            Throw New Exception("Keine der aus [" & _stlDateiname & "] geladenen Tabellen " &
+                "ist als Verfahren in der Parametertabelle [" &
+                _parameterDB & ".dbo." & _parametertabelle & "] vorhanden " &
+                "(Tabellenliste siehe Log oben).")
         End If
 
         Dim rowsAffected As Integer = 0
