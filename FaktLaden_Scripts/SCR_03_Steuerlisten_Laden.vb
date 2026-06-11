@@ -203,13 +203,11 @@ END;"
         Log("  Umgebung     : " & umgebung)
         Log("  Themengebiet : " & themengebiet)
 
-        ' Arbeitstabelle: nur Zeilen der aktuellen Datei loeschen
-        SqlMitParameternAusfuehren(connStr,
-            "DELETE FROM dbo." & _steuerlistenTabelle &
-            " WHERE LOWER(LTRIM(RTRIM(FILE_NAME))) = LOWER(@f)",
-            "DELETE Arbeitstabelle",
-            New With {.f = dateiname})
-        Log("  Arbeitstabelle: Zeilen fuer [" & dateiname & "] geloescht")
+        ' Arbeitstabelle: komplett leeren - spiegelt ausschliesslich den aktuellen Lauf
+        SqlAusfuehren(connStr,
+            "DELETE FROM dbo." & _steuerlistenTabelle,
+            "DELETE Arbeitstabelle")
+        Log("  Arbeitstabelle: vollstaendig geleert")
 
         Dim ladeZeit As DateTime = DateTime.Now
         Dim zeilenNr As Integer = 0
