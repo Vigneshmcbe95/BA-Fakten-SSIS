@@ -77,7 +77,7 @@ Partial Public Class ScriptMain
                 Catch ex As Exception
                     cntFehler += 1
                     FehlerSetzen(connStr, v.ID, ex.Message)
-                    LogSchreiben(connStr, v.Verfahren, "FEHLER_SCR06", ex.Message)
+                    LogSchreiben(connStr, v.Verfahren, "FEHLER_SCR08", ex.Message)
                     LogFehler("FEHLER Verfahren '" & v.Verfahren & "': " & ex.Message)
                 End Try
             Next
@@ -136,7 +136,10 @@ Partial Public Class ScriptMain
             "          N' SELECT @cnt = COUNT(*) FROM ((SELECT * FROM soll EXCEPT SELECT * FROM ist) UNION ALL (SELECT * FROM ist EXCEPT SELECT * FROM soll)) x;';" & vbCrLf &
             "    EXEC sp_executesql @sql, N'@po int, @cnt int OUTPUT', @po=@tmplObj, @cnt=@d OUTPUT;" & vbCrLf &
             "    IF @d > 0" & vbCrLf &
-            "        THROW 50010, 'Template-Struktur weicht von columns_dbo (Soll) ab', 1;" & vbCrLf &
+            "    BEGIN" & vbCrLf &
+            "        DECLARE @msg nvarchar(400) = CONCAT('Template ', @tmpl, ': Struktur weicht von columns_dbo (Soll) ab - Lauf wird abgebrochen. Template manuell pruefen/loeschen.');" & vbCrLf &
+            "        THROW 50010, @msg, 1;" & vbCrLf &
+            "    END" & vbCrLf &
             "END"
 
         Log("  Template fuer: " & v.Faktentabelle.ToLower())
