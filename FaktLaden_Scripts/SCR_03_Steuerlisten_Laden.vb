@@ -212,14 +212,12 @@ END;"
         Log("  Umgebung     : " & umgebung)
         Log("  Themengebiet : " & themengebiet)
 
-        ' Arbeitstabelle: komplett leeren (aktuelle Datei = Wahrheit) -
-        ' der Lauf verarbeitet nur die jetzt geladenen Tabellen;
-        ' Historie bleibt vollstaendig in der Audit-Tabelle erhalten
+        ' Arbeitstabelle: alte Zeilen dieser Datei entfernen (Datei = Wahrheit)
         SqlMitParameternAusfuehren(connStr,
-            "DELETE FROM dbo." & _steuerlistenTabelle,
+            "DELETE FROM dbo." & _steuerlistenTabelle & " WHERE FILE_NAME = @f",
             "DELETE Arbeitstabelle",
             New With {.f = dateiname})
-        Log("  Arbeitstabelle: geleert - enthaelt nur noch die aktuelle Datei")
+        Log("  Arbeitstabelle: alte Zeilen der Datei entfernt")
 
         Dim ladeZeit As DateTime = DateTime.Now
         Dim zeilenNr As Integer = 0
