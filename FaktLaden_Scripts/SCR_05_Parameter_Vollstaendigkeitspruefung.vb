@@ -80,22 +80,8 @@ Partial Public Class ScriptMain
             Dim verfahrenListe As List(Of String) = VerfahrenAusSteuerlisteHolen(connStr)
 
             If verfahrenListe.Count = 0 Then
-                ' Welche Tabellen stehen in der Steuerliste, fehlen aber in
-                ' der Parametertabelle? Fuer eine konkrete Fehlermeldung.
-                Dim fehlende As String = FehlendeVerfahrenErmitteln(connStr)
-                Dim fehler As String =
-                    "FEHLER: Keines der Verfahren aus der Steuerliste ist in der Parametertabelle konfiguriert." &
-                    Environment.NewLine &
-                    "  Steuerlisten-Tabelle : dbo." & _steuerlistenTabelle &
-                    Environment.NewLine &
-                    "  Parametertabelle     : " & _parameterDB & ".dbo." & _parametertabelle &
-                    Environment.NewLine &
-                    "  Fehlende Verfahren   : " & fehlende &
-                    Environment.NewLine &
-                    "→ Bitte die Pflichtparameter (" & String.Join(", ", PFLICHT_PARAMETER) & ")" &
-                    " fuer diese Verfahren in der Parametertabelle anlegen" &
-                    " (Vorlage: Tool_Parameter_Befuellen.sql)."
-                LogFehler(fehler)
+                LogFehler("FEHLER: Die Steuerlisten-Tabelle [dbo." & _steuerlistenTabelle &
+                          "] enthaelt keine Tabellen. Bitte Steuerliste hochladen.")
                 Dts.TaskResult = ScriptResults.Failure
                 Return
             End If
@@ -302,43 +288,19 @@ Partial Public Class ScriptMain
     End Function
 
     ' -----------------------------------------------------------------------
-    ' FehlendeVerfahrenErmitteln - Listet die Steuerlisten-Tabellen auf,
-    ' die in der Parametertabelle nicht als Verfahren existieren.
-    ' -----------------------------------------------------------------------
-    Private Function FehlendeVerfahrenErmitteln(connStr As String) As String
-        Dim sql As String =
-        "SELECT STRING_AGG(CAST(t.tabelle AS nvarchar(max)), ', ') FROM (" &
-        "  SELECT DISTINCT LOWER(LTRIM(RTRIM(s.tabelle))) AS tabelle " &
-        "  FROM dbo." & _steuerlistenTabelle & " s " &
-        "  WHERE NOT EXISTS (SELECT 1 FROM " & _parameterDB & ".dbo." & _parametertabelle & " p " &
-        "                    WHERE LOWER(LTRIM(RTRIM(p.Verfahren))) = LOWER(LTRIM(RTRIM(s.tabelle))))" &
-        ") t"
-        Try
-            Using conn As New SqlConnection(connStr)
-                conn.Open()
-                Using cmd As New SqlCommand(sql, conn)
-                    cmd.CommandTimeout = 0
-                    Dim r As Object = cmd.ExecuteScalar()
-                    If r IsNot Nothing AndAlso r IsNot DBNull.Value Then Return r.ToString()
-                End Using
-            End Using
-        Catch
-        End Try
-        Return "(konnte nicht ermittelt werden)"
-    End Function
-
-    ' -----------------------------------------------------------------------
     ' VerfahrenAusSteuerlisteHolen - Laedt die Verfahren-Eintraege aus der
     ' Steuerlisten-Tabelle.
     ' -----------------------------------------------------------------------
     Private Function VerfahrenAusSteuerlisteHolen(connStr As String) As List(Of String)
 
+        ' Bewusst OHNE Join auf die Parametertabelle: JEDES Verfahren aus der
+        ' Steuerliste wird in Schritt 3 gegen die Parametertabelle geprueft -
+        ' fehlt es dort, gibt es pro Verfahren eine klare Fehlermeldung.
         Dim liste As New List(Of String)()
         Dim sql As String =
         "SELECT DISTINCT LOWER(LTRIM(RTRIM(s.tabelle))) " &
         "FROM   dbo." & _steuerlistenTabelle & " s " &
-        "INNER JOIN " & _parameterDB & ".dbo." & _parametertabelle & " p " &
-        "    ON LOWER(LTRIM(RTRIM(s.tabelle))) = LOWER(LTRIM(RTRIM(p.Verfahren))) " &
+        "WHERE  s.tabelle IS NOT NULL AND LTRIM(RTRIM(s.tabelle)) <> '' " &
         "ORDER  BY 1"
 
         Dim versuch As Integer = 0
