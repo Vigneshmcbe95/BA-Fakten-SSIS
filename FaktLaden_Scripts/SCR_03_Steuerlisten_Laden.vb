@@ -199,6 +199,13 @@ END;"
         Dim umgebung As String = If(teile.Length > 1, teile(1).ToLower().Trim(), "")
         Dim themengebiet As String = If(teile.Length > 2, teile(2).ToLower().Trim(), "")
 
+        ' "_perm" ist nur eine Datei-Konvention (Datei bleibt im Quellordner) -
+        ' das fachliche Themengebiet in Oracle traegt den Suffix nicht.
+        If themengebiet.EndsWith("_perm") Then
+            themengebiet = themengebiet.Substring(0, themengebiet.Length - "_perm".Length)
+            Log("  Themengebiet : '_perm'-Suffix entfernt (Datei-Konvention)")
+        End If
+
         Log("  Tabellentyp  : " & tabellentyp)
         Log("  Umgebung     : " & umgebung)
         Log("  Themengebiet : " & themengebiet)
