@@ -52,7 +52,7 @@ Partial Public Class ScriptMain
             ' ── Partitionsspalte direkt aus Parametertabelle (vom Benutzer gepflegt)
             Log("Partitionsspalte aus Parametertabelle laden ...")
             Dim partLookup As Dictionary(Of String, String) = PartitionsspalteAusParameterLaden(connStr)
-            Log("Partitionsspalten geladen: " & partLookup.Count.ToString() & " Verfahren")
+            Log("Partitionsspalten-Lookup geladen: " & partLookup.Count.ToString() & " Eintraege aus Parametertabelle (nur Referenz, keine Verarbeitung)")
 
             Dim zeilen As List(Of Zeile) = ZeilenLaden(connStr)
             Log("Steuerlisten-Zeilen : " & zeilen.Count.ToString())
