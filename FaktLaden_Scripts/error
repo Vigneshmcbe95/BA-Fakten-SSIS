@@ -1,267 +1,119 @@
-Task	Meldungstyp	Meldung
-SCR19_Partitionstausch	info	Erfolgreich: 0 | Fehler: 1
-SCR19_Partitionstausch	Fehler	The script returned a failure result.
-SCR19_Partitionstausch	Fehler	FEHLER 'tf_bst_hr_25': [SWITCH OUT] fehlgeschlagen: ALTER TABLE SWITCH statement failed because column 'mon_id_v' does not have the same nullability attribute in tables 'msi_dm_bst_v3.dbo.tf_bst_hr_25' and 'msi_dm_bst_v3.dbo.tf_bst_hr_25_out_20250206'.
-SCR19_Partitionstausch	Fehler	[FEHLER_SCR15] tf_bst_hr_25: [SWITCH OUT] fehlgeschlagen: ALTER TABLE SWITCH statement failed because column 'mon_id_v' does not have the same nullability attribute in tables 'msi_dm_bst_v3.dbo.tf_bst_hr_25' and 'msi_dm_bst_v3.dbo.tf_bst_hr_25_out_20250206'.
-SCR19_Partitionstausch	info	WARNUNG [SWITCH OUT] Versuch 3/3: ALTER TABLE SWITCH statement failed because column 'mon_id_v' does not have the same nullability attribute in tables 'msi_dm_bst_v3.dbo.tf_bst_hr_25' and 'msi_dm_bst_v3.dbo.tf_bst_hr_25_out_20250206'.
-SCR19_Partitionstausch	info	WARNUNG [SWITCH OUT] Versuch 2/3: ALTER TABLE SWITCH statement failed because column 'mon_id_v' does not have the same nullability attribute in tables 'msi_dm_bst_v3.dbo.tf_bst_hr_25' and 'msi_dm_bst_v3.dbo.tf_bst_hr_25_out_20250206'.
-SCR19_Partitionstausch	info	SQL Statement [SWITCH OUT]: ALTER TABLE dbo.[tf_bst_hr_25] SWITCH PARTITION 2 TO dbo.[tf_bst_hr_25_out_20250206];
-SCR19_Partitionstausch	info	WARNUNG [SWITCH OUT] Versuch 1/3: ALTER TABLE SWITCH statement failed because column 'mon_id_v' does not have the same nullability attribute in tables 'msi_dm_bst_v3.dbo.tf_bst_hr_25' and 'msi_dm_bst_v3.dbo.tf_bst_hr_25_out_20250206'.
-SCR19_Partitionstausch	info	  Partitionsnummer: 2
-SCR19_Partitionstausch	info	  Partition: 20250206
-SCR19_Partitionstausch	info	  _in Tabellen: 1
-SCR19_Partitionstausch	info	Verfahren: tf_bst_hr_25 | Tabelle: tf_bst_hr_25
-SCR19_Partitionstausch	info	Verfahren: 1
-SCR19_Partitionstausch	info	SCR19_Partitionstausch - Start
-SCR18_Stagingtabelle - NCCI erstellen	info	Erfolgreich: 1 | Fehler: 0
-SCR18_Stagingtabelle - NCCI erstellen	info	[SCHRITT_7C] tf_bst_hr_25: NCCI nicht anwendbar uebersprungen
-SCR18_Stagingtabelle - NCCI erstellen	info	  NCCI nicht anwendbar uebersprungen
-SCR18_Stagingtabelle - NCCI erstellen	info	Verfahren: tf_bst_hr_25 | NCCI: FALSE | IndexTyp: CCI
-SCR18_Stagingtabelle - NCCI erstellen	info	Verfahren: 1
-SCR18_Stagingtabelle - NCCI erstellen	info	SCR18_NCCI_Out - Start
-SCR17_Stagingtabelle komprimieren	info	Erfolgreich: 1 | Fehler: 0
-SCR17_Stagingtabelle komprimieren	info	[SCHRITT_7B] tf_bst_hr_25: CCI aktiv Komprimierung uebersprungen
-SCR17_Stagingtabelle komprimieren	info	  CCI aktiv PAGE/ROW nicht anwendbar uebersprungen
-SCR17_Stagingtabelle komprimieren	info	Verfahren: tf_bst_hr_25 | Komprimierung: NONE | IndexTyp: CCI
-SCR17_Stagingtabelle komprimieren	info	Verfahren: 1
-SCR17_Stagingtabelle komprimieren	info	SCR17_Komprimierung_Out - Start
-SCR16_Stagingtabelle - Clustered Index erstellen	info	  Schritt 7a abgeschlossen OK
-SCR16_Stagingtabelle - Clustered Index erstellen	info	Erfolgreich: 1 | Fehler: 0
-SCR16_Stagingtabelle - Clustered Index erstellen	info	[SCHRITT_7A] tf_bst_hr_25: Index _in/_out erstellt: 2 Tabellen
-SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt OK
-SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI bereits vorhanden uebersprungen
-SCR16_Stagingtabelle - Clustered Index erstellen	info	  Index auf: tf_bst_hr_25_out_20250206
-SCR16_Stagingtabelle - Clustered Index erstellen	info	  Index auf: tf_bst_hr_25_in_20250206
-SCR16_Stagingtabelle - Clustered Index erstellen	info	Verfahren: tf_bst_hr_25 | IndexTyp: CCI
-SCR16_Stagingtabelle - Clustered Index erstellen	info	Verfahren: 1
-SCR16_Stagingtabelle - Clustered Index erstellen	info	SCR16_Stagingtabelle___Clustered_Index_erstellen - Start
-SCR15_usp_Faktenladen_Partitionladen	info	Keine Verfahren zu verarbeiten
-SCR15_usp_Faktenladen_Partitionladen	info	Verfahren mit Status 'ERFOLG': 0
-SCR15_usp_Faktenladen_Partitionladen	info	Partitionswerte: 1 Eintraege
-SCR15_usp_Faktenladen_Partitionladen	info	SCR15_Partitionladen_Nachlauf - Start
-SCR14_usp_Faktenladen_StagetabellenDML	info	SCR11b_StagetabellenDML_Aufruf erfolgreich abgeschlossen
-SCR14_usp_Faktenladen_StagetabellenDML	info	Fehler:      0
-SCR14_usp_Faktenladen_StagetabellenDML	info	ZUSAMMENFASSUNG SCR11b_StagetabellenDML_Aufruf
-SCR14_usp_Faktenladen_StagetabellenDML	info	Erfolgreich: 1
-SCR14_usp_Faktenladen_StagetabellenDML	info	[INFO_SCR11b] tf_bst_hr_25: Prozedur usp_Faktenladen_StagetabellenDML_tf_bst_hr_25 nicht vorhanden -> uebersprungen
-SCR14_usp_Faktenladen_StagetabellenDML	info	  Info: Prozedur [usp_Faktenladen_StagetabellenDML_tf_bst_hr_25] existiert nicht -> uebersprungen
-SCR14_usp_Faktenladen_StagetabellenDML	info	  Prozedur: usp_Faktenladen_StagetabellenDML_tf_bst_hr_25
-SCR14_usp_Faktenladen_StagetabellenDML	info	Komprimierung    : NONE
-SCR14_usp_Faktenladen_StagetabellenDML	info	Partitionsspalte : mow_id
-SCR14_usp_Faktenladen_StagetabellenDML	info	ClusteredIndex   : CCI
-SCR14_usp_Faktenladen_StagetabellenDML	info	Faktentabelle    : tf_bst_hr_25
-SCR14_usp_Faktenladen_StagetabellenDML	info	Verfahren        : tf_bst_hr_25
-SCR14_usp_Faktenladen_StagetabellenDML	info	Verfahren mit Status 'DATEN_GELADEN': 1
-SCR14_usp_Faktenladen_StagetabellenDML	info	Partitionswerte aus SCR09: 1 Eintraege
-SCR14_usp_Faktenladen_StagetabellenDML	info	SCR14_StagetabellenDML_Aufruf - Start
-SCR13_Daten_Laden	info	  Schritt 6 abgeschlossen OK (tf_bst_hr_25)
-SCR13_Daten_Laden	info	Erfolgreich: 1 | Fehler: 0
-SCR13_Daten_Laden	info	[SCHRITT_6] tf_bst_hr_25: Daten geladen. Zeilen gesamt: 6176
-SCR13_Daten_Laden	info	  tf_bst_hr_25_in_20250206 bereits gefuellt (6176 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	Arbeitspakete gesamt (Verfahren x Partition): 1 | Parallelitaet: 8
-SCR13_Daten_Laden	info	  Partitionswerte: 1
-SCR13_Daten_Laden	info	Verfahren: tf_bst_hr_25 | Spalte: mow_id
-SCR13_Daten_Laden	info	Verfahren: 1
-SCR13_Daten_Laden	info	Partitionswerte gesamt: 1 Eintraege
-SCR13_Daten_Laden	info	SCR13_Daten_Laden - Start
-SCR12_Staging_Erstellen	info	Erfolgreich: 1 | Fehler: 0
-SCR12_Staging_Erstellen	info	  Schritt 5 abgeschlossen OK
-SCR12_Staging_Erstellen	info	[SCHRITT_5] tf_bst_hr_25: Staging erstellt: 1 Partition(en) | NEU: 1 | AKTUALISIERUNG: 0
-SCR12_Staging_Erstellen	info	  _out erstellt: 20250206 | Modus: NEU
-SCR12_Staging_Erstellen	info	Verfahren: tf_bst_hr_25
-SCR12_Staging_Erstellen	info	Verfahren aus Arbeitsliste: 1
-SCR12_Staging_Erstellen	info	Partitionswerte aus SCR09: 1 Eintraege
-SCR12_Staging_Erstellen	info	SCR12_Staging_Erstellen - Start
-SCR11_Partitionsgrenzen	info	Erfolgreich: 1 | Fehler: 0
-SCR11_Partitionsgrenzen	info	  tf_bst_hr_25: 1 Partitionen (20250206-20250206)
-SCR11_Partitionsgrenzen	info	BA::objPartitionValues gesetzt: 1 Eintraege
-SCR11_Partitionsgrenzen	info	  Schritt 4 abgeschlossen OK
-SCR11_Partitionsgrenzen	info	[SCHRITT_4] tf_bst_hr_25: Partitionsgrenzen erstellt. Modus=MANUAL | Gesamt=1 | AKTUALISIERUNG=0 | NEU=1 | Bereich=20250206-20250206
-SCR11_Partitionsgrenzen	info	  SPLIT ausgefuehrt: 1 | Uebersprungen: 0
-SCR11_Partitionsgrenzen	info	  Werte-Bereich: 20250206 bis 20250206 (1 Partitionen)
-SCR11_Partitionsgrenzen	info	  AKTUALISIERUNG: 0
-SCR11_Partitionsgrenzen	info	  NEU: 1
-SCR11_Partitionsgrenzen	info	  Gesamt zu verarbeiten: 1
-SCR11_Partitionsgrenzen	info	  Modus: MANUAL
-SCR11_Partitionsgrenzen	info	  ZUSAMMENFASSUNG: tf_bst_hr_25
-SCR11_Partitionsgrenzen	info	  Klassifizierung: AKTUALISIERUNG=0 | NEU=1
-SCR11_Partitionsgrenzen	info	  MSSQL Werte gesamt: 0
-SCR11_Partitionsgrenzen	info	  MIN: 20250206 | MAX: 20250206
-SCR11_Partitionsgrenzen	info	  where_klausel: WHERE mow_id = '20250206'
-SCR11_Partitionsgrenzen	info	  Benutzer partition_wert: 1 Werte
-SCR11_Partitionsgrenzen	info	  MODE: MANUAL (where_klausel gesetzt - Oracle-Pruefung uebersprungen)
-SCR11_Partitionsgrenzen	info	Verfahren: tf_bst_hr_25 | Tabelle: tf_bst_hr_25 | Spalte: mow_id
-SCR11_Partitionsgrenzen	info	Verfahren: 1
-SCR11_Partitionsgrenzen	info	SCR11_Partitionsgrenzen - Start
-SCR10_Faktentabelle_Erstellen	info	Erfolgreich: 1 | Fehler: 0
-SCR10_Faktentabelle_Erstellen	info	  -> Schritt 3 abgeschlossen
-SCR10_Faktentabelle_Erstellen	info	[SCHRITT_3] tf_bst_hr_25: Faktentabelle erstellt: dbo.tf_bst_hr_25 | PF: PF_mow_id_tf_bst_hr_25 | Index: CCI | Komprimierung: NONE
-SCR10_Faktentabelle_Erstellen	info	  CCI angelegt (partitioniert)
-SCR10_Faktentabelle_Erstellen	info	  Faktentabelle erstellt: dbo.tf_bst_hr_25
-SCR10_Faktentabelle_Erstellen	info	  PF und PS erstellt: PF_mow_id_tf_bst_hr_25 / PS_mow_id_tf_bst_hr_25
-SCR10_Faktentabelle_Erstellen	info	  Partitionsdatentyp (aus Spalte): INT
-SCR10_Faktentabelle_Erstellen	info	  WARNUNG: Faktenpartitionsdatentyp=BIGINT weicht vom tatsaechlichen Spaltentyp 'INT' ab -> verwende Spaltentyp
-SCR10_Faktentabelle_Erstellen	info	  Faktentabelle dbo.tf_bst_hr_25 existiert nicht -> wird erstellt
-SCR10_Faktentabelle_Erstellen	info	Partitionsspalte: mow_id | IndexTyp: CCI | Komprimierung: NONE
-SCR10_Faktentabelle_Erstellen	info	Verfahren: 1
-SCR10_Faktentabelle_Erstellen	info	Verfahren: tf_bst_hr_25 | Faktentabelle: tf_bst_hr_25
-SCR10_Faktentabelle_Erstellen	info	SCR10_Faktentabelle_Erstellen - Start
-SCR09_Ext_Tabelle_Erstellen	info	Erfolgreich: 1 | Fehler: 0
-SCR09_Ext_Tabelle_Erstellen	info	[SCHRITT_2] tf_bst_hr_25: Externe Tabelle erstellt: ext.tf_bst_hr_25
-SCR09_Ext_Tabelle_Erstellen	info	  Externe Tabelle erstellt OK
-SCR09_Ext_Tabelle_Erstellen	info	  OK Externe Tabelle erfolgreich: ext.[tf_bst_hr_25]
-SCR09_Ext_Tabelle_Erstellen	info	  Erstelle externe Tabelle: ext.[tf_bst_hr_25]
-SCR09_Ext_Tabelle_Erstellen	info	  Oracle Location: ISTAT.XRO_DM_STAT_BST.TF_BST_HR_25
-SCR09_Ext_Tabelle_Erstellen	info	Verfahren: tf_bst_hr_25 | Themengebiet: xro_dm_stat_bst
-SCR09_Ext_Tabelle_Erstellen	info	Verfahren zur Verarbeitung: 1
-SCR09_Ext_Tabelle_Erstellen	info	SCR09_Ext_Tabelle_Erstellen - Start
-SCR08_Template_Erstellen	info	Erfolgreich: 1 | Fehler: 0
-SCR08_Template_Erstellen	info	  Template erstellt OK
-SCR08_Template_Erstellen	info	[SCHRITT_1] tf_bst_hr_25: Template erstellt/geprueft: msi_dm_bst_v3.dbo.tf_bst_hr_25_template
-SCR08_Template_Erstellen	info	  Template erstellt bzw. Struktur geprueft OK
-SCR08_Template_Erstellen	info	  Template fuer: tf_bst_hr_25
-SCR08_Template_Erstellen	info	Verfahren: tf_bst_hr_25 | Themengebiet: xro_dm_stat_bst
-SCR08_Template_Erstellen	info	Verfahren zur Verarbeitung: 1
-SCR08_Template_Erstellen	info	SCR08_Template_Erstellen - Start
-SCR07_Schemadaten_Kopieren	info	Erfolgreich: 1 | Fehler: 0
-SCR07_Schemadaten_Kopieren	info	Staging-Tabelle dbo.ddl_staging bleibt fuer Debugging erhalten
-SCR07_Schemadaten_Kopieren	info	  14 Spalten kopiert OK
-SCR07_Schemadaten_Kopieren	info	[SCHRITT_5] tf_bst_hr_25: Schemadaten kopiert: 14 Spalten
-SCR07_Schemadaten_Kopieren	info	Verfahren: tf_bst_hr_25 | Themengebiet: xro_dm_stat_bst
-SCR07_Schemadaten_Kopieren	info	Staging-Tabelle existiert bereits mit 1016784 Zeilen - wird wiederverwendet
-SCR07_Schemadaten_Kopieren	info	Oracle-Daten werden in Staging-Tabelle geladen...
-SCR07_Schemadaten_Kopieren	info	Quelle: [msi_dm_bst_v3].[ext].[vm_ddl_sql_server]
-SCR07_Schemadaten_Kopieren	info	Verfahren zur Verarbeitung: 1
-SCR07_Schemadaten_Kopieren	info	Ziel-Tabelle tm_polybase_struktur geprueft/erstellt.
-SCR07_Schemadaten_Kopieren	info	SCR07_Schemadaten_Kopieren - Start
-SCR06 Arbeitsliste Aufbauen	info	SCR_Arbeitsliste_Aufbauen_Fakten erfolgreich abgeschlossen OK
-SCR06 Arbeitsliste Aufbauen	info	Neue Verfahren : 0
-SCR06 Arbeitsliste Aufbauen	info	ZUSAMMENFASSUNG
-SCR06 Arbeitsliste Aufbauen	info	FEHLER vorhanden → Nur FEHLER zu AUSSTEHEND (Erfolge bleiben) → 1 Zeilen zurückgesetzt
-SCR06 Arbeitsliste Aufbauen	info	  - ANDERE   : 0
-SCR06 Arbeitsliste Aufbauen	info	  - ERFOLG   : 0
-SCR06 Arbeitsliste Aufbauen	info	  - FEHLER   : 13
-SCR06 Arbeitsliste Aufbauen	info	  - Total    : 13
-SCR06 Arbeitsliste Aufbauen	info	Status-Analyse (alle Verfahren aus Steuerliste):
-SCR06 Arbeitsliste Aufbauen	info	Schritt 2: Status analysieren und zuruecksetzen
-SCR06 Arbeitsliste Aufbauen	info	Neue Verfahren eingetragen: 0
-SCR06 Arbeitsliste Aufbauen	info	Schritt 1: Neue Verfahren aus Steuerliste eintragen
-SCR06 Arbeitsliste Aufbauen	info	Aktueller Lauf: Datei [v.istat.xro_dm_stat_bst_perm.csv] | Tabellen in Steuerliste (1): tf_bst_hr_25
-SCR06 Arbeitsliste Aufbauen	info	SCR_06_Arbeitsliste_Aufbauen_Fakten - Start
-SCR06 Arbeitsliste Aufbauen	info	Pflichtfelder-Pruefung: alle Variablen vorhanden OK
-SCR05 Parameter_Vollstaendigkeitspruefung	info	ERGEBNIS: BESTANDEN - Alle Parameter vollstaendig und befuellt OK
-SCR05 Parameter_Vollstaendigkeitspruefung	info	Mit Fehlern              : 0
-SCR05 Parameter_Vollstaendigkeitspruefung	info	Vollstaendig (OK)         : 1
-SCR05 Parameter_Vollstaendigkeitspruefung	info	ZUSAMMENFASSUNG SCR_05_Parameter_Vollstaendigkeitspruefung
-SCR05 Parameter_Vollstaendigkeitspruefung	info	Verfahren geprueft        : 1
-SCR05 Parameter_Vollstaendigkeitspruefung	info	  OK Alle Pflichtparameter fuer 'tf_bst_hr_25' vorhanden und befuellt.
-SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      Anzahl_ParallelTasks
-SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      DateFormat
-SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      FaktenClusteredIndex
-SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      Faktenkomprimierung
-SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      Faktenpartitionsspalte
-SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      Faktentabelle
-SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      FaktentabelleTemplate
-SCR05 Parameter_Vollstaendigkeitspruefung	info	Pruefe Verfahren: tf_bst_hr_25
-SCR05 Parameter_Vollstaendigkeitspruefung	info	Schritt 3: Parametertabelle vollstaendig pruefen
-SCR05 Parameter_Vollstaendigkeitspruefung	info	Verfahren in Steuerliste gefunden: 1
-SCR05 Parameter_Vollstaendigkeitspruefung	info	Schritt 2: Verfahren aus Steuerliste laden
-SCR05 Parameter_Vollstaendigkeitspruefung	info	Steuerlisten-Tabelle enthaelt 1 Zeile(n) OK
-SCR05 Parameter_Vollstaendigkeitspruefung	info	Steuerlisten-Tabelle [dbo.tm_steuerlistenfile_Fakten] vorhanden OK
-SCR05 Parameter_Vollstaendigkeitspruefung	info	Schritt 1: Steuerlisten-Tabelle pruefen
-SCR05 Parameter_Vollstaendigkeitspruefung	info	SSIS-Variablen-Pruefung: alle vorhanden OK
-SCR05 Parameter_Vollstaendigkeitspruefung	info	SCR_05_Parameter_Vollstaendigkeitspruefung - Start
-SCR05 Parameter_Vollstaendigkeitspruefung	info	Pflichtparameter     : FaktentabelleTemplate, Faktentabelle, Faktenpartitionsspalte, Faktenkomprimierung, FaktenClusteredIndex, DateFormat, Anzahl_ParallelTasks
-SC04 Whereclasuse	info	kein Partitionsspalte-Eintrag: 0
-SC04 Whereclasuse	info	partition_wert NULL          : 0
-SC04 Whereclasuse	info	where_klausel gefuellt       : 1
-SC04 Whereclasuse	info	  tf_bst_hr_25_20250206                              -> wert=20250206 | partCol=mow_id
-SC04 Whereclasuse	info	Steuerlisten-Zeilen : 1
-SC04 Whereclasuse	info	Partitionsspalten-Lookup geladen: 28 Eintraege aus Parametertabelle (nur Referenz, keine Verarbeitung)
-SC04 Whereclasuse	info	Partitionsspalte aus Parametertabelle laden ...
-SC04 Whereclasuse	info	Spalten geprueft/angelegt OK
-SC04 Whereclasuse	info	Steuerlisten-Tabelle : dbo.tm_steuerlistenfile_Fakten
-SC04 Whereclasuse	info	Referenzdatum: 01.03.2026 00:00:00
-SC04 Whereclasuse	info	SC04_Whereclause - Start
-SCR03 Stuerliste Laden	info	Datei endet auf _perm.csv -> bleibt im Quellordner
-SCR03 Stuerliste Laden	info	SCR_03_Steuerlisten_Laden erfolgreich abgeschlossen OK
-SCR03 Stuerliste Laden	info	Geladene Tabellen aus [v.istat.xro_dm_stat_bst_perm.csv] (1): tf_bst_hr_25
-SCR03 Stuerliste Laden	info	Datei erfolgreich verarbeitet: v.istat.xro_dm_stat_bst_perm.csv OK
-SCR03 Stuerliste Laden	info	  Zeilen gesamt: 1 | INSERT: 1 | Uebersprungen: 0
-SCR03 Stuerliste Laden	info	  Arbeitstabelle: vollstaendig geleert
-SCR03 Stuerliste Laden	info	  Umgebung     : istat
-SCR03 Stuerliste Laden	info	  Themengebiet : xro_dm_stat_bst
-SCR03 Stuerliste Laden	info	  Tabellentyp  : v
-SCR03 Stuerliste Laden	info	  Themengebiet : '_perm'-Suffix entfernt (Datei-Konvention)
-SCR03 Stuerliste Laden	info	Verarbeite Datei: v.istat.xro_dm_stat_bst_perm.csv
-SCR03 Stuerliste Laden	info	Vollstaendiger Pfad : F:\STL\v.istat.xro_dm_stat_bst_perm.csv
-SCR03 Stuerliste Laden	info	Arbeitstabelle und Audit-Tabelle geprueft/angelegt OK
-SCR03 Stuerliste Laden	info	Audit-Tabelle  : dbo.tm_steuerlistenfile_Fakten_audit
-SCR03 Stuerliste Laden	info	Arbeitstabelle : dbo.tm_steuerlistenfile_Fakten
-SCR03 Stuerliste Laden	info	Pflichtfelder-Pruefung: alle Variablen vorhanden OK
-SCR03 Stuerliste Laden	info	SCR_03_Steuerlisten_Laden - Start
-SCR02 Vorbereitungen	info	SCR_01_Vorbereitungen erfolgreich abgeschlossen.
-SCR02 Vorbereitungen	info	  Index erstellt: IX_vm_ddl_sql_server_TABNAME_COLNAME (TABNAME, COLNAME)
-SCR02 Vorbereitungen	info	  dbo-Kopie erstellt: dbo.vm_ddl_sql_server | Zeilen: 1016733
-SCR02 Vorbereitungen	info	  Alte dbo-Kopie geloescht (falls vorhanden)
-SCR02 Vorbereitungen	info	Schritt 8: Lokale dbo-Kopie [dbo.vm_ddl_sql_server] erstellen
-SCR02 Vorbereitungen	info	Externe Partitionssicht [ext.[v_partition_info]]: erfolgreich angelegt 
-SCR02 Vorbereitungen	info	  Oracle Location: ISTAT.BI_DM_EXPORT.V_PARTITION_INFO
-SCR02 Vorbereitungen	info	Externe Partitionssicht [ext.[v_partition_info]]: geloescht (falls vorhanden) wird neu angelegt
-SCR02 Vorbereitungen	info	Schritt 7a: Externe Partitionssicht [ext.v_partition_info] pruefen
-SCR02 Vorbereitungen	info	Externe DDL-Tabelle [ext.vm_ddl_sql_server]: bereits vorhanden uebersprungen 
-SCR02 Vorbereitungen	info	Schritt 7: Externe DDL-Tabelle [ext.vm_ddl_sql_server] pruefen
-SCR02 Vorbereitungen	info	Schema [ext]: bereits vorhanden uebersprungen 
-SCR02 Vorbereitungen	info	Schritt 6: Schema [ext] pruefen
-SCR02 Vorbereitungen	info	Schritt 5: External Data Source pruefen
-SCR02 Vorbereitungen	info	External Data Source [Oracle-istat]: bereits vorhanden uebersprungen 
-SCR02 Vorbereitungen	info	Credential [Q0003713_BI_DM_EXPORT]: bereits vorhanden uebersprungen 
-SCR02 Vorbereitungen	info	Schritt 4: PolyBase Credential pruefen
-SCR02 Vorbereitungen	info	Master Key: bereits vorhanden uebersprungen 
-SCR02 Vorbereitungen	info	Schritt 3: PolyBase Master Key pruefen
-SCR02 Vorbereitungen	info	ETL_Fkt_FehlerHistorie: geprueft/angelegt 
-SCR02 Vorbereitungen	info	Schritt 2: ETL_Fkt_FehlerHistorie sicherstellen
-SCR02 Vorbereitungen	info	ETL_Fkt_Arbeitsliste: geprueft/angelegt 
-SCR02 Vorbereitungen	info	Schritt 1: ETL_Fkt_Arbeitsliste sicherstellen
-SCR02 Vorbereitungen	info	Pflichtfelder-Pruefung: alle Variablen vorhanden 
-SCR02 Vorbereitungen	info	Steuerlisten-Tabelle: dbo.tm_steuerlistenfile_Fakten
-SCR02 Vorbereitungen	info	SCR_02_Vorbereitungen - Start
-SCR01 Parameter einlesen	info	VORABPRUEFUNG BESTANDEN Paket wird fortgesetzt.
-SCR01 Parameter einlesen	info	VALIDATION_FAILED = 0
-SCR01 Parameter einlesen	info	[OK]       PARAM_PROTOKOLL_SP                       = usp_SSIS_Protokoll
-SCR01 Parameter einlesen	info	[OK]       PARAM_PROTOKOLL_TABELLE                  = tm_msi_dm_bst_v3_prot
-SCR01 Parameter einlesen	info	[OK]       PARAM_PROTOKOLL_DB                       = msi_dm_bst_v3
-SCR01 Parameter einlesen	info	Protokollierung
-SCR01 Parameter einlesen	info	Verarbeitung
-SCR01 Parameter einlesen	info	[OK]       PARAM_MAXPARALLEL                        = 8
-SCR01 Parameter einlesen	info	[OK]       PARAM_EXT_TABLE_NAME                     = vm_ddl_sql_server
-SCR01 Parameter einlesen	info	[OK]       PARAM_EXT_TABLE_SCHEMA                   = ext
-SCR01 Parameter einlesen	info	[OK]       PARAM_EXT_SOURCE_LOCATION                = oracle://l9800022db.dst.baintern.de:57575
-SCR01 Parameter einlesen	info	[OK]       PARAM_EXT_TABLE_LOCATION                 = istat.STATRT.VM_DDL_SQL_SERVER
-SCR01 Parameter einlesen	info	[OK]       PARAM_EXT_SOURCE_NAME                    = Oracle-istat
-SCR01 Parameter einlesen	info	PolyBase / External Source
-SCR01 Parameter einlesen	info	[OK]       PARAM_PARAMETER_DB                       = msi_dm_bst_v3
-SCR01 Parameter einlesen	info	[OK]       PARAM_PARAMETERTABELLE                   = tm_msi_dm_bst_v3_param
-SCR01 Parameter einlesen	info	Parametertabelle
-SCR01 Parameter einlesen	info	[OK]       PARAM_STEUERLISTEN_TABELLE               = tm_steuerlistenfile_Fakten
-SCR01 Parameter einlesen	info	Steuerlisten
-SCR01 Parameter einlesen	info	[OK]       PARAM_STL_ORDNER                         = F:\STL
-SCR01 Parameter einlesen	info	[OK]       ATOMIC_ORACLE_PASSWORD                   = [Wert verborgen]
-SCR01 Parameter einlesen	info	[OK]       ATOMIC_ORACLE_USERNAME                   = BI_DM_EXPORT
-SCR01 Parameter einlesen	info	[OK]       PARAM_DATAMART                           = msi_dm_bst_v3
-SCR01 Parameter einlesen	info	Oracle Credentials
-SCR01 Parameter einlesen	info	[OK]       PARAM_VERFAHREN                          = BST
-SCR01 Parameter einlesen	info	[OK]       PARAM_DATENBANK                          = msi_dm_bst_v3
-SCR01 Parameter einlesen	info	[OK]       PARAM_SERVER                             = Q0003713
-SCR01 Parameter einlesen	info	[OK]       PARAM_CONNECTION_SERVER                  = Q0003713\Abnahme21
-SCR01 Parameter einlesen	info	Verbindung / Server
-SCR01 Parameter einlesen	info	SCR01_Parameter_Einlesen - Start
-Paketstart	info	Paketstart erfolgreich abgeschlossen.
-Paketstart	info	Verfahren auf AUSSTEHEND zurueckgesetzt: 0
-Paketstart	info	Schritt 4: Neuen Lauf anlegen
-Paketstart	info	Schritt 3: ETL_Fkt_ArbeitslisteFEHLER AUSSTEHEND
-Paketstart	info	Verwaiste Laeufe auf ABGEBROCHEN gesetzt: 0
-Paketstart	info	Schritt 2: Verwaiste Laeufe (LAUFEND) auf ABGEBROCHEN setzen
-Paketstart	info	ETL_Fakt_LaufHistorie: geprueft/angelegt.
-Paketstart	info	Schritt 1: ETL_Fakt_LaufHistorie sicherstellen
-Paketstart	info	Fakten Laden - Paketstart
+Paket	Task	Meldungstyp	Meldung
+Package	SCR05 Parameter_Vollstaendigkeitspruefung	Fehler	FEHLER: Keine gültigen Verfahren in der Steuerlisten-Tabelle gefunden.
+  Geprüfte Tabelle : dbo.tm_steuerlistenfile_Fakten
+  Bedingungen      : tabname_filter IS NOT NULL
+→ Die Steuerliste enthält keine Zeilen mit befülltem 'tabname_filter'.
+  Bitte laden Sie die Steuerliste für das jeweilige Verfahren hoch.
+Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	Schritt 2: Verfahren aus Steuerliste laden
+Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	Steuerlisten-Tabelle enthaelt 8 Zeile(n) OK
+Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	Steuerlisten-Tabelle [dbo.tm_steuerlistenfile_Fakten] vorhanden OK
+Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	Schritt 1: Steuerlisten-Tabelle pruefen
+Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	SSIS-Variablen-Pruefung: alle vorhanden OK
+Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	Pflichtparameter     : FaktentabelleTemplate, Faktentabelle, Faktenpartitionsspalte, Faktenkomprimierung, FaktenClusteredIndex, DateFormat, Anzahl_ParallelTasks
+Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	SCR_05_Parameter_Vollstaendigkeitspruefung - Start
+Package	SC04 Whereclasuse	info	partition_wert NULL          : 0
+Package	SC04 Whereclasuse	info	kein Partitionsspalte-Eintrag: 8
+Package	SC04 Whereclasuse	info	where_klausel gefuellt       : 0
+Package	SC04 Whereclasuse	info	  vf_bst_sv_20230906                                 -> wert=20230906 | partCol=NULL
+Package	SC04 Whereclasuse	info	  vf_bst_sonst_20230906                              -> wert=20230906 | partCol=NULL
+Package	SC04 Whereclasuse	info	  vf_bst_gb_20230906                                 -> wert=20230906 | partCol=NULL
+Package	SC04 Whereclasuse	info	  vf_bst_bv_sonst_20230906                           -> wert=20230906 | partCol=NULL
+Package	SC04 Whereclasuse	info	  vf_bst_bv_20230906                                 -> wert=20230906 | partCol=NULL
+Package	SC04 Whereclasuse	info	  vf_bst_bew_sv_20230906                             -> wert=20230906 | partCol=NULL
+Package	SC04 Whereclasuse	info	  vf_bst_bew_gb_20230906                             -> wert=20230906 | partCol=NULL
+Package	SC04 Whereclasuse	info	  vf_bst_bew_bv_20230906                             -> wert=20230906 | partCol=NULL
+Package	SC04 Whereclasuse	info	Steuerlisten-Zeilen : 8
+Package	SC04 Whereclasuse	info	Partitionsspalten-Lookup geladen: 28 Eintraege aus Parametertabelle (nur Referenz, keine Verarbeitung)
+Package	SC04 Whereclasuse	info	Partitionsspalte aus Parametertabelle laden ...
+Package	SC04 Whereclasuse	info	Spalten geprueft/angelegt OK
+Package	SC04 Whereclasuse	info	Referenzdatum: 01.03.2026 00:00:00
+Package	SC04 Whereclasuse	info	Steuerlisten-Tabelle : dbo.tm_steuerlistenfile_Fakten
+Package	SC04 Whereclasuse	info	SC04_Whereclause - Start
+Package	SCR03 Stuerliste Laden	info	SCR_03_Steuerlisten_Laden erfolgreich abgeschlossen OK
+Package	SCR03 Stuerliste Laden	info	Datei verschoben nach: F:\STL\Done\v.istat.thm_dm_stat_bst.111283.csv
+Package	SCR03 Stuerliste Laden	info	Datei erfolgreich verarbeitet: v.istat.thm_dm_stat_bst.111283.csv OK
+Package	SCR03 Stuerliste Laden	info	Geladene Tabellen aus [v.istat.thm_dm_stat_bst.111283.csv] (8): vf_bst_bv, vf_bst_bv_sonst, vf_bst_sonst, vf_bst_gb, vf_bst_sv, vf_bst_bew_bv, vf_bst_bew_sv, vf_bst_bew_gb
+Package	SCR03 Stuerliste Laden	info	  Zeilen gesamt: 8 | INSERT: 8 | Uebersprungen: 0
+Package	SCR03 Stuerliste Laden	info	  Arbeitstabelle: vollstaendig geleert
+Package	SCR03 Stuerliste Laden	info	  Themengebiet : thm_dm_stat_bst
+Package	SCR03 Stuerliste Laden	info	  Umgebung     : istat
+Package	SCR03 Stuerliste Laden	info	  Tabellentyp  : v
+Package	SCR03 Stuerliste Laden	info	Vollstaendiger Pfad : F:\STL\v.istat.thm_dm_stat_bst.111283.csv
+Package	SCR03 Stuerliste Laden	info	Verarbeite Datei: v.istat.thm_dm_stat_bst.111283.csv
+Package	SCR03 Stuerliste Laden	info	Arbeitstabelle und Audit-Tabelle geprueft/angelegt OK
+Package	SCR03 Stuerliste Laden	info	Audit-Tabelle  : dbo.tm_steuerlistenfile_Fakten_audit
+Package	SCR03 Stuerliste Laden	info	Pflichtfelder-Pruefung: alle Variablen vorhanden OK
+Package	SCR03 Stuerliste Laden	info	Arbeitstabelle : dbo.tm_steuerlistenfile_Fakten
+Package	SCR03 Stuerliste Laden	info	SCR_03_Steuerlisten_Laden - Start
+Package	SCR02 Vorbereitungen	info	SCR_01_Vorbereitungen erfolgreich abgeschlossen.
+Package	SCR02 Vorbereitungen	info	  Index erstellt: IX_vm_ddl_sql_server_TABNAME_COLNAME (TABNAME, COLNAME)
+Package	SCR02 Vorbereitungen	info	  dbo-Kopie erstellt: dbo.vm_ddl_sql_server | Zeilen: 1016733
+Package	SCR02 Vorbereitungen	info	  Alte dbo-Kopie geloescht (falls vorhanden)
+Package	SCR02 Vorbereitungen	info	Schritt 8: Lokale dbo-Kopie [dbo.vm_ddl_sql_server] erstellen
+Package	SCR02 Vorbereitungen	info	Externe Partitionssicht [ext.[v_partition_info]]: erfolgreich angelegt 
+Package	SCR02 Vorbereitungen	info	  Oracle Location: ISTAT.BI_DM_EXPORT.V_PARTITION_INFO
+Package	SCR02 Vorbereitungen	info	Externe Partitionssicht [ext.[v_partition_info]]: geloescht (falls vorhanden) wird neu angelegt
+Package	SCR02 Vorbereitungen	info	Schritt 7a: Externe Partitionssicht [ext.v_partition_info] pruefen
+Package	SCR02 Vorbereitungen	info	Externe DDL-Tabelle [ext.vm_ddl_sql_server]: bereits vorhanden uebersprungen 
+Package	SCR02 Vorbereitungen	info	Schritt 7: Externe DDL-Tabelle [ext.vm_ddl_sql_server] pruefen
+Package	SCR02 Vorbereitungen	info	Schema [ext]: bereits vorhanden uebersprungen 
+Package	SCR02 Vorbereitungen	info	Schritt 6: Schema [ext] pruefen
+Package	SCR02 Vorbereitungen	info	External Data Source [Oracle-istat]: bereits vorhanden uebersprungen 
+Package	SCR02 Vorbereitungen	info	Schritt 5: External Data Source pruefen
+Package	SCR02 Vorbereitungen	info	Credential [Q0003713_BI_DM_EXPORT]: bereits vorhanden uebersprungen 
+Package	SCR02 Vorbereitungen	info	Schritt 4: PolyBase Credential pruefen
+Package	SCR02 Vorbereitungen	info	Master Key: bereits vorhanden uebersprungen 
+Package	SCR02 Vorbereitungen	info	Schritt 3: PolyBase Master Key pruefen
+Package	SCR02 Vorbereitungen	info	ETL_Fkt_FehlerHistorie: geprueft/angelegt 
+Package	SCR02 Vorbereitungen	info	Schritt 2: ETL_Fkt_FehlerHistorie sicherstellen
+Package	SCR02 Vorbereitungen	info	ETL_Fkt_Arbeitsliste: geprueft/angelegt 
+Package	SCR02 Vorbereitungen	info	Schritt 1: ETL_Fkt_Arbeitsliste sicherstellen
+Package	SCR02 Vorbereitungen	info	Pflichtfelder-Pruefung: alle Variablen vorhanden 
+Package	SCR02 Vorbereitungen	info	Steuerlisten-Tabelle: dbo.tm_steuerlistenfile_Fakten
+Package	SCR02 Vorbereitungen	info	SCR_02_Vorbereitungen - Start
+Package	SCR01 Parameter einlesen	info	VORABPRUEFUNG BESTANDEN Paket wird fortgesetzt.
+Package	SCR01 Parameter einlesen	info	VALIDATION_FAILED = 0
+Package	SCR01 Parameter einlesen	info	[OK]       PARAM_PROTOKOLL_TABELLE                  = tm_msi_dm_bst_v3_prot
+Package	SCR01 Parameter einlesen	info	[OK]       PARAM_PROTOKOLL_SP                       = usp_SSIS_Protokoll
+Package	SCR01 Parameter einlesen	info	[OK]       PARAM_PROTOKOLL_DB                       = msi_dm_bst_v3
+Package	SCR01 Parameter einlesen	info	[OK]       PARAM_MAXPARALLEL                        = 8
+Package	SCR01 Parameter einlesen	info	Protokollierung
+Package	SCR01 Parameter einlesen	info	Verarbeitung
+Package	SCR01 Parameter einlesen	info	[OK]       PARAM_EXT_TABLE_NAME                     = vm_ddl_sql_server
+Package	SCR01 Parameter einlesen	info	[OK]       PARAM_EXT_TABLE_SCHEMA                   = ext
+Package	SCR01 Parameter einlesen	info	[OK]       PARAM_EXT_SOURCE_LOCATION                = oracle://l9800022db.dst.baintern.de:57575
+Package	SCR01 Parameter einlesen	info	[OK]       PARAM_EXT_TABLE_LOCATION                 = istat.STATRT.VM_DDL_SQL_SERVER
+Package	SCR01 Parameter einlesen	info	[OK]       PARAM_EXT_SOURCE_NAME                    = Oracle-istat
+Package	SCR01 Parameter einlesen	info	PolyBase / External Source
+Package	SCR01 Parameter einlesen	info	[OK]       PARAM_PARAMETERTABELLE                   = tm_msi_dm_bst_v3_param
+Package	SCR01 Parameter einlesen	info	[OK]       PARAM_PARAMETER_DB                       = msi_dm_bst_v3
+Package	SCR01 Parameter einlesen	info	Parametertabelle
+Package	SCR01 Parameter einlesen	info	[OK]       PARAM_STL_ORDNER                         = F:\STL
+Package	SCR01 Parameter einlesen	info	[OK]       PARAM_STEUERLISTEN_TABELLE               = tm_steuerlistenfile_Fakten
+Package	SCR01 Parameter einlesen	info	Steuerlisten
+Package	SCR01 Parameter einlesen	info	[OK]       ATOMIC_ORACLE_PASSWORD                   = [Wert verborgen]
+Package	SCR01 Parameter einlesen	info	[OK]       ATOMIC_ORACLE_USERNAME                   = BI_DM_EXPORT
+Package	SCR01 Parameter einlesen	info	[OK]       PARAM_DATAMART                           = msi_dm_bst_v3
+Package	SCR01 Parameter einlesen	info	Oracle Credentials
+Package	SCR01 Parameter einlesen	info	[OK]       PARAM_VERFAHREN                          = BST
+Package	SCR01 Parameter einlesen	info	[OK]       PARAM_DATENBANK                          = msi_dm_bst_v3
+Package	SCR01 Parameter einlesen	info	[OK]       PARAM_CONNECTION_SERVER                  = Q0003713\Abnahme21
+Package	SCR01 Parameter einlesen	info	[OK]       PARAM_SERVER                             = Q0003713
+Package	SCR01 Parameter einlesen	info	Verbindung / Server
+Package	SCR01 Parameter einlesen	info	SCR01_Parameter_Einlesen - Start
+Package	Paketstart	info	Paketstart erfolgreich abgeschlossen.
+Package	Paketstart	info	Schritt 4: Neuen Lauf anlegen
+Package	Paketstart	info	Verfahren auf AUSSTEHEND zurueckgesetzt: 0
+Package	Paketstart	info	Schritt 3: ETL_Fkt_ArbeitslisteFEHLER AUSSTEHEND
+Package	Paketstart	info	Verwaiste Laeufe auf ABGEBROCHEN gesetzt: 0
+Package	Paketstart	info	Schritt 2: Verwaiste Laeufe (LAUFEND) auf ABGEBROCHEN setzen
+Package	Paketstart	info	ETL_Fakt_LaufHistorie: geprueft/angelegt.
+Package	Paketstart	info	Schritt 1: ETL_Fakt_LaufHistorie sicherstellen
+Package	Paketstart	info	Fakten Laden - Paketstart
+Package	PaketEnd	info	Laufzeit    : 25 Sekunden
+Package	PaketEnd	info	PaketEnd abgeschlossen OK
+Package	PaketEnd	info	Fehler      : 0
+Package	PaketEnd	info	Erfolgreich : 1
+Package	PaketEnd	info	Gesamt      : 1
+Package	PaketEnd	info	LaufHistorie aktualisiert OK
+Package	PaketEnd	info	PaketEnd - Start
