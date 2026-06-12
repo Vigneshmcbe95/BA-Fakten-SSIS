@@ -245,6 +245,22 @@ Partial Public Class ScriptMain
         ' ─── SELECT INTO _LOADING (atomar) ───
         Dim zeilen As Integer = DatenLadenSelectInto(connStr, v, loadingTable, extTable, pv)
 
+        ' ─── 0 Zeilen = Konfigurationsfehler -> Lauf abbrechen ───
+        ' Sonst wuerde SCR19 eine LEERE Partition in die Faktentabelle
+        ' tauschen. Leere _LOADING-Huelle entfernen, damit ein erneuter
+        ' Lauf sauber startet.
+        If zeilen = 0 Then
+            SqlAusfuehren(connStr,
+                "IF OBJECT_ID('dbo.[" & loadingTable & "]','U') IS NOT NULL DROP TABLE dbo.[" & loadingTable & "];",
+                "DROP _LOADING leer " & pv)
+            Throw New Exception("Oracle-Tabelle via PolyBase [ext." & extTable & "] lieferte 0 Zeilen fuer " &
+                                v.PartitionColumn & " = " & pv & ". " &
+                                "Bitte pruefen: (1) existiert der Wert in Oracle (SELECT DISTINCT " &
+                                v.PartitionColumn & " FROM ext.[" & extTable & "])? " &
+                                "(2) ist die Faktenpartitionsspalte [" & v.PartitionColumn &
+                                "] in der Parametertabelle fuer Verfahren [" & v.Verfahren & "] korrekt?")
+        End If
+
         ' ─── RENAME _LOADING → _in_ (atomar abschliessen) ───
         SqlAusfuehren(connStr,
             "EXEC sp_rename 'dbo.[" & loadingTable & "]', '" & inTable & "';",
