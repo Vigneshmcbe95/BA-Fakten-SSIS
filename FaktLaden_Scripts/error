@@ -24,3 +24,60 @@ SCR06 Arbeitsliste Aufbauen	info	Schritt 2: Status analysieren und zuruecksetzen
 SCR06 Arbeitsliste Aufbauen	info	Neue Verfahren eingetragen: 1
 SCR06 Arbeitsliste Aufbauen	info	Schritt 1: Neue Verfahren aus Steuerliste eintragen
 SCR06 Arbeitsliste Aufbauen	info	Aktueller Lauf: Datei [v.istat.xro_dm_stat_bst_perm.csv] | Tabellen in Steuerliste (1): tf_bst_hr_25
+
+
+SELECT*
+  FROM [msi_dm_bst_v3].[dbo].[ddl_staging]
+  where tabname ='tf_bst_hr_25'
+
+THMNAME	TABNAME	COLNAME	COLNO	TYPNAME	COLLENGTH	PRECISION	SCALE	IS_NULLABLE
+thm_dm_stat_bst	tf_bst_hr_25	kng_id	4	smallint	0	5	0	0
+thm_dm_stat_bst	tf_bst_hr_25	bfr_id	12	smallint	0	5	0	0
+xro_dm_stat_bst	tf_bst_hr_25	mon_id	3	int	0	10	0	0
+xro_dm_stat_bst	tf_bst_hr_25	abz_id	11	smallint	0	5	0	0
+thm_dm_stat_bst	tf_bst_hr_25	bzp_id	6	smallint	0	5	0	0
+thm_dm_stat_bst	tf_bst_hr_25	hr_25_anzahl	14	int	0	10	0	0
+xro_dm_stat_bst	tf_bst_hr_25	bxe_id	5	int	0	10	0	0
+xro_dm_stat_bst	tf_bst_hr_25	dim_25_anteil	13	decimal	0	11	8	0
+thm_dm_stat_bst	tf_bst_hr_25	bxe_id	5	int	0	10	0	0
+thm_dm_stat_bst	tf_bst_hr_25	dim_25_anteil	13	decimal	0	11	8	0
+xro_dm_stat_bst	tf_bst_hr_25	kng_id	4	smallint	0	5	0	0
+xro_dm_stat_bst	tf_bst_hr_25	bfr_id	12	smallint	0	5	0	0
+thm_dm_stat_bst	tf_bst_hr_25	bld_id	8	int	0	10	0	0
+xro_dm_stat_bst	tf_bst_hr_25	xph_id	7	smallint	0	5	0	0
+xro_dm_stat_bst	tf_bst_hr_25	bld_id	8	int	0	10	0	0
+thm_dm_stat_bst	tf_bst_hr_25	mon_id_v	1	int	0	10	0	0
+thm_dm_stat_bst	tf_bst_hr_25	c25_id	9	smallint	0	5	0	0
+xro_dm_stat_bst	tf_bst_hr_25	mow_id	2	int	0	10	0	0
+xro_dm_stat_bst	tf_bst_hr_25	sex_id	10	smallint	0	5	0	0
+thm_dm_stat_bst	tf_bst_hr_25	mon_id	3	int	0	10	0	0
+thm_dm_stat_bst	tf_bst_hr_25	abz_id	11	smallint	0	5	0	0
+xro_dm_stat_bst	tf_bst_hr_25	mon_id_v	1	int	0	10	0	0
+xro_dm_stat_bst	tf_bst_hr_25	c25_id	9	smallint	0	5	0	0
+thm_dm_stat_bst	tf_bst_hr_25	mow_id	2	int	0	10	0	0
+thm_dm_stat_bst	tf_bst_hr_25	sex_id	10	smallint	0	5	0	0
+thm_dm_stat_bst	tf_bst_hr_25	xph_id	7	smallint	0	5	0	0
+xro_dm_stat_bst	tf_bst_hr_25	bzp_id	6	smallint	0	5	0	0
+xro_dm_stat_bst	tf_bst_hr_25	hr_25_anzahl	14	int	0	10	0	0
+
+
+SELECT *
+  FROM [msi_dm_bst_v3].[dbo].[tm_polybase_struktur]
+  Where tabname ='tf_bst_hr_25'
+
+themengebiet	tabname	colname	colno	columns_dbo	columns_ext
+xro_dm_stat_bst	tf_bst_hr_25	abz_id	11		abz_id = ISNULL(ABZ_ID, 0)		ABZ_ID smallint NULL
+xro_dm_stat_bst	tf_bst_hr_25	bfr_id	12		bfr_id = ISNULL(BFR_ID, 0)		BFR_ID smallint NULL
+xro_dm_stat_bst	tf_bst_hr_25	bld_id	8		bld_id = ISNULL(BLD_ID, 0)		BLD_ID int NULL
+xro_dm_stat_bst	tf_bst_hr_25	bxe_id	5		bxe_id = ISNULL(BXE_ID, 0)		BXE_ID int NULL
+xro_dm_stat_bst	tf_bst_hr_25	bzp_id	6		bzp_id = ISNULL(BZP_ID, 0)		BZP_ID smallint NULL
+xro_dm_stat_bst	tf_bst_hr_25	c25_id	9		c25_id = ISNULL(C25_ID, 0)		C25_ID smallint NULL
+xro_dm_stat_bst	tf_bst_hr_25	dim_25_anteil	13		dim_25_anteil = ISNULL(DIM_25_ANTEIL, 0)		DIM_25_ANTEIL decimal(11,8) NULL
+xro_dm_stat_bst	tf_bst_hr_25	hr_25_anzahl	14		hr_25_anzahl = ISNULL(HR_25_ANZAHL, 0)		HR_25_ANZAHL int NULL
+xro_dm_stat_bst	tf_bst_hr_25	kng_id	4		kng_id = ISNULL(KNG_ID, 0)		KNG_ID smallint NULL
+xro_dm_stat_bst	tf_bst_hr_25	mon_id	3		mon_id = ISNULL(MON_ID, 0)		MON_ID int NULL
+xro_dm_stat_bst	tf_bst_hr_25	mon_id_v	1		mon_id_v = ISNULL(MON_ID_V, 0)		MON_ID_V int NULL
+xro_dm_stat_bst	tf_bst_hr_25	mow_id	2		mow_id = ISNULL(MOW_ID, 0)		MOW_ID int NULL
+xro_dm_stat_bst	tf_bst_hr_25	sex_id	10		sex_id = ISNULL(SEX_ID, 0)		SEX_ID smallint NULL
+xro_dm_stat_bst	tf_bst_hr_25	xph_id	7		xph_id = ISNULL(XPH_ID, 0)		XPH_ID smallint NULL
+
