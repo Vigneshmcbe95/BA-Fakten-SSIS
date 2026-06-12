@@ -266,13 +266,17 @@ Partial Public Class ScriptMain
                                           loadingTable As String, extTable As String,
                                           partitionValue As String) As Integer
 
-        ' Spaltenliste aus INFORMATION_SCHEMA der Template-Tabelle
+        ' SELECT-Liste aus columns_dbo (tm_polybase_struktur): die
+        ' ISNULL/CONVERT-Ausdruecke erzeugen exakt die dbo-Typen und die
+        ' Nullability des Templates / der Faktentabelle. Blosse Spaltennamen
+        ' FROM ext.[] wuerden Typen/Nullability der ext-Tabelle erben
+        ' (alles NULL) -> SWITCH IN scheitert an abweichender Nullability.
         Dim selectList As String = Nothing
-        Dim templateName As String = v.Faktentabelle.ToLower() & "_template"
         Dim sqlCols As String =
-            "SELECT STRING_AGG(CAST(c.COLUMN_NAME AS nvarchar(max)), ',' + CHAR(13) + CHAR(10)) WITHIN GROUP (ORDER BY c.ORDINAL_POSITION) " &
-            "FROM [" & _datenbank & "].INFORMATION_SCHEMA.COLUMNS c " &
-            "WHERE c.TABLE_SCHEMA = 'dbo' AND c.TABLE_NAME = '" & templateName & "'"
+            "SELECT STRING_AGG(CAST(columns_dbo AS nvarchar(max)), ',' + CHAR(13) + CHAR(10)) WITHIN GROUP (ORDER BY colno) " &
+            "FROM dbo.tm_polybase_struktur " &
+            "WHERE tabname = '" & v.Faktentabelle.ToLower().Replace("'", "''") & "' " &
+            "AND themengebiet = '" & v.Themengebiet.Trim().ToLower().Replace("'", "''") & "'"
 
         Dim versuch As Integer = 0
         While versuch < MAX_VERSUCHE
@@ -298,7 +302,8 @@ Partial Public Class ScriptMain
         End While
 
         If String.IsNullOrEmpty(selectList) Then
-            Throw New Exception("Spaltenliste konnte nicht aus Template geladen werden: " & templateName)
+            Throw New Exception("columns_dbo nicht gefunden in tm_polybase_struktur fuer " &
+                                v.Themengebiet & "." & v.Faktentabelle.ToLower())
         End If
 
         Dim sql As String =

@@ -100,8 +100,7 @@ Partial Public Class ScriptMain
                 Try
                     StatusSetzen(connStr, v.ID, "STAGING_ERSTELLEN")
 
-                    ' Spaltenliste aus INFORMATION_SCHEMA der Template-Tabelle
-                    Dim selectList As String = HoleSpaltenlisteAusTemplate(connStr, v)
+                    Dim templateTabelle As String = v.Faktentabelle.ToLower() & "_template"
 
                     ' _out pro Partitionswert erstellen
                     Dim cntStaging As Integer = 0
@@ -109,10 +108,15 @@ Partial Public Class ScriptMain
                         Dim pvStr As String = pe.Wert
                         Dim outTabelle As String = v.Faktentabelle.ToLower() & "_out_" & pvStr
 
-                        ' _out Tabelle per SELECT TOP 0 mit columns_dbo erstellen
+                        ' _out als exakte Strukturkopie des Templates erstellen:
+                        ' SELECT INTO aus einer echten Tabelle uebernimmt Typ,
+                        ' Nullability und Collation 1:1 - identisch zur
+                        ' Faktentabelle, die SCR10 aus demselben Template baut.
+                        ' (Vorher FROM ext.[fakt]: alle Spalten nullable ->
+                        ' SWITCH scheiterte an abweichender Nullability.)
                         SqlAusfuehren(connStr, "IF OBJECT_ID('dbo.[" & outTabelle & "]','U') IS NOT NULL DROP TABLE dbo.[" & outTabelle & "];", "_out loeschen")
 
-                        SqlAusfuehren(connStr, "SELECT TOP 0 " & selectList & " INTO dbo.[" & outTabelle & "] FROM ext.[" & v.Faktentabelle.ToLower() & "];", "_out erstellen")
+                        SqlAusfuehren(connStr, "SELECT TOP 0 * INTO dbo.[" & outTabelle & "] FROM dbo.[" & templateTabelle & "];", "_out erstellen")
 
                         Log("  _out erstellt: " & pvStr & " | Modus: " & pe.Modus)
                         cntStaging += 1
@@ -143,39 +147,6 @@ Partial Public Class ScriptMain
         End Try
 
     End Sub
-
-    ' -----------------------------------------------------------------------
-    ' HoleSpaltenlisteAusTemplate - Liest die geordnete Spaltenliste aus
-    ' INFORMATION_SCHEMA der Template-Tabelle.
-    ' -----------------------------------------------------------------------
-    Private Function HoleSpaltenlisteAusTemplate(connStr As String, v As VerfahrenInfo) As String
-        Dim templateName As String = v.Faktentabelle.ToLower() & "_template"
-        Log("  Lade Spaltenliste aus INFORMATION_SCHEMA: " & templateName)
-
-        Dim sqlCols As String =
-            "SELECT STRING_AGG(CAST(c.COLUMN_NAME AS nvarchar(max)), ',' + CHAR(13) + CHAR(10)) WITHIN GROUP (ORDER BY c.ORDINAL_POSITION) " &
-            "FROM [" & _datenbank & "].INFORMATION_SCHEMA.COLUMNS c " &
-            "WHERE c.TABLE_SCHEMA = 'dbo' AND c.TABLE_NAME = '" & templateName & "'"
-
-        Dim versuch As Integer = 0
-        While versuch < MAX_VERSUCHE
-            versuch += 1
-            Try
-                Using conn As New SqlConnection(connStr)
-                    conn.Open()
-                    Using cmd As New SqlCommand(sqlCols, conn)
-                        Dim r As Object = cmd.ExecuteScalar()
-                        If r IsNot Nothing AndAlso r IsNot DBNull.Value Then Return r.ToString()
-                    End Using
-                End Using
-            Catch ex As Exception
-                Log(String.Format("WARNUNG [Template Spalten] Versuch {0}/{1}: {2}", versuch, MAX_VERSUCHE, ex.Message))
-                If versuch < MAX_VERSUCHE Then System.Threading.Thread.Sleep(WARTE_SEK * 1000) Else Throw
-            End Try
-        End While
-
-        Throw New Exception("Spaltenliste konnte nicht aus Template geladen werden: " & templateName)
-    End Function
 
     ' -----------------------------------------------------------------------
     ' VerfahrenLaden - Laedt die zu verarbeitenden Verfahren aus der
