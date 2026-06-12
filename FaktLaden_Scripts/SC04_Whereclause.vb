@@ -49,46 +49,35 @@ Partial Public Class ScriptMain
 
             SpaltenSicherstellen(connStr)
 
-            ' ── Partitionsspalte direkt aus Parametertabelle (vom Benutzer gepflegt)
-            Log("Partitionsspalte aus Parametertabelle laden ...")
-            Dim partLookup As Dictionary(Of String, String) = PartitionsspalteAusParameterLaden(connStr)
-            Log("Partitionsspalten-Lookup geladen: " & partLookup.Count.ToString() & " Eintraege aus Parametertabelle (nur Referenz, keine Verarbeitung)")
-
+            ' Es wird nur partition_wert befuellt - die Partitionsspalte
+            ' kommt in allen Folgeskripten aus der Parametertabelle und
+            ' wird hier nicht benoetigt. SCR11 erkennt den MANUAL-Modus
+            ' am gefuellten partition_wert.
             Dim zeilen As List(Of Zeile) = ZeilenLaden(connStr)
             Log("Steuerlisten-Zeilen : " & zeilen.Count.ToString())
 
             Dim cntMit As Integer = 0
             Dim cntOhne As Integer = 0
-            Dim cntNull As Integer = 0
 
             For Each z As Zeile In zeilen
 
-                Dim partCol As String = String.Empty
-                partLookup.TryGetValue(z.Tabelle.ToLower().Trim(), partCol)
-
                 Dim wert As String = WertExtrahieren(z.TabnameFilter)
 
-                Dim where As String = Nothing
-                If Not String.IsNullOrEmpty(partCol) AndAlso wert IsNot Nothing Then
-                    where = "WHERE " & partCol & " = '" & wert & "'"
+                If wert IsNot Nothing Then
                     cntMit += 1
-                ElseIf wert IsNot Nothing AndAlso String.IsNullOrEmpty(partCol) Then
-                    cntNull += 1
                 Else
                     cntOhne += 1
                 End If
 
-                Log(String.Format("  {0,-50} -> wert={1} | partCol={2}",
+                Log(String.Format("  {0,-50} -> wert={1}",
                     z.TabnameFilter,
-                    If(wert IsNot Nothing, wert, "NULL"),
-                    If(String.IsNullOrEmpty(partCol), "NULL", partCol)))
+                    If(wert IsNot Nothing, wert, "NULL")))
 
-                ZurueckSchreiben(connStr, z.TabnameFilter, z.FileName, where, wert)
+                ZurueckSchreiben(connStr, z.TabnameFilter, z.FileName, Nothing, wert)
             Next
 
-            Log("where_klausel gefuellt       : " & cntMit.ToString())
-            Log("partition_wert NULL          : " & cntOhne.ToString())
-            Log("kein Partitionsspalte-Eintrag: " & cntNull.ToString())
+            Log("partition_wert gefuellt: " & cntMit.ToString())
+            Log("partition_wert NULL    : " & cntOhne.ToString())
             Dts.TaskResult = ScriptResults.Success
 
         Catch ex As Exception
@@ -134,50 +123,6 @@ Partial Public Class ScriptMain
 
         Return Nothing
 
-    End Function
-
-    ' -----------------------------------------------------------------------
-    ' PartitionsspalteAusParameterLaden - Liest die Partitionsspalte eines
-    ' Verfahrens aus der Parametertabelle.
-    ' -----------------------------------------------------------------------
-    Private Function PartitionsspalteAusParameterLaden(connStr As String) As Dictionary(Of String, String)
-        Dim dict As New Dictionary(Of String, String)()
-        Dim sql As String =
-            "SELECT LOWER(LTRIM(RTRIM(Verfahren))), LTRIM(RTRIM(Wert)) " &
-            "FROM   " & _parameterDB & ".dbo." & _parametertab & " " &
-            "WHERE  LOWER(LTRIM(RTRIM(Parameter))) = 'faktenpartitionsspalte' " &
-            "AND    Wert IS NOT NULL AND LTRIM(RTRIM(Wert)) <> ''"
-
-        Dim versuch As Integer = 0
-        Dim letzterFehler As Exception = Nothing
-        While versuch < MAX_VERSUCHE
-            versuch += 1
-            Try
-                Using conn As New SqlConnection(connStr)
-                    conn.Open()
-                    Using cmd As New SqlCommand(sql, conn)
-                        cmd.CommandTimeout = 0
-                        Using rdr As SqlDataReader = cmd.ExecuteReader()
-                            While rdr.Read()
-                                Dim key As String = rdr(0).ToString().Trim().ToLower()
-                                Dim val As String = rdr(1).ToString().Trim()
-                                If Not dict.ContainsKey(key) Then dict(key) = val
-                            End While
-                        End Using
-                    End Using
-                End Using
-                Return dict
-            Catch ex As Exception
-                letzterFehler = ex
-                Log(String.Format("WARNUNG [PartitionsspalteAusParameterLaden] Versuch {0}/{1}: {2}",
-                    versuch, MAX_VERSUCHE, ex.Message))
-                If versuch < MAX_VERSUCHE Then System.Threading.Thread.Sleep(WARTE_SEK * 1000)
-            End Try
-        End While
-        Throw New Exception(String.Format(
-            "[PartitionsspalteAusParameterLaden] fehlgeschlagen nach {0} Versuchen: {1}",
-            MAX_VERSUCHE,
-            If(letzterFehler IsNot Nothing, letzterFehler.Message, "Unbekannt")))
     End Function
 
     ' -----------------------------------------------------------------------

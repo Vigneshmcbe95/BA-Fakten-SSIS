@@ -68,9 +68,11 @@ Partial Public Class ScriptMain
                     StatusSetzen(connStr, v.ID, "PARTITIONSGRENZEN")
 
                     ' ═════════════════════════════════════════════════════════
-                    ' SCHRITT 1: where_klausel pruefen → Modus bestimmen
+                    ' SCHRITT 1: partition_wert pruefen → Modus bestimmen
+                    ' (MANUAL sobald der Benutzer in der STL-Datei einen
+                    '  konkreten Wert mitgegeben hat - SC04 schreibt ihn in
+                    '  partition_wert; where_klausel wird nicht mehr genutzt)
                     ' ═════════════════════════════════════════════════════════
-                    Dim whereKlausel As String = WhereKlauselLaden(connStr, v.Verfahren)
                     Dim benutzerWerte As List(Of Integer) = PartitionWerteLaden(connStr, v.Verfahren)
 
                     Dim zuVerarbeiten As New List(Of PartitionsEintrag)()
@@ -78,15 +80,14 @@ Partial Public Class ScriptMain
                     Dim oracleAlleWerte As List(Of Integer) = Nothing
                     Dim mssqlWerte As List(Of Integer) = Nothing
 
-                    If Not String.IsNullOrEmpty(whereKlausel) Then
+                    If benutzerWerte.Count > 0 Then
                         ' ═════════════════════════════════════════════════════
-                        ' MODE 1: MANUAL (where_klausel gesetzt)
+                        ' MODE 1: MANUAL (partition_wert gesetzt)
                         ' Oracle-Pruefung wird uebersprungen - partition_wert
                         ' direkt aus Steuerliste verwenden
                         ' ═════════════════════════════════════════════════════
                         modus = "MANUAL"
-                        Log("  MODE: MANUAL (where_klausel gesetzt - Oracle-Pruefung uebersprungen)")
-                        Log("  where_klausel: " & whereKlausel)
+                        Log("  MODE: MANUAL (partition_wert gesetzt - Oracle-Pruefung uebersprungen)")
                         Log("  Benutzer partition_wert: " & benutzerWerte.Count.ToString() & " Werte")
                         If benutzerWerte.Count > 0 Then
                             Log("  MIN: " & benutzerWerte.Min().ToString() & " | MAX: " & benutzerWerte.Max().ToString())
@@ -311,38 +312,8 @@ Partial Public Class ScriptMain
     End Sub
 
     ' -----------------------------------------------------------------------
-    ' WhereKlauselLaden - Liest where_klausel aus der Steuerliste.
-    ' Ist sie befuellt, wird MANUAL-Modus ohne Oracle-Pruefung verwendet.
-    ' -----------------------------------------------------------------------
-    Private Function WhereKlauselLaden(connStr As String, verfahren As String) As String
-        Dim sql As String =
-            "SELECT TOP 1 LTRIM(RTRIM(where_klausel)) " &
-            "FROM dbo." & _stlTabelle &
-            " WHERE LOWER(LTRIM(RTRIM(tabelle))) = @verf" &
-            "   AND where_klausel IS NOT NULL" &
-            "   AND LTRIM(RTRIM(where_klausel)) <> ''"
-        Dim versuch As Integer = 0
-        While versuch < MAX_VERSUCHE
-            versuch += 1
-            Try
-                Using conn As New SqlConnection(connStr)
-                    conn.Open()
-                    Using cmd As New SqlCommand(sql, conn)
-                        cmd.CommandTimeout = 0
-                        cmd.Parameters.AddWithValue("@verf", verfahren.ToLower().Trim())
-                        Dim result As Object = cmd.ExecuteScalar()
-                        Return If(result Is Nothing OrElse result Is DBNull.Value, String.Empty, result.ToString().Trim())
-                    End Using
-                End Using
-            Catch ex As Exception
-                If versuch < MAX_VERSUCHE Then System.Threading.Thread.Sleep(WARTE_SEK * 1000) Else Throw
-            End Try
-        End While
-        Return String.Empty
-    End Function
-
-    ' -----------------------------------------------------------------------
     ' PartitionWerteLaden - Laedt die Partitionswerte eines Verfahrens.
+    ' Sind Werte vorhanden, wird MANUAL-Modus ohne Oracle-Pruefung verwendet.
     ' -----------------------------------------------------------------------
     Private Function PartitionWerteLaden(connStr As String, verfahren As String) As List(Of Integer)
         Dim alleWerte As New HashSet(Of Integer)()

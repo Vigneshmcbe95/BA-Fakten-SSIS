@@ -80,18 +80,23 @@ Partial Public Class ScriptMain
             Dim verfahrenListe As List(Of String) = VerfahrenAusSteuerlisteHolen(connStr)
 
             If verfahrenListe.Count = 0 Then
+                ' Welche Tabellen stehen in der Steuerliste, fehlen aber in
+                ' der Parametertabelle? Fuer eine konkrete Fehlermeldung.
+                Dim fehlende As String = FehlendeVerfahrenErmitteln(connStr)
                 Dim fehler As String =
-                    "FEHLER: Keine gültigen Verfahren in der Steuerlisten-Tabelle gefunden." &
+                    "FEHLER: Keines der Verfahren aus der Steuerliste ist in der Parametertabelle konfiguriert." &
                     Environment.NewLine &
-                    "  Geprüfte Tabelle : dbo." & _steuerlistenTabelle &
+                    "  Steuerlisten-Tabelle : dbo." & _steuerlistenTabelle &
                     Environment.NewLine &
-                    "  Bedingungen      : tabname_filter IS NOT NULL" &
+                    "  Parametertabelle     : " & _parameterDB & ".dbo." & _parametertabelle &
                     Environment.NewLine &
-                    "→ Die Steuerliste enthält keine Zeilen mit befülltem 'tabname_filter'." &
+                    "  Fehlende Verfahren   : " & fehlende &
                     Environment.NewLine &
-                    "  Bitte laden Sie die Steuerliste für das jeweilige Verfahren hoch."
+                    "→ Bitte die Pflichtparameter (" & String.Join(", ", PFLICHT_PARAMETER) & ")" &
+                    " fuer diese Verfahren in der Parametertabelle anlegen" &
+                    " (Vorlage: Tool_Parameter_Befuellen.sql)."
                 LogFehler(fehler)
-                Dts.TaskResult = ScriptResults.Success
+                Dts.TaskResult = ScriptResults.Failure
                 Return
             End If
 
@@ -294,6 +299,32 @@ Partial Public Class ScriptMain
         Log("Steuerlisten-Tabelle enthaelt " & anzahlZeilen.ToString() & " Zeile(n) OK")
         Return True
 
+    End Function
+
+    ' -----------------------------------------------------------------------
+    ' FehlendeVerfahrenErmitteln - Listet die Steuerlisten-Tabellen auf,
+    ' die in der Parametertabelle nicht als Verfahren existieren.
+    ' -----------------------------------------------------------------------
+    Private Function FehlendeVerfahrenErmitteln(connStr As String) As String
+        Dim sql As String =
+        "SELECT STRING_AGG(CAST(t.tabelle AS nvarchar(max)), ', ') FROM (" &
+        "  SELECT DISTINCT LOWER(LTRIM(RTRIM(s.tabelle))) AS tabelle " &
+        "  FROM dbo." & _steuerlistenTabelle & " s " &
+        "  WHERE NOT EXISTS (SELECT 1 FROM " & _parameterDB & ".dbo." & _parametertabelle & " p " &
+        "                    WHERE LOWER(LTRIM(RTRIM(p.Verfahren))) = LOWER(LTRIM(RTRIM(s.tabelle))))" &
+        ") t"
+        Try
+            Using conn As New SqlConnection(connStr)
+                conn.Open()
+                Using cmd As New SqlCommand(sql, conn)
+                    cmd.CommandTimeout = 0
+                    Dim r As Object = cmd.ExecuteScalar()
+                    If r IsNot Nothing AndAlso r IsNot DBNull.Value Then Return r.ToString()
+                End Using
+            End Using
+        Catch
+        End Try
+        Return "(konnte nicht ermittelt werden)"
     End Function
 
     ' -----------------------------------------------------------------------
