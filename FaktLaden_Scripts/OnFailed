@@ -86,11 +86,11 @@ SET
 WHERE ID = @ID;
 
 -- =====================================================================
--- Aufraeumen bei Fehler: leere _out_-Tabellen der Verfahren dieses
--- Laufs entfernen. Nur LEERE Tabellen werden geloescht - eine gefuellte
--- _out_-Tabelle enthaelt nach SWITCH OUT die alten Partitionsdaten
--- (Rollback-Kopie) und bleibt erhalten. _in_-Tabellen bleiben immer
--- erhalten (Resume-Cache, erspart erneutes Laden aus Oracle).
+-- Aufraeumen bei Fehler: leere _out_- und _in_-Tabellen der Verfahren
+-- dieses Laufs entfernen. Nur LEERE Tabellen werden geloescht - eine
+-- gefuellte _out_-Tabelle enthaelt nach SWITCH OUT die alten
+-- Partitionsdaten (Rollback-Kopie) und bleibt erhalten. Eine gefuellte
+-- _in_-Tabelle ist ein gueltiger Resume-Cache und bleibt erhalten.
 -- =====================================================================
 DECLARE @drop nvarchar(max) = N'';
 SELECT @drop = @drop +
@@ -105,6 +105,21 @@ WHERE t.schema_id = SCHEMA_ID('dbo')
            ON pf.Verfahren = a.Verfahren AND pf.Parameter = 'Faktentabelle'
       WHERE a.RunID = @ID
         AND t.name LIKE LOWER(pf.Wert) + '[_]out[_]%'
+  );
+
+-- Leere _in_-Tabellen entfernen (kein Inhalt = kein Resume-Cache vorhanden)
+SELECT @drop = @drop +
+    N'IF NOT EXISTS (SELECT TOP 1 1 FROM dbo.' + QUOTENAME(t.name) + N') ' +
+    N'DROP TABLE dbo.' + QUOTENAME(t.name) + N';' + CHAR(10)
+FROM sys.tables t
+WHERE t.schema_id = SCHEMA_ID('dbo')
+  AND EXISTS (
+      SELECT 1
+      FROM dbo.ETL_Fkt_Arbeitsliste a
+      JOIN " & parameterDB & ".dbo." & parametertab & " pf
+           ON pf.Verfahren = a.Verfahren AND pf.Parameter = 'Faktentabelle'
+      WHERE a.RunID = @ID
+        AND t.name LIKE LOWER(pf.Wert) + '[_]in[_]%'
   );
 
 -- Externe Tabellen (ext.<faktentabelle>) der Verfahren dieses Laufs
@@ -137,10 +152,10 @@ SELECT ISNULL(@drop, N'');"
             Dim fireAgain As Boolean = False
             If dropScript.Trim().Length > 0 Then
                 Dts.Events.FireInformation(0, "OnFailed",
-                    "Cleanup (leere _out_-Tabellen + ext-Tabellen):" & Environment.NewLine & dropScript, "", 0, fireAgain)
+                    "Cleanup (leere _out_/_in_-Tabellen + ext-Tabellen):" & Environment.NewLine & dropScript, "", 0, fireAgain)
             Else
                 Dts.Events.FireInformation(0, "OnFailed",
-                    "Cleanup: keine leeren _out_-Tabellen und keine ext-Tabellen gefunden", "", 0, fireAgain)
+                    "Cleanup: keine leeren _out_/_in_-Tabellen und keine ext-Tabellen gefunden", "", 0, fireAgain)
             End If
 
             Dts.TaskResult = ScriptResults.Success
