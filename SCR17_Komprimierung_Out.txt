@@ -11,6 +11,7 @@ Imports Microsoft.SqlServer.Dts.Runtime
 ' SKRIPT : SCR17_Komprimierung_Out
 ' ZWECK  : PAGE/ROW Komprimierung auf _out_{wert} Tabellen anwenden
 '          NUR fuer Partitionswerte des aktuellen Laufs (BA::objPartitionValues)
+'          Komprimierungstyp aus Parametertabelle FaktenKomprimierung
 '          Status: INDEX_ERSTELLT -> KOMPRIMIERUNG_AUSGEFUEHRT
 ' =====================================================================
 <Microsoft.SqlServer.Dts.Tasks.ScriptTask.SSISScriptTaskEntryPointAttribute()>
@@ -24,6 +25,8 @@ Partial Public Class ScriptMain
     Private Const WARTE_SEK As Integer = 30
 
     Private _runID As Integer = 0
+    Private _parameterDB As String = String.Empty
+    Private _parametertab As String = String.Empty
 
     Public Sub Main()
         Log("════════════════════════════════════════════════════════════")
@@ -32,8 +35,13 @@ Partial Public Class ScriptMain
         Log("════════════════════════════════════════════════════════════")
 
         Try
-            _runID = Convert.ToInt32(Dts.Variables("BA::RunID").Value)
+            _runID        = Convert.ToInt32(Dts.Variables("BA::RunID").Value)
+            _parameterDB  = Dts.Variables("BA::ParameterDB").Value.ToString().Trim()
+            _parametertab = Dts.Variables("BA::Parametertabelle").Value.ToString().Trim()
             Dim connStr As String = HoleVerbindungszeichenfolge()
+
+            Log("RunID        : " & _runID.ToString())
+            Log("ParameterDB  : " & _parameterDB)
 
             ' 1. Read partition values from BA::objPartitionValues (set by SCR09)
             Dim partObjekt As Object = Dts.Variables("BA::objPartitionValues").Value
@@ -47,7 +55,7 @@ Partial Public Class ScriptMain
             Dim anzahlEintraege As Integer = partArray.GetLength(0)
             Log("Partitionswerte aus SCR09: " & anzahlEintraege.ToString() & " Eintraege")
 
-            ' Group partition values by procedure
+            ' Group partition values by procedure (key = Verfahren.ToLower())
             Dim verfahrenWerte As New Dictionary(Of String, List(Of String))()
             For i As Integer = 0 To anzahlEintraege - 1
                 Dim verf As String = partArray(i, 0).Trim().ToLower()
@@ -56,9 +64,11 @@ Partial Public Class ScriptMain
                     verfahrenWerte(verf) = New List(Of String)()
                 End If
                 verfahrenWerte(verf).Add(wert)
+                Log("  Gelesen: " & verf & " | " & wert)
             Next
 
-            ' 2. Load procedures from work list (filtered by RunID)
+            ' 2. Load procedures from work list filtered by RunID
+            '    Faktentabelle + FaktenKomprimierung come from the parameter table
             Dim verfahren As List(Of VerfahrenInfo) = VerfahrenLaden(connStr)
             Log("Verfahren zur Verarbeitung: " & verfahren.Count.ToString())
 
@@ -73,7 +83,9 @@ Partial Public Class ScriptMain
 
             For Each v As VerfahrenInfo In verfahren
                 Log("────────────────────────────────────────────────────────")
-                Log("Verfahren: " & v.Verfahren & " | Themengebiet: " & v.Themengebiet & " | Komprimierung: " & v.Komprimierung)
+                Log("Verfahren    : " & v.Verfahren)
+                Log("Faktentabelle: " & v.Faktentabelle)
+                Log("Komprimierung: " & v.Komprimierung)
 
                 If v.LetzterSchritt = "KOMPRIMIERUNG_AUSGEFUEHRT" Then
                     Log("  -> bereits abgeschlossen -> uebersprungen OK")
@@ -85,7 +97,8 @@ Partial Public Class ScriptMain
 
                     Dim verfKey As String = v.Verfahren.Trim().ToLower()
                     If Not verfahrenWerte.ContainsKey(verfKey) Then
-                        Log("  WARNUNG: Keine Partitionswerte fuer '" & v.Verfahren & "' in BA::objPartitionValues -> uebersprungen")
+                        Log("  WARNUNG: Keine Partitionswerte fuer '" & v.Verfahren &
+                            "' in BA::objPartitionValues -> uebersprungen")
                         Continue For
                     End If
 
@@ -93,16 +106,20 @@ Partial Public Class ScriptMain
                     Log("  Partitionswerte fuer dieses Verfahren: " & werteListe.Count.ToString())
 
                     ' Apply compression only to _out_{wert} tables from this run
+                    ' Table names built from Faktentabelle (not Verfahren)
+                    ' matching SCR12 naming: [Faktentabelle]_out_[wert]
                     For Each wert As String In werteListe
-                        Dim outTable As String = v.Verfahren.Trim().ToLower() & "_out_" & wert
+                        Dim outTable As String = v.Faktentabelle.Trim().ToLower() & "_out_" & wert
                         Log("  Partition: " & wert)
                         KomprimierungAnwenden(connStr, outTable, v.Komprimierung)
                     Next
 
                     StatusSetzen(connStr, v.ID, "KOMPRIMIERUNG_AUSGEFUEHRT")
-                    LogSchreiben(connStr, v.Verfahren, "SCHRITT_17", "Komprimierung (" & v.Komprimierung & ") auf " & werteListe.Count.ToString() & " _out Partitionen angewendet")
+                    LogSchreiben(connStr, v.Verfahren, "SCHRITT_17",
+                        "Komprimierung (" & v.Komprimierung & ") auf " &
+                        werteListe.Count.ToString() & " _out_ Partition(en) angewendet")
                     cntOK += 1
-                    Log("  -> Komprimierung " & v.Komprimierung & " auf _out Partitionen angewendet OK")
+                    Log("  -> Komprimierung abgeschlossen OK")
 
                 Catch ex As Exception
                     cntFehler += 1
@@ -123,47 +140,62 @@ Partial Public Class ScriptMain
         End Try
     End Sub
 
-    Private Sub KomprimierungAnwenden(connStr As String, tabellenName As String, komprimierung As String)
+    ' =========================================================================
+    ' Komprimierung auf _out_ Tabelle anwenden
+    ' =========================================================================
+    Private Sub KomprimierungAnwenden(connStr As String, tabellenName As String,
+                                       komprimierung As String)
         Dim kompTyp As String = komprimierung.Trim().ToUpper()
 
         If kompTyp <> "PAGE" AndAlso kompTyp <> "ROW" Then
-            Log("    Keine gueltige Komprimierung (" & komprimierung & ") -> Schritt uebersprungen.")
+            Log("    Komprimierungstyp '" & komprimierung & "' nicht gueltig (PAGE/ROW erwartet) -> uebersprungen")
             Return
         End If
 
-        ' Check table exists
         Dim existsResult As Object = SqlSkalar(connStr,
             "SELECT OBJECT_ID('dbo.[" & tabellenName & "]','U')",
             "Existenzpruefung " & tabellenName)
         If existsResult Is Nothing OrElse existsResult Is DBNull.Value Then
-            Log("    WARNUNG: Tabelle dbo.[" & tabellenName & "] existiert nicht -> uebersprungen")
+            Log("    WARNUNG: Tabelle dbo.[" & tabellenName & "] nicht gefunden -> uebersprungen")
             Return
         End If
 
-        ' Skip if CCI present (CCI handles compression internally)
+        ' CCI handles compression internally — skip PAGE/ROW rebuild
         Dim cciCount As Integer = Convert.ToInt32(SqlSkalar(connStr,
-            "SELECT COUNT(*) FROM sys.indexes WHERE object_id=OBJECT_ID('dbo.[" & tabellenName & "]') AND type=5;",
-            "CCI Check"))
+            "SELECT COUNT(*) FROM sys.indexes" &
+            " WHERE object_id = OBJECT_ID('dbo.[" & tabellenName & "]') AND type = 5;",
+            "CCI Check " & tabellenName))
         If cciCount > 0 Then
-            Log("    CCI vorhanden -> PAGE/ROW-Komprimierung wird nicht angewendet.")
+            Log("    CCI vorhanden -> PAGE/ROW-Komprimierung nicht angewendet")
             Return
         End If
 
         SqlAusfuehren(connStr,
-            "ALTER TABLE dbo.[" & tabellenName & "] REBUILD WITH (DATA_COMPRESSION = " & kompTyp & ");",
-            "Komprimierung " & kompTyp)
+            "ALTER TABLE dbo.[" & tabellenName & "]" &
+            " REBUILD WITH (DATA_COMPRESSION = " & kompTyp & ");",
+            "Komprimierung " & kompTyp & " " & tabellenName)
         Log("    " & kompTyp & "-Komprimierung auf dbo.[" & tabellenName & "] angewendet OK")
     End Sub
 
+    ' =========================================================================
+    ' Verfahren aus ETL_Fkt_Arbeitsliste laden
+    ' Faktentabelle + FaktenKomprimierung kommen aus der Parametertabelle
+    ' =========================================================================
     Private Function VerfahrenLaden(connStr As String) As List(Of VerfahrenInfo)
         Dim liste As New List(Of VerfahrenInfo)()
         Dim sql As String =
-            "SELECT ID, Verfahren, Themengebiet, LetzterSchritt," &
-            " ISNULL(Komprimierung,'PAGE') AS Komprimierung" &
-            " FROM dbo.ETL_Fkt_Arbeitsliste" &
-            " WHERE Status IN ('INDEX_ERSTELLT','KOMPRIMIERUNG_AUSFUEHREN')" &
-            " AND RunID=" & _runID.ToString() &
-            " ORDER BY Verfahren"
+            "SELECT a.ID, a.Verfahren, a.Themengebiet, a.LetzterSchritt," &
+            "       pf.Wert AS Faktentabelle," &
+            "       UPPER(ISNULL(pk.Wert,'PAGE')) AS Komprimierung" &
+            " FROM  dbo.ETL_Fkt_Arbeitsliste a" &
+            " JOIN  " & _parameterDB & ".dbo." & _parametertab &
+            "       pf ON pf.Verfahren = a.Verfahren AND pf.Parameter = 'Faktentabelle'" &
+            " LEFT JOIN " & _parameterDB & ".dbo." & _parametertab &
+            "       pk ON pk.Verfahren = a.Verfahren AND pk.Parameter = 'FaktenKomprimierung'" &
+            " WHERE a.Status IN ('INDEX_ERSTELLT','KOMPRIMIERUNG_AUSFUEHREN')" &
+            " AND   a.RunID = " & _runID.ToString() &
+            " ORDER BY a.Verfahren"
+
         Dim versuch As Integer = 0
         While versuch < MAX_VERSUCHE
             versuch += 1
@@ -172,36 +204,48 @@ Partial Public Class ScriptMain
                     conn.Open()
                     Using cmd As New SqlCommand(sql, conn)
                         cmd.CommandTimeout = 0
+                        Log("SQL: " & sql.Substring(0, Math.Min(200, sql.Length)).Replace(vbCrLf, " "))
                         Using rdr As SqlDataReader = cmd.ExecuteReader()
                             While rdr.Read()
                                 liste.Add(New VerfahrenInfo With {
-                                    .ID = rdr.GetInt32(0),
-                                    .Verfahren = rdr(1).ToString().Trim(),
-                                    .Themengebiet = rdr(2).ToString().Trim(),
+                                    .ID             = rdr.GetInt32(0),
+                                    .Verfahren      = rdr(1).ToString().Trim(),
+                                    .Themengebiet   = rdr(2).ToString().Trim(),
                                     .LetzterSchritt = If(rdr.IsDBNull(3), "", rdr(3).ToString().Trim()),
-                                    .Komprimierung = rdr(4).ToString().Trim()})
+                                    .Faktentabelle  = rdr(4).ToString().Trim(),
+                                    .Komprimierung  = rdr(5).ToString().Trim()})
                             End While
                         End Using
                     End Using
                 End Using
                 Return liste
             Catch ex As Exception
-                Log(String.Format("WARNUNG [Verfahren laden] Versuch {0}/{1}: {2}", versuch, MAX_VERSUCHE, ex.Message))
+                Log(String.Format("WARNUNG [VerfahrenLaden] Versuch {0}/{1}: {2}",
+                    versuch, MAX_VERSUCHE, ex.Message))
                 If versuch < MAX_VERSUCHE Then System.Threading.Thread.Sleep(WARTE_SEK * 1000) Else Throw
             End Try
         End While
         Return liste
     End Function
 
+    ' =========================================================================
+    ' Hilfsmethoden
+    ' =========================================================================
     Private Sub StatusSetzen(connStr As String, id As Integer, status As String)
-        SqlAusfuehren(connStr, "UPDATE dbo.ETL_Fkt_Arbeitsliste SET Status='" & status & "',LetzterSchritt='" & status & "',AktualisiertAm=GETDATE() WHERE ID=" & id.ToString(), "Status setzen")
+        SqlAusfuehren(connStr,
+            "UPDATE dbo.ETL_Fkt_Arbeitsliste" &
+            " SET Status='" & status & "', LetzterSchritt='" & status & "', AktualisiertAm=GETDATE()" &
+            " WHERE ID=" & id.ToString(), "Status setzen")
     End Sub
 
     Private Sub FehlerSetzen(connStr As String, id As Integer, msg As String)
         Try
             Using conn As New SqlConnection(connStr)
                 conn.Open()
-                Using cmd As New SqlCommand("UPDATE dbo.ETL_Fkt_Arbeitsliste SET Status='FEHLER',Fehlermeldung=@m,AktualisiertAm=GETDATE() WHERE ID=@id", conn)
+                Using cmd As New SqlCommand(
+                    "UPDATE dbo.ETL_Fkt_Arbeitsliste" &
+                    " SET Status='FEHLER', Fehlermeldung=@m, AktualisiertAm=GETDATE()" &
+                    " WHERE ID=@id", conn)
                     cmd.Parameters.AddWithValue("@m", If(msg.Length > 3900, msg.Substring(0, 3900), msg))
                     cmd.Parameters.AddWithValue("@id", id)
                     cmd.ExecuteNonQuery()
@@ -211,11 +255,14 @@ Partial Public Class ScriptMain
         End Try
     End Sub
 
-    Private Sub LogSchreiben(connStr As String, verfahren As String, schritt As String, meldung As String)
+    Private Sub LogSchreiben(connStr As String, verfahren As String,
+                              schritt As String, meldung As String)
         Try
             Using conn As New SqlConnection(connStr)
                 conn.Open()
-                Using cmd As New SqlCommand("INSERT INTO dbo.tm_fakten_load_log(verfahren,schritt,meldung) VALUES(@v,@s,@m)", conn)
+                Using cmd As New SqlCommand(
+                    "INSERT INTO dbo.tm_fakten_load_log(verfahren,schritt,meldung)" &
+                    " VALUES(@v,@s,@m)", conn)
                     cmd.Parameters.AddWithValue("@v", verfahren)
                     cmd.Parameters.AddWithValue("@s", schritt)
                     cmd.Parameters.AddWithValue("@m", meldung)
@@ -226,7 +273,8 @@ Partial Public Class ScriptMain
         End Try
     End Sub
 
-    Private Function SqlAusfuehren(connStr As String, sql As String, beschreibung As String) As Integer
+    Private Function SqlAusfuehren(connStr As String, sql As String,
+                                    beschreibung As String) As Integer
         Dim versuch As Integer = 0
         Dim letzterFehler As Exception = Nothing
         While versuch < MAX_VERSUCHE
@@ -241,14 +289,18 @@ Partial Public Class ScriptMain
                 End Using
             Catch ex As Exception
                 letzterFehler = ex
-                Log(String.Format("WARNUNG [{0}] Versuch {1}/{2}: {3}", beschreibung, versuch, MAX_VERSUCHE, ex.Message))
+                Log(String.Format("WARNUNG [{0}] Versuch {1}/{2}: {3}",
+                    beschreibung, versuch, MAX_VERSUCHE, ex.Message))
                 If versuch < MAX_VERSUCHE Then System.Threading.Thread.Sleep(WARTE_SEK * 1000)
             End Try
         End While
-        Throw New Exception(String.Format("[{0}] fehlgeschlagen: {1}", beschreibung, If(letzterFehler IsNot Nothing, letzterFehler.Message, "Unbekannt")))
+        Throw New Exception(String.Format("[{0}] fehlgeschlagen: {1}",
+            beschreibung,
+            If(letzterFehler IsNot Nothing, letzterFehler.Message, "Unbekannt")))
     End Function
 
-    Private Function SqlSkalar(connStr As String, sql As String, beschreibung As String) As Object
+    Private Function SqlSkalar(connStr As String, sql As String,
+                                beschreibung As String) As Object
         Dim versuch As Integer = 0
         While versuch < MAX_VERSUCHE
             versuch += 1
@@ -285,6 +337,7 @@ Partial Public Class ScriptMain
         Public Property Verfahren As String
         Public Property Themengebiet As String
         Public Property LetzterSchritt As String
+        Public Property Faktentabelle As String
         Public Property Komprimierung As String
     End Class
 
