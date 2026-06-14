@@ -1,143 +1,801 @@
-Paket	Task	Meldungstyp	Meldung
-Package	SCR07_Schemadaten_Kopieren	Fehler	The script returned a failure result.
-Package	SCR07_Schemadaten_Kopieren	info	Erfolgreich: 0 | Fehler: 1
-Package	SCR07_Schemadaten_Kopieren	info	Staging-Tabelle dbo.ddl_staging bleibt fuer Debugging erhalten
-Package	SCR07_Schemadaten_Kopieren	info	[WARNUNG_SCR05] tf_bst_hr_25: Keine Schemadaten in Oracle DDL gefunden
-Package	SCR07_Schemadaten_Kopieren	info	  WARNUNG: Keine Schemadaten fuer thm_dm_stat_bst_perm.tf_bst_hr_25
-Package	SCR07_Schemadaten_Kopieren	info	Verfahren: tf_bst_hr_25 | Themengebiet: thm_dm_stat_bst_perm
-Package	SCR07_Schemadaten_Kopieren	info	Staging-Tabelle existiert bereits mit 1016784 Zeilen - wird wiederverwendet
-Package	SCR07_Schemadaten_Kopieren	info	Quelle: [msi_dm_bst_v3].[ext].[vm_ddl_sql_server]
-Package	SCR07_Schemadaten_Kopieren	info	Oracle-Daten werden in Staging-Tabelle geladen...
-Package	SCR07_Schemadaten_Kopieren	info	Verfahren zur Verarbeitung: 1
-Package	SCR07_Schemadaten_Kopieren	info	Ziel-Tabelle tm_polybase_struktur geprueft/erstellt.
-Package	SCR07_Schemadaten_Kopieren	info	SCR07_Schemadaten_Kopieren - Start
-Package	SCR06 Arbeitsliste Aufbauen	info	Neue Verfahren : 0
-Package	SCR06 Arbeitsliste Aufbauen	info	SCR_Arbeitsliste_Aufbauen_Fakten erfolgreich abgeschlossen OK
-Package	SCR06 Arbeitsliste Aufbauen	info	ZUSAMMENFASSUNG
-Package	SCR06 Arbeitsliste Aufbauen	info	FEHLER vorhanden → Nur FEHLER zu AUSSTEHEND (Erfolge bleiben) → 1 Zeilen zurückgesetzt
-Package	SCR06 Arbeitsliste Aufbauen	info	  - FEHLER   : 13
-Package	SCR06 Arbeitsliste Aufbauen	info	  - ANDERE   : 0
-Package	SCR06 Arbeitsliste Aufbauen	info	  - ERFOLG   : 0
-Package	SCR06 Arbeitsliste Aufbauen	info	  - Total    : 13
-Package	SCR06 Arbeitsliste Aufbauen	info	Status-Analyse (alle Verfahren aus Steuerliste):
-Package	SCR06 Arbeitsliste Aufbauen	info	Schritt 2: Status analysieren und zuruecksetzen
-Package	SCR06 Arbeitsliste Aufbauen	info	Neue Verfahren eingetragen: 0
-Package	SCR06 Arbeitsliste Aufbauen	info	Schritt 1: Neue Verfahren aus Steuerliste eintragen
-Package	SCR06 Arbeitsliste Aufbauen	info	Aktueller Lauf: Datei [v.istat.xro_dm_stat_bst_perm.csv] | Tabellen in Steuerliste (1): tf_bst_hr_25
-Package	SCR06 Arbeitsliste Aufbauen	info	Pflichtfelder-Pruefung: alle Variablen vorhanden OK
-Package	SCR06 Arbeitsliste Aufbauen	info	SCR_06_Arbeitsliste_Aufbauen_Fakten - Start
-Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	Mit Fehlern              : 0
-Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	ERGEBNIS: BESTANDEN - Alle Parameter vollstaendig und befuellt OK
-Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	Vollstaendig (OK)         : 1
-Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	Verfahren geprueft        : 1
-Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	ZUSAMMENFASSUNG SCR_05_Parameter_Vollstaendigkeitspruefung
-Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      Anzahl_ParallelTasks
-Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  OK Alle Pflichtparameter fuer 'tf_bst_hr_25' vorhanden und befuellt.
-Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      DateFormat
-Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      FaktenClusteredIndex
-Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      Faktenkomprimierung
-Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      Faktenpartitionsspalte
-Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      Faktentabelle
-Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      FaktentabelleTemplate
-Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	Pruefe Verfahren: tf_bst_hr_25
-Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	Schritt 3: Parametertabelle vollstaendig pruefen
-Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	Verfahren in Steuerliste gefunden: 1
-Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	Schritt 2: Verfahren aus Steuerliste laden
-Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	Steuerlisten-Tabelle enthaelt 1 Zeile(n) OK
-Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	Steuerlisten-Tabelle [dbo.tm_steuerlistenfile_Fakten] vorhanden OK
-Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	Schritt 1: Steuerlisten-Tabelle pruefen
-Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	SSIS-Variablen-Pruefung: alle vorhanden OK
-Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	Pflichtparameter     : FaktentabelleTemplate, Faktentabelle, Faktenpartitionsspalte, Faktenkomprimierung, FaktenClusteredIndex, DateFormat, Anzahl_ParallelTasks
-Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	SCR_05_Parameter_Vollstaendigkeitspruefung - Start
-Package	SC04 Whereclasuse	info	kein Partitionsspalte-Eintrag: 0
-Package	SC04 Whereclasuse	info	partition_wert NULL          : 0
-Package	SC04 Whereclasuse	info	where_klausel gefuellt       : 1
-Package	SC04 Whereclasuse	info	  tf_bst_hr_25_20250206                              -> wert=20250206 | partCol=mon_id_v
-Package	SC04 Whereclasuse	info	Steuerlisten-Zeilen : 1
-Package	SC04 Whereclasuse	info	Partitionsspalten geladen: 28 Verfahren
-Package	SC04 Whereclasuse	info	Partitionsspalte aus Parametertabelle laden ...
-Package	SC04 Whereclasuse	info	Spalten geprueft/angelegt OK
-Package	SC04 Whereclasuse	info	Steuerlisten-Tabelle : dbo.tm_steuerlistenfile_Fakten
-Package	SC04 Whereclasuse	info	Referenzdatum: 01.03.2026 00:00:00
-Package	SC04 Whereclasuse	info	SC04_Whereclause - Start
-Package	SCR03 Stuerliste Laden	info	SCR_03_Steuerlisten_Laden erfolgreich abgeschlossen OK
-Package	SCR03 Stuerliste Laden	info	Datei endet auf _perm.csv -> bleibt im Quellordner
-Package	SCR03 Stuerliste Laden	info	Geladene Tabellen aus [v.istat.xro_dm_stat_bst_perm.csv] (1): tf_bst_hr_25
-Package	SCR03 Stuerliste Laden	info	  Zeilen gesamt: 1 | INSERT: 1 | Uebersprungen: 0
-Package	SCR03 Stuerliste Laden	info	Datei erfolgreich verarbeitet: v.istat.xro_dm_stat_bst_perm.csv OK
-Package	SCR03 Stuerliste Laden	info	  Arbeitstabelle: vollstaendig geleert
-Package	SCR03 Stuerliste Laden	info	  Themengebiet : xro_dm_stat_bst_perm
-Package	SCR03 Stuerliste Laden	info	  Umgebung     : istat
-Package	SCR03 Stuerliste Laden	info	  Tabellentyp  : v
-Package	SCR03 Stuerliste Laden	info	Verarbeite Datei: v.istat.xro_dm_stat_bst_perm.csv
-Package	SCR03 Stuerliste Laden	info	Arbeitstabelle und Audit-Tabelle geprueft/angelegt OK
-Package	SCR03 Stuerliste Laden	info	Vollstaendiger Pfad : F:\STL\v.istat.xro_dm_stat_bst_perm.csv
-Package	SCR03 Stuerliste Laden	info	Audit-Tabelle  : dbo.tm_steuerlistenfile_Fakten_audit
-Package	SCR03 Stuerliste Laden	info	Arbeitstabelle : dbo.tm_steuerlistenfile_Fakten
-Package	SCR03 Stuerliste Laden	info	Pflichtfelder-Pruefung: alle Variablen vorhanden OK
-Package	SCR03 Stuerliste Laden	info	SCR_03_Steuerlisten_Laden - Start
-Package	SCR02 Vorbereitungen	info	SCR_01_Vorbereitungen erfolgreich abgeschlossen.
-Package	SCR02 Vorbereitungen	info	  Index erstellt: IX_vm_ddl_sql_server_TABNAME_COLNAME (TABNAME, COLNAME)
-Package	SCR02 Vorbereitungen	info	  dbo-Kopie erstellt: dbo.vm_ddl_sql_server | Zeilen: 1018530
-Package	SCR02 Vorbereitungen	info	  Alte dbo-Kopie geloescht (falls vorhanden)
-Package	SCR02 Vorbereitungen	info	Schritt 8: Lokale dbo-Kopie [dbo.vm_ddl_sql_server] erstellen
-Package	SCR02 Vorbereitungen	info	Externe Partitionssicht [ext.[v_partition_info]]: erfolgreich angelegt 
-Package	SCR02 Vorbereitungen	info	  Oracle Location: ISTAT.BI_DM_EXPORT.V_PARTITION_INFO
-Package	SCR02 Vorbereitungen	info	Externe Partitionssicht [ext.[v_partition_info]]: geloescht (falls vorhanden) wird neu angelegt
-Package	SCR02 Vorbereitungen	info	Externe DDL-Tabelle [ext.vm_ddl_sql_server]: bereits vorhanden uebersprungen 
-Package	SCR02 Vorbereitungen	info	Schritt 7a: Externe Partitionssicht [ext.v_partition_info] pruefen
-Package	SCR02 Vorbereitungen	info	Schema [ext]: bereits vorhanden uebersprungen 
-Package	SCR02 Vorbereitungen	info	Schritt 7: Externe DDL-Tabelle [ext.vm_ddl_sql_server] pruefen
-Package	SCR02 Vorbereitungen	info	Schritt 6: Schema [ext] pruefen
-Package	SCR02 Vorbereitungen	info	External Data Source [Oracle-istat]: bereits vorhanden uebersprungen 
-Package	SCR02 Vorbereitungen	info	Schritt 5: External Data Source pruefen
-Package	SCR02 Vorbereitungen	info	Credential [Q0003713_BI_DM_EXPORT]: bereits vorhanden uebersprungen 
-Package	SCR02 Vorbereitungen	info	Schritt 4: PolyBase Credential pruefen
-Package	SCR02 Vorbereitungen	info	Master Key: bereits vorhanden uebersprungen 
-Package	SCR02 Vorbereitungen	info	Schritt 3: PolyBase Master Key pruefen
-Package	SCR02 Vorbereitungen	info	ETL_Fkt_FehlerHistorie: geprueft/angelegt 
-Package	SCR02 Vorbereitungen	info	Schritt 2: ETL_Fkt_FehlerHistorie sicherstellen
-Package	SCR02 Vorbereitungen	info	ETL_Fkt_Arbeitsliste: geprueft/angelegt 
-Package	SCR02 Vorbereitungen	info	Schritt 1: ETL_Fkt_Arbeitsliste sicherstellen
-Package	SCR02 Vorbereitungen	info	Pflichtfelder-Pruefung: alle Variablen vorhanden 
-Package	SCR02 Vorbereitungen	info	Steuerlisten-Tabelle: dbo.tm_steuerlistenfile_Fakten
-Package	SCR02 Vorbereitungen	info	SCR_02_Vorbereitungen - Start
-Package	SCR01 Parameter einlesen	info	VORABPRUEFUNG BESTANDEN Paket wird fortgesetzt.
-Package	SCR01 Parameter einlesen	info	VALIDATION_FAILED = 0
-Package	SCR01 Parameter einlesen	info	[OK]       PARAM_PROTOKOLL_TABELLE                  = tm_msi_dm_bst_v3_prot
-Package	SCR01 Parameter einlesen	info	[OK]       PARAM_PROTOKOLL_SP                       = usp_SSIS_Protokoll
-Package	SCR01 Parameter einlesen	info	[OK]       PARAM_PROTOKOLL_DB                       = msi_dm_bst_v3
-Package	SCR01 Parameter einlesen	info	Protokollierung
-Package	SCR01 Parameter einlesen	info	[OK]       PARAM_MAXPARALLEL                        = 8
-Package	SCR01 Parameter einlesen	info	Verarbeitung
-Package	SCR01 Parameter einlesen	info	[OK]       PARAM_EXT_TABLE_NAME                     = vm_ddl_sql_server
-Package	SCR01 Parameter einlesen	info	[OK]       PARAM_EXT_TABLE_SCHEMA                   = ext
-Package	SCR01 Parameter einlesen	info	[OK]       PARAM_EXT_TABLE_LOCATION                 = istat.STATRT.VM_DDL_SQL_SERVER
-Package	SCR01 Parameter einlesen	info	[OK]       PARAM_EXT_SOURCE_NAME                    = Oracle-istat
-Package	SCR01 Parameter einlesen	info	[OK]       PARAM_EXT_SOURCE_LOCATION                = oracle://l9800022db.dst.baintern.de:57575
-Package	SCR01 Parameter einlesen	info	PolyBase / External Source
-Package	SCR01 Parameter einlesen	info	[OK]       PARAM_PARAMETERTABELLE                   = tm_msi_dm_bst_v3_param
-Package	SCR01 Parameter einlesen	info	[OK]       PARAM_PARAMETER_DB                       = msi_dm_bst_v3
-Package	SCR01 Parameter einlesen	info	Parametertabelle
-Package	SCR01 Parameter einlesen	info	[OK]       PARAM_STEUERLISTEN_TABELLE               = tm_steuerlistenfile_Fakten
-Package	SCR01 Parameter einlesen	info	[OK]       PARAM_STL_ORDNER                         = F:\STL
-Package	SCR01 Parameter einlesen	info	[OK]       ATOMIC_ORACLE_PASSWORD                   = [Wert verborgen]
-Package	SCR01 Parameter einlesen	info	Steuerlisten
-Package	SCR01 Parameter einlesen	info	[OK]       ATOMIC_ORACLE_USERNAME                   = BI_DM_EXPORT
-Package	SCR01 Parameter einlesen	info	Oracle Credentials
-Package	SCR01 Parameter einlesen	info	[OK]       PARAM_VERFAHREN                          = BST
-Package	SCR01 Parameter einlesen	info	[OK]       PARAM_DATAMART                           = msi_dm_bst_v3
-Package	SCR01 Parameter einlesen	info	[OK]       PARAM_DATENBANK                          = msi_dm_bst_v3
-Package	SCR01 Parameter einlesen	info	[OK]       PARAM_CONNECTION_SERVER                  = Q0003713\Abnahme21
-Package	SCR01 Parameter einlesen	info	[OK]       PARAM_SERVER                             = Q0003713
-Package	SCR01 Parameter einlesen	info	Verbindung / Server
-Package	SCR01 Parameter einlesen	info	SCR01_Parameter_Einlesen - Start
-Package	Paketstart	info	Paketstart erfolgreich abgeschlossen.
-Package	Paketstart	info	Verfahren auf AUSSTEHEND zurueckgesetzt: 0
-Package	Paketstart	info	Schritt 4: Neuen Lauf anlegen
-Package	Paketstart	info	Schritt 3: ETL_Fkt_ArbeitslisteFEHLER AUSSTEHEND
-Package	Paketstart	info	Verwaiste Laeufe auf ABGEBROCHEN gesetzt: 0
-Package	Paketstart	info	Schritt 2: Verwaiste Laeufe (LAUFEND) auf ABGEBROCHEN setzen
-Package	Paketstart	info	ETL_Fakt_LaufHistorie: geprueft/angelegt.
-Package	Paketstart	info	Schritt 1: ETL_Fakt_LaufHistorie sicherstellen
-Package	Paketstart	info	Fakten Laden - Paketstart
+Verfahren	Paket	Task	Meldungstyp	Meldung
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	  Index auf: vf_bst_bew_bv_in_20041006
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	  Index auf: vf_bst_bew_bv_in_20040906
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt OK
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	  Index auf: vf_bst_bew_bv_in_20040806
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt OK
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	  Index auf: vf_bst_bew_bv_in_20040706
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt OK
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	  Index auf: vf_bst_bew_bv_in_20040606
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt OK
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	  Index auf: vf_bst_bew_bv_in_20040506
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt OK
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	  Index auf: vf_bst_bew_bv_in_20040406
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt OK
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	  Index auf: vf_bst_bew_bv_in_20040306
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt OK
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	  Index auf: vf_bst_bew_bv_in_20040206
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt OK
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	  Index auf: vf_bst_bew_bv_in_20040106
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt OK
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	  Index auf: vf_bst_bew_bv_in_20031206
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt OK
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	  Index auf: vf_bst_bew_bv_in_20031106
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt OK
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	  Index auf: vf_bst_bew_bv_in_20031006
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt OK
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	  Index auf: vf_bst_bew_bv_in_20030906
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt OK
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	  Index auf: vf_bst_bew_bv_in_20030806
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt OK
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	  Index auf: vf_bst_bew_bv_in_20030706
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt OK
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	  Index auf: vf_bst_bew_bv_in_20030606
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt OK
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	  Index auf: vf_bst_bew_bv_in_20030506
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt OK
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	  Index auf: vf_bst_bew_bv_in_20030406
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt OK
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	  Index auf: vf_bst_bew_bv_in_20030306
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt OK
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	  Index auf: vf_bst_bew_bv_in_20030206
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt OK
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	  Index auf: vf_bst_bew_bv_in_20030106
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt OK
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	  Index auf: vf_bst_bew_bv_in_20021206
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt OK
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	  Index auf: vf_bst_bew_bv_in_20021106
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt OK
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	  Index auf: vf_bst_bew_bv_in_20021006
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt OK
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	  Index auf: vf_bst_bew_bv_in_20020906
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt OK
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	  Index auf: vf_bst_bew_bv_in_20020806
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt OK
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	  Index auf: vf_bst_bew_bv_in_20020706
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt OK
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	  Index auf: vf_bst_bew_bv_in_20020606
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt OK
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	  Index auf: vf_bst_bew_bv_in_20020506
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt OK
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	  Index auf: vf_bst_bew_bv_in_20020406
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt OK
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	  Index auf: vf_bst_bew_bv_in_20020306
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt OK
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	  Index auf: vf_bst_bew_bv_in_20020206
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt OK
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	  Index auf: vf_bst_bew_bv_in_20020106
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt OK
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	  Index auf: vf_bst_bew_bv_in_20011206
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt OK
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	  Index auf: vf_bst_bew_bv_in_20011106
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt OK
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	  Index auf: vf_bst_bew_bv_in_20011006
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt OK
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	  Index auf: vf_bst_bew_bv_in_20010906
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt OK
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	  Index auf: vf_bst_bew_bv_in_20010806
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt OK
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	  Index auf: vf_bst_bew_bv_in_20010706
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt OK
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt OK
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	  Index auf: vf_bst_bew_bv_in_20010606
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt OK
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	  Index auf: vf_bst_bew_bv_in_20010506
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	  Index auf: vf_bst_bew_bv_in_20010406
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt OK
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	  Index auf: vf_bst_bew_bv_in_20010306
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt OK
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	  Index auf: vf_bst_bew_bv_in_20010206
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt OK
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	  Index auf: vf_bst_bew_bv_in_20010106
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt OK
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	  Index auf: vf_bst_bew_bv_in_20001206
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt OK
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	  Index auf: vf_bst_bew_bv_in_20001106
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt OK
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt OK
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	  Index auf: vf_bst_bew_bv_in_20001006
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	  Index auf: vf_bst_bew_bv_in_20000906
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt OK
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	  Index auf: vf_bst_bew_bv_in_20000806
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt OK
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	  Index auf: vf_bst_bew_bv_in_20000706
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt OK
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	  Index auf: vf_bst_bew_bv_in_20000606
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt OK
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	  Index auf: vf_bst_bew_bv_in_20000506
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt OK
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	  Index auf: vf_bst_bew_bv_in_20000406
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt OK
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	  Index auf: vf_bst_bew_bv_in_20000306
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt OK
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	  Index auf: vf_bst_bew_bv_in_20000206
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt OK
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt OK
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	  Index auf: vf_bst_bew_bv_in_20000106
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	  Index auf: vf_bst_bew_bv_in_19991206
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt OK
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	  Index auf: vf_bst_bew_bv_in_19991106
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt OK
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	  Index auf: vf_bst_bew_bv_in_19991006
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt OK
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	  Index auf: vf_bst_bew_bv_in_19990906
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt OK
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	  Index auf: vf_bst_bew_bv_in_19990806
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt OK
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	  Index auf: vf_bst_bew_bv_in_19990706
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt OK
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	  Index auf: vf_bst_bew_bv_in_19990606
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt OK
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	  Index auf: vf_bst_bew_bv_in_19990506
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt OK
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	  Index auf: vf_bst_bew_bv_in_19990406
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt OK
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	  Index auf: vf_bst_bew_bv_in_19990306
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt OK
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	  Index auf: vf_bst_bew_bv_in_19990206
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	    CCI angelegt OK
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	  Index auf: vf_bst_bew_bv_in_19990106
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	Verfahren: vf_bst_bew_bv | IndexTyp: CCI
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	Verfahren: 8
+BST	Package	SCR16_Stagingtabelle - Clustered Index erstellen	info	SCR16_Stagingtabelle___Clustered_Index_erstellen - Start
+BST	Package	SCR15_usp_Faktenladen_Partitionladen	info	Keine Verfahren zu verarbeiten
+BST	Package	SCR15_usp_Faktenladen_Partitionladen	info	Verfahren mit Status 'ERFOLG': 0
+BST	Package	SCR15_usp_Faktenladen_Partitionladen	info	Partitionswerte: 8 Eintraege
+BST	Package	SCR15_usp_Faktenladen_Partitionladen	info	SCR15_Partitionladen_Nachlauf - Start
+BST	Package	SCR14_usp_Faktenladen_StagetabellenDML	info	SCR11b_StagetabellenDML_Aufruf erfolgreich abgeschlossen
+BST	Package	SCR14_usp_Faktenladen_StagetabellenDML	info	Erfolgreich: 8
+BST	Package	SCR14_usp_Faktenladen_StagetabellenDML	info	Fehler:      0
+BST	Package	SCR14_usp_Faktenladen_StagetabellenDML	info	ZUSAMMENFASSUNG SCR11b_StagetabellenDML_Aufruf
+BST	Package	SCR14_usp_Faktenladen_StagetabellenDML	info	[INFO_SCR11b] vf_bst_sv: Prozedur usp_Faktenladen_StagetabellenDML_vf_bst_sv nicht vorhanden -> uebersprungen
+BST	Package	SCR14_usp_Faktenladen_StagetabellenDML	info	  Info: Prozedur [usp_Faktenladen_StagetabellenDML_vf_bst_sv] existiert nicht -> uebersprungen
+BST	Package	SCR14_usp_Faktenladen_StagetabellenDML	info	  Prozedur: usp_Faktenladen_StagetabellenDML_vf_bst_sv
+BST	Package	SCR14_usp_Faktenladen_StagetabellenDML	info	Komprimierung    : NONE
+BST	Package	SCR14_usp_Faktenladen_StagetabellenDML	info	Partitionsspalte : mow_id
+BST	Package	SCR14_usp_Faktenladen_StagetabellenDML	info	ClusteredIndex   : CCI
+BST	Package	SCR14_usp_Faktenladen_StagetabellenDML	info	Faktentabelle    : vf_bst_sv
+BST	Package	SCR14_usp_Faktenladen_StagetabellenDML	info	Verfahren        : vf_bst_sv
+BST	Package	SCR14_usp_Faktenladen_StagetabellenDML	info	[INFO_SCR11b] vf_bst_sonst: Prozedur usp_Faktenladen_StagetabellenDML_vf_bst_sonst nicht vorhanden -> uebersprungen
+BST	Package	SCR14_usp_Faktenladen_StagetabellenDML	info	  Info: Prozedur [usp_Faktenladen_StagetabellenDML_vf_bst_sonst] existiert nicht -> uebersprungen
+BST	Package	SCR14_usp_Faktenladen_StagetabellenDML	info	  Prozedur: usp_Faktenladen_StagetabellenDML_vf_bst_sonst
+BST	Package	SCR14_usp_Faktenladen_StagetabellenDML	info	Komprimierung    : NONE
+BST	Package	SCR14_usp_Faktenladen_StagetabellenDML	info	Partitionsspalte : mow_id
+BST	Package	SCR14_usp_Faktenladen_StagetabellenDML	info	ClusteredIndex   : CCI
+BST	Package	SCR14_usp_Faktenladen_StagetabellenDML	info	Faktentabelle    : vf_bst_sonst
+BST	Package	SCR14_usp_Faktenladen_StagetabellenDML	info	Verfahren        : vf_bst_sonst
+BST	Package	SCR14_usp_Faktenladen_StagetabellenDML	info	  Info: Prozedur [usp_Faktenladen_StagetabellenDML_vf_bst_gb] existiert nicht -> uebersprungen
+BST	Package	SCR14_usp_Faktenladen_StagetabellenDML	info	[INFO_SCR11b] vf_bst_gb: Prozedur usp_Faktenladen_StagetabellenDML_vf_bst_gb nicht vorhanden -> uebersprungen
+BST	Package	SCR14_usp_Faktenladen_StagetabellenDML	info	  Prozedur: usp_Faktenladen_StagetabellenDML_vf_bst_gb
+BST	Package	SCR14_usp_Faktenladen_StagetabellenDML	info	Komprimierung    : NONE
+BST	Package	SCR14_usp_Faktenladen_StagetabellenDML	info	Partitionsspalte : mow_id
+BST	Package	SCR14_usp_Faktenladen_StagetabellenDML	info	ClusteredIndex   : CCI
+BST	Package	SCR14_usp_Faktenladen_StagetabellenDML	info	Faktentabelle    : vf_bst_gb
+BST	Package	SCR14_usp_Faktenladen_StagetabellenDML	info	Verfahren        : vf_bst_gb
+BST	Package	SCR14_usp_Faktenladen_StagetabellenDML	info	[INFO_SCR11b] vf_bst_bv_sonst: Prozedur usp_Faktenladen_StagetabellenDML_vf_bst_bv_sonst nicht vorhanden -> uebersprungen
+BST	Package	SCR14_usp_Faktenladen_StagetabellenDML	info	  Info: Prozedur [usp_Faktenladen_StagetabellenDML_vf_bst_bv_sonst] existiert nicht -> uebersprungen
+BST	Package	SCR14_usp_Faktenladen_StagetabellenDML	info	Komprimierung    : NONE
+BST	Package	SCR14_usp_Faktenladen_StagetabellenDML	info	  Prozedur: usp_Faktenladen_StagetabellenDML_vf_bst_bv_sonst
+BST	Package	SCR14_usp_Faktenladen_StagetabellenDML	info	ClusteredIndex   : CCI
+BST	Package	SCR14_usp_Faktenladen_StagetabellenDML	info	Partitionsspalte : mow_id
+BST	Package	SCR14_usp_Faktenladen_StagetabellenDML	info	Verfahren        : vf_bst_bv_sonst
+BST	Package	SCR14_usp_Faktenladen_StagetabellenDML	info	Faktentabelle    : vf_bst_bv_sonst
+BST	Package	SCR14_usp_Faktenladen_StagetabellenDML	info	[INFO_SCR11b] vf_bst_bv: Prozedur usp_Faktenladen_StagetabellenDML_vf_bst_bv nicht vorhanden -> uebersprungen
+BST	Package	SCR14_usp_Faktenladen_StagetabellenDML	info	  Info: Prozedur [usp_Faktenladen_StagetabellenDML_vf_bst_bv] existiert nicht -> uebersprungen
+BST	Package	SCR14_usp_Faktenladen_StagetabellenDML	info	  Prozedur: usp_Faktenladen_StagetabellenDML_vf_bst_bv
+BST	Package	SCR14_usp_Faktenladen_StagetabellenDML	info	Komprimierung    : NONE
+BST	Package	SCR14_usp_Faktenladen_StagetabellenDML	info	ClusteredIndex   : CCI
+BST	Package	SCR14_usp_Faktenladen_StagetabellenDML	info	Faktentabelle    : vf_bst_bv
+BST	Package	SCR14_usp_Faktenladen_StagetabellenDML	info	Partitionsspalte : mow_id
+BST	Package	SCR14_usp_Faktenladen_StagetabellenDML	info	Verfahren        : vf_bst_bv
+BST	Package	SCR14_usp_Faktenladen_StagetabellenDML	info	[INFO_SCR11b] vf_bst_bew_sv: Prozedur usp_Faktenladen_StagetabellenDML_vf_bst_bew_sv nicht vorhanden -> uebersprungen
+BST	Package	SCR14_usp_Faktenladen_StagetabellenDML	info	  Info: Prozedur [usp_Faktenladen_StagetabellenDML_vf_bst_bew_sv] existiert nicht -> uebersprungen
+BST	Package	SCR14_usp_Faktenladen_StagetabellenDML	info	  Prozedur: usp_Faktenladen_StagetabellenDML_vf_bst_bew_sv
+BST	Package	SCR14_usp_Faktenladen_StagetabellenDML	info	ClusteredIndex   : CCI
+BST	Package	SCR14_usp_Faktenladen_StagetabellenDML	info	Komprimierung    : NONE
+BST	Package	SCR14_usp_Faktenladen_StagetabellenDML	info	Partitionsspalte : mow_id
+BST	Package	SCR14_usp_Faktenladen_StagetabellenDML	info	Faktentabelle    : vf_bst_bew_sv
+BST	Package	SCR14_usp_Faktenladen_StagetabellenDML	info	Verfahren        : vf_bst_bew_sv
+BST	Package	SCR14_usp_Faktenladen_StagetabellenDML	info	[INFO_SCR11b] vf_bst_bew_gb: Prozedur usp_Faktenladen_StagetabellenDML_vf_bst_bew_gb nicht vorhanden -> uebersprungen
+BST	Package	SCR14_usp_Faktenladen_StagetabellenDML	info	  Info: Prozedur [usp_Faktenladen_StagetabellenDML_vf_bst_bew_gb] existiert nicht -> uebersprungen
+BST	Package	SCR14_usp_Faktenladen_StagetabellenDML	info	Komprimierung    : NONE
+BST	Package	SCR14_usp_Faktenladen_StagetabellenDML	info	  Prozedur: usp_Faktenladen_StagetabellenDML_vf_bst_bew_gb
+BST	Package	SCR14_usp_Faktenladen_StagetabellenDML	info	ClusteredIndex   : CCI
+BST	Package	SCR14_usp_Faktenladen_StagetabellenDML	info	Partitionsspalte : mow_id
+BST	Package	SCR14_usp_Faktenladen_StagetabellenDML	info	Verfahren        : vf_bst_bew_gb
+BST	Package	SCR14_usp_Faktenladen_StagetabellenDML	info	Faktentabelle    : vf_bst_bew_gb
+BST	Package	SCR14_usp_Faktenladen_StagetabellenDML	info	[INFO_SCR11b] vf_bst_bew_bv: Prozedur usp_Faktenladen_StagetabellenDML_vf_bst_bew_bv nicht vorhanden -> uebersprungen
+BST	Package	SCR14_usp_Faktenladen_StagetabellenDML	info	  Info: Prozedur [usp_Faktenladen_StagetabellenDML_vf_bst_bew_bv] existiert nicht -> uebersprungen
+BST	Package	SCR14_usp_Faktenladen_StagetabellenDML	info	  Prozedur: usp_Faktenladen_StagetabellenDML_vf_bst_bew_bv
+BST	Package	SCR14_usp_Faktenladen_StagetabellenDML	info	ClusteredIndex   : CCI
+BST	Package	SCR14_usp_Faktenladen_StagetabellenDML	info	Komprimierung    : NONE
+BST	Package	SCR14_usp_Faktenladen_StagetabellenDML	info	Partitionsspalte : mow_id
+BST	Package	SCR14_usp_Faktenladen_StagetabellenDML	info	Faktentabelle    : vf_bst_bew_bv
+BST	Package	SCR14_usp_Faktenladen_StagetabellenDML	info	Verfahren        : vf_bst_bew_bv
+BST	Package	SCR14_usp_Faktenladen_StagetabellenDML	info	Verfahren mit Status 'DATEN_GELADEN': 8
+BST	Package	SCR14_usp_Faktenladen_StagetabellenDML	info	Partitionswerte aus SCR09: 8 Eintraege
+BST	Package	SCR14_usp_Faktenladen_StagetabellenDML	info	SCR14_StagetabellenDML_Aufruf - Start
+BST	Package	SCR13_Daten_Laden	info	Erfolgreich: 8 | Fehler: 0
+BST	Package	SCR13_Daten_Laden	info	  Schritt 6 abgeschlossen OK (vf_bst_sv)
+BST	Package	SCR13_Daten_Laden	info	[SCHRITT_6] vf_bst_sv: Daten geladen. Zeilen gesamt: 35088917
+BST	Package	SCR13_Daten_Laden	info	  Schritt 6 abgeschlossen OK (vf_bst_sonst)
+BST	Package	SCR13_Daten_Laden	info	[SCHRITT_6] vf_bst_sonst: Daten geladen. Zeilen gesamt: 1399141
+BST	Package	SCR13_Daten_Laden	info	  Schritt 6 abgeschlossen OK (vf_bst_gb)
+BST	Package	SCR13_Daten_Laden	info	[SCHRITT_6] vf_bst_gb: Daten geladen. Zeilen gesamt: 7829046
+BST	Package	SCR13_Daten_Laden	info	  Schritt 6 abgeschlossen OK (vf_bst_bv_sonst)
+BST	Package	SCR13_Daten_Laden	info	[SCHRITT_6] vf_bst_bv_sonst: Daten geladen. Zeilen gesamt: 1404609
+BST	Package	SCR13_Daten_Laden	info	  Schritt 6 abgeschlossen OK (vf_bst_bv)
+BST	Package	SCR13_Daten_Laden	info	[SCHRITT_6] vf_bst_bv: Daten geladen. Zeilen gesamt: 43785643
+BST	Package	SCR13_Daten_Laden	info	  Schritt 6 abgeschlossen OK (vf_bst_bew_sv)
+BST	Package	SCR13_Daten_Laden	info	[SCHRITT_6] vf_bst_bew_sv: Daten geladen. Zeilen gesamt: 1458525
+BST	Package	SCR13_Daten_Laden	info	  Schritt 6 abgeschlossen OK (vf_bst_bew_gb)
+BST	Package	SCR13_Daten_Laden	info	[SCHRITT_6] vf_bst_bew_gb: Daten geladen. Zeilen gesamt: 997553
+BST	Package	SCR13_Daten_Laden	info	  Schritt 6 abgeschlossen OK (vf_bst_bew_bv)
+BST	Package	SCR13_Daten_Laden	info	[SCHRITT_6] vf_bst_bew_bv: Daten geladen. Zeilen gesamt: 3653063
+BST	Package	SCR13_Daten_Laden	info	[LOAD_20230906] vf_bst_bv: SELECT INTO dbo.vf_bst_bv_in_20230906 | Zeilen: 43785643
+BST	Package	SCR13_Daten_Laden	info	  Zeilen geladen (vf_bst_bv_in_20230906): 43785643
+BST	Package	SCR13_Daten_Laden	info	[LOAD_20230906] vf_bst_sv: SELECT INTO dbo.vf_bst_sv_in_20230906 | Zeilen: 35088917
+BST	Package	SCR13_Daten_Laden	info	  Zeilen geladen (vf_bst_sv_in_20230906): 35088917
+BST	Package	SCR13_Daten_Laden	info	[LOAD_20230906] vf_bst_gb: SELECT INTO dbo.vf_bst_gb_in_20230906 | Zeilen: 7829046
+BST	Package	SCR13_Daten_Laden	info	  Zeilen geladen (vf_bst_gb_in_20230906): 7829046
+BST	Package	SCR13_Daten_Laden	info	[LOAD_20230906] vf_bst_bew_bv: SELECT INTO dbo.vf_bst_bew_bv_in_20230906 | Zeilen: 3653063
+BST	Package	SCR13_Daten_Laden	info	  Zeilen geladen (vf_bst_bew_bv_in_20230906): 3653063
+BST	Package	SCR13_Daten_Laden	info	  vf_bst_bew_sv_in_20230906 bereits gefuellt (1458525 Zeilen) uebersprungen OK
+BST	Package	SCR13_Daten_Laden	info	  vf_bst_bew_gb_in_20230906 bereits gefuellt (997553 Zeilen) uebersprungen OK
+BST	Package	SCR13_Daten_Laden	info	  vf_bst_sonst_in_20230906 bereits gefuellt (1399141 Zeilen) uebersprungen OK
+BST	Package	SCR13_Daten_Laden	info	  vf_bst_bv_sonst_in_20230906 bereits gefuellt (1404609 Zeilen) uebersprungen OK
+BST	Package	SCR13_Daten_Laden	info	  SELECT INTO [vf_bst_bew_bv_in_20230906_LOADING] WHERE mow_id = 20230906 (wird zu _in_ umbenannt)
+BST	Package	SCR13_Daten_Laden	info	  SELECT INTO [vf_bst_bv_in_20230906_LOADING] WHERE mow_id = 20230906 (wird zu _in_ umbenannt)
+BST	Package	SCR13_Daten_Laden	info	  SELECT INTO [vf_bst_sv_in_20230906_LOADING] WHERE mow_id = 20230906 (wird zu _in_ umbenannt)
+BST	Package	SCR13_Daten_Laden	info	  SELECT INTO [vf_bst_gb_in_20230906_LOADING] WHERE mow_id = 20230906 (wird zu _in_ umbenannt)
+BST	Package	SCR13_Daten_Laden	info	Arbeitspakete gesamt (Verfahren x Partition): 8 | Parallelitaet: 8
+BST	Package	SCR13_Daten_Laden	info	  Partitionswerte: 1
+BST	Package	SCR13_Daten_Laden	info	Verfahren: vf_bst_sv | Spalte: mow_id
+BST	Package	SCR13_Daten_Laden	info	  Partitionswerte: 1
+BST	Package	SCR13_Daten_Laden	info	Verfahren: vf_bst_sonst | Spalte: mow_id
+BST	Package	SCR13_Daten_Laden	info	  Partitionswerte: 1
+BST	Package	SCR13_Daten_Laden	info	Verfahren: vf_bst_gb | Spalte: mow_id
+BST	Package	SCR13_Daten_Laden	info	  Partitionswerte: 1
+BST	Package	SCR13_Daten_Laden	info	Verfahren: vf_bst_bv_sonst | Spalte: mow_id
+BST	Package	SCR13_Daten_Laden	info	  Partitionswerte: 1
+BST	Package	SCR13_Daten_Laden	info	Verfahren: vf_bst_bv | Spalte: mow_id
+BST	Package	SCR13_Daten_Laden	info	  Partitionswerte: 1
+BST	Package	SCR13_Daten_Laden	info	Verfahren: vf_bst_bew_sv | Spalte: mow_id
+BST	Package	SCR13_Daten_Laden	info	  Partitionswerte: 1
+BST	Package	SCR13_Daten_Laden	info	Verfahren: vf_bst_bew_gb | Spalte: mow_id
+BST	Package	SCR13_Daten_Laden	info	  Partitionswerte: 1
+BST	Package	SCR13_Daten_Laden	info	Verfahren: vf_bst_bew_bv | Spalte: mow_id
+BST	Package	SCR13_Daten_Laden	info	Verfahren: 8
+BST	Package	SCR13_Daten_Laden	info	Partitionswerte gesamt: 8 Eintraege
+BST	Package	SCR13_Daten_Laden	info	SCR13_Daten_Laden - Start
+BST	Package	SCR12_Staging_Erstellen	info	Erfolgreich: 8 | Fehler: 0
+BST	Package	SCR12_Staging_Erstellen	info	  Schritt 5 abgeschlossen OK
+BST	Package	SCR12_Staging_Erstellen	info	[SCHRITT_5] vf_bst_sv: Staging erstellt: 1 Partition(en) | NEU: 1 | AKTUALISIERUNG: 0
+BST	Package	SCR12_Staging_Erstellen	info	  _out erstellt: 20230906 | Modus: NEU
+BST	Package	SCR12_Staging_Erstellen	info	Verfahren: vf_bst_sv
+BST	Package	SCR12_Staging_Erstellen	info	  Schritt 5 abgeschlossen OK
+BST	Package	SCR12_Staging_Erstellen	info	[SCHRITT_5] vf_bst_sonst: Staging erstellt: 1 Partition(en) | NEU: 1 | AKTUALISIERUNG: 0
+BST	Package	SCR12_Staging_Erstellen	info	  _out erstellt: 20230906 | Modus: NEU
+BST	Package	SCR12_Staging_Erstellen	info	Verfahren: vf_bst_sonst
+BST	Package	SCR12_Staging_Erstellen	info	  Schritt 5 abgeschlossen OK
+BST	Package	SCR12_Staging_Erstellen	info	[SCHRITT_5] vf_bst_gb: Staging erstellt: 1 Partition(en) | NEU: 1 | AKTUALISIERUNG: 0
+BST	Package	SCR12_Staging_Erstellen	info	  _out erstellt: 20230906 | Modus: NEU
+BST	Package	SCR12_Staging_Erstellen	info	Verfahren: vf_bst_gb
+BST	Package	SCR12_Staging_Erstellen	info	  Schritt 5 abgeschlossen OK
+BST	Package	SCR12_Staging_Erstellen	info	[SCHRITT_5] vf_bst_bv_sonst: Staging erstellt: 1 Partition(en) | NEU: 1 | AKTUALISIERUNG: 0
+BST	Package	SCR12_Staging_Erstellen	info	  _out erstellt: 20230906 | Modus: NEU
+BST	Package	SCR12_Staging_Erstellen	info	Verfahren: vf_bst_bv_sonst
+BST	Package	SCR12_Staging_Erstellen	info	  Schritt 5 abgeschlossen OK
+BST	Package	SCR12_Staging_Erstellen	info	[SCHRITT_5] vf_bst_bv: Staging erstellt: 1 Partition(en) | NEU: 1 | AKTUALISIERUNG: 0
+BST	Package	SCR12_Staging_Erstellen	info	  _out erstellt: 20230906 | Modus: NEU
+BST	Package	SCR12_Staging_Erstellen	info	Verfahren: vf_bst_bv
+BST	Package	SCR12_Staging_Erstellen	info	  Schritt 5 abgeschlossen OK
+BST	Package	SCR12_Staging_Erstellen	info	[SCHRITT_5] vf_bst_bew_sv: Staging erstellt: 1 Partition(en) | NEU: 1 | AKTUALISIERUNG: 0
+BST	Package	SCR12_Staging_Erstellen	info	  _out erstellt: 20230906 | Modus: NEU
+BST	Package	SCR12_Staging_Erstellen	info	Verfahren: vf_bst_bew_sv
+BST	Package	SCR12_Staging_Erstellen	info	  Schritt 5 abgeschlossen OK
+BST	Package	SCR12_Staging_Erstellen	info	[SCHRITT_5] vf_bst_bew_gb: Staging erstellt: 1 Partition(en) | NEU: 1 | AKTUALISIERUNG: 0
+BST	Package	SCR12_Staging_Erstellen	info	  _out erstellt: 20230906 | Modus: NEU
+BST	Package	SCR12_Staging_Erstellen	info	Verfahren: vf_bst_bew_gb
+BST	Package	SCR12_Staging_Erstellen	info	  Schritt 5 abgeschlossen OK
+BST	Package	SCR12_Staging_Erstellen	info	[SCHRITT_5] vf_bst_bew_bv: Staging erstellt: 1 Partition(en) | NEU: 1 | AKTUALISIERUNG: 0
+BST	Package	SCR12_Staging_Erstellen	info	  _out erstellt: 20230906 | Modus: NEU
+BST	Package	SCR12_Staging_Erstellen	info	Verfahren: vf_bst_bew_bv
+BST	Package	SCR12_Staging_Erstellen	info	Verfahren aus Arbeitsliste: 8
+BST	Package	SCR12_Staging_Erstellen	info	Partitionswerte aus SCR09: 8 Eintraege
+BST	Package	SCR12_Staging_Erstellen	info	SCR12_Staging_Erstellen - Start
+BST	Package	SCR11_Partitionsgrenzen	info	Erfolgreich: 8 | Fehler: 0
+BST	Package	SCR11_Partitionsgrenzen	info	  vf_bst_sv: 1 Partitionen (20230906-20230906)
+BST	Package	SCR11_Partitionsgrenzen	info	  vf_bst_sonst: 1 Partitionen (20230906-20230906)
+BST	Package	SCR11_Partitionsgrenzen	info	  vf_bst_gb: 1 Partitionen (20230906-20230906)
+BST	Package	SCR11_Partitionsgrenzen	info	  vf_bst_bv_sonst: 1 Partitionen (20230906-20230906)
+BST	Package	SCR11_Partitionsgrenzen	info	  vf_bst_bv: 1 Partitionen (20230906-20230906)
+BST	Package	SCR11_Partitionsgrenzen	info	  vf_bst_bew_sv: 1 Partitionen (20230906-20230906)
+BST	Package	SCR11_Partitionsgrenzen	info	  vf_bst_bew_gb: 1 Partitionen (20230906-20230906)
+BST	Package	SCR11_Partitionsgrenzen	info	  vf_bst_bew_bv: 1 Partitionen (20230906-20230906)
+BST	Package	SCR11_Partitionsgrenzen	info	BA::objPartitionValues gesetzt: 8 Eintraege
+BST	Package	SCR11_Partitionsgrenzen	info	  Schritt 4 abgeschlossen OK
+BST	Package	SCR11_Partitionsgrenzen	info	[SCHRITT_4] vf_bst_sv: Partitionsgrenzen erstellt. Modus=MANUAL | Gesamt=1 | AKTUALISIERUNG=0 | NEU=1 | Bereich=20230906-20230906
+BST	Package	SCR11_Partitionsgrenzen	info	  SPLIT ausgefuehrt: 1 | Uebersprungen: 0
+BST	Package	SCR11_Partitionsgrenzen	info	  Werte-Bereich: 20230906 bis 20230906 (1 Partitionen)
+BST	Package	SCR11_Partitionsgrenzen	info	  NEU: 1
+BST	Package	SCR11_Partitionsgrenzen	info	  AKTUALISIERUNG: 0
+BST	Package	SCR11_Partitionsgrenzen	info	  Gesamt zu verarbeiten: 1
+BST	Package	SCR11_Partitionsgrenzen	info	  Modus: MANUAL
+BST	Package	SCR11_Partitionsgrenzen	info	  ZUSAMMENFASSUNG: vf_bst_sv
+BST	Package	SCR11_Partitionsgrenzen	info	  Klassifizierung: AKTUALISIERUNG=0 | NEU=1
+BST	Package	SCR11_Partitionsgrenzen	info	  MSSQL Werte gesamt: 0
+BST	Package	SCR11_Partitionsgrenzen	info	  MIN: 20230906 | MAX: 20230906
+BST	Package	SCR11_Partitionsgrenzen	info	  Benutzer partition_wert: 1 Werte
+BST	Package	SCR11_Partitionsgrenzen	info	  MODE: MANUAL (partition_wert gesetzt - Oracle-Pruefung uebersprungen)
+BST	Package	SCR11_Partitionsgrenzen	info	Verfahren: vf_bst_sv | Tabelle: vf_bst_sv | Spalte: mow_id
+BST	Package	SCR11_Partitionsgrenzen	info	  Schritt 4 abgeschlossen OK
+BST	Package	SCR11_Partitionsgrenzen	info	[SCHRITT_4] vf_bst_sonst: Partitionsgrenzen erstellt. Modus=MANUAL | Gesamt=1 | AKTUALISIERUNG=0 | NEU=1 | Bereich=20230906-20230906
+BST	Package	SCR11_Partitionsgrenzen	info	  SPLIT ausgefuehrt: 1 | Uebersprungen: 0
+BST	Package	SCR11_Partitionsgrenzen	info	    Boundary 20230906 bereits vorhanden uebersprungen
+BST	Package	SCR11_Partitionsgrenzen	info	  Werte-Bereich: 20230906 bis 20230906 (1 Partitionen)
+BST	Package	SCR11_Partitionsgrenzen	info	  NEU: 1
+BST	Package	SCR11_Partitionsgrenzen	info	  AKTUALISIERUNG: 0
+BST	Package	SCR11_Partitionsgrenzen	info	  Gesamt zu verarbeiten: 1
+BST	Package	SCR11_Partitionsgrenzen	info	  Modus: MANUAL
+BST	Package	SCR11_Partitionsgrenzen	info	  ZUSAMMENFASSUNG: vf_bst_sonst
+BST	Package	SCR11_Partitionsgrenzen	info	  Klassifizierung: AKTUALISIERUNG=0 | NEU=1
+BST	Package	SCR11_Partitionsgrenzen	info	  MSSQL Werte gesamt: 0
+BST	Package	SCR11_Partitionsgrenzen	info	  MIN: 20230906 | MAX: 20230906
+BST	Package	SCR11_Partitionsgrenzen	info	  Benutzer partition_wert: 1 Werte
+BST	Package	SCR11_Partitionsgrenzen	info	  MODE: MANUAL (partition_wert gesetzt - Oracle-Pruefung uebersprungen)
+BST	Package	SCR11_Partitionsgrenzen	info	Verfahren: vf_bst_sonst | Tabelle: vf_bst_sonst | Spalte: mow_id
+BST	Package	SCR11_Partitionsgrenzen	info	  Schritt 4 abgeschlossen OK
+BST	Package	SCR11_Partitionsgrenzen	info	[SCHRITT_4] vf_bst_gb: Partitionsgrenzen erstellt. Modus=MANUAL | Gesamt=1 | AKTUALISIERUNG=0 | NEU=1 | Bereich=20230906-20230906
+BST	Package	SCR11_Partitionsgrenzen	info	  SPLIT ausgefuehrt: 1 | Uebersprungen: 0
+BST	Package	SCR11_Partitionsgrenzen	info	    Boundary 20230906 bereits vorhanden uebersprungen
+BST	Package	SCR11_Partitionsgrenzen	info	  Werte-Bereich: 20230906 bis 20230906 (1 Partitionen)
+BST	Package	SCR11_Partitionsgrenzen	info	  NEU: 1
+BST	Package	SCR11_Partitionsgrenzen	info	  AKTUALISIERUNG: 0
+BST	Package	SCR11_Partitionsgrenzen	info	  Gesamt zu verarbeiten: 1
+BST	Package	SCR11_Partitionsgrenzen	info	  Modus: MANUAL
+BST	Package	SCR11_Partitionsgrenzen	info	  ZUSAMMENFASSUNG: vf_bst_gb
+BST	Package	SCR11_Partitionsgrenzen	info	  Klassifizierung: AKTUALISIERUNG=0 | NEU=1
+BST	Package	SCR11_Partitionsgrenzen	info	  MSSQL Werte gesamt: 0
+BST	Package	SCR11_Partitionsgrenzen	info	  MIN: 20230906 | MAX: 20230906
+BST	Package	SCR11_Partitionsgrenzen	info	  Benutzer partition_wert: 1 Werte
+BST	Package	SCR11_Partitionsgrenzen	info	  MODE: MANUAL (partition_wert gesetzt - Oracle-Pruefung uebersprungen)
+BST	Package	SCR11_Partitionsgrenzen	info	Verfahren: vf_bst_gb | Tabelle: vf_bst_gb | Spalte: mow_id
+BST	Package	SCR11_Partitionsgrenzen	info	  Schritt 4 abgeschlossen OK
+BST	Package	SCR11_Partitionsgrenzen	info	[SCHRITT_4] vf_bst_bv_sonst: Partitionsgrenzen erstellt. Modus=MANUAL | Gesamt=1 | AKTUALISIERUNG=0 | NEU=1 | Bereich=20230906-20230906
+BST	Package	SCR11_Partitionsgrenzen	info	  SPLIT ausgefuehrt: 1 | Uebersprungen: 0
+BST	Package	SCR11_Partitionsgrenzen	info	    Boundary 20230906 bereits vorhanden uebersprungen
+BST	Package	SCR11_Partitionsgrenzen	info	  Werte-Bereich: 20230906 bis 20230906 (1 Partitionen)
+BST	Package	SCR11_Partitionsgrenzen	info	  NEU: 1
+BST	Package	SCR11_Partitionsgrenzen	info	  AKTUALISIERUNG: 0
+BST	Package	SCR11_Partitionsgrenzen	info	  Gesamt zu verarbeiten: 1
+BST	Package	SCR11_Partitionsgrenzen	info	  Modus: MANUAL
+BST	Package	SCR11_Partitionsgrenzen	info	  ZUSAMMENFASSUNG: vf_bst_bv_sonst
+BST	Package	SCR11_Partitionsgrenzen	info	  Klassifizierung: AKTUALISIERUNG=0 | NEU=1
+BST	Package	SCR11_Partitionsgrenzen	info	  MSSQL Werte gesamt: 0
+BST	Package	SCR11_Partitionsgrenzen	info	  MIN: 20230906 | MAX: 20230906
+BST	Package	SCR11_Partitionsgrenzen	info	  Benutzer partition_wert: 1 Werte
+BST	Package	SCR11_Partitionsgrenzen	info	  MODE: MANUAL (partition_wert gesetzt - Oracle-Pruefung uebersprungen)
+BST	Package	SCR11_Partitionsgrenzen	info	Verfahren: vf_bst_bv_sonst | Tabelle: vf_bst_bv_sonst | Spalte: mow_id
+BST	Package	SCR11_Partitionsgrenzen	info	  Schritt 4 abgeschlossen OK
+BST	Package	SCR11_Partitionsgrenzen	info	[SCHRITT_4] vf_bst_bv: Partitionsgrenzen erstellt. Modus=MANUAL | Gesamt=1 | AKTUALISIERUNG=0 | NEU=1 | Bereich=20230906-20230906
+BST	Package	SCR11_Partitionsgrenzen	info	  SPLIT ausgefuehrt: 1 | Uebersprungen: 0
+BST	Package	SCR11_Partitionsgrenzen	info	  Werte-Bereich: 20230906 bis 20230906 (1 Partitionen)
+BST	Package	SCR11_Partitionsgrenzen	info	  NEU: 1
+BST	Package	SCR11_Partitionsgrenzen	info	  AKTUALISIERUNG: 0
+BST	Package	SCR11_Partitionsgrenzen	info	  Gesamt zu verarbeiten: 1
+BST	Package	SCR11_Partitionsgrenzen	info	  Modus: MANUAL
+BST	Package	SCR11_Partitionsgrenzen	info	  ZUSAMMENFASSUNG: vf_bst_bv
+BST	Package	SCR11_Partitionsgrenzen	info	  Klassifizierung: AKTUALISIERUNG=0 | NEU=1
+BST	Package	SCR11_Partitionsgrenzen	info	  MSSQL Werte gesamt: 0
+BST	Package	SCR11_Partitionsgrenzen	info	  MIN: 20230906 | MAX: 20230906
+BST	Package	SCR11_Partitionsgrenzen	info	  Benutzer partition_wert: 1 Werte
+BST	Package	SCR11_Partitionsgrenzen	info	  MODE: MANUAL (partition_wert gesetzt - Oracle-Pruefung uebersprungen)
+BST	Package	SCR11_Partitionsgrenzen	info	Verfahren: vf_bst_bv | Tabelle: vf_bst_bv | Spalte: mow_id
+BST	Package	SCR11_Partitionsgrenzen	info	  Schritt 4 abgeschlossen OK
+BST	Package	SCR11_Partitionsgrenzen	info	[SCHRITT_4] vf_bst_bew_sv: Partitionsgrenzen erstellt. Modus=MANUAL | Gesamt=1 | AKTUALISIERUNG=0 | NEU=1 | Bereich=20230906-20230906
+BST	Package	SCR11_Partitionsgrenzen	info	  SPLIT ausgefuehrt: 1 | Uebersprungen: 0
+BST	Package	SCR11_Partitionsgrenzen	info	    Boundary 20230906 bereits vorhanden uebersprungen
+BST	Package	SCR11_Partitionsgrenzen	info	  Werte-Bereich: 20230906 bis 20230906 (1 Partitionen)
+BST	Package	SCR11_Partitionsgrenzen	info	  NEU: 1
+BST	Package	SCR11_Partitionsgrenzen	info	  AKTUALISIERUNG: 0
+BST	Package	SCR11_Partitionsgrenzen	info	  Gesamt zu verarbeiten: 1
+BST	Package	SCR11_Partitionsgrenzen	info	  Modus: MANUAL
+BST	Package	SCR11_Partitionsgrenzen	info	  ZUSAMMENFASSUNG: vf_bst_bew_sv
+BST	Package	SCR11_Partitionsgrenzen	info	  Klassifizierung: AKTUALISIERUNG=0 | NEU=1
+BST	Package	SCR11_Partitionsgrenzen	info	  MSSQL Werte gesamt: 0
+BST	Package	SCR11_Partitionsgrenzen	info	  MIN: 20230906 | MAX: 20230906
+BST	Package	SCR11_Partitionsgrenzen	info	  Benutzer partition_wert: 1 Werte
+BST	Package	SCR11_Partitionsgrenzen	info	  MODE: MANUAL (partition_wert gesetzt - Oracle-Pruefung uebersprungen)
+BST	Package	SCR11_Partitionsgrenzen	info	Verfahren: vf_bst_bew_sv | Tabelle: vf_bst_bew_sv | Spalte: mow_id
+BST	Package	SCR11_Partitionsgrenzen	info	  Schritt 4 abgeschlossen OK
+BST	Package	SCR11_Partitionsgrenzen	info	[SCHRITT_4] vf_bst_bew_gb: Partitionsgrenzen erstellt. Modus=MANUAL | Gesamt=1 | AKTUALISIERUNG=0 | NEU=1 | Bereich=20230906-20230906
+BST	Package	SCR11_Partitionsgrenzen	info	  SPLIT ausgefuehrt: 1 | Uebersprungen: 0
+BST	Package	SCR11_Partitionsgrenzen	info	    Boundary 20230906 bereits vorhanden uebersprungen
+BST	Package	SCR11_Partitionsgrenzen	info	  Werte-Bereich: 20230906 bis 20230906 (1 Partitionen)
+BST	Package	SCR11_Partitionsgrenzen	info	  NEU: 1
+BST	Package	SCR11_Partitionsgrenzen	info	  AKTUALISIERUNG: 0
+BST	Package	SCR11_Partitionsgrenzen	info	  Gesamt zu verarbeiten: 1
+BST	Package	SCR11_Partitionsgrenzen	info	  Modus: MANUAL
+BST	Package	SCR11_Partitionsgrenzen	info	  ZUSAMMENFASSUNG: vf_bst_bew_gb
+BST	Package	SCR11_Partitionsgrenzen	info	  Klassifizierung: AKTUALISIERUNG=0 | NEU=1
+BST	Package	SCR11_Partitionsgrenzen	info	  MSSQL Werte gesamt: 0
+BST	Package	SCR11_Partitionsgrenzen	info	  MIN: 20230906 | MAX: 20230906
+BST	Package	SCR11_Partitionsgrenzen	info	  Benutzer partition_wert: 1 Werte
+BST	Package	SCR11_Partitionsgrenzen	info	  MODE: MANUAL (partition_wert gesetzt - Oracle-Pruefung uebersprungen)
+BST	Package	SCR11_Partitionsgrenzen	info	Verfahren: vf_bst_bew_gb | Tabelle: vf_bst_bew_gb | Spalte: mow_id
+BST	Package	SCR11_Partitionsgrenzen	info	  Schritt 4 abgeschlossen OK
+BST	Package	SCR11_Partitionsgrenzen	info	[SCHRITT_4] vf_bst_bew_bv: Partitionsgrenzen erstellt. Modus=MANUAL | Gesamt=1 | AKTUALISIERUNG=0 | NEU=1 | Bereich=20230906-20230906
+BST	Package	SCR11_Partitionsgrenzen	info	  SPLIT ausgefuehrt: 1 | Uebersprungen: 0
+BST	Package	SCR11_Partitionsgrenzen	info	    Boundary 20230906 bereits vorhanden uebersprungen
+BST	Package	SCR11_Partitionsgrenzen	info	  Werte-Bereich: 20230906 bis 20230906 (1 Partitionen)
+BST	Package	SCR11_Partitionsgrenzen	info	  NEU: 1
+BST	Package	SCR11_Partitionsgrenzen	info	  AKTUALISIERUNG: 0
+BST	Package	SCR11_Partitionsgrenzen	info	  Gesamt zu verarbeiten: 1
+BST	Package	SCR11_Partitionsgrenzen	info	  Modus: MANUAL
+BST	Package	SCR11_Partitionsgrenzen	info	  ZUSAMMENFASSUNG: vf_bst_bew_bv
+BST	Package	SCR11_Partitionsgrenzen	info	  Klassifizierung: AKTUALISIERUNG=0 | NEU=1
+BST	Package	SCR11_Partitionsgrenzen	info	  MSSQL Werte gesamt: 0
+BST	Package	SCR11_Partitionsgrenzen	info	  MIN: 20230906 | MAX: 20230906
+BST	Package	SCR11_Partitionsgrenzen	info	  Benutzer partition_wert: 1 Werte
+BST	Package	SCR11_Partitionsgrenzen	info	  MODE: MANUAL (partition_wert gesetzt - Oracle-Pruefung uebersprungen)
+BST	Package	SCR11_Partitionsgrenzen	info	Verfahren: vf_bst_bew_bv | Tabelle: vf_bst_bew_bv | Spalte: mow_id
+BST	Package	SCR11_Partitionsgrenzen	info	Verfahren: 8
+BST	Package	SCR11_Partitionsgrenzen	info	SCR11_Partitionsgrenzen - Start
+BST	Package	SCR10_Faktentabelle_Erstellen	info	Erfolgreich: 8 | Fehler: 0
+BST	Package	SCR10_Faktentabelle_Erstellen	info	  -> Schritt 3 abgeschlossen
+BST	Package	SCR10_Faktentabelle_Erstellen	info	[SCHRITT_3] vf_bst_sv: Faktentabelle existiert bereits (Struktur OK): dbo.vf_bst_sv -> uebersprungen
+BST	Package	SCR10_Faktentabelle_Erstellen	info	  Faktentabelle dbo.vf_bst_sv existiert bereits (Struktur OK) -> uebersprungen
+BST	Package	SCR10_Faktentabelle_Erstellen	info	Partitionsspalte: mow_id | IndexTyp: CCI | Komprimierung: NONE
+BST	Package	SCR10_Faktentabelle_Erstellen	info	Verfahren: vf_bst_sv | Faktentabelle: vf_bst_sv
+BST	Package	SCR10_Faktentabelle_Erstellen	info	  -> Schritt 3 abgeschlossen
+BST	Package	SCR10_Faktentabelle_Erstellen	info	[SCHRITT_3] vf_bst_sonst: Faktentabelle existiert bereits (Struktur OK): dbo.vf_bst_sonst -> uebersprungen
+BST	Package	SCR10_Faktentabelle_Erstellen	info	  Faktentabelle dbo.vf_bst_sonst existiert bereits (Struktur OK) -> uebersprungen
+BST	Package	SCR10_Faktentabelle_Erstellen	info	Partitionsspalte: mow_id | IndexTyp: CCI | Komprimierung: NONE
+BST	Package	SCR10_Faktentabelle_Erstellen	info	Verfahren: vf_bst_sonst | Faktentabelle: vf_bst_sonst
+BST	Package	SCR10_Faktentabelle_Erstellen	info	  -> Schritt 3 abgeschlossen
+BST	Package	SCR10_Faktentabelle_Erstellen	info	[SCHRITT_3] vf_bst_gb: Faktentabelle existiert bereits (Struktur OK): dbo.vf_bst_gb -> uebersprungen
+BST	Package	SCR10_Faktentabelle_Erstellen	info	  Faktentabelle dbo.vf_bst_gb existiert bereits (Struktur OK) -> uebersprungen
+BST	Package	SCR10_Faktentabelle_Erstellen	info	Partitionsspalte: mow_id | IndexTyp: CCI | Komprimierung: NONE
+BST	Package	SCR10_Faktentabelle_Erstellen	info	Verfahren: vf_bst_gb | Faktentabelle: vf_bst_gb
+BST	Package	SCR10_Faktentabelle_Erstellen	info	  -> Schritt 3 abgeschlossen
+BST	Package	SCR10_Faktentabelle_Erstellen	info	[SCHRITT_3] vf_bst_bv_sonst: Faktentabelle existiert bereits (Struktur OK): dbo.vf_bst_bv_sonst -> uebersprungen
+BST	Package	SCR10_Faktentabelle_Erstellen	info	  Faktentabelle dbo.vf_bst_bv_sonst existiert bereits (Struktur OK) -> uebersprungen
+BST	Package	SCR10_Faktentabelle_Erstellen	info	Partitionsspalte: mow_id | IndexTyp: CCI | Komprimierung: NONE
+BST	Package	SCR10_Faktentabelle_Erstellen	info	Verfahren: vf_bst_bv_sonst | Faktentabelle: vf_bst_bv_sonst
+BST	Package	SCR10_Faktentabelle_Erstellen	info	  -> Schritt 3 abgeschlossen
+BST	Package	SCR10_Faktentabelle_Erstellen	info	[SCHRITT_3] vf_bst_bv: Faktentabelle existiert bereits (Struktur OK): dbo.vf_bst_bv -> uebersprungen
+BST	Package	SCR10_Faktentabelle_Erstellen	info	  Faktentabelle dbo.vf_bst_bv existiert bereits (Struktur OK) -> uebersprungen
+BST	Package	SCR10_Faktentabelle_Erstellen	info	Partitionsspalte: mow_id | IndexTyp: CCI | Komprimierung: NONE
+BST	Package	SCR10_Faktentabelle_Erstellen	info	Verfahren: vf_bst_bv | Faktentabelle: vf_bst_bv
+BST	Package	SCR10_Faktentabelle_Erstellen	info	  -> Schritt 3 abgeschlossen
+BST	Package	SCR10_Faktentabelle_Erstellen	info	[SCHRITT_3] vf_bst_bew_sv: Faktentabelle existiert bereits (Struktur OK): dbo.vf_bst_bew_sv -> uebersprungen
+BST	Package	SCR10_Faktentabelle_Erstellen	info	  Faktentabelle dbo.vf_bst_bew_sv existiert bereits (Struktur OK) -> uebersprungen
+BST	Package	SCR10_Faktentabelle_Erstellen	info	Partitionsspalte: mow_id | IndexTyp: CCI | Komprimierung: NONE
+BST	Package	SCR10_Faktentabelle_Erstellen	info	Verfahren: vf_bst_bew_sv | Faktentabelle: vf_bst_bew_sv
+BST	Package	SCR10_Faktentabelle_Erstellen	info	  -> Schritt 3 abgeschlossen
+BST	Package	SCR10_Faktentabelle_Erstellen	info	[SCHRITT_3] vf_bst_bew_gb: Faktentabelle existiert bereits (Struktur OK): dbo.vf_bst_bew_gb -> uebersprungen
+BST	Package	SCR10_Faktentabelle_Erstellen	info	  Faktentabelle dbo.vf_bst_bew_gb existiert bereits (Struktur OK) -> uebersprungen
+BST	Package	SCR10_Faktentabelle_Erstellen	info	Partitionsspalte: mow_id | IndexTyp: CCI | Komprimierung: NONE
+BST	Package	SCR10_Faktentabelle_Erstellen	info	Verfahren: vf_bst_bew_gb | Faktentabelle: vf_bst_bew_gb
+BST	Package	SCR10_Faktentabelle_Erstellen	info	  -> Schritt 3 abgeschlossen
+BST	Package	SCR10_Faktentabelle_Erstellen	info	[SCHRITT_3] vf_bst_bew_bv: Faktentabelle existiert bereits (Struktur OK): dbo.vf_bst_bew_bv -> uebersprungen
+BST	Package	SCR10_Faktentabelle_Erstellen	info	  Faktentabelle dbo.vf_bst_bew_bv existiert bereits (Struktur OK) -> uebersprungen
+BST	Package	SCR10_Faktentabelle_Erstellen	info	Partitionsspalte: mow_id | IndexTyp: CCI | Komprimierung: NONE
+BST	Package	SCR10_Faktentabelle_Erstellen	info	Verfahren: vf_bst_bew_bv | Faktentabelle: vf_bst_bew_bv
+BST	Package	SCR10_Faktentabelle_Erstellen	info	Verfahren: 8
+BST	Package	SCR10_Faktentabelle_Erstellen	info	SCR10_Faktentabelle_Erstellen - Start
+BST	Package	SCR09_Ext_Tabelle_Erstellen	info	Erfolgreich: 8 | Fehler: 0
+BST	Package	SCR09_Ext_Tabelle_Erstellen	info	  Externe Tabelle erstellt OK
+BST	Package	SCR09_Ext_Tabelle_Erstellen	info	[SCHRITT_2] vf_bst_sv: Externe Tabelle erstellt: ext.vf_bst_sv
+BST	Package	SCR09_Ext_Tabelle_Erstellen	info	  OK Externe Tabelle erfolgreich: ext.[vf_bst_sv]
+BST	Package	SCR09_Ext_Tabelle_Erstellen	info	  Oracle Location: ISTAT.THM_DM_STAT_BST.VF_BST_SV
+BST	Package	SCR09_Ext_Tabelle_Erstellen	info	  Erstelle externe Tabelle: ext.[vf_bst_sv]
+BST	Package	SCR09_Ext_Tabelle_Erstellen	info	Verfahren: vf_bst_sv | Themengebiet: thm_dm_stat_bst
+BST	Package	SCR09_Ext_Tabelle_Erstellen	info	  Externe Tabelle erstellt OK
+BST	Package	SCR09_Ext_Tabelle_Erstellen	info	[SCHRITT_2] vf_bst_sonst: Externe Tabelle erstellt: ext.vf_bst_sonst
+BST	Package	SCR09_Ext_Tabelle_Erstellen	info	  OK Externe Tabelle erfolgreich: ext.[vf_bst_sonst]
+BST	Package	SCR09_Ext_Tabelle_Erstellen	info	  Oracle Location: ISTAT.THM_DM_STAT_BST.VF_BST_SONST
+BST	Package	SCR09_Ext_Tabelle_Erstellen	info	  Erstelle externe Tabelle: ext.[vf_bst_sonst]
+BST	Package	SCR09_Ext_Tabelle_Erstellen	info	Verfahren: vf_bst_sonst | Themengebiet: thm_dm_stat_bst
+BST	Package	SCR09_Ext_Tabelle_Erstellen	info	  Externe Tabelle erstellt OK
+BST	Package	SCR09_Ext_Tabelle_Erstellen	info	[SCHRITT_2] vf_bst_gb: Externe Tabelle erstellt: ext.vf_bst_gb
+BST	Package	SCR09_Ext_Tabelle_Erstellen	info	  OK Externe Tabelle erfolgreich: ext.[vf_bst_gb]
+BST	Package	SCR09_Ext_Tabelle_Erstellen	info	  Oracle Location: ISTAT.THM_DM_STAT_BST.VF_BST_GB
+BST	Package	SCR09_Ext_Tabelle_Erstellen	info	  Erstelle externe Tabelle: ext.[vf_bst_gb]
+BST	Package	SCR09_Ext_Tabelle_Erstellen	info	Verfahren: vf_bst_gb | Themengebiet: thm_dm_stat_bst
+BST	Package	SCR09_Ext_Tabelle_Erstellen	info	  Externe Tabelle erstellt OK
+BST	Package	SCR09_Ext_Tabelle_Erstellen	info	[SCHRITT_2] vf_bst_bv_sonst: Externe Tabelle erstellt: ext.vf_bst_bv_sonst
+BST	Package	SCR09_Ext_Tabelle_Erstellen	info	  OK Externe Tabelle erfolgreich: ext.[vf_bst_bv_sonst]
+BST	Package	SCR09_Ext_Tabelle_Erstellen	info	  Oracle Location: ISTAT.THM_DM_STAT_BST.VF_BST_BV_SONST
+BST	Package	SCR09_Ext_Tabelle_Erstellen	info	  Erstelle externe Tabelle: ext.[vf_bst_bv_sonst]
+BST	Package	SCR09_Ext_Tabelle_Erstellen	info	Verfahren: vf_bst_bv_sonst | Themengebiet: thm_dm_stat_bst
+BST	Package	SCR09_Ext_Tabelle_Erstellen	info	  Externe Tabelle erstellt OK
+BST	Package	SCR09_Ext_Tabelle_Erstellen	info	[SCHRITT_2] vf_bst_bv: Externe Tabelle erstellt: ext.vf_bst_bv
+BST	Package	SCR09_Ext_Tabelle_Erstellen	info	  OK Externe Tabelle erfolgreich: ext.[vf_bst_bv]
+BST	Package	SCR09_Ext_Tabelle_Erstellen	info	  Oracle Location: ISTAT.THM_DM_STAT_BST.VF_BST_BV
+BST	Package	SCR09_Ext_Tabelle_Erstellen	info	  Erstelle externe Tabelle: ext.[vf_bst_bv]
+BST	Package	SCR09_Ext_Tabelle_Erstellen	info	Verfahren: vf_bst_bv | Themengebiet: thm_dm_stat_bst
+BST	Package	SCR09_Ext_Tabelle_Erstellen	info	  Externe Tabelle erstellt OK
+BST	Package	SCR09_Ext_Tabelle_Erstellen	info	[SCHRITT_2] vf_bst_bew_sv: Externe Tabelle erstellt: ext.vf_bst_bew_sv
+BST	Package	SCR09_Ext_Tabelle_Erstellen	info	  OK Externe Tabelle erfolgreich: ext.[vf_bst_bew_sv]
+BST	Package	SCR09_Ext_Tabelle_Erstellen	info	  Oracle Location: ISTAT.THM_DM_STAT_BST.VF_BST_BEW_SV
+BST	Package	SCR09_Ext_Tabelle_Erstellen	info	  Erstelle externe Tabelle: ext.[vf_bst_bew_sv]
+BST	Package	SCR09_Ext_Tabelle_Erstellen	info	Verfahren: vf_bst_bew_sv | Themengebiet: thm_dm_stat_bst
+BST	Package	SCR09_Ext_Tabelle_Erstellen	info	  Externe Tabelle erstellt OK
+BST	Package	SCR09_Ext_Tabelle_Erstellen	info	[SCHRITT_2] vf_bst_bew_gb: Externe Tabelle erstellt: ext.vf_bst_bew_gb
+BST	Package	SCR09_Ext_Tabelle_Erstellen	info	  OK Externe Tabelle erfolgreich: ext.[vf_bst_bew_gb]
+BST	Package	SCR09_Ext_Tabelle_Erstellen	info	  Oracle Location: ISTAT.THM_DM_STAT_BST.VF_BST_BEW_GB
+BST	Package	SCR09_Ext_Tabelle_Erstellen	info	  Erstelle externe Tabelle: ext.[vf_bst_bew_gb]
+BST	Package	SCR09_Ext_Tabelle_Erstellen	info	Verfahren: vf_bst_bew_gb | Themengebiet: thm_dm_stat_bst
+BST	Package	SCR09_Ext_Tabelle_Erstellen	info	  Externe Tabelle erstellt OK
+BST	Package	SCR09_Ext_Tabelle_Erstellen	info	[SCHRITT_2] vf_bst_bew_bv: Externe Tabelle erstellt: ext.vf_bst_bew_bv
+BST	Package	SCR09_Ext_Tabelle_Erstellen	info	  OK Externe Tabelle erfolgreich: ext.[vf_bst_bew_bv]
+BST	Package	SCR09_Ext_Tabelle_Erstellen	info	  Oracle Location: ISTAT.THM_DM_STAT_BST.VF_BST_BEW_BV
+BST	Package	SCR09_Ext_Tabelle_Erstellen	info	  Erstelle externe Tabelle: ext.[vf_bst_bew_bv]
+BST	Package	SCR09_Ext_Tabelle_Erstellen	info	Verfahren: vf_bst_bew_bv | Themengebiet: thm_dm_stat_bst
+BST	Package	SCR09_Ext_Tabelle_Erstellen	info	Verfahren zur Verarbeitung: 8
+BST	Package	SCR09_Ext_Tabelle_Erstellen	info	SCR09_Ext_Tabelle_Erstellen - Start
+BST	Package	SCR08_Template_Erstellen	info	Erfolgreich: 8 | Fehler: 0
+BST	Package	SCR08_Template_Erstellen	info	  Template erstellt OK
+BST	Package	SCR08_Template_Erstellen	info	[SCHRITT_1] vf_bst_sv: Template erstellt/geprueft: msi_dm_bst_v3.dbo.vf_bst_sv_template
+BST	Package	SCR08_Template_Erstellen	info	  Template erstellt bzw. Struktur geprueft OK
+BST	Package	SCR08_Template_Erstellen	info	  Template fuer: vf_bst_sv
+BST	Package	SCR08_Template_Erstellen	info	Verfahren: vf_bst_sv | Themengebiet: thm_dm_stat_bst
+BST	Package	SCR08_Template_Erstellen	info	  Template erstellt OK
+BST	Package	SCR08_Template_Erstellen	info	[SCHRITT_1] vf_bst_sonst: Template erstellt/geprueft: msi_dm_bst_v3.dbo.vf_bst_sonst_template
+BST	Package	SCR08_Template_Erstellen	info	  Template erstellt bzw. Struktur geprueft OK
+BST	Package	SCR08_Template_Erstellen	info	  Template fuer: vf_bst_sonst
+BST	Package	SCR08_Template_Erstellen	info	Verfahren: vf_bst_sonst | Themengebiet: thm_dm_stat_bst
+BST	Package	SCR08_Template_Erstellen	info	  Template erstellt OK
+BST	Package	SCR08_Template_Erstellen	info	[SCHRITT_1] vf_bst_gb: Template erstellt/geprueft: msi_dm_bst_v3.dbo.vf_bst_gb_template
+BST	Package	SCR08_Template_Erstellen	info	  Template erstellt bzw. Struktur geprueft OK
+BST	Package	SCR08_Template_Erstellen	info	  Template fuer: vf_bst_gb
+BST	Package	SCR08_Template_Erstellen	info	Verfahren: vf_bst_gb | Themengebiet: thm_dm_stat_bst
+BST	Package	SCR08_Template_Erstellen	info	  Template erstellt OK
+BST	Package	SCR08_Template_Erstellen	info	[SCHRITT_1] vf_bst_bv_sonst: Template erstellt/geprueft: msi_dm_bst_v3.dbo.vf_bst_bv_sonst_template
+BST	Package	SCR08_Template_Erstellen	info	  Template erstellt bzw. Struktur geprueft OK
+BST	Package	SCR08_Template_Erstellen	info	  Template fuer: vf_bst_bv_sonst
+BST	Package	SCR08_Template_Erstellen	info	Verfahren: vf_bst_bv_sonst | Themengebiet: thm_dm_stat_bst
+BST	Package	SCR08_Template_Erstellen	info	  Template erstellt OK
+BST	Package	SCR08_Template_Erstellen	info	[SCHRITT_1] vf_bst_bv: Template erstellt/geprueft: msi_dm_bst_v3.dbo.vf_bst_bv_template
+BST	Package	SCR08_Template_Erstellen	info	  Template erstellt bzw. Struktur geprueft OK
+BST	Package	SCR08_Template_Erstellen	info	  Template fuer: vf_bst_bv
+BST	Package	SCR08_Template_Erstellen	info	Verfahren: vf_bst_bv | Themengebiet: thm_dm_stat_bst
+BST	Package	SCR08_Template_Erstellen	info	  Template erstellt OK
+BST	Package	SCR08_Template_Erstellen	info	[SCHRITT_1] vf_bst_bew_sv: Template erstellt/geprueft: msi_dm_bst_v3.dbo.vf_bst_bew_sv_template
+BST	Package	SCR08_Template_Erstellen	info	  Template erstellt bzw. Struktur geprueft OK
+BST	Package	SCR08_Template_Erstellen	info	  Template fuer: vf_bst_bew_sv
+BST	Package	SCR08_Template_Erstellen	info	Verfahren: vf_bst_bew_sv | Themengebiet: thm_dm_stat_bst
+BST	Package	SCR08_Template_Erstellen	info	  Template erstellt OK
+BST	Package	SCR08_Template_Erstellen	info	[SCHRITT_1] vf_bst_bew_gb: Template erstellt/geprueft: msi_dm_bst_v3.dbo.vf_bst_bew_gb_template
+BST	Package	SCR08_Template_Erstellen	info	  Template erstellt bzw. Struktur geprueft OK
+BST	Package	SCR08_Template_Erstellen	info	  Template fuer: vf_bst_bew_gb
+BST	Package	SCR08_Template_Erstellen	info	Verfahren: vf_bst_bew_gb | Themengebiet: thm_dm_stat_bst
+BST	Package	SCR08_Template_Erstellen	info	  Template erstellt OK
+BST	Package	SCR08_Template_Erstellen	info	[SCHRITT_1] vf_bst_bew_bv: Template erstellt/geprueft: msi_dm_bst_v3.dbo.vf_bst_bew_bv_template
+BST	Package	SCR08_Template_Erstellen	info	  Template erstellt bzw. Struktur geprueft OK
+BST	Package	SCR08_Template_Erstellen	info	  Template fuer: vf_bst_bew_bv
+BST	Package	SCR08_Template_Erstellen	info	Verfahren: vf_bst_bew_bv | Themengebiet: thm_dm_stat_bst
+BST	Package	SCR08_Template_Erstellen	info	Verfahren zur Verarbeitung: 8
+BST	Package	SCR08_Template_Erstellen	info	SCR08_Template_Erstellen - Start
+BST	Package	SCR07_Schemadaten_Kopieren	info	Erfolgreich: 8 | Fehler: 0
+BST	Package	SCR07_Schemadaten_Kopieren	info	Staging-Tabelle dbo.ddl_staging bleibt fuer Debugging erhalten
+BST	Package	SCR07_Schemadaten_Kopieren	info	  72 Spalten kopiert OK
+BST	Package	SCR07_Schemadaten_Kopieren	info	[SCHRITT_5] vf_bst_sv: Schemadaten kopiert: 72 Spalten
+BST	Package	SCR07_Schemadaten_Kopieren	info	Verfahren: vf_bst_sv | Themengebiet: thm_dm_stat_bst
+BST	Package	SCR07_Schemadaten_Kopieren	info	  60 Spalten kopiert OK
+BST	Package	SCR07_Schemadaten_Kopieren	info	[SCHRITT_5] vf_bst_sonst: Schemadaten kopiert: 60 Spalten
+BST	Package	SCR07_Schemadaten_Kopieren	info	Verfahren: vf_bst_sonst | Themengebiet: thm_dm_stat_bst
+BST	Package	SCR07_Schemadaten_Kopieren	info	  71 Spalten kopiert OK
+BST	Package	SCR07_Schemadaten_Kopieren	info	[SCHRITT_5] vf_bst_gb: Schemadaten kopiert: 71 Spalten
+BST	Package	SCR07_Schemadaten_Kopieren	info	Verfahren: vf_bst_gb | Themengebiet: thm_dm_stat_bst
+BST	Package	SCR07_Schemadaten_Kopieren	info	  59 Spalten kopiert OK
+BST	Package	SCR07_Schemadaten_Kopieren	info	[SCHRITT_5] vf_bst_bv_sonst: Schemadaten kopiert: 59 Spalten
+BST	Package	SCR07_Schemadaten_Kopieren	info	Verfahren: vf_bst_bv_sonst | Themengebiet: thm_dm_stat_bst
+BST	Package	SCR07_Schemadaten_Kopieren	info	  60 Spalten kopiert OK
+BST	Package	SCR07_Schemadaten_Kopieren	info	[SCHRITT_5] vf_bst_bv: Schemadaten kopiert: 60 Spalten
+BST	Package	SCR07_Schemadaten_Kopieren	info	Verfahren: vf_bst_bv | Themengebiet: thm_dm_stat_bst
+BST	Package	SCR07_Schemadaten_Kopieren	info	  51 Spalten kopiert OK
+BST	Package	SCR07_Schemadaten_Kopieren	info	[SCHRITT_5] vf_bst_bew_sv: Schemadaten kopiert: 51 Spalten
+BST	Package	SCR07_Schemadaten_Kopieren	info	Verfahren: vf_bst_bew_sv | Themengebiet: thm_dm_stat_bst
+BST	Package	SCR07_Schemadaten_Kopieren	info	  51 Spalten kopiert OK
+BST	Package	SCR07_Schemadaten_Kopieren	info	[SCHRITT_5] vf_bst_bew_gb: Schemadaten kopiert: 51 Spalten
+BST	Package	SCR07_Schemadaten_Kopieren	info	Verfahren: vf_bst_bew_gb | Themengebiet: thm_dm_stat_bst
+BST	Package	SCR07_Schemadaten_Kopieren	info	  65 Spalten kopiert OK
+BST	Package	SCR07_Schemadaten_Kopieren	info	[SCHRITT_5] vf_bst_bew_bv: Schemadaten kopiert: 65 Spalten
+BST	Package	SCR07_Schemadaten_Kopieren	info	Verfahren: vf_bst_bew_bv | Themengebiet: thm_dm_stat_bst
+BST	Package	SCR07_Schemadaten_Kopieren	info	Staging-Tabelle existiert bereits mit 1016784 Zeilen - wird wiederverwendet
+BST	Package	SCR07_Schemadaten_Kopieren	info	Quelle: [msi_dm_bst_v3].[ext].[vm_ddl_sql_server]
+BST	Package	SCR07_Schemadaten_Kopieren	info	Oracle-Daten werden in Staging-Tabelle geladen...
+BST	Package	SCR07_Schemadaten_Kopieren	info	Verfahren zur Verarbeitung: 8
+BST	Package	SCR07_Schemadaten_Kopieren	info	Ziel-Tabelle tm_polybase_struktur geprueft/erstellt.
+BST	Package	SCR07_Schemadaten_Kopieren	info	SCR07_Schemadaten_Kopieren - Start
+BST	Package	SCR06 Arbeitsliste Aufbauen	info	SCR_Arbeitsliste_Aufbauen_Fakten erfolgreich abgeschlossen OK
+BST	Package	SCR06 Arbeitsliste Aufbauen	info	Neue Verfahren : 8
+BST	Package	SCR06 Arbeitsliste Aufbauen	info	ZUSAMMENFASSUNG
+BST	Package	SCR06 Arbeitsliste Aufbauen	info	Kein Reset nötig (nur AUSSTEHEND oder keine Daten)
+BST	Package	SCR06 Arbeitsliste Aufbauen	info	  - ANDERE   : 0
+BST	Package	SCR06 Arbeitsliste Aufbauen	info	  - FEHLER   : 0
+BST	Package	SCR06 Arbeitsliste Aufbauen	info	  - ERFOLG   : 0
+BST	Package	SCR06 Arbeitsliste Aufbauen	info	  - Total    : 72
+BST	Package	SCR06 Arbeitsliste Aufbauen	info	Status-Analyse (alle Verfahren aus Steuerliste):
+BST	Package	SCR06 Arbeitsliste Aufbauen	info	Schritt 2: Status analysieren und zuruecksetzen
+BST	Package	SCR06 Arbeitsliste Aufbauen	info	Neue Verfahren eingetragen: 8
+BST	Package	SCR06 Arbeitsliste Aufbauen	info	Schritt 1: Neue Verfahren aus Steuerliste eintragen
+BST	Package	SCR06 Arbeitsliste Aufbauen	info	Aktueller Lauf: Datei [v.istat.thm_dm_stat_bst.111283.csv] | Tabellen in Steuerliste (8): vf_bst_bew_bv, vf_bst_bew_gb, vf_bst_bew_sv, vf_bst_bv, vf_bst_bv_sonst, vf_bst_gb, vf_bst_sonst, vf_bst_sv
+BST	Package	SCR06 Arbeitsliste Aufbauen	info	Pflichtfelder-Pruefung: alle Variablen vorhanden OK
+BST	Package	SCR06 Arbeitsliste Aufbauen	info	SCR_06_Arbeitsliste_Aufbauen_Fakten - Start
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	ERGEBNIS: BESTANDEN - Alle Parameter vollstaendig und befuellt OK
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	Mit Fehlern              : 0
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	Vollstaendig (OK)         : 8
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	Verfahren geprueft        : 8
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	ZUSAMMENFASSUNG SCR_05_Parameter_Vollstaendigkeitspruefung
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  OK Alle Pflichtparameter fuer 'vf_bst_sv' vorhanden und befuellt.
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      Anzahl_ParallelTasks
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      DateFormat
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      FaktenClusteredIndex
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      Faktenkomprimierung
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      Faktenpartitionsspalte
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      Faktentabelle
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      FaktentabelleTemplate
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	Pruefe Verfahren: vf_bst_sv
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  OK Alle Pflichtparameter fuer 'vf_bst_sonst' vorhanden und befuellt.
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      Anzahl_ParallelTasks
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      DateFormat
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      FaktenClusteredIndex
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      Faktenkomprimierung
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      Faktenpartitionsspalte
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      Faktentabelle
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      FaktentabelleTemplate
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	Pruefe Verfahren: vf_bst_sonst
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  OK Alle Pflichtparameter fuer 'vf_bst_gb' vorhanden und befuellt.
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      Anzahl_ParallelTasks
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      DateFormat
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      FaktenClusteredIndex
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      Faktenkomprimierung
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      Faktenpartitionsspalte
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      Faktentabelle
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      FaktentabelleTemplate
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	Pruefe Verfahren: vf_bst_gb
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  OK Alle Pflichtparameter fuer 'vf_bst_bv_sonst' vorhanden und befuellt.
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      Anzahl_ParallelTasks
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      DateFormat
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      FaktenClusteredIndex
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      Faktenkomprimierung
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      Faktenpartitionsspalte
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      Faktentabelle
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      FaktentabelleTemplate
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	Pruefe Verfahren: vf_bst_bv_sonst
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  OK Alle Pflichtparameter fuer 'vf_bst_bv' vorhanden und befuellt.
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      Anzahl_ParallelTasks
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      DateFormat
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      FaktenClusteredIndex
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      Faktenkomprimierung
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      Faktenpartitionsspalte
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      Faktentabelle
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      FaktentabelleTemplate
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	Pruefe Verfahren: vf_bst_bv
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  OK Alle Pflichtparameter fuer 'vf_bst_bew_sv' vorhanden und befuellt.
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      Anzahl_ParallelTasks
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      DateFormat
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      FaktenClusteredIndex
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      Faktenkomprimierung
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      Faktenpartitionsspalte
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      Faktentabelle
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      FaktentabelleTemplate
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	Pruefe Verfahren: vf_bst_bew_sv
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  OK Alle Pflichtparameter fuer 'vf_bst_bew_gb' vorhanden und befuellt.
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      Anzahl_ParallelTasks
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      DateFormat
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      FaktenClusteredIndex
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      Faktenkomprimierung
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      Faktenpartitionsspalte
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      Faktentabelle
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      FaktentabelleTemplate
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	Pruefe Verfahren: vf_bst_bew_gb
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  OK Alle Pflichtparameter fuer 'vf_bst_bew_bv' vorhanden und befuellt.
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      Anzahl_ParallelTasks
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      DateFormat
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      FaktenClusteredIndex
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      Faktenkomprimierung
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      Faktenpartitionsspalte
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      Faktentabelle
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      FaktentabelleTemplate
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	Pruefe Verfahren: vf_bst_bew_bv
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	Schritt 3: Parametertabelle vollstaendig pruefen
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	Verfahren in Steuerliste gefunden: 8
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	Schritt 2: Verfahren aus Steuerliste laden
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	Steuerlisten-Tabelle enthaelt 8 Zeile(n) OK
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	Steuerlisten-Tabelle [dbo.tm_steuerlistenfile_Fakten] vorhanden OK
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	Schritt 1: Steuerlisten-Tabelle pruefen
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	SSIS-Variablen-Pruefung: alle vorhanden OK
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	Pflichtparameter     : FaktentabelleTemplate, Faktentabelle, Faktenpartitionsspalte, Faktenkomprimierung, FaktenClusteredIndex, DateFormat, Anzahl_ParallelTasks
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	SCR_05_Parameter_Vollstaendigkeitspruefung - Start
+BST	Package	SC04 Whereclasuse	info	partition_wert NULL    : 0
+BST	Package	SC04 Whereclasuse	info	partition_wert gefuellt: 8
+BST	Package	SC04 Whereclasuse	info	  vf_bst_sv_20230906                                 -> wert=20230906
+BST	Package	SC04 Whereclasuse	info	  vf_bst_sonst_20230906                              -> wert=20230906
+BST	Package	SC04 Whereclasuse	info	  vf_bst_gb_20230906                                 -> wert=20230906
+BST	Package	SC04 Whereclasuse	info	  vf_bst_bv_sonst_20230906                           -> wert=20230906
+BST	Package	SC04 Whereclasuse	info	  vf_bst_bv_20230906                                 -> wert=20230906
+BST	Package	SC04 Whereclasuse	info	  vf_bst_bew_sv_20230906                             -> wert=20230906
+BST	Package	SC04 Whereclasuse	info	  vf_bst_bew_gb_20230906                             -> wert=20230906
+BST	Package	SC04 Whereclasuse	info	  vf_bst_bew_bv_20230906                             -> wert=20230906
+BST	Package	SC04 Whereclasuse	info	Steuerlisten-Zeilen : 8
+BST	Package	SC04 Whereclasuse	info	Spalten geprueft/angelegt OK
+BST	Package	SC04 Whereclasuse	info	Steuerlisten-Tabelle : dbo.tm_steuerlistenfile_Fakten
+BST	Package	SC04 Whereclasuse	info	Referenzdatum: 01.03.2026 00:00:00
+BST	Package	SC04 Whereclasuse	info	SC04_Whereclause - Start
+BST	Package	SCR03 Stuerliste Laden	info	SCR_03_Steuerlisten_Laden erfolgreich abgeschlossen OK
+BST	Package	SCR03 Stuerliste Laden	info	Datei verschoben nach: F:\STL\Done\v.istat.thm_dm_stat_bst.111283_20260612_143621.csv
+BST	Package	SCR03 Stuerliste Laden	info	Geladene Tabellen aus [v.istat.thm_dm_stat_bst.111283.csv] (8): vf_bst_bv, vf_bst_bv_sonst, vf_bst_sonst, vf_bst_gb, vf_bst_sv, vf_bst_bew_bv, vf_bst_bew_sv, vf_bst_bew_gb
+BST	Package	SCR03 Stuerliste Laden	info	Datei erfolgreich verarbeitet: v.istat.thm_dm_stat_bst.111283.csv OK
+BST	Package	SCR03 Stuerliste Laden	info	  Zeilen gesamt: 8 | INSERT: 8 | Uebersprungen: 0
+BST	Package	SCR03 Stuerliste Laden	info	  Arbeitstabelle: vollstaendig geleert
+BST	Package	SCR03 Stuerliste Laden	info	  Themengebiet : thm_dm_stat_bst
+BST	Package	SCR03 Stuerliste Laden	info	  Umgebung     : istat
+BST	Package	SCR03 Stuerliste Laden	info	  Tabellentyp  : v
+BST	Package	SCR03 Stuerliste Laden	info	Verarbeite Datei: v.istat.thm_dm_stat_bst.111283.csv
+BST	Package	SCR03 Stuerliste Laden	info	Vollstaendiger Pfad : F:\STL\v.istat.thm_dm_stat_bst.111283.csv
+BST	Package	SCR03 Stuerliste Laden	info	Arbeitstabelle und Audit-Tabelle geprueft/angelegt OK
+BST	Package	SCR03 Stuerliste Laden	info	Audit-Tabelle  : dbo.tm_steuerlistenfile_Fakten_audit
+BST	Package	SCR03 Stuerliste Laden	info	Arbeitstabelle : dbo.tm_steuerlistenfile_Fakten
+BST	Package	SCR03 Stuerliste Laden	info	Pflichtfelder-Pruefung: alle Variablen vorhanden OK
+BST	Package	SCR03 Stuerliste Laden	info	SCR_03_Steuerlisten_Laden - Start
+BST	Package	SCR02 Vorbereitungen	info	SCR_01_Vorbereitungen erfolgreich abgeschlossen.
+BST	Package	SCR02 Vorbereitungen	info	  Index erstellt: IX_vm_ddl_sql_server_TABNAME_COLNAME (TABNAME, COLNAME)
+BST	Package	SCR02 Vorbereitungen	info	  dbo-Kopie erstellt: dbo.vm_ddl_sql_server | Zeilen: 1016733
+BST	Package	SCR02 Vorbereitungen	info	  Alte dbo-Kopie geloescht (falls vorhanden)
+BST	Package	SCR02 Vorbereitungen	info	Schritt 8: Lokale dbo-Kopie [dbo.vm_ddl_sql_server] erstellen
+BST	Package	SCR02 Vorbereitungen	info	Externe Partitionssicht [ext.[v_partition_info]]: erfolgreich angelegt 
+BST	Package	SCR02 Vorbereitungen	info	  Oracle Location: ISTAT.BI_DM_EXPORT.V_PARTITION_INFO
+BST	Package	SCR02 Vorbereitungen	info	Externe Partitionssicht [ext.[v_partition_info]]: geloescht (falls vorhanden) wird neu angelegt
+BST	Package	SCR02 Vorbereitungen	info	Schritt 7a: Externe Partitionssicht [ext.v_partition_info] pruefen
+BST	Package	SCR02 Vorbereitungen	info	Externe DDL-Tabelle [ext.vm_ddl_sql_server]: bereits vorhanden uebersprungen 
+BST	Package	SCR02 Vorbereitungen	info	Schritt 7: Externe DDL-Tabelle [ext.vm_ddl_sql_server] pruefen
+BST	Package	SCR02 Vorbereitungen	info	Schema [ext]: bereits vorhanden uebersprungen 
+BST	Package	SCR02 Vorbereitungen	info	Schritt 6: Schema [ext] pruefen
+BST	Package	SCR02 Vorbereitungen	info	External Data Source [Oracle-istat]: bereits vorhanden uebersprungen 
+BST	Package	SCR02 Vorbereitungen	info	Schritt 5: External Data Source pruefen
+BST	Package	SCR02 Vorbereitungen	info	Credential [Q0003713_BI_DM_EXPORT]: bereits vorhanden uebersprungen 
+BST	Package	SCR02 Vorbereitungen	info	Schritt 4: PolyBase Credential pruefen
+BST	Package	SCR02 Vorbereitungen	info	Master Key: bereits vorhanden uebersprungen 
+BST	Package	SCR02 Vorbereitungen	info	Schritt 3: PolyBase Master Key pruefen
+BST	Package	SCR02 Vorbereitungen	info	ETL_Fkt_FehlerHistorie: geprueft/angelegt 
+BST	Package	SCR02 Vorbereitungen	info	Schritt 2: ETL_Fkt_FehlerHistorie sicherstellen
+BST	Package	SCR02 Vorbereitungen	info	ETL_Fkt_Arbeitsliste: geprueft/angelegt 
+BST	Package	SCR02 Vorbereitungen	info	Schritt 1: ETL_Fkt_Arbeitsliste sicherstellen
+BST	Package	SCR02 Vorbereitungen	info	Pflichtfelder-Pruefung: alle Variablen vorhanden 
+BST	Package	SCR02 Vorbereitungen	info	Steuerlisten-Tabelle: dbo.tm_steuerlistenfile_Fakten
+BST	Package	SCR02 Vorbereitungen	info	SCR_02_Vorbereitungen - Start
+BST	Package	SCR01 Parameter einlesen	info	VORABPRUEFUNG BESTANDEN Paket wird fortgesetzt.
+BST	Package	SCR01 Parameter einlesen	info	VALIDATION_FAILED = 0
+BST	Package	SCR01 Parameter einlesen	info	[OK]       PARAM_PROTOKOLL_TABELLE                  = tm_msi_dm_bst_v3_prot
+BST	Package	SCR01 Parameter einlesen	info	[OK]       PARAM_PROTOKOLL_SP                       = usp_SSIS_Protokoll
+BST	Package	SCR01 Parameter einlesen	info	[OK]       PARAM_PROTOKOLL_DB                       = msi_dm_bst_v3
+BST	Package	SCR01 Parameter einlesen	info	Protokollierung
+BST	Package	SCR01 Parameter einlesen	info	[OK]       PARAM_MAXPARALLEL                        = 8
+BST	Package	SCR01 Parameter einlesen	info	Verarbeitung
+BST	Package	SCR01 Parameter einlesen	info	[OK]       PARAM_EXT_TABLE_NAME                     = vm_ddl_sql_server
+BST	Package	SCR01 Parameter einlesen	info	[OK]       PARAM_EXT_TABLE_SCHEMA                   = ext
+BST	Package	SCR01 Parameter einlesen	info	[OK]       PARAM_EXT_TABLE_LOCATION                 = istat.STATRT.VM_DDL_SQL_SERVER
+BST	Package	SCR01 Parameter einlesen	info	[OK]       PARAM_EXT_SOURCE_LOCATION                = oracle://l9800022db.dst.baintern.de:57575
+BST	Package	SCR01 Parameter einlesen	info	[OK]       PARAM_EXT_SOURCE_NAME                    = Oracle-istat
+BST	Package	SCR01 Parameter einlesen	info	PolyBase / External Source
+BST	Package	SCR01 Parameter einlesen	info	[OK]       PARAM_PARAMETERTABELLE                   = tm_msi_dm_bst_v3_param
+BST	Package	SCR01 Parameter einlesen	info	[OK]       PARAM_PARAMETER_DB                       = msi_dm_bst_v3
+BST	Package	SCR01 Parameter einlesen	info	Parametertabelle
+BST	Package	SCR01 Parameter einlesen	info	[OK]       PARAM_STEUERLISTEN_TABELLE               = tm_steuerlistenfile_Fakten
+BST	Package	SCR01 Parameter einlesen	info	[OK]       PARAM_STL_ORDNER                         = F:\STL
+BST	Package	SCR01 Parameter einlesen	info	Steuerlisten
+BST	Package	SCR01 Parameter einlesen	info	[OK]       ATOMIC_ORACLE_PASSWORD                   = [Wert verborgen]
+BST	Package	SCR01 Parameter einlesen	info	[OK]       ATOMIC_ORACLE_USERNAME                   = BI_DM_EXPORT
+BST	Package	SCR01 Parameter einlesen	info	Oracle Credentials
+BST	Package	SCR01 Parameter einlesen	info	[OK]       PARAM_DATAMART                           = msi_dm_bst_v3
+BST	Package	SCR01 Parameter einlesen	info	[OK]       PARAM_VERFAHREN                          = BST
+BST	Package	SCR01 Parameter einlesen	info	[OK]       PARAM_DATENBANK                          = msi_dm_bst_v3
+BST	Package	SCR01 Parameter einlesen	info	[OK]       PARAM_CONNECTION_SERVER                  = Q0003713\Abnahme21
+BST	Package	SCR01 Parameter einlesen	info	[OK]       PARAM_SERVER                             = Q0003713
+BST	Package	SCR01 Parameter einlesen	info	Verbindung / Server
+BST	Package	SCR01 Parameter einlesen	info	SCR01_Parameter_Einlesen - Start
