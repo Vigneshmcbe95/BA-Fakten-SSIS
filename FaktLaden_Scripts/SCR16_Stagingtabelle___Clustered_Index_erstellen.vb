@@ -38,6 +38,20 @@ Partial Public Class ScriptMain
             _parameterDB = Dts.Variables("BA::ParameterDB").Value.ToString().Trim()
             _parametertab = Dts.Variables("BA::Parametertabelle").Value.ToString().Trim()
             Dim connStr As String = HoleVerbindungszeichenfolge()
+            ' Partitionswerte des aktuellen Laufs aus BA::objPartitionValues (gesetzt von SCR09)
+            ' Nur diese Tabellen verarbeiten — kein sys.tables LIKE-Scan ueber alle Laeufe
+            Dim verfahrenWerte As New Dictionary(Of String, List(Of String))()
+            Dim partObjekt As Object = Dts.Variables("BA::objPartitionValues").Value
+            If partObjekt IsNot Nothing Then
+                Dim partArray(,) As String = CType(partObjekt, String(,))
+                For i As Integer = 0 To partArray.GetLength(0) - 1
+                    Dim verf As String = partArray(i, 0).Trim().ToLower()
+                    Dim wert As String = partArray(i, 1).Trim()
+                    If Not verfahrenWerte.ContainsKey(verf) Then verfahrenWerte(verf) = New List(Of String)()
+                    verfahrenWerte(verf).Add(wert)
+                Next
+            End If
+            Log("Partitionswerte geladen: " & verfahrenWerte.Count.ToString() & " Verfahren")
             Dim verfahren As List(Of VerfahrenInfo) = VerfahrenLaden(connStr)
             Log("Verfahren: " & verfahren.Count.ToString())
             Dim cntOK As Integer = 0
@@ -58,28 +72,39 @@ Partial Public Class ScriptMain
                             "CI Spalten"))
                         If String.IsNullOrEmpty(ciCols) Then ciCols = "[" & v.PartitionColumn & "]"
                     End If
-                    ' Alle _in und _out Tabellen
-                    Dim tabellen As List(Of String) = InOutTabellenLaden(connStr, v.Faktentabelle)
-                    For Each tbl As String In tabellen
-                        Log("  Index auf: " & tbl)
-                        If v.IndexType = "TRUE" Then
-                            If Not IndexVorhanden(connStr, tbl, "CI_" & tbl) Then
-                                SqlAusfuehren(connStr, "CREATE CLUSTERED INDEX [CI_" & tbl & "] ON dbo.[" & tbl & "] (" & ciCols & ") WITH (FILLFACTOR=100,SORT_IN_TEMPDB=ON);", "CI " & tbl)
-                                Log("    CI angelegt OK")
-                            Else
-                                Log("    CI bereits vorhanden uebersprungen")
+                    ' Nur Tabellen des aktuellen Laufs — exakte Namen aus BA::objPartitionValues
+                    Dim verfKey As String = v.Verfahren.Trim().ToLower()
+                    Dim werteListe As List(Of String) = Nothing
+                    If Not verfahrenWerte.TryGetValue(verfKey, werteListe) OrElse werteListe.Count = 0 Then
+                        Log("  WARNUNG: Keine Partitionswerte in BA::objPartitionValues -> uebersprungen")
+                        Continue For
+                    End If
+                    Dim cntTbl As Integer = 0
+                    For Each wert As String In werteListe
+                        For Each tbl As String In New String() {
+                                v.Faktentabelle.ToLower() & "_in_"  & wert,
+                                v.Faktentabelle.ToLower() & "_out_" & wert}
+                            Log("  Index auf: " & tbl)
+                            If v.IndexType = "TRUE" Then
+                                If Not IndexVorhanden(connStr, tbl, "CI_" & tbl) Then
+                                    SqlAusfuehren(connStr, "CREATE CLUSTERED INDEX [CI_" & tbl & "] ON dbo.[" & tbl & "] (" & ciCols & ") WITH (FILLFACTOR=100,SORT_IN_TEMPDB=ON);", "CI " & tbl)
+                                    Log("    CI angelegt OK")
+                                Else
+                                    Log("    CI bereits vorhanden uebersprungen")
+                                End If
+                            ElseIf v.IndexType = "CCI" Then
+                                If Not IndexVorhanden(connStr, tbl, "CCI_" & tbl) Then
+                                    SqlAusfuehren(connStr, "CREATE CLUSTERED COLUMNSTORE INDEX [CCI_" & tbl & "] ON dbo.[" & tbl & "];", "CCI " & tbl)
+                                    Log("    CCI angelegt OK")
+                                Else
+                                    Log("    CCI bereits vorhanden uebersprungen")
+                                End If
                             End If
-                        ElseIf v.IndexType = "CCI" Then
-                            If Not IndexVorhanden(connStr, tbl, "CCI_" & tbl) Then
-                                SqlAusfuehren(connStr, "CREATE CLUSTERED COLUMNSTORE INDEX [CCI_" & tbl & "] ON dbo.[" & tbl & "];", "CCI " & tbl)
-                                Log("    CCI angelegt OK")
-                            Else
-                                Log("    CCI bereits vorhanden uebersprungen")
-                            End If
-                        End If
+                            cntTbl += 1
+                        Next
                     Next
                     StatusSetzen(connStr, v.ID, "INDEX_IN_OUT_ERSTELLT")
-                    LogSchreiben(connStr, v.Verfahren, "SCHRITT_7A", "Index _in/_out erstellt: " & tabellen.Count.ToString() & " Tabellen")
+                    LogSchreiben(connStr, v.Verfahren, "SCHRITT_7A", "Index _in/_out erstellt: " & cntTbl.ToString() & " Tabellen")
                     cntOK += 1
                     Log("  Schritt 7a abgeschlossen OK")
                 Catch ex As Exception
@@ -102,35 +127,6 @@ Partial Public Class ScriptMain
     ' -----------------------------------------------------------------------
     Private Function IndexVorhanden(connStr As String, tbl As String, idxName As String) As Boolean
         Return Convert.ToInt32(SqlSkalar(connStr, "SELECT COUNT(*) FROM sys.indexes WHERE object_id=OBJECT_ID('dbo." & tbl & "') AND name='" & idxName & "'", "Index prÃ¼fen")) > 0
-    End Function
-
-    ' -----------------------------------------------------------------------
-    ' InOutTabellenLaden - Listet alle _in_- / _out_-Staging-Tabellen einer
-    ' Faktentabelle auf.
-    ' -----------------------------------------------------------------------
-    Private Function InOutTabellenLaden(connStr As String, faktentabelle As String) As List(Of String)
-        Dim liste As New List(Of String)()
-        Dim versuch As Integer = 0
-        While versuch < MAX_VERSUCHE
-            versuch += 1
-            Try
-                Using conn As New SqlConnection(connStr)
-                    conn.Open()
-                    Using cmd As New SqlCommand("SELECT name FROM sys.tables WHERE schema_id=SCHEMA_ID('dbo') AND (name LIKE '" & faktentabelle.ToLower() & "[_]in[_]%' OR name LIKE '" & faktentabelle.ToLower() & "[_]out[_]%') ORDER BY name", conn)
-                        cmd.CommandTimeout = 0
-                        Using rdr As SqlDataReader = cmd.ExecuteReader()
-                            While rdr.Read()
-                                liste.Add(rdr(0).ToString())
-                            End While
-                        End Using
-                    End Using
-                End Using
-                Return liste
-            Catch ex As Exception
-                If versuch < MAX_VERSUCHE Then System.Threading.Thread.Sleep(WARTE_SEK * 1000) Else Throw
-            End Try
-        End While
-        Return liste
     End Function
 
     ' -----------------------------------------------------------------------

@@ -38,6 +38,20 @@ Partial Public Class ScriptMain
             _parameterDB = Dts.Variables("BA::ParameterDB").Value.ToString().Trim()
             _parametertab = Dts.Variables("BA::Parametertabelle").Value.ToString().Trim()
             Dim connStr As String = HoleVerbindungszeichenfolge()
+            ' Partitionswerte des aktuellen Laufs aus BA::objPartitionValues (gesetzt von SCR09)
+            ' Nur diese Tabellen verarbeiten — kein sys.tables LIKE-Scan ueber alle Laeufe
+            Dim verfahrenWerte As New Dictionary(Of String, List(Of String))()
+            Dim partObjekt As Object = Dts.Variables("BA::objPartitionValues").Value
+            If partObjekt IsNot Nothing Then
+                Dim partArray(,) As String = CType(partObjekt, String(,))
+                For i As Integer = 0 To partArray.GetLength(0) - 1
+                    Dim verf As String = partArray(i, 0).Trim().ToLower()
+                    Dim wert As String = partArray(i, 1).Trim()
+                    If Not verfahrenWerte.ContainsKey(verf) Then verfahrenWerte(verf) = New List(Of String)()
+                    verfahrenWerte(verf).Add(wert)
+                Next
+            End If
+            Log("Partitionswerte geladen: " & verfahrenWerte.Count.ToString() & " Verfahren")
             Dim verfahren As List(Of VerfahrenInfo) = VerfahrenLaden(connStr)
             Log("Verfahren: " & verfahren.Count.ToString())
             Dim cntOK As Integer = 0
@@ -64,31 +78,20 @@ Partial Public Class ScriptMain
                         cntOK += 1
                         Continue For
                     End If
-                    ' Alle _out Tabellen
+                    ' Nur _out_ Tabellen des aktuellen Laufs — exakte Namen aus BA::objPartitionValues
                     Dim cntTbl As Integer = 0
-                    Dim versuch2 As Integer = 0
-                    While versuch2 < MAX_VERSUCHE
-                        versuch2 += 1
-                        Try
-                            Using conn As New SqlConnection(connStr)
-                                conn.Open()
-                                Using cmd As New SqlCommand("SELECT name FROM sys.tables WHERE schema_id=SCHEMA_ID('dbo') AND name LIKE '" & v.Faktentabelle.ToLower() & "[_]out[_]%' ORDER BY name", conn)
-                                    cmd.CommandTimeout = 0
-                                    Using rdr As SqlDataReader = cmd.ExecuteReader()
-                                        While rdr.Read()
-                                            Dim tbl As String = rdr(0).ToString()
-                                            SqlAusfuehren(connStr, "ALTER TABLE dbo.[" & tbl & "] REBUILD WITH (DATA_COMPRESSION=" & v.Compression & ");", "Komprimierung " & tbl)
-                                            Log("  Komprimierung " & v.Compression & " auf: " & tbl & " OK")
-                                            cntTbl += 1
-                                        End While
-                                    End Using
-                                End Using
-                            End Using
-                            Exit While
-                        Catch ex As Exception
-                            If versuch2 < MAX_VERSUCHE Then System.Threading.Thread.Sleep(WARTE_SEK * 1000) Else Throw
-                        End Try
-                    End While
+                    Dim verfKey As String = v.Verfahren.Trim().ToLower()
+                    Dim werteListe As List(Of String) = Nothing
+                    If Not verfahrenWerte.TryGetValue(verfKey, werteListe) OrElse werteListe.Count = 0 Then
+                        Log("  WARNUNG: Keine Partitionswerte in BA::objPartitionValues -> uebersprungen")
+                        Continue For
+                    End If
+                    For Each wert As String In werteListe
+                        Dim tbl As String = v.Faktentabelle.ToLower() & "_out_" & wert
+                        SqlAusfuehren(connStr, "ALTER TABLE dbo.[" & tbl & "] REBUILD WITH (DATA_COMPRESSION=" & v.Compression & ");", "Komprimierung " & tbl)
+                        Log("  Komprimierung " & v.Compression & " auf: " & tbl & " OK")
+                        cntTbl += 1
+                    Next
                     StatusSetzen(connStr, v.ID, "KOMPRIMIERUNG_ERSTELLT")
                     LogSchreiben(connStr, v.Verfahren, "SCHRITT_7B", "Komprimierung " & v.Compression & " auf " & cntTbl.ToString() & " _out Tabellen")
                     cntOK += 1
