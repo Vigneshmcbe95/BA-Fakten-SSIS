@@ -6,18 +6,19 @@ Imports System.Data.SqlClient
 Imports System.Collections.Generic
 Imports Microsoft.SqlServer.Dts.Runtime
 
-' =============================================================================
+' =====================================================================
 ' PAKET  : Fakten Laden
 ' SKRIPT : SCR16_Stagingtabelle_Index
-' ZWECK  : CI/CCI auf _in und _out Tabellen erstellen
+' ZWECK  : CI/CCI auf _in_{wert} und _out_{wert} Tabellen erstellen
+'          NUR fuer Partitionswerte des aktuellen Laufs (BA::objPartitionValues)
 '          Status: PARTITIONLADEN_NACHLAUF_AUSGEFUEHRT → INDEX_ERSTELLT
-' =============================================================================
+' =====================================================================
 <Microsoft.SqlServer.Dts.Tasks.ScriptTask.SSISScriptTaskEntryPointAttribute()>
 <CLSCompliant(False)>
 Partial Public Class ScriptMain
     Inherits Microsoft.SqlServer.Dts.Tasks.ScriptTask.VSTARTScriptObjectModelBase
 
-    Private Const SKRIPT_NAME As String = "SCR12_Index_InOut"
+    Private Const SKRIPT_NAME As String = "SCR16_Stagingtabelle_Index"
     Private Const CONN_NAME As String = "Verbindung"
     Private Const MAX_VERSUCHE As Integer = 10
     Private Const WARTE_SEK As Integer = 30
@@ -25,37 +26,87 @@ Partial Public Class ScriptMain
     Private _runID As Integer = 0
 
     Public Sub Main()
-        Log("════════════════════════════════════════════════════════")
-        Log("SCR16_Stagingtabelle_Index – Start")
+        Log("════════════════════════════════════════════════════════════")
+        Log("SCR16_Stagingtabelle_Index - Start")
         Log("Zeitpunkt: " & DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss"))
-        Log("════════════════════════════════════════════════════════")
+        Log("════════════════════════════════════════════════════════════")
+
         Try
             _runID = Convert.ToInt32(Dts.Variables("BA::RunID").Value)
             Dim connStr As String = HoleVerbindungszeichenfolge()
+
+            ' 1. Read partition values from BA::objPartitionValues (set by SCR09)
+            Dim partObjekt As Object = Dts.Variables("BA::objPartitionValues").Value
+            If partObjekt Is Nothing Then
+                Log("BA::objPartitionValues ist leer -> keine Indizes zu erstellen")
+                Dts.TaskResult = ScriptResults.Success
+                Return
+            End If
+
+            Dim partArray(,) As String = CType(partObjekt, String(,))
+            Dim anzahlEintraege As Integer = partArray.GetLength(0)
+            Log("Partitionswerte aus SCR09: " & anzahlEintraege.ToString() & " Eintraege")
+
+            ' Group partition values by procedure
+            Dim verfahrenWerte As New Dictionary(Of String, List(Of String))()
+            For i As Integer = 0 To anzahlEintraege - 1
+                Dim verf As String = partArray(i, 0).Trim().ToLower()
+                Dim wert As String = partArray(i, 1).Trim()
+                If Not verfahrenWerte.ContainsKey(verf) Then
+                    verfahrenWerte(verf) = New List(Of String)()
+                End If
+                verfahrenWerte(verf).Add(wert)
+            Next
+
+            ' 2. Load procedures from work list (filtered by RunID)
             Dim verfahren As List(Of VerfahrenInfo) = VerfahrenLaden(connStr)
             Log("Verfahren zur Verarbeitung: " & verfahren.Count.ToString())
+
             If verfahren.Count = 0 Then
                 Log("Keine Verfahren zur Verarbeitung vorhanden.")
                 Dts.TaskResult = ScriptResults.Success
                 Return
             End If
+
             Dim cntOK As Integer = 0
             Dim cntFehler As Integer = 0
+
             For Each v As VerfahrenInfo In verfahren
                 Log("────────────────────────────────────────────────────────")
                 Log("Verfahren: " & v.Verfahren & " | Themengebiet: " & v.Themengebiet)
+
                 If v.LetzterSchritt = "INDEX_ERSTELLT" Then
-                    Log("  → bereits abgeschlossen → übersprungen ✓")
+                    Log("  -> bereits abgeschlossen -> uebersprungen OK")
                     Continue For
                 End If
+
                 Try
                     StatusSetzen(connStr, v.ID, "INDEX_ERSTELLEN")
-                    IndexErstellen(connStr, v.Verfahren, "_in", v.IndexSpalte, False)
-                    IndexErstellen(connStr, v.Verfahren, "_out", v.IndexSpalte, True)
+
+                    ' Get partition values for this procedure
+                    Dim verfKey As String = v.Verfahren.Trim().ToLower()
+                    If Not verfahrenWerte.ContainsKey(verfKey) Then
+                        Log("  WARNUNG: Keine Partitionswerte fuer '" & v.Verfahren & "' in BA::objPartitionValues -> uebersprungen")
+                        Continue For
+                    End If
+
+                    Dim werteListe As List(Of String) = verfahrenWerte(verfKey)
+                    Log("  Partitionswerte fuer dieses Verfahren: " & werteListe.Count.ToString())
+
+                    ' Create index on each specific _in_{wert} and _out_{wert} table
+                    For Each wert As String In werteListe
+                        Dim inTable  As String = v.Verfahren.Trim().ToLower() & "_in_"  & wert
+                        Dim outTable As String = v.Verfahren.Trim().ToLower() & "_out_" & wert
+                        Log("  Partition: " & wert)
+                        IndexErstellen(connStr, inTable,  v.IndexSpalte, columnStore:=False)
+                        IndexErstellen(connStr, outTable, v.IndexSpalte, columnStore:=True)
+                    Next
+
                     StatusSetzen(connStr, v.ID, "INDEX_ERSTELLT")
-                    LogSchreiben(connStr, v.Verfahren, "SCHRITT_16", "Indizes auf _in und _out erstellt")
+                    LogSchreiben(connStr, v.Verfahren, "SCHRITT_16", "Indizes auf _in/_out erstellt fuer " & werteListe.Count.ToString() & " Partitionen")
                     cntOK += 1
-                    Log("  → Indizes auf _in und _out erstellt ✓")
+                    Log("  -> Indizes erstellt OK")
+
                 Catch ex As Exception
                     cntFehler += 1
                     FehlerSetzen(connStr, v.ID, ex.Message)
@@ -63,55 +114,65 @@ Partial Public Class ScriptMain
                     LogFehler("FEHLER bei '" & v.Verfahren & "': " & ex.Message)
                 End Try
             Next
-            Log("════════════════════════════════════════════════════════")
+
+            Log("════════════════════════════════════════════════════════════")
             Log("Erfolgreich: " & cntOK.ToString() & " | Fehler: " & cntFehler.ToString())
-            Log("════════════════════════════════════════════════════════")
+            Log("════════════════════════════════════════════════════════════")
             Dts.TaskResult = If(cntFehler > 0, ScriptResults.Failure, ScriptResults.Success)
+
         Catch ex As Exception
             LogFehler("Kritischer Fehler: " & ex.Message)
             Dts.TaskResult = ScriptResults.Failure
         End Try
     End Sub
 
-    Private Sub IndexErstellen(connStr As String, tab As String, suffix As String, indexSpalte As String, columnStore As Boolean)
-        Dim tabellenName As String = tab.Trim().ToLower() & suffix
+    Private Sub IndexErstellen(connStr As String, tabellenName As String, indexSpalte As String, columnStore As Boolean)
         Dim indexName As String = "ix_" & tabellenName
 
-        ' Drop existing index if exists
+        ' Check table exists before attempting index
+        Dim existsResult As Object = SqlSkalar(connStr,
+            "SELECT OBJECT_ID('dbo.[" & tabellenName & "]','U')",
+            "Existenzpruefung " & tabellenName)
+        If existsResult Is Nothing OrElse existsResult Is DBNull.Value Then
+            Log("    WARNUNG: Tabelle dbo.[" & tabellenName & "] existiert nicht -> uebersprungen")
+            Return
+        End If
+
+        ' Drop existing index if present
         Dim sqlDropIdx As String =
-"IF EXISTS (SELECT 1 FROM sys.indexes WHERE name='" & indexName & "' AND object_id=OBJECT_ID('dbo." & tabellenName & "'))
-    DROP INDEX [" & indexName & "] ON dbo.[" & tabellenName & "];"
+            "IF EXISTS (SELECT 1 FROM sys.indexes WHERE name='" & indexName & "'" &
+            " AND object_id=OBJECT_ID('dbo.[" & tabellenName & "]'))" &
+            " DROP INDEX [" & indexName & "] ON dbo.[" & tabellenName & "];"
         Try
-            SqlAusfuehren(connStr, sqlDropIdx, "Index DROP " & suffix)
+            SqlAusfuehren(connStr, sqlDropIdx, "Index DROP " & tabellenName)
         Catch ex As Exception
-            Log("  WARNUNG Index DROP " & suffix & ": " & ex.Message)
+            Log("    WARNUNG Index DROP " & tabellenName & ": " & ex.Message)
         End Try
 
         Dim sqlCreate As String
         If columnStore Then
-            ' Clustered Columnstore Index for _out
-            sqlCreate =
-"CREATE CLUSTERED COLUMNSTORE INDEX [" & indexName & "] ON dbo.[" & tabellenName & "];"
+            sqlCreate = "CREATE CLUSTERED COLUMNSTORE INDEX [" & indexName & "] ON dbo.[" & tabellenName & "];"
+            Log("    CCI angelegt: dbo.[" & tabellenName & "]")
         ElseIf Not String.IsNullOrEmpty(indexSpalte) Then
-            ' Clustered Index on specified column for _in
-            sqlCreate =
-"CREATE CLUSTERED INDEX [" & indexName & "] ON dbo.[" & tabellenName & "] ([" & indexSpalte & "]);"
+            sqlCreate = "CREATE CLUSTERED INDEX [" & indexName & "] ON dbo.[" & tabellenName & "] ([" & indexSpalte & "]);"
+            Log("    CI angelegt: dbo.[" & tabellenName & "] auf [" & indexSpalte & "]")
         Else
-            Log("  Kein Index erstellt für dbo.[" & tabellenName & "] (keine Indexspalte und kein CCI gewünscht).")
+            Log("    Kein Index erstellt fuer dbo.[" & tabellenName & "] (keine Indexspalte und kein CCI gewuenscht).")
             Return
         End If
 
-        SqlAusfuehren(connStr, sqlCreate, "Index CREATE " & suffix)
-        Log("  Index [" & indexName & "] auf dbo.[" & tabellenName & "] erstellt.")
+        SqlAusfuehren(connStr, sqlCreate, "Index CREATE " & tabellenName)
     End Sub
 
     Private Function VerfahrenLaden(connStr As String) As List(Of VerfahrenInfo)
         Dim liste As New List(Of VerfahrenInfo)()
         Dim sql As String =
-"SELECT ID, Verfahren, Themengebiet, LetzterSchritt,
-    ISNULL(Partitionsspalte,'') AS IndexSpalte
- FROM dbo.ETL_Fkt_Arbeitsliste
- WHERE Status IN ('PARTITIONLADEN_NACHLAUF_AUSGEFUEHRT','INDEX_ERSTELLEN') AND RunID=" & _runID.ToString() & " ORDER BY Verfahren"
+            "SELECT ID, Verfahren, Themengebiet, LetzterSchritt," &
+            " ISNULL(Partitionsspalte,'') AS IndexSpalte" &
+            " FROM dbo.ETL_Fkt_Arbeitsliste" &
+            " WHERE Status IN ('PARTITIONLADEN_NACHLAUF_AUSGEFUEHRT','INDEX_ERSTELLEN')" &
+            " AND RunID=" & _runID.ToString() &
+            " ORDER BY Verfahren"
         Dim versuch As Integer = 0
         While versuch < MAX_VERSUCHE
             versuch += 1
@@ -123,7 +184,8 @@ Partial Public Class ScriptMain
                         Using rdr As SqlDataReader = cmd.ExecuteReader()
                             While rdr.Read()
                                 liste.Add(New VerfahrenInfo With {
-                                    .ID = rdr.GetInt32(0), .Verfahren = rdr(1).ToString().Trim(),
+                                    .ID = rdr.GetInt32(0),
+                                    .Verfahren = rdr(1).ToString().Trim(),
                                     .Themengebiet = rdr(2).ToString().Trim(),
                                     .LetzterSchritt = If(rdr.IsDBNull(3), "", rdr(3).ToString().Trim()),
                                     .IndexSpalte = rdr(4).ToString().Trim()})
@@ -193,6 +255,25 @@ Partial Public Class ScriptMain
             End Try
         End While
         Throw New Exception(String.Format("[{0}] fehlgeschlagen: {1}", beschreibung, If(letzterFehler IsNot Nothing, letzterFehler.Message, "Unbekannt")))
+    End Function
+
+    Private Function SqlSkalar(connStr As String, sql As String, beschreibung As String) As Object
+        Dim versuch As Integer = 0
+        While versuch < MAX_VERSUCHE
+            versuch += 1
+            Try
+                Using conn As New SqlConnection(connStr)
+                    conn.Open()
+                    Using cmd As New SqlCommand(sql, conn)
+                        cmd.CommandTimeout = 0
+                        Return cmd.ExecuteScalar()
+                    End Using
+                End Using
+            Catch ex As Exception
+                If versuch < MAX_VERSUCHE Then System.Threading.Thread.Sleep(WARTE_SEK * 1000) Else Throw
+            End Try
+        End While
+        Return Nothing
     End Function
 
     Private Function HoleVerbindungszeichenfolge() As String
