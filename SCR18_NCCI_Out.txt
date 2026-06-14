@@ -1,101 +1,160 @@
 Option Explicit On
 Option Strict On
+
 Imports System
 Imports System.Data.SqlClient
 Imports System.Collections.Generic
 Imports Microsoft.SqlServer.Dts.Runtime
-' =============================================================================
-' SCR18_NCCI_Out
-' ZWECK: NCCI auf alle _out Tabellen (nur wenn NcciFlag=TRUE und IndexType<>CCI)
-' Status: NCCI_OUT → NCCI_OUT_ERSTELLT
-' =============================================================================
+
+' =====================================================================
+' PAKET  : Fakten Laden
+' SKRIPT : SCR18_NCCI_Out
+' ZWECK  : NCCI auf _out_{wert} Tabellen erstellen
+'          NUR fuer Partitionswerte des aktuellen Laufs (BA::objPartitionValues)
+'          (nur wenn NcciFlag=TRUE und IndexType<>CCI)
+'          Status: KOMPRIMIERUNG_AUSGEFUEHRT -> NCCI_OUT_ERSTELLT
+' =====================================================================
 <Microsoft.SqlServer.Dts.Tasks.ScriptTask.SSISScriptTaskEntryPointAttribute()>
 <CLSCompliant(False)>
 Partial Public Class ScriptMain
     Inherits Microsoft.SqlServer.Dts.Tasks.ScriptTask.VSTARTScriptObjectModelBase
 
-    Private Const SKRIPT_NAME As String = "SCR14_NCCI_Out"
+    Private Const SKRIPT_NAME As String = "SCR18_NCCI_Out"
     Private Const CONN_NAME As String = "Verbindung"
     Private Const MAX_VERSUCHE As Integer = 10
     Private Const WARTE_SEK As Integer = 30
+
     Private _runID As Integer = 0
     Private _parameterDB As String = String.Empty
     Private _parametertab As String = String.Empty
 
     Public Sub Main()
-        Log("════════════════════════════════════════════════════════")
-        Log("SCR14_NCCI_Out – Start")
+        Log("════════════════════════════════════════════════════════════")
+        Log("SCR18_NCCI_Out - Start")
         Log("Zeitpunkt: " & DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss"))
-        Log("════════════════════════════════════════════════════════")
+        Log("════════════════════════════════════════════════════════════")
+
         Try
             _runID = Convert.ToInt32(Dts.Variables("BA::RunID").Value)
-            _parameterDB = Dts.Variables("BA::ParameterDB").Value.ToString().Trim()
+            _parameterDB  = Dts.Variables("BA::ParameterDB").Value.ToString().Trim()
             _parametertab = Dts.Variables("BA::Parametertabelle").Value.ToString().Trim()
             Dim connStr As String = HoleVerbindungszeichenfolge()
+
+            ' 1. Read partition values from BA::objPartitionValues (set by SCR09)
+            Dim partObjekt As Object = Dts.Variables("BA::objPartitionValues").Value
+            If partObjekt Is Nothing Then
+                Log("BA::objPartitionValues ist leer -> kein NCCI durchzufuehren")
+                Dts.TaskResult = ScriptResults.Success
+                Return
+            End If
+
+            Dim partArray(,) As String = CType(partObjekt, String(,))
+            Dim anzahlEintraege As Integer = partArray.GetLength(0)
+            Log("Partitionswerte aus SCR09: " & anzahlEintraege.ToString() & " Eintraege")
+
+            ' Group partition values by procedure
+            Dim verfahrenWerte As New Dictionary(Of String, List(Of String))()
+            For i As Integer = 0 To anzahlEintraege - 1
+                Dim verf As String = partArray(i, 0).Trim().ToLower()
+                Dim wert As String = partArray(i, 1).Trim()
+                If Not verfahrenWerte.ContainsKey(verf) Then
+                    verfahrenWerte(verf) = New List(Of String)()
+                End If
+                verfahrenWerte(verf).Add(wert)
+            Next
+
+            ' 2. Load procedures from work list (filtered by RunID)
             Dim verfahren As List(Of VerfahrenInfo) = VerfahrenLaden(connStr)
             Log("Verfahren: " & verfahren.Count.ToString())
+
             Dim cntOK As Integer = 0
             Dim cntFehler As Integer = 0
+
             For Each v As VerfahrenInfo In verfahren
                 Log("────────────────────────────────────────────────────────")
                 Log("Verfahren: " & v.Verfahren & " | NCCI: " & v.NcciFlag & " | IndexTyp: " & v.IndexType)
+
                 If v.LetzterSchritt = "NCCI_OUT_ERSTELLT" Then
-                    Log("  → bereits abgeschlossen → übersprungen ✓")
+                    Log("  -> bereits abgeschlossen -> uebersprungen OK")
                     Continue For
                 End If
+
                 Try
                     StatusSetzen(connStr, v.ID, "NCCI_OUT")
+
+                    ' Skip if NCCI not applicable
                     If v.NcciFlag <> "TRUE" OrElse v.IndexType = "CCI" Then
-                        Log("  → NCCI nicht anwendbar → übersprungen")
+                        Log("  NCCI nicht anwendbar -> uebersprungen")
                         StatusSetzen(connStr, v.ID, "NCCI_OUT_ERSTELLT")
-                        LogSchreiben(connStr, v.Verfahren, "SCHRITT_7C", "NCCI nicht anwendbar → übersprungen")
+                        LogSchreiben(connStr, v.Verfahren, "SCHRITT_18", "NCCI nicht anwendbar -> uebersprungen")
                         cntOK += 1
                         Continue For
                     End If
+
+                    Dim verfKey As String = v.Verfahren.Trim().ToLower()
+                    If Not verfahrenWerte.ContainsKey(verfKey) Then
+                        Log("  WARNUNG: Keine Partitionswerte fuer '" & v.Verfahren & "' in BA::objPartitionValues -> uebersprungen")
+                        Continue For
+                    End If
+
+                    Dim werteListe As List(Of String) = verfahrenWerte(verfKey)
+                    Log("  Partitionswerte fuer dieses Verfahren: " & werteListe.Count.ToString())
+
                     Dim cntTbl As Integer = 0
-                    Dim versuch2 As Integer = 0
-                    While versuch2 < MAX_VERSUCHE
-                        versuch2 += 1
-                        Try
-                            Using conn As New SqlConnection(connStr)
-                                conn.Open()
-                                Using cmd As New SqlCommand("SELECT name FROM sys.tables WHERE schema_id=SCHEMA_ID('dbo') AND name LIKE '" & v.Faktentabelle.ToLower() & "_out_%' ORDER BY name", conn)
-                                    cmd.CommandTimeout = 0
-                                    Using rdr As SqlDataReader = cmd.ExecuteReader()
-                                        While rdr.Read()
-                                            Dim tbl As String = rdr(0).ToString()
-                                            Dim allCols As String = Convert.ToString(SqlSkalar(connStr,
-                                                "SELECT STRING_AGG(QUOTENAME(name),',') FROM sys.columns WHERE object_id=OBJECT_ID('dbo." & tbl & "') AND is_computed=0",
-                                                "NCCI Spalten"))
-                                            If Not IndexVorhanden(connStr, tbl, "NCCI_" & tbl) Then
-                                                SqlAusfuehren(connStr, "CREATE NONCLUSTERED COLUMNSTORE INDEX [NCCI_" & tbl & "] ON dbo.[" & tbl & "] (" & allCols & ");", "NCCI " & tbl)
-                                                Log("  → NCCI angelegt: " & tbl & " ✓")
-                                            Else
-                                                Log("  → NCCI bereits vorhanden: " & tbl)
-                                            End If
-                                            cntTbl += 1
-                                        End While
-                                    End Using
-                                End Using
-                            End Using
-                            Exit While
-                        Catch ex As Exception
-                            If versuch2 < MAX_VERSUCHE Then System.Threading.Thread.Sleep(WARTE_SEK * 1000) Else Throw
-                        End Try
-                    End While
+
+                    ' Create NCCI only on _out_{wert} tables from this run
+                    For Each wert As String In werteListe
+                        Dim tbl As String = v.Faktentabelle.Trim().ToLower() & "_out_" & wert
+
+                        ' Check table exists
+                        Dim existsResult As Object = SqlSkalar(connStr,
+                            "SELECT OBJECT_ID('dbo.[" & tbl & "]','U')",
+                            "Existenzpruefung " & tbl)
+                        If existsResult Is Nothing OrElse existsResult Is DBNull.Value Then
+                            Log("    WARNUNG: Tabelle dbo.[" & tbl & "] existiert nicht -> uebersprungen")
+                            Continue For
+                        End If
+
+                        Dim allCols As String = Convert.ToString(SqlSkalar(connStr,
+                            "SELECT STRING_AGG(QUOTENAME(name),',') FROM sys.columns" &
+                            " WHERE object_id=OBJECT_ID('dbo.[" & tbl & "]') AND is_computed=0",
+                            "NCCI Spalten " & tbl))
+
+                        If String.IsNullOrEmpty(allCols) Then
+                            Log("    WARNUNG: Keine Spalten fuer dbo.[" & tbl & "] gefunden -> uebersprungen")
+                            Continue For
+                        End If
+
+                        Dim idxName As String = "NCCI_" & tbl
+                        If Not IndexVorhanden(connStr, tbl, idxName) Then
+                            SqlAusfuehren(connStr,
+                                "CREATE NONCLUSTERED COLUMNSTORE INDEX [" & idxName & "] ON dbo.[" & tbl & "] (" & allCols & ");",
+                                "NCCI " & tbl)
+                            Log("    NCCI angelegt: dbo.[" & tbl & "] OK")
+                        Else
+                            Log("    NCCI bereits vorhanden: dbo.[" & tbl & "]")
+                        End If
+                        cntTbl += 1
+                    Next
+
                     StatusSetzen(connStr, v.ID, "NCCI_OUT_ERSTELLT")
-                    LogSchreiben(connStr, v.Verfahren, "SCHRITT_7C", "NCCI auf " & cntTbl.ToString() & " _out Tabellen")
+                    LogSchreiben(connStr, v.Verfahren, "SCHRITT_18", "NCCI auf " & cntTbl.ToString() & " _out Partitionen")
                     cntOK += 1
-                    Log("  → Schritt 7c abgeschlossen ✓")
+                    Log("  -> NCCI abgeschlossen OK")
+
                 Catch ex As Exception
                     cntFehler += 1
                     FehlerSetzen(connStr, v.ID, ex.Message)
-                    LogSchreiben(connStr, v.Verfahren, "FEHLER_SCR14", ex.Message)
+                    LogSchreiben(connStr, v.Verfahren, "FEHLER_SCR18", ex.Message)
                     LogFehler("FEHLER '" & v.Verfahren & "': " & ex.Message)
                 End Try
             Next
+
+            Log("════════════════════════════════════════════════════════════")
             Log("Erfolgreich: " & cntOK.ToString() & " | Fehler: " & cntFehler.ToString())
+            Log("════════════════════════════════════════════════════════════")
             Dts.TaskResult = If(cntFehler > 0, ScriptResults.Failure, ScriptResults.Success)
+
         Catch ex As Exception
             LogFehler("Kritischer Fehler: " & ex.Message)
             Dts.TaskResult = ScriptResults.Failure
@@ -103,19 +162,22 @@ Partial Public Class ScriptMain
     End Sub
 
     Private Function IndexVorhanden(connStr As String, tbl As String, idxName As String) As Boolean
-        Return Convert.ToInt32(SqlSkalar(connStr, "SELECT COUNT(*) FROM sys.indexes WHERE object_id=OBJECT_ID('dbo." & tbl & "') AND name='" & idxName & "'", "Index prüfen")) > 0
+        Return Convert.ToInt32(SqlSkalar(connStr,
+            "SELECT COUNT(*) FROM sys.indexes WHERE object_id=OBJECT_ID('dbo.[" & tbl & "]') AND name='" & idxName & "'",
+            "Index pruefen")) > 0
     End Function
 
     Private Function VerfahrenLaden(connStr As String) As List(Of VerfahrenInfo)
         Dim liste As New List(Of VerfahrenInfo)()
         Dim sql As String =
-"SELECT a.ID, a.Verfahren, a.LetzterSchritt, pf.Wert AS Faktentabelle,
-        UPPER(ISNULL(pn.Wert,'FALSE')) AS NcciFlag, UPPER(pi.Wert) AS IndexType
- FROM   dbo.ETL_Fkt_Arbeitsliste a
- JOIN   " & _parameterDB & ".dbo." & _parametertab & " pf ON pf.Verfahren=a.Verfahren AND pf.Parameter='Faktentabelle'
- LEFT JOIN " & _parameterDB & ".dbo." & _parametertab & " pn ON pn.Verfahren=a.Verfahren AND pn.Parameter='FaktenNccIndex'
- JOIN   " & _parameterDB & ".dbo." & _parametertab & " pi ON pi.Verfahren=a.Verfahren AND pi.Parameter='FaktenClusteredIndex'
- WHERE  a.Status IN ('KOMPRIMIERUNG_ERSTELLT','NCCI_OUT') AND a.RunID=" & _runID & " ORDER BY a.Verfahren"
+            "SELECT a.ID, a.Verfahren, a.LetzterSchritt, pf.Wert AS Faktentabelle," &
+            " UPPER(ISNULL(pn.Wert,'FALSE')) AS NcciFlag, UPPER(pi.Wert) AS IndexType" &
+            " FROM dbo.ETL_Fkt_Arbeitsliste a" &
+            " JOIN " & _parameterDB & ".dbo." & _parametertab & " pf ON pf.Verfahren=a.Verfahren AND pf.Parameter='Faktentabelle'" &
+            " LEFT JOIN " & _parameterDB & ".dbo." & _parametertab & " pn ON pn.Verfahren=a.Verfahren AND pn.Parameter='FaktenNccIndex'" &
+            " JOIN " & _parameterDB & ".dbo." & _parametertab & " pi ON pi.Verfahren=a.Verfahren AND pi.Parameter='FaktenClusteredIndex'" &
+            " WHERE a.Status IN ('KOMPRIMIERUNG_AUSGEFUEHRT','NCCI_OUT') AND a.RunID=" & _runID.ToString() &
+            " ORDER BY a.Verfahren"
         Dim versuch As Integer = 0
         While versuch < MAX_VERSUCHE
             versuch += 1
@@ -127,7 +189,8 @@ Partial Public Class ScriptMain
                         Using rdr As SqlDataReader = cmd.ExecuteReader()
                             While rdr.Read()
                                 liste.Add(New VerfahrenInfo With {
-                                    .ID = rdr.GetInt32(0), .Verfahren = rdr(1).ToString().Trim(),
+                                    .ID = rdr.GetInt32(0),
+                                    .Verfahren = rdr(1).ToString().Trim(),
                                     .LetzterSchritt = If(rdr.IsDBNull(2), "", rdr(2).ToString().Trim()),
                                     .Faktentabelle = rdr(3).ToString().Trim(),
                                     .NcciFlag = rdr(4).ToString().Trim(),
@@ -145,7 +208,7 @@ Partial Public Class ScriptMain
     End Function
 
     Private Sub StatusSetzen(connStr As String, id As Integer, status As String)
-        SqlAusfuehren(connStr, "UPDATE dbo.ETL_Fkt_Arbeitsliste SET Status='" & status & "',LetzterSchritt='" & status & "',AktualisiertAm=GETDATE() WHERE ID=" & id, "Status")
+        SqlAusfuehren(connStr, "UPDATE dbo.ETL_Fkt_Arbeitsliste SET Status='" & status & "',LetzterSchritt='" & status & "',AktualisiertAm=GETDATE() WHERE ID=" & id.ToString(), "Status")
     End Sub
 
     Private Sub FehlerSetzen(connStr As String, id As Integer, msg As String)
