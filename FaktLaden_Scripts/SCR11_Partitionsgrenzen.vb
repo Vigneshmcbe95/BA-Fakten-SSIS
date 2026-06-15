@@ -1,4 +1,4 @@
-﻿﻿Option Explicit On
+Option Explicit On
 Option Strict On
 
 Imports System
@@ -124,11 +124,14 @@ Partial Public Class ScriptMain
                         Log("  Oracle Werte gesamt: " & oracleAlleWerte.Count.ToString())
 
                         If oracleAlleWerte.Count = 0 Then
-                            Log("  WARNUNG: Keine Daten in Oracle uebersprungen")
-                            ProtokollSchreiben(connStr, v.Verfahren, "WARNUNG_SCR09", "Keine Daten in Oracle")
-                            StatusSetzen(connStr, v.ID, "PARTITIONSGRENZEN_ERSTELLT")
-                            cntOK += 1
-                            Continue For
+                            Dim msg As String = "Keine Partitionen in Oracle gefunden (View v_partition_info)"
+
+                            LogFehler("  FEHLER: " & msg)
+                            ProtokollSchreiben(connStr, v.Verfahren, "FEHLER_SCR11", msg)
+
+                            FehlerSetzen(connStr, v.ID, msg)
+
+                            Throw New Exception(msg)
                         End If
 
                         Log("  Oracle MIN: " & oracleAlleWerte.Min().ToString() & " | MAX: " & oracleAlleWerte.Max().ToString())
@@ -366,7 +369,7 @@ Partial Public Class ScriptMain
         Dim sql As String =
             "SELECT DISTINCT HIGH_VALUE FROM ext.[v_partition_info] " &
             "WHERE TABLE_NAME = UPPER('" & v.Faktentabelle & "') " &
-            "  AND OWNER      = UPPER('" & _partitionSchema & "') " &
+            "  AND OWNER      = UPPER('" & v.Themengebiet & "') " &
             "  AND HIGH_VALUE IS NOT NULL"
 
         Dim versuch As Integer = 0
