@@ -392,8 +392,13 @@ Partial Public Class ScriptMain
                                         '   z.B. 200713 -> 200801, 201713 -> 201801
                                         ' Ab 2018/2019 entspricht HIGH_VALUE direkt dem mon_id
                                         ' (Januar erscheint als YYYY01), daher keine Umrechnung noetig.
-                                        Dim monat As Integer = intWert Mod 100
-                                        If monat = 13 Then
+                                        ' WICHTIG: Nur 6-stellige YYYYMM-Werte umrechnen.
+                                        ' Bei 8-stelligen Werten (YYYYMM + 2-stellige Anhangzahl,
+                                        ' z.B. 20111213 = 201112 + Anhang 13) sind die letzten zwei
+                                        ' Ziffern KEIN Monat, sondern eine Anhangnummer -> NICHT
+                                        ' umrechnen, sonst wuerde z.B. 20111213 faelschlich zu
+                                        ' 20111301 verfaelscht.
+                                        If intWert <= 999999 AndAlso (intWert Mod 100) = 13 Then
                                             intWert = (intWert \ 100 + 1) * 100 + 1
                                         End If
                                         liste.Add(intWert)
