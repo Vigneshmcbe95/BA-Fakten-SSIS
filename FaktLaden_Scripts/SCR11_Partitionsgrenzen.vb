@@ -385,37 +385,54 @@ Partial Public Class ScriptMain
                                 If Not rdr.IsDBNull(0) Then
                                     Dim intWert As Integer
                                     If Integer.TryParse(rdr(0).ToString().Trim(), intWert) Then
-                                        ' Oracle V_PARTITION_INFO.HIGH_VALUE nutzt im aelteren
-                                        ' Partitionsschema (2007-2017) einen "13. Monat" als
-                                        ' Jahresend-Grenze: der tatsaechliche mon_id-Datenwert ist
-                                        ' der Januar des Folgejahres.
-                                        '   z.B. 200713 -> 200801, 201713 -> 201801
-                                        ' Ab 2018/2019 entspricht HIGH_VALUE direkt dem mon_id
-                                        ' (Januar erscheint als YYYY01), daher keine Umrechnung noetig.
-                                        ' WICHTIG: Nur 6-stellige YYYYMM-Werte umrechnen.
-                                        ' Bei 8-stelligen Werten (YYYYMM + 2-stellige Anhangzahl,
-                                        ' z.B. 20111213 = 201112 + Anhang 13) sind die letzten zwei
-                                        ' Ziffern KEIN Monat, sondern eine Anhangnummer -> NICHT
-                                        ' umrechnen, sonst wuerde z.B. 20111213 faelschlich zu
-                                        ' 20111301 verfaelscht.
-                                        If intWert <= 999999 AndAlso (intWert Mod 100) = 13 Then
+                                        ' ─────────────────────────────────────────────────────
+                                        ' Zwei Partitionsschemata, abhaengig vom Wertformat:
+                                        '
+                                        ' (A) 6-stellige Werte (YYYYMM, z.B. mon_id):
+                                        '     HIGH_VALUE entspricht direkt dem Datenwert.
+                                        '     Ausnahme: aelterer Jahresend-Marker "YYYY13" ->
+                                        '     Januar des Folgejahres (200713 -> 200801,
+                                        '     201713 -> 201801). Ab 2018/2019 erscheint Januar
+                                        '     direkt als YYYY01, keine Umrechnung noetig.
+                                        '
+                                        ' (B) 8-stellige Werte (YYYYMM + 2-stellige Anhangzahl,
+                                        '     z.B. mow_id): HIGH_VALUE ist die exklusive
+                                        '     Obergrenze; der tatsaechliche Datenwert ist
+                                        '     HIGH_VALUE - 1 (Anhang 07->06, 13->12, 19->18).
+                                        '     Der unterste Anker mit Anhang 00 (z.B. 19990100)
+                                        '     traegt keine Daten und wird uebersprungen.
+                                        ' ─────────────────────────────────────────────────────
+                                        Dim gueltig As Boolean = True
+                                        If intWert > 999999 Then
+                                            ' (B) 8-stellig: mow_id = HIGH_VALUE - 1
+                                            If (intWert Mod 100) = 0 Then
+                                                gueltig = False
+                                            Else
+                                                intWert = intWert - 1
+                                            End If
+                                        ElseIf (intWert Mod 100) = 13 Then
+                                            ' (A) 6-stellig: YYYY13 -> Januar Folgejahr
                                             intWert = (intWert \ 100 + 1) * 100 + 1
                                         End If
-                                        liste.Add(intWert)
+                                        If gueltig Then liste.Add(intWert)
                                     End If
                                 End If
                             End While
                         End Using
                     End Using
                 End Using
-                ' Oracle Interval-Partitionierung haelt stets eine leere obere
-                ' Grenzpartition (offener Folgemonat, z.B. 202606) vor. Dieser
-                ' hoechste Wert traegt keine Daten -> entfernen, damit er nicht
-                ' als leere Partition durch die Pipeline (SCR12/13/16/19) laeuft.
+                ' Leere obere Grenzpartition nur beim 6-stelligen Schema entfernen:
+                ' Dort gilt HIGH_VALUE = Datenwert, der hoechste Wert (z.B. 202606)
+                ' ist die offene Folgemonats-Grenze ohne Daten.
+                ' Beim 8-stelligen Schema gilt Datenwert = HIGH_VALUE - 1, d.h. der
+                ' hoechste Wert ist bereits der letzte echte Datenmonat -> NICHT
+                ' entfernen (sonst ginge der aktuellste Monat verloren).
                 If liste.Count > 1 Then
                     Dim maxWert As Integer = liste.Max()
-                    liste.RemoveAll(Function(w) w = maxWert)
-                    Log("  Leere obere Grenzpartition entfernt: " & maxWert.ToString())
+                    If maxWert <= 999999 Then
+                        liste.RemoveAll(Function(w) w = maxWert)
+                        Log("  Leere obere Grenzpartition entfernt: " & maxWert.ToString())
+                    End If
                 End If
                 Return liste
             Catch ex As Exception
