@@ -385,10 +385,16 @@ Partial Public Class ScriptMain
                                 If Not rdr.IsDBNull(0) Then
                                     Dim intWert As Integer
                                     If Integer.TryParse(rdr(0).ToString().Trim(), intWert) Then
-                                        ' HIGH_VALUE month=00 means year-end boundary (e.g. 202600 = Dec 2025).
-                                        ' Convert YYYY00 → (YYYY-1)12 so SCR13 queries the correct mon_id.
-                                        If intWert Mod 100 = 0 Then
-                                            intWert = (intWert \ 100 - 1) * 100 + 12
+                                        ' Oracle V_PARTITION_INFO.HIGH_VALUE nutzt im aelteren
+                                        ' Partitionsschema (2007-2017) einen "13. Monat" als
+                                        ' Jahresend-Grenze: der tatsaechliche mon_id-Datenwert ist
+                                        ' der Januar des Folgejahres.
+                                        '   z.B. 200713 -> 200801, 201713 -> 201801
+                                        ' Ab 2018/2019 entspricht HIGH_VALUE direkt dem mon_id
+                                        ' (Januar erscheint als YYYY01), daher keine Umrechnung noetig.
+                                        Dim monat As Integer = intWert Mod 100
+                                        If monat = 13 Then
+                                            intWert = (intWert \ 100 + 1) * 100 + 1
                                         End If
                                         liste.Add(intWert)
                                     End If
