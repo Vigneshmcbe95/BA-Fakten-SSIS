@@ -322,9 +322,42 @@ END;"
     End Sub
 
     ' -----------------------------------------------------------------------
-    ' TabellennameBestimmen
+    ' TabellennameBestimmen - Ermittelt den reinen Tabellen-/Verfahrensnamen
+    ' aus einer STL-Zeile und validiert das Format.
+    ' Unterstuetzte Schreibweisen:
+    '   tabelle                 - einfacher Name
+    '   tabelle_*               - Wildcard: alle Partitionen (AUTOMATIC)
+    '   tabelle_<JJJJMM[..]>    - fester Datums-Suffix
+    '   tabelle:<JJJJMM[..]>    - fester Datumswert nach Doppelpunkt
+    '   tabelle:<TOKEN>(...)    - Token (:YYYYMM(), :LAST_MM(), :MONID..., :YEAR)
+    ' Bleibt nach dem Parsen ein Sonderzeichen uebrig (unbekanntes Format),
+    ' wird mit einer Hinweismeldung abgebrochen.
     ' -----------------------------------------------------------------------
     Private Function TabellennameBestimmen(zeile As String) As String
+
+        Dim basis As String = RohenTabellennamenExtrahieren(zeile)
+        basis = basis.ToLower().Trim().TrimEnd("_"c)
+
+        ' Ein gueltiger Tabellen-/Verfahrensname besteht nur aus Buchstaben,
+        ' Ziffern und Unterstrichen. Sonst ist das Format unbekannt -> Abbruch.
+        If basis = "" OrElse Not Regex.IsMatch(basis, "^[a-z0-9_]+$") Then
+            Throw New Exception(
+                "Tabellenname '" & zeile & "' hat ein unbekanntes Format. " &
+                "Erlaubte Schreibweisen: 'tabelle', 'tabelle_*', " &
+                "'tabelle_<JJJJMM>' oder 'tabelle:<TOKEN>(...)' " &
+                "(z.B. :YYYYMM(), :LAST_MM(), :MONID6(), :YEAR()). " &
+                "Bitte den Tabellennamen in der STL-Datei entsprechend angeben.")
+        End If
+
+        Return basis
+
+    End Function
+
+    ' -----------------------------------------------------------------------
+    ' RohenTabellennamenExtrahieren - Schneidet Token / Datums-Suffix /
+    ' Wildcard ab und liefert den Basisnamen (noch ohne Validierung).
+    ' -----------------------------------------------------------------------
+    Private Function RohenTabellennamenExtrahieren(zeile As String) As String
 
         ' :YYYYMM( / :YYYY( / :YY( / :MM( etc.
         Dim t As Match = Regex.Match(zeile, ":[YM]{2,6}\(", RegexOptions.IgnoreCase)
@@ -332,25 +365,30 @@ END;"
             ' :LAST_YYYYMM( / :LAST_YYYY( / :LAST_MM( etc.
             t = Regex.Match(zeile, ":LAST_[YM]{2,6}\(", RegexOptions.IgnoreCase)
         End If
-        If t.Success Then Return zeile.Substring(0, t.Index).ToLower().Trim()
+        If t.Success Then Return zeile.Substring(0, t.Index)
 
         ' bare date digits after colon: tf_table:20260400 or tf_table:202604
         t = Regex.Match(zeile, ":((?:19|20)\d{4,})", RegexOptions.IgnoreCase)
-        If t.Success Then Return zeile.Substring(0, t.Index).ToLower().Trim()
+        If t.Success Then Return zeile.Substring(0, t.Index)
 
         ' date suffix embedded in table name: tf_table_20240606
         t = Regex.Match(zeile, "_((?:19|20)\d{4,})$", RegexOptions.IgnoreCase)
-        If t.Success Then Return zeile.Substring(0, t.Index).ToLower().Trim()
+        If t.Success Then Return zeile.Substring(0, t.Index)
 
         ' :MONID token (with or without leading underscore)
         t = Regex.Match(zeile, "_?:MONID", RegexOptions.IgnoreCase)
-        If t.Success Then Return zeile.Substring(0, t.Index).ToLower().Trim()
+        If t.Success Then Return zeile.Substring(0, t.Index)
 
         ' :YEAR token (with or without leading underscore)
         t = Regex.Match(zeile, "_?:YEAR", RegexOptions.IgnoreCase)
-        If t.Success Then Return zeile.Substring(0, t.Index).ToLower().Trim()
+        If t.Success Then Return zeile.Substring(0, t.Index)
 
-        Return zeile.ToLower().Trim()
+        ' Wildcard-Suffix: tf_table_*  -> alle Partitionen (AUTOMATIC)
+        t = Regex.Match(zeile, "_?\*+$")
+        If t.Success Then Return zeile.Substring(0, t.Index)
+
+        ' einfacher Tabellenname
+        Return zeile
 
     End Function
 
