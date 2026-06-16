@@ -385,6 +385,11 @@ Partial Public Class ScriptMain
                                 If Not rdr.IsDBNull(0) Then
                                     Dim intWert As Integer
                                     If Integer.TryParse(rdr(0).ToString().Trim(), intWert) Then
+                                        ' HIGH_VALUE month=00 means year-end boundary (e.g. 202600 = Dec 2025).
+                                        ' Convert YYYY00 → (YYYY-1)12 so SCR13 queries the correct mon_id.
+                                        If intWert Mod 100 = 0 Then
+                                            intWert = (intWert \ 100 - 1) * 100 + 12
+                                        End If
                                         liste.Add(intWert)
                                     End If
                                 End If
