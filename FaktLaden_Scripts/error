@@ -1,374 +1,52 @@
-Paket	Task	Meldungstyp	Meldung
-Package	SCR13_Daten_Laden	Fehler	The script returned a failure result.
-Package	SCR13_Daten_Laden	info	  FEHLER 'tf_bvd_sgb2' pv=200705: Oracle-Tabelle via PolyBase [ext.tf_bvd_sgb2] lieferte 0 Zeilen fuer mon_id = 200705. Bitte pruefen: (1) existiert der Wert in Oracle (SELECT DISTINCT mon_id FROM ext.[tf_bvd_sgb2])? (2) ist die Faktenpartitionsspalte [mon_id] in der Parametertabelle fuer Verfahren [tf_bvd_sgb2] korrekt?
-Package	SCR13_Daten_Laden	info	  FEHLER 'tf_bvd_kreis_akt' pv=200705: Oracle-Tabelle via PolyBase [ext.tf_bvd_kreis_akt] lieferte 0 Zeilen fuer mon_id = 200705. Bitte pruefen: (1) existiert der Wert in Oracle (SELECT DISTINCT mon_id FROM ext.[tf_bvd_kreis_akt])? (2) ist die Faktenpartitionsspalte [mon_id] in der Parametertabelle fuer Verfahren [tf_bvd_kreis_akt] korrekt?
-Package	SCR13_Daten_Laden	info	FEHLER-DETAILS:
-Package	SCR13_Daten_Laden	info	Erfolgreich: 0 | Fehler: 2
-Package	SCR13_Daten_Laden	Fehler	[FEHLER_SCR13] tf_bvd_sgb2: 1 Partition(en) fehlgeschlagen
-Package	SCR13_Daten_Laden	Fehler	[FEHLER_SCR13] tf_bvd_kreis_akt: 1 Partition(en) fehlgeschlagen
-Package	SCR13_Daten_Laden	Fehler	FEHLER bei pv=200705 (tf_bvd_sgb2_in_200705): Oracle-Tabelle via PolyBase [ext.tf_bvd_sgb2] lieferte 0 Zeilen fuer mon_id = 200705. Bitte pruefen: (1) existiert der Wert in Oracle (SELECT DISTINCT mon_id FROM ext.[tf_bvd_sgb2])? (2) ist die Faktenpartitionsspalte [mon_id] in der Parametertabelle fuer Verfahren [tf_bvd_sgb2] korrekt?
-Package	SCR13_Daten_Laden	Fehler	FEHLER bei pv=200705 (tf_bvd_kreis_akt_in_200705): Oracle-Tabelle via PolyBase [ext.tf_bvd_kreis_akt] lieferte 0 Zeilen fuer mon_id = 200705. Bitte pruefen: (1) existiert der Wert in Oracle (SELECT DISTINCT mon_id FROM ext.[tf_bvd_kreis_akt])? (2) ist die Faktenpartitionsspalte [mon_id] in der Parametertabelle fuer Verfahren [tf_bvd_kreis_akt] korrekt?
-Package	SCR13_Daten_Laden	info	  SELECT INTO [tf_bvd_sgb2_in_200705_LOADING] WHERE mon_id = 200705 (wird zu _in_ umbenannt)
-Package	SCR13_Daten_Laden	info	  SELECT INTO [tf_bvd_kreis_akt_in_200705_LOADING] WHERE mon_id = 200705 (wird zu _in_ umbenannt)
-Package	SCR13_Daten_Laden	info	Arbeitspakete gesamt (Verfahren x Partition): 2 | Parallelitaet: 8
-Package	SCR13_Daten_Laden	info	  Partitionswerte: 1
-Package	SCR13_Daten_Laden	info	Verfahren: tf_bvd_sgb2 | Spalte: mon_id
-Package	SCR13_Daten_Laden	info	  Partitionswerte: 1
-Package	SCR13_Daten_Laden	info	  WARNUNG: Keine Partitionswerte in BA::objPartitionValues fuer 'tf_bvd_kreis' uebersprungen
-Package	SCR13_Daten_Laden	info	Verfahren: tf_bvd_kreis_akt | Spalte: mon_id
-Package	SCR13_Daten_Laden	info	Verfahren: tf_bvd_kreis | Spalte: mon_id
-Package	SCR13_Daten_Laden	info	  WARNUNG: Keine Partitionswerte in BA::objPartitionValues fuer 'tf_bvd_aa' uebersprungen
-Package	SCR13_Daten_Laden	info	Verfahren: tf_bvd_aa | Spalte: mon_id
-Package	SCR13_Daten_Laden	info	Verfahren: 4
-Package	SCR13_Daten_Laden	info	Partitionswerte gesamt: 2 Eintraege
-Package	SCR13_Daten_Laden	info	SCR13_Daten_Laden - Start
-Package	SCR12_Staging_Erstellen	info	Erfolgreich: 4 | Fehler: 0
-Package	SCR12_Staging_Erstellen	info	  Schritt 5 abgeschlossen OK
-Package	SCR12_Staging_Erstellen	info	[SCHRITT_5] tf_bvd_sgb2: Staging erstellt: 1 Partition(en) | NEU: 1 | AKTUALISIERUNG: 0
-Package	SCR12_Staging_Erstellen	info	  _out erstellt: 200705 | Modus: NEU
-Package	SCR12_Staging_Erstellen	info	Verfahren: tf_bvd_sgb2
-Package	SCR12_Staging_Erstellen	info	  Schritt 5 abgeschlossen OK
-Package	SCR12_Staging_Erstellen	info	[SCHRITT_5] tf_bvd_kreis_akt: Staging erstellt: 1 Partition(en) | NEU: 1 | AKTUALISIERUNG: 0
-Package	SCR12_Staging_Erstellen	info	  _out erstellt: 200705 | Modus: NEU
-Package	SCR12_Staging_Erstellen	info	Verfahren: tf_bvd_kreis_akt
-Package	SCR12_Staging_Erstellen	info	[WARNUNG_SCR10] tf_bvd_kreis: Keine Partitionswerte in BA::objPartitionValues
-Package	SCR12_Staging_Erstellen	info	  WARNUNG: Keine Partitionswerte fuer dieses Verfahren uebersprungen
-Package	SCR12_Staging_Erstellen	info	Verfahren: tf_bvd_kreis
-Package	SCR12_Staging_Erstellen	info	[WARNUNG_SCR10] tf_bvd_aa: Keine Partitionswerte in BA::objPartitionValues
-Package	SCR12_Staging_Erstellen	info	  WARNUNG: Keine Partitionswerte fuer dieses Verfahren uebersprungen
-Package	SCR12_Staging_Erstellen	info	Verfahren: tf_bvd_aa
-Package	SCR12_Staging_Erstellen	info	Verfahren aus Arbeitsliste: 4
-Package	SCR12_Staging_Erstellen	info	SCR12_Staging_Erstellen - Start
-Package	SCR12_Staging_Erstellen	info	Partitionswerte aus SCR09: 2 Eintraege
-Package	SCR11_Partitionsgrenzen	info	Erfolgreich: 4 | Fehler: 0
-Package	SCR11_Partitionsgrenzen	info	  tf_bvd_sgb2: 1 Partitionen (200705-200705)
-Package	SCR11_Partitionsgrenzen	info	  tf_bvd_kreis_akt: 1 Partitionen (200705-200705)
-Package	SCR11_Partitionsgrenzen	info	BA::objPartitionValues gesetzt: 2 Eintraege
-Package	SCR11_Partitionsgrenzen	info	  Schritt 4 abgeschlossen OK
-Package	SCR11_Partitionsgrenzen	info	[SCHRITT_4] tf_bvd_sgb2: Partitionsgrenzen erstellt. Modus=AUTOMATIC | Gesamt=1 | NEU=1 | Bereich=200705-200705
-Package	SCR11_Partitionsgrenzen	info	  SPLIT ausgefuehrt: 1 | Uebersprungen: 0
-Package	SCR11_Partitionsgrenzen	info	  Werte-Bereich: 200705 bis 200705 (1 Partitionen)
-Package	SCR11_Partitionsgrenzen	info	  NEU: 1
-Package	SCR11_Partitionsgrenzen	info	  Modus: AUTOMATIC
-Package	SCR11_Partitionsgrenzen	info	  Gesamt zu verarbeiten: 1
-Package	SCR11_Partitionsgrenzen	info	  ZUSAMMENFASSUNG: tf_bvd_sgb2
-Package	SCR11_Partitionsgrenzen	info	  Fehlend ZWISCHEN MIN-MAX: 0
-Package	SCR11_Partitionsgrenzen	info	  Fehlend NACH MSSQL MAX: 0
-Package	SCR11_Partitionsgrenzen	info	  Fehlend VOR MSSQL MIN: 1
-Package	SCR11_Partitionsgrenzen	info	  Fehlend MIN: 200705 | MAX: 200705
-Package	SCR11_Partitionsgrenzen	info	  Fehlende Werte: 1
-Package	SCR11_Partitionsgrenzen	info	  MSSQL vorhanden: 237
-Package	SCR11_Partitionsgrenzen	info	  Oracle gesamt: 235
-Package	SCR11_Partitionsgrenzen	info	  Entscheidung: APPEND (alle fehlenden Werte)
-Package	SCR11_Partitionsgrenzen	info	  MSSQL MIN: 200707 | MAX: 202703
-Package	SCR11_Partitionsgrenzen	info	  MSSQL Werte gesamt: 237
-Package	SCR11_Partitionsgrenzen	info	  Oracle MIN: 200705 | MAX: 202701
-Package	SCR11_Partitionsgrenzen	info	  Oracle Werte gesamt: 235
-Package	SCR11_Partitionsgrenzen	info	  Leere obere Grenzpartition entfernt: 202702
-Package	SCR11_Partitionsgrenzen	info	  MODE: AUTOMATIC (partition_wert aus Oracle)
-Package	SCR11_Partitionsgrenzen	info	Verfahren: tf_bvd_sgb2 | Tabelle: tf_bvd_sgb2 | Spalte: mon_id
-Package	SCR11_Partitionsgrenzen	info	  Schritt 4 abgeschlossen OK
-Package	SCR11_Partitionsgrenzen	info	[SCHRITT_4] tf_bvd_kreis_akt: Partitionsgrenzen erstellt. Modus=AUTOMATIC | Gesamt=1 | NEU=1 | Bereich=200705-200705
-Package	SCR11_Partitionsgrenzen	info	  SPLIT ausgefuehrt: 1 | Uebersprungen: 0
-Package	SCR11_Partitionsgrenzen	info	  Werte-Bereich: 200705 bis 200705 (1 Partitionen)
-Package	SCR11_Partitionsgrenzen	info	  NEU: 1
-Package	SCR11_Partitionsgrenzen	info	  Gesamt zu verarbeiten: 1
-Package	SCR11_Partitionsgrenzen	info	  Modus: AUTOMATIC
-Package	SCR11_Partitionsgrenzen	info	  ZUSAMMENFASSUNG: tf_bvd_kreis_akt
-Package	SCR11_Partitionsgrenzen	info	  Fehlend NACH MSSQL MAX: 0
-Package	SCR11_Partitionsgrenzen	info	  Fehlend VOR MSSQL MIN: 1
-Package	SCR11_Partitionsgrenzen	info	  Fehlend ZWISCHEN MIN-MAX: 0
-Package	SCR11_Partitionsgrenzen	info	  Fehlend MIN: 200705 | MAX: 200705
-Package	SCR11_Partitionsgrenzen	info	  MSSQL vorhanden: 189
-Package	SCR11_Partitionsgrenzen	info	  Fehlende Werte: 1
-Package	SCR11_Partitionsgrenzen	info	  Oracle gesamt: 187
-Package	SCR11_Partitionsgrenzen	info	  Entscheidung: APPEND (alle fehlenden Werte)
-Package	SCR11_Partitionsgrenzen	info	  MSSQL MIN: 201107 | MAX: 202703
-Package	SCR11_Partitionsgrenzen	info	  MSSQL Werte gesamt: 189
-Package	SCR11_Partitionsgrenzen	info	  Oracle MIN: 200705 | MAX: 202701
-Package	SCR11_Partitionsgrenzen	info	  Oracle Werte gesamt: 187
-Package	SCR11_Partitionsgrenzen	info	  Leere obere Grenzpartition entfernt: 202702
-Package	SCR11_Partitionsgrenzen	info	  MODE: AUTOMATIC (partition_wert aus Oracle)
-Package	SCR11_Partitionsgrenzen	info	Verfahren: tf_bvd_kreis_akt | Tabelle: tf_bvd_kreis_akt | Spalte: mon_id
-Package	SCR11_Partitionsgrenzen	info	  Keine fehlenden Werte uebersprungen
-Package	SCR11_Partitionsgrenzen	info	  Fehlende Werte: 0
-Package	SCR11_Partitionsgrenzen	info	  MSSQL vorhanden: 321
-Package	SCR11_Partitionsgrenzen	info	  Oracle gesamt: 237
-Package	SCR11_Partitionsgrenzen	info	  Entscheidung: APPEND (alle fehlenden Werte)
-Package	SCR11_Partitionsgrenzen	info	  MSSQL MIN: 200007 | MAX: 202703
-Package	SCR11_Partitionsgrenzen	info	  MSSQL Werte gesamt: 321
-Package	SCR11_Partitionsgrenzen	info	  Oracle MIN: 200705 | MAX: 202701
-Package	SCR11_Partitionsgrenzen	info	  Oracle Werte gesamt: 237
-Package	SCR11_Partitionsgrenzen	info	  Leere obere Grenzpartition entfernt: 202702
-Package	SCR11_Partitionsgrenzen	info	  MODE: AUTOMATIC (partition_wert aus Oracle)
-Package	SCR11_Partitionsgrenzen	info	Verfahren: tf_bvd_kreis | Tabelle: tf_bvd_kreis | Spalte: mon_id
-Package	SCR11_Partitionsgrenzen	info	  Keine fehlenden Werte uebersprungen
-Package	SCR11_Partitionsgrenzen	info	  Fehlende Werte: 0
-Package	SCR11_Partitionsgrenzen	info	  MSSQL vorhanden: 321
-Package	SCR11_Partitionsgrenzen	info	  Oracle gesamt: 237
-Package	SCR11_Partitionsgrenzen	info	  Entscheidung: APPEND (alle fehlenden Werte)
-Package	SCR11_Partitionsgrenzen	info	  MSSQL MIN: 200007 | MAX: 202703
-Package	SCR11_Partitionsgrenzen	info	  MSSQL Werte gesamt: 321
-Package	SCR11_Partitionsgrenzen	info	  Oracle MIN: 200705 | MAX: 202701
-Package	SCR11_Partitionsgrenzen	info	  Leere obere Grenzpartition entfernt: 202702
-Package	SCR11_Partitionsgrenzen	info	  Oracle Werte gesamt: 237
-Package	SCR11_Partitionsgrenzen	info	  MODE: AUTOMATIC (partition_wert aus Oracle)
-Package	SCR11_Partitionsgrenzen	info	Verfahren: tf_bvd_aa | Tabelle: tf_bvd_aa | Spalte: mon_id
-Package	SCR11_Partitionsgrenzen	info	Verfahren: 4
-Package	SCR11_Partitionsgrenzen	info	SCR11_Partitionsgrenzen - Start
-Package	SCR10_Faktentabelle_Erstellen	info	  -> Schritt 3 abgeschlossen
-Package	SCR10_Faktentabelle_Erstellen	info	Erfolgreich: 4 | Fehler: 0
-Package	SCR10_Faktentabelle_Erstellen	info	[SCHRITT_3] tf_bvd_sgb2: Faktentabelle existiert bereits (Struktur OK): dbo.tf_bvd_sgb2 -> uebersprungen
-Package	SCR10_Faktentabelle_Erstellen	info	  Faktentabelle dbo.tf_bvd_sgb2 existiert bereits (Struktur OK) -> uebersprungen
-Package	SCR10_Faktentabelle_Erstellen	info	Partitionsspalte: mon_id | IndexTyp: CCI | Komprimierung: NONE
-Package	SCR10_Faktentabelle_Erstellen	info	Verfahren: tf_bvd_sgb2 | Faktentabelle: tf_bvd_sgb2
-Package	SCR10_Faktentabelle_Erstellen	info	  -> Schritt 3 abgeschlossen
-Package	SCR10_Faktentabelle_Erstellen	info	[SCHRITT_3] tf_bvd_kreis_akt: Faktentabelle existiert bereits (Struktur OK): dbo.tf_bvd_kreis_akt -> uebersprungen
-Package	SCR10_Faktentabelle_Erstellen	info	  Faktentabelle dbo.tf_bvd_kreis_akt existiert bereits (Struktur OK) -> uebersprungen
-Package	SCR10_Faktentabelle_Erstellen	info	Partitionsspalte: mon_id | IndexTyp: CCI | Komprimierung: NONE
-Package	SCR10_Faktentabelle_Erstellen	info	Verfahren: tf_bvd_kreis_akt | Faktentabelle: tf_bvd_kreis_akt
-Package	SCR10_Faktentabelle_Erstellen	info	  -> Schritt 3 abgeschlossen
-Package	SCR10_Faktentabelle_Erstellen	info	[SCHRITT_3] tf_bvd_kreis: Faktentabelle existiert bereits (Struktur OK): dbo.tf_bvd_kreis -> uebersprungen
-Package	SCR10_Faktentabelle_Erstellen	info	  Faktentabelle dbo.tf_bvd_kreis existiert bereits (Struktur OK) -> uebersprungen
-Package	SCR10_Faktentabelle_Erstellen	info	Partitionsspalte: mon_id | IndexTyp: CCI | Komprimierung: NONE
-Package	SCR10_Faktentabelle_Erstellen	info	Verfahren: tf_bvd_kreis | Faktentabelle: tf_bvd_kreis
-Package	SCR10_Faktentabelle_Erstellen	info	  -> Schritt 3 abgeschlossen
-Package	SCR10_Faktentabelle_Erstellen	info	[SCHRITT_3] tf_bvd_aa: Faktentabelle existiert bereits (Struktur OK): dbo.tf_bvd_aa -> uebersprungen
-Package	SCR10_Faktentabelle_Erstellen	info	  Faktentabelle dbo.tf_bvd_aa existiert bereits (Struktur OK) -> uebersprungen
-Package	SCR10_Faktentabelle_Erstellen	info	Partitionsspalte: mon_id | IndexTyp: CCI | Komprimierung: NONE
-Package	SCR10_Faktentabelle_Erstellen	info	Verfahren: tf_bvd_aa | Faktentabelle: tf_bvd_aa
-Package	SCR10_Faktentabelle_Erstellen	info	Verfahren: 4
-Package	SCR10_Faktentabelle_Erstellen	info	SCR10_Faktentabelle_Erstellen - Start
-Package	SCR09_Ext_Tabelle_Erstellen	info	  Externe Tabelle erstellt OK
-Package	SCR09_Ext_Tabelle_Erstellen	info	Erfolgreich: 4 | Fehler: 0
-Package	SCR09_Ext_Tabelle_Erstellen	info	[SCHRITT_2] tf_bvd_sgb2: Externe Tabelle erstellt: ext.tf_bvd_sgb2
-Package	SCR09_Ext_Tabelle_Erstellen	info	  OK Externe Tabelle erfolgreich: ext.[tf_bvd_sgb2]
-Package	SCR09_Ext_Tabelle_Erstellen	info	  Oracle Location: ISTAT.XRO_DM_STAT_BVD.TF_BVD_SGB2
-Package	SCR09_Ext_Tabelle_Erstellen	info	  Erstelle externe Tabelle: ext.[tf_bvd_sgb2]
-Package	SCR09_Ext_Tabelle_Erstellen	info	  Externe Tabelle erstellt OK
-Package	SCR09_Ext_Tabelle_Erstellen	info	Verfahren: tf_bvd_sgb2 | Themengebiet: xro_dm_stat_bvd
-Package	SCR09_Ext_Tabelle_Erstellen	info	[SCHRITT_2] tf_bvd_kreis_akt: Externe Tabelle erstellt: ext.tf_bvd_kreis_akt
-Package	SCR09_Ext_Tabelle_Erstellen	info	  OK Externe Tabelle erfolgreich: ext.[tf_bvd_kreis_akt]
-Package	SCR09_Ext_Tabelle_Erstellen	info	  Oracle Location: ISTAT.XRO_DM_STAT_BVD.TF_BVD_KREIS_AKT
-Package	SCR09_Ext_Tabelle_Erstellen	info	  Erstelle externe Tabelle: ext.[tf_bvd_kreis_akt]
-Package	SCR09_Ext_Tabelle_Erstellen	info	Verfahren: tf_bvd_kreis_akt | Themengebiet: xro_dm_stat_bvd
-Package	SCR09_Ext_Tabelle_Erstellen	info	  Externe Tabelle erstellt OK
-Package	SCR09_Ext_Tabelle_Erstellen	info	[SCHRITT_2] tf_bvd_kreis: Externe Tabelle erstellt: ext.tf_bvd_kreis
-Package	SCR09_Ext_Tabelle_Erstellen	info	  OK Externe Tabelle erfolgreich: ext.[tf_bvd_kreis]
-Package	SCR09_Ext_Tabelle_Erstellen	info	  Oracle Location: ISTAT.XRO_DM_STAT_BVD.TF_BVD_KREIS
-Package	SCR09_Ext_Tabelle_Erstellen	info	  Erstelle externe Tabelle: ext.[tf_bvd_kreis]
-Package	SCR09_Ext_Tabelle_Erstellen	info	  Externe Tabelle erstellt OK
-Package	SCR09_Ext_Tabelle_Erstellen	info	Verfahren: tf_bvd_kreis | Themengebiet: xro_dm_stat_bvd
-Package	SCR09_Ext_Tabelle_Erstellen	info	[SCHRITT_2] tf_bvd_aa: Externe Tabelle erstellt: ext.tf_bvd_aa
-Package	SCR09_Ext_Tabelle_Erstellen	info	  OK Externe Tabelle erfolgreich: ext.[tf_bvd_aa]
-Package	SCR09_Ext_Tabelle_Erstellen	info	  Oracle Location: ISTAT.XRO_DM_STAT_BVD.TF_BVD_AA
-Package	SCR09_Ext_Tabelle_Erstellen	info	  Erstelle externe Tabelle: ext.[tf_bvd_aa]
-Package	SCR09_Ext_Tabelle_Erstellen	info	Verfahren: tf_bvd_aa | Themengebiet: xro_dm_stat_bvd
-Package	SCR09_Ext_Tabelle_Erstellen	info	Verfahren zur Verarbeitung: 4
-Package	SCR09_Ext_Tabelle_Erstellen	info	SCR09_Ext_Tabelle_Erstellen - Start
-Package	SCR08_Template_Erstellen	info	Erfolgreich: 4 | Fehler: 0
-Package	SCR08_Template_Erstellen	info	  Template erstellt OK
-Package	SCR08_Template_Erstellen	info	[SCHRITT_1] tf_bvd_sgb2: Template erstellt/geprueft: msi_dm_bvd.dbo.tf_bvd_sgb2_template
-Package	SCR08_Template_Erstellen	info	  Template erstellt bzw. Struktur geprueft OK
-Package	SCR08_Template_Erstellen	info	  Template fuer: tf_bvd_sgb2
-Package	SCR08_Template_Erstellen	info	Verfahren: tf_bvd_sgb2 | Themengebiet: xro_dm_stat_bvd
-Package	SCR08_Template_Erstellen	info	[SCHRITT_1] tf_bvd_kreis_akt: Template erstellt/geprueft: msi_dm_bvd.dbo.tf_bvd_kreis_akt_template
-Package	SCR08_Template_Erstellen	info	  Template erstellt OK
-Package	SCR08_Template_Erstellen	info	  Template erstellt bzw. Struktur geprueft OK
-Package	SCR08_Template_Erstellen	info	  Template fuer: tf_bvd_kreis_akt
-Package	SCR08_Template_Erstellen	info	Verfahren: tf_bvd_kreis_akt | Themengebiet: xro_dm_stat_bvd
-Package	SCR08_Template_Erstellen	info	  Template erstellt OK
-Package	SCR08_Template_Erstellen	info	[SCHRITT_1] tf_bvd_kreis: Template erstellt/geprueft: msi_dm_bvd.dbo.tf_bvd_kreis_template
-Package	SCR08_Template_Erstellen	info	  Template erstellt bzw. Struktur geprueft OK
-Package	SCR08_Template_Erstellen	info	  Template fuer: tf_bvd_kreis
-Package	SCR08_Template_Erstellen	info	Verfahren: tf_bvd_kreis | Themengebiet: xro_dm_stat_bvd
-Package	SCR08_Template_Erstellen	info	  Template erstellt OK
-Package	SCR08_Template_Erstellen	info	[SCHRITT_1] tf_bvd_aa: Template erstellt/geprueft: msi_dm_bvd.dbo.tf_bvd_aa_template
-Package	SCR08_Template_Erstellen	info	  Template erstellt bzw. Struktur geprueft OK
-Package	SCR08_Template_Erstellen	info	  Template fuer: tf_bvd_aa
-Package	SCR08_Template_Erstellen	info	Verfahren: tf_bvd_aa | Themengebiet: xro_dm_stat_bvd
-Package	SCR08_Template_Erstellen	info	Verfahren zur Verarbeitung: 4
-Package	SCR08_Template_Erstellen	info	SCR08_Template_Erstellen - Start
-Package	SCR07_Schemadaten_Kopieren	info	Erfolgreich: 4 | Fehler: 0
-Package	SCR07_Schemadaten_Kopieren	info	Staging-Tabelle dbo.ddl_staging bleibt fuer Debugging erhalten
-Package	SCR07_Schemadaten_Kopieren	info	  10 Spalten kopiert OK
-Package	SCR07_Schemadaten_Kopieren	info	[SCHRITT_5] tf_bvd_sgb2: Schemadaten kopiert: 10 Spalten
-Package	SCR07_Schemadaten_Kopieren	info	Verfahren: tf_bvd_sgb2 | Themengebiet: xro_dm_stat_bvd
-Package	SCR07_Schemadaten_Kopieren	info	  8 Spalten kopiert OK
-Package	SCR07_Schemadaten_Kopieren	info	[SCHRITT_5] tf_bvd_kreis_akt: Schemadaten kopiert: 8 Spalten
-Package	SCR07_Schemadaten_Kopieren	info	Verfahren: tf_bvd_kreis_akt | Themengebiet: xro_dm_stat_bvd
-Package	SCR07_Schemadaten_Kopieren	info	  30 Spalten kopiert OK
-Package	SCR07_Schemadaten_Kopieren	info	[SCHRITT_5] tf_bvd_kreis: Schemadaten kopiert: 30 Spalten
-Package	SCR07_Schemadaten_Kopieren	info	Verfahren: tf_bvd_kreis | Themengebiet: xro_dm_stat_bvd
-Package	SCR07_Schemadaten_Kopieren	info	  30 Spalten kopiert OK
-Package	SCR07_Schemadaten_Kopieren	info	[SCHRITT_5] tf_bvd_aa: Schemadaten kopiert: 30 Spalten
-Package	SCR07_Schemadaten_Kopieren	info	Verfahren: tf_bvd_aa | Themengebiet: xro_dm_stat_bvd
-Package	SCR07_Schemadaten_Kopieren	info	Staging abgeschlossen: 1017204 Zeilen geladen.
-Package	SCR07_Schemadaten_Kopieren	info	Oracle-Abfrage laeuft (kann 20-60 Sekunden dauern)...
-Package	SCR07_Schemadaten_Kopieren	info	Quelle: [msi_dm_bvd].[ext].[vm_ddl_sql_server]
-Package	SCR07_Schemadaten_Kopieren	info	Oracle-Daten werden in Staging-Tabelle geladen...
-Package	SCR07_Schemadaten_Kopieren	info	Verfahren zur Verarbeitung: 4
-Package	SCR07_Schemadaten_Kopieren	info	Ziel-Tabelle tm_polybase_struktur geprueft/erstellt.
-Package	SCR07_Schemadaten_Kopieren	info	SCR07_Schemadaten_Kopieren - Start
-Package	SCR06 Arbeitsliste Aufbauen	info	SCR_Arbeitsliste_Aufbauen_Fakten erfolgreich abgeschlossen OK
-Package	SCR06 Arbeitsliste Aufbauen	info	Neue Verfahren : 4
-Package	SCR06 Arbeitsliste Aufbauen	info	ZUSAMMENFASSUNG
-Package	SCR06 Arbeitsliste Aufbauen	info	  - ANDERE   : 0
-Package	SCR06 Arbeitsliste Aufbauen	info	Kein Reset nötig (nur AUSSTEHEND oder keine Daten)
-Package	SCR06 Arbeitsliste Aufbauen	info	  - FEHLER   : 0
-Package	SCR06 Arbeitsliste Aufbauen	info	  - ERFOLG   : 0
-Package	SCR06 Arbeitsliste Aufbauen	info	  - Total    : 47
-Package	SCR06 Arbeitsliste Aufbauen	info	Status-Analyse (alle Verfahren aus Steuerliste):
-Package	SCR06 Arbeitsliste Aufbauen	info	Schritt 2: Status analysieren und zuruecksetzen
-Package	SCR06 Arbeitsliste Aufbauen	info	Neue Verfahren eingetragen: 4
-Package	SCR06 Arbeitsliste Aufbauen	info	Schritt 1: Neue Verfahren aus Steuerliste eintragen
-Package	SCR06 Arbeitsliste Aufbauen	info	Aktueller Lauf: Datei [f.istat.xro_dm_stat_bvd.urladung.csv] | Tabellen in Steuerliste (4): tf_bvd_aa, tf_bvd_kreis, tf_bvd_kreis_akt, tf_bvd_sgb2
-Package	SCR06 Arbeitsliste Aufbauen	info	Pflichtfelder-Pruefung: alle Variablen vorhanden OK
-Package	SCR06 Arbeitsliste Aufbauen	info	SCR_06_Arbeitsliste_Aufbauen_Fakten - Start
-Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	ERGEBNIS: BESTANDEN - Alle Parameter vollstaendig und befuellt OK
-Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	Mit Fehlern              : 0
-Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	Vollstaendig (OK)         : 4
-Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	Verfahren geprueft        : 4
-Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	ZUSAMMENFASSUNG SCR_05_Parameter_Vollstaendigkeitspruefung
-Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  OK Alle Pflichtparameter fuer 'tf_bvd_sgb2' vorhanden und befuellt.
-Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      Anzahl_ParallelTasks
-Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      DateFormat
-Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      FaktenClusteredIndex
-Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      Faktenkomprimierung
-Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      Faktenpartitionsspalte
-Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      Faktentabelle
-Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      FaktentabelleTemplate
-Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	Pruefe Verfahren: tf_bvd_sgb2
-Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  OK Alle Pflichtparameter fuer 'tf_bvd_kreis_akt' vorhanden und befuellt.
-Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      Anzahl_ParallelTasks
-Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      DateFormat
-Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      FaktenClusteredIndex
-Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      Faktenkomprimierung
-Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      Faktenpartitionsspalte
-Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      Faktentabelle
-Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      FaktentabelleTemplate
-Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	Pruefe Verfahren: tf_bvd_kreis_akt
-Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  OK Alle Pflichtparameter fuer 'tf_bvd_kreis' vorhanden und befuellt.
-Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      Anzahl_ParallelTasks
-Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      DateFormat
-Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      FaktenClusteredIndex
-Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      Faktenkomprimierung
-Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      Faktenpartitionsspalte
-Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      Faktentabelle
-Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      FaktentabelleTemplate
-Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	Pruefe Verfahren: tf_bvd_kreis
-Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  OK Alle Pflichtparameter fuer 'tf_bvd_aa' vorhanden und befuellt.
-Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      Anzahl_ParallelTasks
-Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      DateFormat
-Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      FaktenClusteredIndex
-Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      Faktenkomprimierung
-Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      Faktenpartitionsspalte
-Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      Faktentabelle
-Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      FaktentabelleTemplate
-Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	Pruefe Verfahren: tf_bvd_aa
-Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	Verfahren in Steuerliste gefunden: 4
-Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	Schritt 3: Parametertabelle vollstaendig pruefen
-Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	Schritt 2: Verfahren aus Steuerliste laden
-Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	Steuerlisten-Tabelle enthaelt 4 Zeile(n) OK
-Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	Steuerlisten-Tabelle [dbo.tm_steuerlistenfile_Fakten] vorhanden OK
-Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	Schritt 1: Steuerlisten-Tabelle pruefen
-Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	SSIS-Variablen-Pruefung: alle vorhanden OK
-Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	Pflichtparameter     : FaktentabelleTemplate, Faktentabelle, Faktenpartitionsspalte, Faktenkomprimierung, FaktenClusteredIndex, DateFormat, Anzahl_ParallelTasks
-Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	SCR_05_Parameter_Vollstaendigkeitspruefung - Start
-Package	SC04 Whereclasuse	info	partition_wert NULL    : 4
-Package	SC04 Whereclasuse	info	partition_wert gefuellt: 0
-Package	SC04 Whereclasuse	info	  tf_bvd_sgb2_*                                      -> wert=NULL
-Package	SC04 Whereclasuse	info	  tf_bvd_kreis_akt_*                                 -> wert=NULL
-Package	SC04 Whereclasuse	info	  tf_bvd_kreis_*                                     -> wert=NULL
-Package	SC04 Whereclasuse	info	  tf_bvd_aa_*                                        -> wert=NULL
-Package	SC04 Whereclasuse	info	Steuerlisten-Zeilen : 4
-Package	SC04 Whereclasuse	info	Spalten geprueft/angelegt OK
-Package	SC04 Whereclasuse	info	Steuerlisten-Tabelle : dbo.tm_steuerlistenfile_Fakten
-Package	SC04 Whereclasuse	info	Referenzdatum: 01.03.2026 00:00:00
-Package	SC04 Whereclasuse	info	SC04_Whereclause - Start
-Package	SCR03 Stuerliste Laden	info	SCR_03_Steuerlisten_Laden erfolgreich abgeschlossen OK
-Package	SCR03 Stuerliste Laden	info	Datei verschoben nach: F:\STL\Done\f.istat.xro_dm_stat_bvd.urladung.csv
-Package	SCR03 Stuerliste Laden	info	Geladene Tabellen aus [f.istat.xro_dm_stat_bvd.urladung.csv] (4): tf_bvd_aa, tf_bvd_kreis, tf_bvd_kreis_akt, tf_bvd_sgb2
-Package	SCR03 Stuerliste Laden	info	Datei erfolgreich verarbeitet: f.istat.xro_dm_stat_bvd.urladung.csv OK
-Package	SCR03 Stuerliste Laden	info	  Zeilen gesamt: 4 | INSERT: 4 | Uebersprungen: 0
-Package	SCR03 Stuerliste Laden	info	  Arbeitstabelle: vollstaendig geleert
-Package	SCR03 Stuerliste Laden	info	  Themengebiet : xro_dm_stat_bvd
-Package	SCR03 Stuerliste Laden	info	  Tabellentyp  : f
-Package	SCR03 Stuerliste Laden	info	  Umgebung     : istat
-Package	SCR03 Stuerliste Laden	info	Verarbeite Datei: f.istat.xro_dm_stat_bvd.urladung.csv
-Package	SCR03 Stuerliste Laden	info	Vollstaendiger Pfad : F:\STL\f.istat.xro_dm_stat_bvd.urladung.csv
-Package	SCR03 Stuerliste Laden	info	Arbeitstabelle und Audit-Tabelle geprueft/angelegt OK
-Package	SCR03 Stuerliste Laden	info	Audit-Tabelle  : dbo.tm_steuerlistenfile_Fakten_audit
-Package	SCR03 Stuerliste Laden	info	Arbeitstabelle : dbo.tm_steuerlistenfile_Fakten
-Package	SCR03 Stuerliste Laden	info	Pflichtfelder-Pruefung: alle Variablen vorhanden OK
-Package	SCR03 Stuerliste Laden	info	SCR_03_Steuerlisten_Laden - Start
-Package	SCR02 Vorbereitungen	info	SCR_01_Vorbereitungen erfolgreich abgeschlossen.
-Package	SCR02 Vorbereitungen	info	  Index erstellt: IX_vm_ddl_sql_server_TABNAME_COLNAME (TABNAME, COLNAME)
-Package	SCR02 Vorbereitungen	info	  dbo-Kopie erstellt: dbo.vm_ddl_sql_server | Zeilen: 1017204
-Package	SCR02 Vorbereitungen	info	  Alte dbo-Kopie geloescht (falls vorhanden)
-Package	SCR02 Vorbereitungen	info	Schritt 8: Lokale dbo-Kopie [dbo.vm_ddl_sql_server] erstellen
-Package	SCR02 Vorbereitungen	info	Externe Partitionssicht [ext.[v_partition_info]]: erfolgreich angelegt 
-Package	SCR02 Vorbereitungen	info	  Oracle Location: ISTAT.BI_DM_EXPORT.V_PARTITION_INFO
-Package	SCR02 Vorbereitungen	info	Externe Partitionssicht [ext.[v_partition_info]]: geloescht (falls vorhanden) wird neu angelegt
-Package	SCR02 Vorbereitungen	info	Schritt 7a: Externe Partitionssicht [ext.v_partition_info] pruefen
-Package	SCR02 Vorbereitungen	info	Externe DDL-Tabelle [ext.vm_ddl_sql_server]: erfolgreich angelegt 
-Package	SCR02 Vorbereitungen	info	Externe DDL-Tabelle [ext.vm_ddl_sql_server]: nicht vorhanden wird angelegt
-Package	SCR02 Vorbereitungen	info	Schritt 7: Externe DDL-Tabelle [ext.vm_ddl_sql_server] pruefen
-Package	SCR02 Vorbereitungen	info	Schema [ext]: erfolgreich angelegt 
-Package	SCR02 Vorbereitungen	info	Schema [ext]: nicht vorhanden wird angelegt
-Package	SCR02 Vorbereitungen	info	External Data Source [Oracle-istat]: erfolgreich angelegt 
-Package	SCR02 Vorbereitungen	info	Schritt 6: Schema [ext] pruefen
-Package	SCR02 Vorbereitungen	info	External Data Source [Oracle-istat]: nicht vorhanden wird angelegt
-Package	SCR02 Vorbereitungen	info	Schritt 5: External Data Source pruefen
-Package	SCR02 Vorbereitungen	info	Credential [Q0003713_BI_DM_EXPORT]: erfolgreich angelegt 
-Package	SCR02 Vorbereitungen	info	Credential [Q0003713_BI_DM_EXPORT]: nicht vorhanden wird angelegt
-Package	SCR02 Vorbereitungen	info	Master Key: erfolgreich angelegt 
-Package	SCR02 Vorbereitungen	info	Schritt 4: PolyBase Credential pruefen
-Package	SCR02 Vorbereitungen	info	Master Key: nicht vorhanden wird angelegt
-Package	SCR02 Vorbereitungen	info	Schritt 3: PolyBase Master Key pruefen
-Package	SCR02 Vorbereitungen	info	ETL_Fkt_FehlerHistorie: geprueft/angelegt 
-Package	SCR02 Vorbereitungen	info	Schritt 2: ETL_Fkt_FehlerHistorie sicherstellen
-Package	SCR02 Vorbereitungen	info	ETL_Fkt_Arbeitsliste: geprueft/angelegt 
-Package	SCR02 Vorbereitungen	info	Schritt 1: ETL_Fkt_Arbeitsliste sicherstellen
-Package	SCR02 Vorbereitungen	info	Pflichtfelder-Pruefung: alle Variablen vorhanden 
-Package	SCR02 Vorbereitungen	info	Steuerlisten-Tabelle: dbo.tm_steuerlistenfile_Fakten
-Package	SCR02 Vorbereitungen	info	SCR_02_Vorbereitungen - Start
-Package	SCR01 Parameter einlesen	info	VORABPRUEFUNG BESTANDEN Paket wird fortgesetzt.
-Package	SCR01 Parameter einlesen	info	VALIDATION_FAILED = 0
-Package	SCR01 Parameter einlesen	info	[OK]       PARAM_PROTOKOLL_TABELLE                  = tm_msi_dm_bvd_prot
-Package	SCR01 Parameter einlesen	info	[OK]       PARAM_PROTOKOLL_SP                       = usp_SSIS_Protokoll
-Package	SCR01 Parameter einlesen	info	[OK]       PARAM_PROTOKOLL_DB                       = msi_dm_bvd
-Package	SCR01 Parameter einlesen	info	Protokollierung
-Package	SCR01 Parameter einlesen	info	[OK]       PARAM_MAXPARALLEL                        = 8
-Package	SCR01 Parameter einlesen	info	Verarbeitung
-Package	SCR01 Parameter einlesen	info	[OK]       PARAM_EXT_TABLE_NAME                     = vm_ddl_sql_server
-Package	SCR01 Parameter einlesen	info	[OK]       PARAM_EXT_TABLE_SCHEMA                   = ext
-Package	SCR01 Parameter einlesen	info	[OK]       PARAM_EXT_SOURCE_LOCATION                = oracle://l9800022db.dst.baintern.de:57575
-Package	SCR01 Parameter einlesen	info	[OK]       PARAM_EXT_TABLE_LOCATION                 = istat.STATRT.VM_DDL_SQL_SERVER
-Package	SCR01 Parameter einlesen	info	[OK]       PARAM_EXT_SOURCE_NAME                    = Oracle-istat
-Package	SCR01 Parameter einlesen	info	PolyBase / External Source
-Package	SCR01 Parameter einlesen	info	[OK]       PARAM_PARAMETERTABELLE                   = tm_msi_dm_bvd_param
-Package	SCR01 Parameter einlesen	info	[OK]       PARAM_PARAMETER_DB                       = msi_dm_bvd
-Package	SCR01 Parameter einlesen	info	Parametertabelle
-Package	SCR01 Parameter einlesen	info	[OK]       PARAM_STEUERLISTEN_TABELLE               = tm_steuerlistenfile_Fakten
-Package	SCR01 Parameter einlesen	info	[OK]       PARAM_STL_ORDNER                         = F:\STL
-Package	SCR01 Parameter einlesen	info	Steuerlisten
-Package	SCR01 Parameter einlesen	info	[OK]       ATOMIC_ORACLE_PASSWORD                   = [Wert verborgen]
-Package	SCR01 Parameter einlesen	info	[OK]       ATOMIC_ORACLE_USERNAME                   = BI_DM_EXPORT
-Package	SCR01 Parameter einlesen	info	Oracle Credentials
-Package	SCR01 Parameter einlesen	info	[OK]       PARAM_VERFAHREN                          = UEB
-Package	SCR01 Parameter einlesen	info	[OK]       PARAM_DATAMART                           = msi_dm_bvd
-Package	SCR01 Parameter einlesen	info	[OK]       PARAM_DATENBANK                          = msi_dm_bvd
-Package	SCR01 Parameter einlesen	info	[OK]       PARAM_CONNECTION_SERVER                  = Q0003713\Abnahme21
-Package	SCR01 Parameter einlesen	info	[OK]       PARAM_SERVER                             = Q0003713
-Package	SCR01 Parameter einlesen	info	Verbindung / Server
-Package	SCR01 Parameter einlesen	info	SCR01_Parameter_Einlesen - Start
-Package	Paketstart	info	Paketstart erfolgreich abgeschlossen.
-Package	Paketstart	info	Schritt 4: Neuen Lauf anlegen
-Package	Paketstart	info	Verfahren auf AUSSTEHEND zurueckgesetzt: -1
-Package	Paketstart	info	Schritt 3: ETL_Fkt_ArbeitslisteFEHLER AUSSTEHEND
-Package	Paketstart	info	Verwaiste Laeufe auf ABGEBROCHEN gesetzt: 0
-Package	Paketstart	info	ETL_Fakt_LaufHistorie: geprueft/angelegt.
-Package	Paketstart	info	Schritt 2: Verwaiste Laeufe (LAUFEND) auf ABGEBROCHEN setzen
-Package	Paketstart	info	Schritt 1: ETL_Fakt_LaufHistorie sicherstellen
-Package	Paketstart	info	Fakten Laden - Paketstart
+Hi Nils,
+
+nein, in der Steuerliste steht der Name des Objektes auf Oracle,
+in der Parametertabelle der Name der Zieltabelle.
+
+
+Das Problem habe ich auch in BST und FST wird auch betroffen sein. Ansonsten müssten die Namen identisch sein.
+
+
+Grüße
+
+Sebastian
+
+Von: Rümmeli Nils - extern <nils.ruemmeli@arbeitsagentur.de> 
+Gesendet: Dienstag, 16. Juni 2026 16:43
+An: Hoti Feriz <Feriz.Hoti@arbeitsagentur.de>; Schroeder Sebastian <Sebastian.Schroeder3@arbeitsagentur.de>
+Cc: Kästner Thomas <Thomas.Kaestner2@arbeitsagentur.de>
+Betreff: AW: FAKTEN SSI Paket bereit zum Testen – Bitte nur kleiner Testlauf durchführen
+
+Hallo Feriz,
+
+kurze Verständnisfrage: Die Steuerliste und die Parametertabelle werden ja beide vom Entwickler gepflegt.
+
+Können wir einfach den gleichen Namen wie in der Oracle-Quelle in beiden (Steuerliste und Parametertabelle) verwenden? Dann passt die Prüfung automatisch.
+
+Dann müssten wir im Code nichts ändern, richtig?
+
+Grüße
+Nils
+
+Von: Hoti Feriz <Feriz.Hoti@arbeitsagentur.de> 
+Gesendet: Dienstag, 16. Juni 2026 16:12
+An: Rümmeli Nils - extern <nils.ruemmeli@arbeitsagentur.de>; Schroeder Sebastian <Sebastian.Schroeder3@arbeitsagentur.de>
+Cc: Kästner Thomas <Thomas.Kaestner2@arbeitsagentur.de>
+Betreff: AW: FAKTEN SSI Paket bereit zum Testen – Bitte nur kleiner Testlauf durchführen
+
+Hallo Nils,
+
+es ist wieder auf Fehler gelaufen:
+            FEHLER – Verfahren nicht in Parametertabelle gefunden:
+            Verfahren        : vf_ast_stea
+            Parametertabelle : msi_dm_ast.dbo.tm_msi_dm_ast_param
+→ Bitte tragen Sie das Verfahren 'vf_ast_stea' mit allen Pflichtparametern in die Parametertabelle [msi_dm_ast].[dbo].[tm_msi_dm_ast_param] ein.
+
+Info für dich:
+Die Fakten für tf_stea in msi_dm_ast werden auf Oracle aus dem View vf_stea geholt, werden aber auf SQL Server in der partitionierten Tabelle tf_stea gespeichert.
+D.h. in der Parameter-Tabelle ist kein vf_stea sondern nur tf_stea zu finden, weil die geladenen Daten in die tf_stea partitionierte Tabelle gespeichert werden.
+Also, so was muss man bei Steuerlisten deren Namen nicht nicht mit tf… sondern mit vf… anfangen.
+
+
+Viele Grüße
+Feriz
