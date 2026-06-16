@@ -139,10 +139,34 @@ Partial Public Class ScriptMain
 
                         If mssqlWerte.Count = 0 Then
                             ' ─── FULL LOAD: MSSQL ist leer ───
-                            Log("  FULL LOAD (MSSQL leer) | Oracle: MIN=" & oracleAlleWerte.Min().ToString() &
-                                " MAX=" & oracleAlleWerte.Max().ToString() &
-                                " | " & oracleAlleWerte.Count.ToString() & " Werte")
-                            For Each ow As Integer In oracleAlleWerte
+                            ' Kein MSSQL-Minimum zum Vergleich vorhanden -> die
+                            ' niedrigsten Oracle-Werte koennen leere Grenzpartitionen
+                            ' sein (1. Partition ohne Daten). Diese von unten abschneiden:
+                            ' den jeweils niedrigsten Wert per Einzel-Partition-Pruefung
+                            ' testen (WHERE partcol = wert liest dank Pushdown nur EINE
+                            ' Partition, kein Full Scan) und bei 0 Zeilen entfernen.
+                            Dim vollWerte As List(Of Integer) = oracleAlleWerte.OrderBy(Function(w) w).ToList()
+                            Dim idx As Integer = 0
+                            While idx < vollWerte.Count
+                                If PartitionHatDaten(connStr, v, vollWerte(idx)) Then Exit While
+                                Log("  Leere untere Grenzpartition entfernt: " & vollWerte(idx).ToString())
+                                idx += 1
+                            End While
+                            Dim ladeWerte As List(Of Integer) = vollWerte.Skip(idx).ToList()
+
+                            If ladeWerte.Count = 0 Then
+                                Log("  Keine Daten in Oracle (alle Grenzpartitionen leer) - kein Ladevorgang noetig.")
+                                ProtokollSchreiben(connStr, v.Verfahren, "SCHRITT_4",
+                                    "Keine Daten in Oracle - alle Grenzpartitionen leer.")
+                                StatusSetzen(connStr, v.ID, "PARTITIONSGRENZEN_ERSTELLT")
+                                cntOK += 1
+                                Continue For
+                            End If
+
+                            Log("  FULL LOAD (MSSQL leer) | Oracle: MIN=" & ladeWerte.Min().ToString() &
+                                " MAX=" & ladeWerte.Max().ToString() &
+                                " | " & ladeWerte.Count.ToString() & " Werte")
+                            For Each ow As Integer In ladeWerte
                                 zuVerarbeiten.Add(New PartitionsEintrag With {.Wert = ow, .Modus = "NEU"})
                             Next
 
@@ -813,6 +837,19 @@ Partial Public Class ScriptMain
             End Try
         End While
         Return Nothing
+    End Function
+
+    ' -----------------------------------------------------------------------
+    ' PartitionHatDaten - Prueft per Einzel-Partition-Pushdown, ob die
+    ' Oracle-Tabelle fuer den Partitionswert mindestens eine Zeile liefert.
+    ' WHERE <partcol> = <wert> liest dank Pushdown nur EINE Partition
+    ' (kein Full Scan). True = Daten vorhanden, False = leere Partition.
+    ' -----------------------------------------------------------------------
+    Private Function PartitionHatDaten(connStr As String, v As VerfahrenInfo, wert As Integer) As Boolean
+        Dim sql As String = "SELECT TOP 1 1 FROM ext.[" & v.Faktentabelle.ToLower() &
+                            "] WHERE [" & v.PartitionsSpalte & "] = " & wert.ToString()
+        Dim obj As Object = SqlSkalar(connStr, sql, "Pruefe Daten " & v.Faktentabelle.ToLower() & "=" & wert.ToString())
+        Return obj IsNot Nothing AndAlso obj IsNot DBNull.Value
     End Function
 
     ' -----------------------------------------------------------------------
