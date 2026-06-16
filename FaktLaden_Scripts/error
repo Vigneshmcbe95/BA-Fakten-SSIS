@@ -1,981 +1,374 @@
-[16.06.2026 16:26:55,88] =============================================== 
-[16.06.2026 16:26:55,88] SSIS Faktenladen - Zentrales Ladeskript        
-[16.06.2026 16:26:55,88] Verfahren   : BST               
-[16.06.2026 16:26:55,88] Datenbank   : msi_dm_bsbm           
-[16.06.2026 16:26:55,88] Logdatei    : Laden_FAKTEN_msi_dm_bsbm_20260616_162655.log                   
-[16.06.2026 16:26:55,88] =============================================== 
-[16.06.2026 16:26:55,90] Archiv-Ordner (Windows-Pfad): F:\STL\Archiv 
-[16.06.2026 16:26:55,90] [OK]       Archiv-Ordner existiert bereits. 
-[16.06.2026 16:26:55,90] =============================================== 
-[16.06.2026 16:26:55,90] VORABPRUEFUNG DER PARAMETER GESTARTET         
-[16.06.2026 16:26:55,91] =============================================== 
-[16.06.2026 16:26:55,91] [OK]       ATOMIC_ORACLE_USERNAME ist gesetzt 
-[16.06.2026 16:26:55,91] [OK]       ATOMIC_ORACLE_PASSWORD ist gesetzt via POLYBASEAUTH [Wert verborgen] 
-[16.06.2026 16:26:55,91] [OK]       ATOMIC_INSTANCE          = Abnahme21 
-[16.06.2026 16:26:55,91] [OK]       PARAM_SERVER             = Q0003713 (Computername) 
-[16.06.2026 16:26:55,91] [OK]       PARAM_CONNECTION_SERVER  = Q0003713\Abnahme21 
-[16.06.2026 16:26:55,93] [OK]       PARAM_STL_ORDNER         = F:\STL 
-[16.06.2026 16:26:55,93] [OK]       PARAM_ORDNER_ARCHIV      = F:\STL\Archiv 
-[16.06.2026 16:26:55,93] [OK]       PARAM_STL_DATEINAME      = f.istat.xro_dm_stat_bsbm.stva_m03_perm.csv 
-[16.06.2026 16:26:55,93] [OK]       ATOMIC_ENVIRONMENT       = istat 
-[16.06.2026 16:26:55,93] [OK]       PARAM_EXT_TABLE_LOCATION = istat.STATRT.VM_DDL_SQL_SERVER 
-[16.06.2026 16:26:55,93] [OK]       PARAM_EXT_SOURCE_NAME    = Oracle-istat (aus Umgebung abgeleitet) 
-[16.06.2026 16:26:55,94] [OK]       ATOMIC_ORACLE_HOSTPORT   = l9800022db.dst.baintern.de:57575 
-[16.06.2026 16:26:55,94] [OK]       PARAM_EXT_SOURCE_LOCATION= oracle://l9800022db.dst.baintern.de:57575 
-[16.06.2026 16:26:55,94] [OK]       ATOMIC_ORACLE_HOSTPORT_SECONDARY = l9801022db.dst.baintern.de:57575 
-[16.06.2026 16:26:55,94] [INFO]     PARAM_EXT_CONNECTION_OPTIONS (nur Logging, nicht ans Paket) = AlternateServers=(HostName=l9801022db.dst.baintern.de:PortNumber=57575:ServiceName=istat)%3BFailoverMode=0%3BLoadBalancing=0 
-[16.06.2026 16:26:55,94] [OK]       ATOMIC_VERFAHREN         = BST 
-[16.06.2026 16:26:55,94] [OK]       PARAM_VERFAHREN          = BST 
-[16.06.2026 16:26:55,94] [OK]       ATOMIC_DATENBANKNAME     = msi_dm_bsbm 
-[16.06.2026 16:26:55,96] [OK]       PARAM_DATENBANK          = msi_dm_bsbm 
-[16.06.2026 16:26:55,96] [OK]       PARAM_DATAMART           = msi_dm_bsbm 
-[16.06.2026 16:26:55,96] [OK]       PARAM_PROTOKOLL_DB       = msi_dm_bsbm 
-[16.06.2026 16:26:55,96] [OK]       PARAM_PARAMETER_DB       = msi_dm_bsbm 
-[16.06.2026 16:26:55,96] [OK]       PARAM_PARAMETERTABELLE   = tm_msi_dm_bsbm_param (abgeleitet aus Datenbankname) 
-[16.06.2026 16:26:55,96] [OK]       DTEXEC_PATH              = C:\Program Files\Microsoft SQL Server\160\DTS\Binn\DTExec.exe 
-[16.06.2026 16:26:55,97] [OK]       SSIS_PACKAGE             = E:\BDATA\Batches\Ladepakete\Fakten\Laden_FAKTEN.dtsx 
-[16.06.2026 16:26:55,97] [OK]       PARAM_PROTOKOLL_SP       = usp_SSIS_Protokoll 
-[16.06.2026 16:26:55,97] [OK]       PARAM_PROTOKOLL_TABELLE  = tm_msi_dm_bsbm_prot 
-[16.06.2026 16:26:55,97] [OK]       PARAM_MAXPARALLEL        = 8 
-[16.06.2026 16:26:55,97] [OK]       PARAM_EXT_SOURCE_NAME    = Oracle-istat 
-[16.06.2026 16:26:55,97] [OK]       PARAM_EXT_TABLE_SCHEMA   = ext 
-[16.06.2026 16:26:55,97] [OK]       PARAM_EXT_TABLE_NAME     = vm_ddl_sql_server 
-[16.06.2026 16:26:55,99] [OK]       PARAM_PARTITION_SCHEMA   = BI_DM_EXPORT 
-[16.06.2026 16:26:55,99] [OK]       PARAM_STEUERLISTEN_TABELLE= tm_steuerlistenfile_Fakten 
-[16.06.2026 16:26:55,99] =============================================== 
-[16.06.2026 16:26:55,99] VALIDATION_FAILED = 0        
-[16.06.2026 16:26:55,99] =============================================== 
-[16.06.2026 16:26:55,99] VORABPRUEFUNG BESTANDEN - Ausfuehrung startet. 
-[16.06.2026 16:26:56,00] =============================================== 
-[16.06.2026 16:26:56,00] SSIS-Ausfuehrung gestartet       
-[16.06.2026 16:26:56,00] Verfahren       : BST    
-[16.06.2026 16:26:56,00] Datenbankname   : msi_dm_bsbm 
-[16.06.2026 16:26:56,00] STL Ordner      : F:\STL    
-[16.06.2026 16:26:56,00] STL Dateiname   : f.istat.xro_dm_stat_bsbm.stva_m03_perm.csv 
-[16.06.2026 16:26:56,02] Archiv Ordner   : F:\STL\Archiv 
-[16.06.2026 16:26:56,02] Umgebung        : istat  
-[16.06.2026 16:26:56,02] Oracle Host:Port (primaer)   : l9800022db.dst.baintern.de:57575 
-[16.06.2026 16:26:56,02] Oracle Host:Port (sekundaer) : l9801022db.dst.baintern.de:57575 
-[16.06.2026 16:26:56,02] EXT Source Name : Oracle-istat 
-[16.06.2026 16:26:56,02] EXT Source Loc  : oracle://l9800022db.dst.baintern.de:57575 
-[16.06.2026 16:26:56,02] EXT Table Loc   : istat.STATRT.VM_DDL_SQL_SERVER 
-[16.06.2026 16:26:56,04] Parameter DB    : msi_dm_bsbm 
-[16.06.2026 16:26:56,04] Parametertabelle: tm_msi_dm_bsbm_param 
------------------------------------------------ 
-Microsoft (R) SQL Server Execute Package Utility
-Version 16.0.4225.2 for 64-bit
-Copyright (C) 2022 Microsoft. All rights reserved.
-
-Started:  16:26:56
-Info: 2026-06-16 16:26:56.66
-   Code: 0x00000000
-   Source: Paketstart SCR_PaketStart
-   Description: Fakten Laden - Paketstart
-End Info
-Info: 2026-06-16 16:26:56.66
-   Code: 0x00000000
-   Source: Paketstart SCR_PaketStart
-   Description: Schritt 1: ETL_Fakt_LaufHistorie sicherstellen
-End Info
-Info: 2026-06-16 16:26:56.68
-   Code: 0x00000000
-   Source: Paketstart SCR_PaketStart
-   Description: ETL_Fakt_LaufHistorie: geprueft/angelegt.
-End Info
-Info: 2026-06-16 16:26:56.68
-   Code: 0x00000000
-   Source: Paketstart SCR_PaketStart
-   Description: Schritt 2: Verwaiste Laeufe (LAUFEND) auf ABGEBROCHEN setzen
-End Info
-Info: 2026-06-16 16:26:56.68
-   Code: 0x00000000
-   Source: Paketstart SCR_PaketStart
-   Description: Verwaiste Laeufe auf ABGEBROCHEN gesetzt: 0
-End Info
-Info: 2026-06-16 16:26:56.68
-   Code: 0x00000000
-   Source: Paketstart SCR_PaketStart
-   Description: Schritt 3: ETL_Fkt_ArbeitslisteFEHLER AUSSTEHEND
-End Info
-Info: 2026-06-16 16:26:56.69
-   Code: 0x00000000
-   Source: Paketstart SCR_PaketStart
-   Description: Verfahren auf AUSSTEHEND zurueckgesetzt: 0
-End Info
-Info: 2026-06-16 16:26:56.69
-   Code: 0x00000000
-   Source: Paketstart SCR_PaketStart
-   Description: Schritt 4: Neuen Lauf anlegen
-End Info
-Info: 2026-06-16 16:26:56.69
-   Code: 0x00000000
-   Source: Paketstart SCR_PaketStart
-   Description: Paketstart erfolgreich abgeschlossen.
-End Info
-Info: 2026-06-16 16:26:56.71
-   Code: 0x00000000
-   Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
-   Description: SCR01_Parameter_Einlesen - Start
-End Info
-Info: 2026-06-16 16:26:56.71
-   Code: 0x00000000
-   Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
-   Description: Verbindung / Server
-End Info
-Info: 2026-06-16 16:26:56.71
-   Code: 0x00000000
-   Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
-   Description: [OK]       PARAM_SERVER                             = Q0003713
-End Info
-Info: 2026-06-16 16:26:56.71
-   Code: 0x00000000
-   Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
-   Description: [OK]       PARAM_CONNECTION_SERVER                  = Q0003713\Abnahme21
-End Info
-Info: 2026-06-16 16:26:56.72
-   Code: 0x00000000
-   Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
-   Description: [OK]       PARAM_DATENBANK                          = msi_dm_bsbm
-End Info
-Info: 2026-06-16 16:26:56.72
-   Code: 0x00000000
-   Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
-   Description: [OK]       PARAM_VERFAHREN                          = BST
-End Info
-Info: 2026-06-16 16:26:56.72
-   Code: 0x00000000
-   Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
-   Description: [OK]       PARAM_DATAMART                           = msi_dm_bsbm
-End Info
-Info: 2026-06-16 16:26:56.72
-   Code: 0x00000000
-   Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
-   Description: Oracle Credentials
-End Info
-Info: 2026-06-16 16:26:56.72
-   Code: 0x00000000
-   Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
-   Description: [OK]       ATOMIC_ORACLE_USERNAME                   = BI_DM_EXPORT
-End Info
-Info: 2026-06-16 16:26:56.74
-   Code: 0x00000000
-   Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
-   Description: [OK]       ATOMIC_ORACLE_PASSWORD                   = [Wert verborgen]
-End Info
-Info: 2026-06-16 16:26:56.74
-   Code: 0x00000000
-   Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
-   Description: Steuerlisten
-End Info
-Info: 2026-06-16 16:26:56.74
-   Code: 0x00000000
-   Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
-   Description: [OK]       PARAM_STL_ORDNER                         = F:\STL
-End Info
-Info: 2026-06-16 16:26:56.74
-   Code: 0x00000000
-   Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
-   Description: [OK]       PARAM_STEUERLISTEN_TABELLE               = tm_steuerlistenfile_Fakten
-End Info
-Info: 2026-06-16 16:26:56.74
-   Code: 0x00000000
-   Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
-   Description: Parametertabelle
-End Info
-Info: 2026-06-16 16:26:56.75
-   Code: 0x00000000
-   Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
-   Description: [OK]       PARAM_PARAMETER_DB                       = msi_dm_bsbm
-End Info
-Info: 2026-06-16 16:26:56.75
-   Code: 0x00000000
-   Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
-   Description: [OK]       PARAM_PARAMETERTABELLE                   = tm_msi_dm_bsbm_param
-End Info
-Info: 2026-06-16 16:26:56.75
-   Code: 0x00000000
-   Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
-   Description: PolyBase / External Source
-End Info
-Info: 2026-06-16 16:26:56.75
-   Code: 0x00000000
-   Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
-   Description: [OK]       PARAM_EXT_SOURCE_NAME                    = Oracle-istat
-End Info
-Info: 2026-06-16 16:26:56.75
-   Code: 0x00000000
-   Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
-   Description: [OK]       PARAM_EXT_SOURCE_LOCATION                = oracle://l9800022db.dst.baintern.de:57575
-End Info
-Info: 2026-06-16 16:26:56.77
-   Code: 0x00000000
-   Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
-   Description: [OK]       PARAM_EXT_TABLE_LOCATION                 = istat.STATRT.VM_DDL_SQL_SERVER
-End Info
-Info: 2026-06-16 16:26:56.77
-   Code: 0x00000000
-   Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
-   Description: [OK]       PARAM_EXT_TABLE_SCHEMA                   = ext
-End Info
-Info: 2026-06-16 16:26:56.77
-   Code: 0x00000000
-   Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
-   Description: [OK]       PARAM_EXT_TABLE_NAME                     = vm_ddl_sql_server
-End Info
-Info: 2026-06-16 16:26:56.77
-   Code: 0x00000000
-   Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
-   Description: Verarbeitung
-End Info
-Info: 2026-06-16 16:26:56.77
-   Code: 0x00000000
-   Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
-   Description: [OK]       PARAM_MAXPARALLEL                        = 8
-End Info
-Info: 2026-06-16 16:26:56.79
-   Code: 0x00000000
-   Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
-   Description: Protokollierung
-End Info
-Info: 2026-06-16 16:26:56.79
-   Code: 0x00000000
-   Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
-   Description: [OK]       PARAM_PROTOKOLL_DB                       = msi_dm_bsbm
-End Info
-Info: 2026-06-16 16:26:56.79
-   Code: 0x00000000
-   Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
-   Description: [OK]       PARAM_PROTOKOLL_SP                       = usp_SSIS_Protokoll
-End Info
-Info: 2026-06-16 16:26:56.79
-   Code: 0x00000000
-   Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
-   Description: [OK]       PARAM_PROTOKOLL_TABELLE                  = tm_msi_dm_bsbm_prot
-End Info
-Info: 2026-06-16 16:26:56.79
-   Code: 0x00000000
-   Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
-   Description: VALIDATION_FAILED = 0
-End Info
-Info: 2026-06-16 16:26:56.80
-   Code: 0x00000000
-   Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
-   Description: VORABPRUEFUNG BESTANDEN Paket wird fortgesetzt.
-End Info
-Info: 2026-06-16 16:26:56.80
-   Code: 0x00000000
-   Source: SCR02 Vorbereitungen SCR_02_Vorbereitungen
-   Description: SCR_02_Vorbereitungen - Start
-End Info
-Info: 2026-06-16 16:26:56.80
-   Code: 0x00000000
-   Source: SCR02 Vorbereitungen SCR_02_Vorbereitungen
-   Description: Steuerlisten-Tabelle: dbo.tm_steuerlistenfile_Fakten
-End Info
-Info: 2026-06-16 16:26:56.80
-   Code: 0x00000000
-   Source: SCR02 Vorbereitungen SCR_02_Vorbereitungen
-   Description: Pflichtfelder-Pruefung: alle Variablen vorhanden 
-End Info
-Info: 2026-06-16 16:26:56.82
-   Code: 0x00000000
-   Source: SCR02 Vorbereitungen SCR_02_Vorbereitungen
-   Description: Schritt 1: ETL_Fkt_Arbeitsliste sicherstellen
-End Info
-Info: 2026-06-16 16:26:56.82
-   Code: 0x00000000
-   Source: SCR02 Vorbereitungen SCR_02_Vorbereitungen
-   Description: ETL_Fkt_Arbeitsliste: geprueft/angelegt 
-End Info
-Info: 2026-06-16 16:26:56.82
-   Code: 0x00000000
-   Source: SCR02 Vorbereitungen SCR_02_Vorbereitungen
-   Description: Schritt 2: ETL_Fkt_FehlerHistorie sicherstellen
-End Info
-Info: 2026-06-16 16:26:56.82
-   Code: 0x00000000
-   Source: SCR02 Vorbereitungen SCR_02_Vorbereitungen
-   Description: ETL_Fkt_FehlerHistorie: geprueft/angelegt 
-End Info
-Info: 2026-06-16 16:26:56.83
-   Code: 0x00000000
-   Source: SCR02 Vorbereitungen SCR_02_Vorbereitungen
-   Description: Schritt 3: PolyBase Master Key pruefen
-End Info
-Info: 2026-06-16 16:26:56.83
-   Code: 0x00000000
-   Source: SCR02 Vorbereitungen SCR_02_Vorbereitungen
-   Description: Master Key: bereits vorhanden uebersprungen 
-End Info
-Info: 2026-06-16 16:26:56.83
-   Code: 0x00000000
-   Source: SCR02 Vorbereitungen SCR_02_Vorbereitungen
-   Description: Schritt 4: PolyBase Credential pruefen
-End Info
-Info: 2026-06-16 16:26:56.83
-   Code: 0x00000000
-   Source: SCR02 Vorbereitungen SCR_02_Vorbereitungen
-   Description: Credential [Q0003713_BI_DM_EXPORT]: bereits vorhanden uebersprungen 
-End Info
-Info: 2026-06-16 16:26:56.83
-   Code: 0x00000000
-   Source: SCR02 Vorbereitungen SCR_02_Vorbereitungen
-   Description: Schritt 5: External Data Source pruefen
-End Info
-Info: 2026-06-16 16:26:56.85
-   Code: 0x00000000
-   Source: SCR02 Vorbereitungen SCR_02_Vorbereitungen
-   Description: External Data Source [Oracle-istat]: bereits vorhanden uebersprungen 
-End Info
-Info: 2026-06-16 16:26:56.85
-   Code: 0x00000000
-   Source: SCR02 Vorbereitungen SCR_02_Vorbereitungen
-   Description: Schritt 6: Schema [ext] pruefen
-End Info
-Info: 2026-06-16 16:26:56.85
-   Code: 0x00000000
-   Source: SCR02 Vorbereitungen SCR_02_Vorbereitungen
-   Description: Schema [ext]: bereits vorhanden uebersprungen 
-End Info
-Info: 2026-06-16 16:26:56.85
-   Code: 0x00000000
-   Source: SCR02 Vorbereitungen SCR_02_Vorbereitungen
-   Description: Schritt 7: Externe DDL-Tabelle [ext.vm_ddl_sql_server] pruefen
-End Info
-Info: 2026-06-16 16:26:56.86
-   Code: 0x00000000
-   Source: SCR02 Vorbereitungen SCR_02_Vorbereitungen
-   Description: Externe DDL-Tabelle [ext.vm_ddl_sql_server]: bereits vorhanden uebersprungen 
-End Info
-Info: 2026-06-16 16:26:56.86
-   Code: 0x00000000
-   Source: SCR02 Vorbereitungen SCR_02_Vorbereitungen
-   Description: Schritt 7a: Externe Partitionssicht [ext.v_partition_info] pruefen
-End Info
-Info: 2026-06-16 16:26:56.86
-   Code: 0x00000000
-   Source: SCR02 Vorbereitungen SCR_02_Vorbereitungen
-   Description: Externe Partitionssicht [ext.[v_partition_info]]: geloescht (falls vorhanden) wird neu angelegt
-End Info
-Info: 2026-06-16 16:26:56.86
-   Code: 0x00000000
-   Source: SCR02 Vorbereitungen SCR_02_Vorbereitungen
-   Description:   Oracle Location: ISTAT.BI_DM_EXPORT.V_PARTITION_INFO
-End Info
-Info: 2026-06-16 16:26:57.99
-   Code: 0x00000000
-   Source: SCR02 Vorbereitungen SCR_02_Vorbereitungen
-   Description: Externe Partitionssicht [ext.[v_partition_info]]: erfolgreich angelegt 
-End Info
-Info: 2026-06-16 16:26:57.99
-   Code: 0x00000000
-   Source: SCR02 Vorbereitungen SCR_02_Vorbereitungen
-   Description: Schritt 8: Lokale dbo-Kopie [dbo.vm_ddl_sql_server] erstellen
-End Info
-Info: 2026-06-16 16:26:57.99
-   Code: 0x00000000
-   Source: SCR02 Vorbereitungen SCR_02_Vorbereitungen
-   Description:   Alte dbo-Kopie geloescht (falls vorhanden)
-End Info
-Info: 2026-06-16 16:27:17.17
-   Code: 0x00000000
-   Source: SCR02 Vorbereitungen SCR_02_Vorbereitungen
-   Description:   dbo-Kopie erstellt: dbo.vm_ddl_sql_server | Zeilen: 1017204
-End Info
-Info: 2026-06-16 16:27:18.01
-   Code: 0x00000000
-   Source: SCR02 Vorbereitungen SCR_02_Vorbereitungen
-   Description:   Index erstellt: IX_vm_ddl_sql_server_TABNAME_COLNAME (TABNAME, COLNAME)
-End Info
-Info: 2026-06-16 16:27:18.03
-   Code: 0x00000000
-   Source: SCR02 Vorbereitungen SCR_02_Vorbereitungen
-   Description: SCR_01_Vorbereitungen erfolgreich abgeschlossen.
-End Info
-Info: 2026-06-16 16:27:18.03
-   Code: 0x00000000
-   Source: SCR03 Stuerliste Laden SCR_03_Steuerlisten_Laden
-   Description: SCR_03_Steuerlisten_Laden - Start
-End Info
-Info: 2026-06-16 16:27:18.03
-   Code: 0x00000000
-   Source: SCR03 Stuerliste Laden SCR_03_Steuerlisten_Laden
-   Description: Pflichtfelder-Pruefung: alle Variablen vorhanden OK
-End Info
-Info: 2026-06-16 16:27:18.04
-   Code: 0x00000000
-   Source: SCR03 Stuerliste Laden SCR_03_Steuerlisten_Laden
-   Description: Arbeitstabelle : dbo.tm_steuerlistenfile_Fakten
-End Info
-Info: 2026-06-16 16:27:18.04
-   Code: 0x00000000
-   Source: SCR03 Stuerliste Laden SCR_03_Steuerlisten_Laden
-   Description: Audit-Tabelle  : dbo.tm_steuerlistenfile_Fakten_audit
-End Info
-Info: 2026-06-16 16:27:18.04
-   Code: 0x00000000
-   Source: SCR03 Stuerliste Laden SCR_03_Steuerlisten_Laden
-   Description: Arbeitstabelle und Audit-Tabelle geprueft/angelegt OK
-End Info
-Info: 2026-06-16 16:27:18.04
-   Code: 0x00000000
-   Source: SCR03 Stuerliste Laden SCR_03_Steuerlisten_Laden
-   Description: Vollstaendiger Pfad : F:\STL\f.istat.xro_dm_stat_bsbm.stva_m03_perm.csv
-End Info
-Info: 2026-06-16 16:27:18.04
-   Code: 0x00000000
-   Source: SCR03 Stuerliste Laden SCR_03_Steuerlisten_Laden
-   Description: Verarbeite Datei: f.istat.xro_dm_stat_bsbm.stva_m03_perm.csv
-End Info
-Info: 2026-06-16 16:27:18.06
-   Code: 0x00000000
-   Source: SCR03 Stuerliste Laden SCR_03_Steuerlisten_Laden
-   Description:   Tabellentyp  : f
-End Info
-Info: 2026-06-16 16:27:18.06
-   Code: 0x00000000
-   Source: SCR03 Stuerliste Laden SCR_03_Steuerlisten_Laden
-   Description:   Umgebung     : istat
-End Info
-Info: 2026-06-16 16:27:18.06
-   Code: 0x00000000
-   Source: SCR03 Stuerliste Laden SCR_03_Steuerlisten_Laden
-   Description:   Themengebiet : xro_dm_stat_bsbm
-End Info
-Info: 2026-06-16 16:27:18.06
-   Code: 0x00000000
-   Source: SCR03 Stuerliste Laden SCR_03_Steuerlisten_Laden
-   Description:   Arbeitstabelle: vollstaendig geleert
-End Info
-Info: 2026-06-16 16:27:18.07
-   Code: 0x00000000
-   Source: SCR03 Stuerliste Laden SCR_03_Steuerlisten_Laden
-   Description:   Zeilen gesamt: 3 | INSERT: 3 | Uebersprungen: 0
-End Info
-Info: 2026-06-16 16:27:18.09
-   Code: 0x00000000
-   Source: SCR03 Stuerliste Laden SCR_03_Steuerlisten_Laden
-   Description: Datei erfolgreich verarbeitet: f.istat.xro_dm_stat_bsbm.stva_m03_perm.csv OK
-End Info
-Info: 2026-06-16 16:27:18.09
-   Code: 0x00000000
-   Source: SCR03 Stuerliste Laden SCR_03_Steuerlisten_Laden
-   Description: Geladene Tabellen aus [f.istat.xro_dm_stat_bsbm.stva_m03_perm.csv] (3): tf_bsbm_arbnehm, tf_bsbm_betrieb, tf_bsbm_betrieb_all
-End Info
-Info: 2026-06-16 16:27:18.09
-   Code: 0x00000000
-   Source: SCR03 Stuerliste Laden SCR_03_Steuerlisten_Laden
-   Description: Datei endet auf _perm.csv -> bleibt im Quellordner
-End Info
-Info: 2026-06-16 16:27:18.09
-   Code: 0x00000000
-   Source: SCR03 Stuerliste Laden SCR_03_Steuerlisten_Laden
-   Description: SCR_03_Steuerlisten_Laden erfolgreich abgeschlossen OK
-End Info
-Info: 2026-06-16 16:27:18.09
-   Code: 0x00000000
-   Source: SC04 Whereclasuse SC04_Whereclause
-   Description: SC04_Whereclause - Start
-End Info
-Info: 2026-06-16 16:27:18.10
-   Code: 0x00000000
-   Source: SC04 Whereclasuse SC04_Whereclause
-   Description: Referenzdatum: 01.03.2026 00:00:00
-End Info
-Info: 2026-06-16 16:27:18.10
-   Code: 0x00000000
-   Source: SC04 Whereclasuse SC04_Whereclause
-   Description: Steuerlisten-Tabelle : dbo.tm_steuerlistenfile_Fakten
-End Info
-Info: 2026-06-16 16:27:18.10
-   Code: 0x00000000
-   Source: SC04 Whereclasuse SC04_Whereclause
-   Description: Spalten geprueft/angelegt OK
-End Info
-Info: 2026-06-16 16:27:18.10
-   Code: 0x00000000
-   Source: SC04 Whereclasuse SC04_Whereclause
-   Description: Steuerlisten-Zeilen : 3
-End Info
-Info: 2026-06-16 16:27:18.12
-   Code: 0x00000000
-   Source: SC04 Whereclasuse SC04_Whereclause
-   Description:   tf_bsbm_arbnehm_:YEAR(-2)15                        -> wert=202415
-End Info
-Info: 2026-06-16 16:27:18.12
-   Code: 0x00000000
-   Source: SC04 Whereclasuse SC04_Whereclause
-   Description:   tf_bsbm_betrieb_:YEAR(-2)15                        -> wert=202415
-End Info
-Info: 2026-06-16 16:27:18.12
-   Code: 0x00000000
-   Source: SC04 Whereclasuse SC04_Whereclause
-   Description:   tf_bsbm_betrieb_all_:YEAR(-2)15                    -> wert=202415
-End Info
-Info: 2026-06-16 16:27:18.12
-   Code: 0x00000000
-   Source: SC04 Whereclasuse SC04_Whereclause
-   Description: partition_wert gefuellt: 3
-End Info
-Info: 2026-06-16 16:27:18.14
-   Code: 0x00000000
-   Source: SC04 Whereclasuse SC04_Whereclause
-   Description: partition_wert NULL    : 0
-End Info
-Info: 2026-06-16 16:27:18.14
-   Code: 0x00000000
-   Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
-   Description: SCR_05_Parameter_Vollstaendigkeitspruefung - Start
-End Info
-Info: 2026-06-16 16:27:18.14
-   Code: 0x00000000
-   Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
-   Description: Pflichtparameter     : FaktentabelleTemplate, Faktentabelle, Faktenpartitionsspalte, Faktenkomprimierung, FaktenClusteredIndex, DateFormat, Anzahl_ParallelTasks
-End Info
-Info: 2026-06-16 16:27:18.15
-   Code: 0x00000000
-   Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
-   Description: SSIS-Variablen-Pruefung: alle vorhanden OK
-End Info
-Info: 2026-06-16 16:27:18.15
-   Code: 0x00000000
-   Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
-   Description: Schritt 1: Steuerlisten-Tabelle pruefen
-End Info
-Info: 2026-06-16 16:27:18.15
-   Code: 0x00000000
-   Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
-   Description: Steuerlisten-Tabelle [dbo.tm_steuerlistenfile_Fakten] vorhanden OK
-End Info
-Info: 2026-06-16 16:27:18.15
-   Code: 0x00000000
-   Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
-   Description: Steuerlisten-Tabelle enthaelt 3 Zeile(n) OK
-End Info
-Info: 2026-06-16 16:27:18.15
-   Code: 0x00000000
-   Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
-   Description: Schritt 2: Verfahren aus Steuerliste laden
-End Info
-Info: 2026-06-16 16:27:18.17
-   Code: 0x00000000
-   Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
-   Description: Verfahren in Steuerliste gefunden: 3
-End Info
-Info: 2026-06-16 16:27:18.17
-   Code: 0x00000000
-   Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
-   Description: Schritt 3: Parametertabelle vollstaendig pruefen
-End Info
-Info: 2026-06-16 16:27:18.17
-   Code: 0x00000000
-   Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
-   Description: Pruefe Verfahren: tf_bsbm_arbnehm
-End Info
-Info: 2026-06-16 16:27:18.17
-   Code: 0x00000000
-   Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
-   Description:   [OK]      FaktentabelleTemplate
-End Info
-Info: 2026-06-16 16:27:18.18
-   Code: 0x00000000
-   Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
-   Description:   [OK]      Faktentabelle
-End Info
-Info: 2026-06-16 16:27:18.18
-   Code: 0x00000000
-   Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
-   Description:   [OK]      Faktenpartitionsspalte
-End Info
-Info: 2026-06-16 16:27:18.18
-   Code: 0x00000000
-   Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
-   Description:   [OK]      Faktenkomprimierung
-End Info
-Info: 2026-06-16 16:27:18.18
-   Code: 0x00000000
-   Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
-   Description:   [OK]      FaktenClusteredIndex
-End Info
-Info: 2026-06-16 16:27:18.18
-   Code: 0x00000000
-   Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
-   Description:   [OK]      DateFormat
-End Info
-Info: 2026-06-16 16:27:18.18
-   Code: 0x00000000
-   Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
-   Description:   [OK]      Anzahl_ParallelTasks
-End Info
-Info: 2026-06-16 16:27:18.20
-   Code: 0x00000000
-   Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
-   Description:   OK Alle Pflichtparameter fuer 'tf_bsbm_arbnehm' vorhanden und befuellt.
-End Info
-Info: 2026-06-16 16:27:18.20
-   Code: 0x00000000
-   Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
-   Description: Pruefe Verfahren: tf_bsbm_betrieb
-End Info
-Info: 2026-06-16 16:27:18.20
-   Code: 0x00000000
-   Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
-   Description:   [OK]      FaktentabelleTemplate
-End Info
-Info: 2026-06-16 16:27:18.20
-   Code: 0x00000000
-   Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
-   Description:   [OK]      Faktentabelle
-End Info
-Info: 2026-06-16 16:27:18.20
-   Code: 0x00000000
-   Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
-   Description:   [OK]      Faktenpartitionsspalte
-End Info
-Info: 2026-06-16 16:27:18.21
-   Code: 0x00000000
-   Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
-   Description:   [OK]      Faktenkomprimierung
-End Info
-Info: 2026-06-16 16:27:18.21
-   Code: 0x00000000
-   Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
-   Description:   [OK]      FaktenClusteredIndex
-End Info
-Info: 2026-06-16 16:27:18.21
-   Code: 0x00000000
-   Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
-   Description:   [OK]      DateFormat
-End Info
-Info: 2026-06-16 16:27:18.21
-   Code: 0x00000000
-   Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
-   Description:   [OK]      Anzahl_ParallelTasks
-End Info
-Info: 2026-06-16 16:27:18.21
-   Code: 0x00000000
-   Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
-   Description:   OK Alle Pflichtparameter fuer 'tf_bsbm_betrieb' vorhanden und befuellt.
-End Info
-Info: 2026-06-16 16:27:18.23
-   Code: 0x00000000
-   Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
-   Description: Pruefe Verfahren: tf_bsbm_betrieb_all
-End Info
-Info: 2026-06-16 16:27:18.23
-   Code: 0x00000000
-   Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
-   Description:   [OK]      FaktentabelleTemplate
-End Info
-Info: 2026-06-16 16:27:18.23
-   Code: 0x00000000
-   Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
-   Description:   [OK]      Faktentabelle
-End Info
-Info: 2026-06-16 16:27:18.23
-   Code: 0x00000000
-   Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
-   Description:   [OK]      Faktenpartitionsspalte
-End Info
-Info: 2026-06-16 16:27:18.23
-   Code: 0x00000000
-   Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
-   Description:   [OK]      Faktenkomprimierung
-End Info
-Info: 2026-06-16 16:27:18.25
-   Code: 0x00000000
-   Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
-   Description:   [OK]      FaktenClusteredIndex
-End Info
-Info: 2026-06-16 16:27:18.25
-   Code: 0x00000000
-   Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
-   Description:   [OK]      DateFormat
-End Info
-Info: 2026-06-16 16:27:18.25
-   Code: 0x00000000
-   Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
-   Description:   [OK]      Anzahl_ParallelTasks
-End Info
-Info: 2026-06-16 16:27:18.25
-   Code: 0x00000000
-   Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
-   Description:   OK Alle Pflichtparameter fuer 'tf_bsbm_betrieb_all' vorhanden und befuellt.
-End Info
-Info: 2026-06-16 16:27:18.26
-   Code: 0x00000000
-   Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
-   Description: ZUSAMMENFASSUNG SCR_05_Parameter_Vollstaendigkeitspruefung
-End Info
-Info: 2026-06-16 16:27:18.26
-   Code: 0x00000000
-   Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
-   Description: Verfahren geprueft        : 3
-End Info
-Info: 2026-06-16 16:27:18.26
-   Code: 0x00000000
-   Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
-   Description: Vollstaendig (OK)         : 3
-End Info
-Info: 2026-06-16 16:27:18.26
-   Code: 0x00000000
-   Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
-   Description: Mit Fehlern              : 0
-End Info
-Info: 2026-06-16 16:27:18.26
-   Code: 0x00000000
-   Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
-   Description: ERGEBNIS: BESTANDEN - Alle Parameter vollstaendig und befuellt OK
-End Info
-Info: 2026-06-16 16:27:18.28
-   Code: 0x00000000
-   Source: SCR06 Arbeitsliste Aufbauen SCR_06_Arbeitsliste_Aufbauen_Fakten
-   Description: SCR_06_Arbeitsliste_Aufbauen_Fakten - Start
-End Info
-Info: 2026-06-16 16:27:18.28
-   Code: 0x00000000
-   Source: SCR06 Arbeitsliste Aufbauen SCR_06_Arbeitsliste_Aufbauen_Fakten
-   Description: Pflichtfelder-Pruefung: alle Variablen vorhanden OK
-End Info
-Info: 2026-06-16 16:27:18.28
-   Code: 0x00000000
-   Source: SCR06 Arbeitsliste Aufbauen SCR_06_Arbeitsliste_Aufbauen_Fakten
-   Description: Aktueller Lauf: Datei [f.istat.xro_dm_stat_bsbm.stva_m03_perm.csv] | Tabellen in Steuerliste (3): tf_bsbm_arbnehm, tf_bsbm_betrieb, tf_bsbm_betrieb_all
-End Info
-Info: 2026-06-16 16:27:18.28
-   Code: 0x00000000
-   Source: SCR06 Arbeitsliste Aufbauen SCR_06_Arbeitsliste_Aufbauen_Fakten
-   Description: Schritt 1: Neue Verfahren aus Steuerliste eintragen
-End Info
-Info: 2026-06-16 16:27:18.29
-   Code: 0x00000000
-   Source: SCR06 Arbeitsliste Aufbauen SCR_06_Arbeitsliste_Aufbauen_Fakten
-   Description: Neue Verfahren eingetragen: 0
-End Info
-Info: 2026-06-16 16:27:18.29
-   Code: 0x00000000
-   Source: SCR06 Arbeitsliste Aufbauen SCR_06_Arbeitsliste_Aufbauen_Fakten
-   Description: Schritt 2: Status analysieren und zuruecksetzen
-End Info
-Info: 2026-06-16 16:27:18.29
-   Code: 0x00000000
-   Source: SCR06 Arbeitsliste Aufbauen SCR_06_Arbeitsliste_Aufbauen_Fakten
-   Description: Status-Analyse (alle Verfahren aus Steuerliste):
-End Info
-Info: 2026-06-16 16:27:18.29
-   Code: 0x00000000
-   Source: SCR06 Arbeitsliste Aufbauen SCR_06_Arbeitsliste_Aufbauen_Fakten
-   Description:   - Total    : 36
-End Info
-Info: 2026-06-16 16:27:18.31
-   Code: 0x00000000
-   Source: SCR06 Arbeitsliste Aufbauen SCR_06_Arbeitsliste_Aufbauen_Fakten
-   Description:   - ERFOLG   : 0
-End Info
-Info: 2026-06-16 16:27:18.31
-   Code: 0x00000000
-   Source: SCR06 Arbeitsliste Aufbauen SCR_06_Arbeitsliste_Aufbauen_Fakten
-   Description:   - FEHLER   : 12
-End Info
-Info: 2026-06-16 16:27:18.31
-   Code: 0x00000000
-   Source: SCR06 Arbeitsliste Aufbauen SCR_06_Arbeitsliste_Aufbauen_Fakten
-   Description:   - ANDERE   : 24
-End Info
-Info: 2026-06-16 16:27:18.31
-   Code: 0x00000000
-   Source: SCR06 Arbeitsliste Aufbauen SCR_06_Arbeitsliste_Aufbauen_Fakten
-   Description: FEHLER vorhanden ? Nur FEHLER zu AUSSTEHEND (Erfolge bleiben) ? 1 Zeilen zurckgesetzt
-End Info
-Info: 2026-06-16 16:27:18.32
-   Code: 0x00000000
-   Source: SCR06 Arbeitsliste Aufbauen SCR_06_Arbeitsliste_Aufbauen_Fakten
-   Description: ZUSAMMENFASSUNG
-End Info
-Info: 2026-06-16 16:27:18.32
-   Code: 0x00000000
-   Source: SCR06 Arbeitsliste Aufbauen SCR_06_Arbeitsliste_Aufbauen_Fakten
-   Description: Neue Verfahren : 0
-End Info
-Info: 2026-06-16 16:27:18.32
-   Code: 0x00000000
-   Source: SCR06 Arbeitsliste Aufbauen SCR_06_Arbeitsliste_Aufbauen_Fakten
-   Description: SCR_Arbeitsliste_Aufbauen_Fakten erfolgreich abgeschlossen OK
-End Info
-Info: 2026-06-16 16:27:18.32
-   Code: 0x00000000
-   Source: SCR07_Schemadaten_Kopieren SCR07_Schemadaten_Kopieren
-   Description: SCR07_Schemadaten_Kopieren - Start
-End Info
-Info: 2026-06-16 16:27:18.34
-   Code: 0x00000000
-   Source: SCR07_Schemadaten_Kopieren SCR07_Schemadaten_Kopieren
-   Description: Ziel-Tabelle tm_polybase_struktur geprueft/erstellt.
-End Info
-Info: 2026-06-16 16:27:18.34
-   Code: 0x00000000
-   Source: SCR07_Schemadaten_Kopieren SCR07_Schemadaten_Kopieren
-   Description: Verfahren zur Verarbeitung: 1
-End Info
-Info: 2026-06-16 16:27:18.35
-   Code: 0x00000000
-   Source: SCR07_Schemadaten_Kopieren SCR07_Schemadaten_Kopieren
-   Description: Oracle-Daten werden in Staging-Tabelle geladen...
-End Info
-Info: 2026-06-16 16:27:18.35
-   Code: 0x00000000
-   Source: SCR07_Schemadaten_Kopieren SCR07_Schemadaten_Kopieren
-   Description: Quelle: [msi_dm_bsbm].[ext].[vm_ddl_sql_server]
-End Info
-Info: 2026-06-16 16:27:18.37
-   Code: 0x00000000
-   Source: SCR07_Schemadaten_Kopieren SCR07_Schemadaten_Kopieren
-   Description: Staging-Tabelle existiert bereits mit 1016733 Zeilen - wird wiederverwendet
-End Info
-Info: 2026-06-16 16:27:18.37
-   Code: 0x00000000
-   Source: SCR07_Schemadaten_Kopieren SCR07_Schemadaten_Kopieren
-   Description: Verfahren: tf_bsbm_betrieb | Themengebiet: xro_dm_stat_bsbm
-End Info
-Info: 2026-06-16 16:27:18.40
-   Code: 0x00000000
-   Source: SCR07_Schemadaten_Kopieren SCR07_Schemadaten_Kopieren
-   Description: [SCHRITT_5] tf_bsbm_betrieb: Schemadaten kopiert: 39 Spalten
-End Info
-Info: 2026-06-16 16:27:18.40
-   Code: 0x00000000
-   Source: SCR07_Schemadaten_Kopieren SCR07_Schemadaten_Kopieren
-   Description:   39 Spalten kopiert OK
-End Info
-Info: 2026-06-16 16:27:18.40
-   Code: 0x00000000
-   Source: SCR07_Schemadaten_Kopieren SCR07_Schemadaten_Kopieren
-   Description: Staging-Tabelle dbo.ddl_staging bleibt fuer Debugging erhalten
-End Info
-Info: 2026-06-16 16:27:18.42
-   Code: 0x00000000
-   Source: SCR07_Schemadaten_Kopieren SCR07_Schemadaten_Kopieren
-   Description: Erfolgreich: 1 | Fehler: 0
-End Info
-Info: 2026-06-16 16:27:18.42
-   Code: 0x00000000
-   Source: SCR08_Template_Erstellen SCR08_Template_Erstellen
-   Description: SCR08_Template_Erstellen - Start
-End Info
-Info: 2026-06-16 16:27:18.42
-   Code: 0x00000000
-   Source: SCR08_Template_Erstellen SCR08_Template_Erstellen
-   Description: Verfahren zur Verarbeitung: 1
-End Info
-Info: 2026-06-16 16:27:18.43
-   Code: 0x00000000
-   Source: SCR08_Template_Erstellen SCR08_Template_Erstellen
-   Description: Verfahren: tf_bsbm_betrieb | Themengebiet: xro_dm_stat_bsbm
-End Info
-Info: 2026-06-16 16:27:18.43
-   Code: 0x00000000
-   Source: SCR08_Template_Erstellen SCR08_Template_Erstellen
-   Description:   Template fuer: tf_bsbm_betrieb
-End Info
-Info: 2026-06-16 16:27:18.43
-   Code: 0x00000000
-   Source: SCR08_Template_Erstellen SCR08_Template_Erstellen
-   Description: WARNUNG [Template erstellen/pruefen] Versuch 1/3: Incorrect syntax near '='.
-End Info
-Info: 2026-06-16 16:27:18.45
-   Code: 0x00000000
-   Source: SCR08_Template_Erstellen SCR08_Template_Erstellen
-   Description: SQL Statement [Template erstellen/pruefen]: DECLARE @t  nvarchar(128) = N'tf_bsbm_betrieb';
-DECLARE @s  nvarchar(128) = N'xro_dm_stat_bsbm';
-DECLARE @db nvarchar(128) = N'msi_dm_bsbm';
-DECLARE @cols nvarchar(max), @colsExt nvarchar(max), @sql nvarchar(max), @tmpl nvarchar(300), @tmplObj int, @d int;
-
--- Soll-Spalten (columns_dbo) und ext-Struktur (columns_ext) aus tm_polybase_struktur laden
-SELECT @cols    = STRING_AGG(CAST(columns_dbo AS nvarchar(max)), CONCAT(N',', CHAR(13), CHAR(10)))
-                    WITHIN GROUP (ORDER BY colno),
-       @colsExt = STRING_AGG(CAST(columns_ext AS nvarchar(max)), CONCAT(N',', CHAR(13), CHAR(10)))
-                    WITHIN GROUP (ORDER BY colno)
-FROM dbo.tm_polybase_struktur
-WHERE tabname = LOWER(@t) AND themengebiet = @s;
-
-IF @cols IS NULL OR @colsExt IS NULL
-    THROW 50001, 'Keine columns_dbo/columns_ext Metadaten gefunden', 1;
-
-SET @tmpl    = CONCAT('[', @db, '].dbo.[', @t, '_template]');
-SET @tmplObj = OBJECT_ID(@tmpl);
-
-IF @tmplObj IS NULL
-BEGIN
-    -- Template existiert nicht -> aus columns_dbo erstellen (nur Struktur)
-    -- ext.<t> existiert erst ab SCR09 -> Struktur lokal als #ext_struct nachbilden
-    SET @sql = N'CREATE TABLE #ext_struct (' + @colsExt + N');' +
-               N'SELECT TOP 0 ' + @cols + N' INTO ' + @tmpl + N' FROM #ext_struct;';
-    EXEC sp_executesql @sql;
-END
-ELSE
-BEGIN
-    -- Template existiert -> Struktur (Spaltenname/Typ/Laenge/Nullable) gegen Soll pruefen
-    SET @sql =
-        N'CREATE TABLE #ext_struct (' + @colsExt + N');' +
-        N'SELECT TOP 0 ' + @cols + N' INTO #soll FROM #ext_struct;' +
-        N';WITH soll AS (SELECT c.name COLLATE DATABASE_DEFAULT AS nm, ty.name COLLATE DATABASE_DEFAULT AS typ, c.max_length AS ml, c.precision AS pr, c.scale AS sc, c.is_nullable AS nu' +
-          N' FROM tempdb.sys.columns c JOIN tempdb.sys.types ty ON ty.user_type_id=c.user_type_id WHERE c.object_id=OBJECT_ID(N''tempdb..#soll'')),' +
-          N' ist AS (SELECT c.name COLLATE DATABASE_DEFAULT AS nm, ty.name COLLATE DATABASE_DEFAULT AS typ, c.max_length AS ml, c.precision AS pr, c.scale AS sc, c.is_nullable AS nu' +
-          N' FROM ' + QUOTENAME(@db) + N'.sys.columns c JOIN ' + QUOTENAME(@db) + N'.sys.types ty ON ty.user_type_id=c.user_type_id WHERE c.object_id=@po)' +
-          N' SELECT @cnt = COUNT(*) FROM ((SELECT * FROM soll EXCEPT SELECT * FROM ist) UNION ALL (SELECT * FROM ist EXCEPT SELECT * FROM soll)) x;';
-    EXEC sp_executesql @sql, N'@po int, @cnt int OUTPUT', @po=@tmplObj, @cnt=@d OUTPUT;
-    IF @d > 0
-    BEGIN
-        DECLARE @msg nvarchar(400) = CONCAT('Template ', @tmpl, ': Struktur weicht von columns_dbo (Soll) ab - Lauf wird abgebrochen. Template manuell pruefen/loeschen.');
-        THROW 50010, @msg, 1;
-    END
-END
-End Info
-Info: 2026-06-16 16:27:48.46
-   Code: 0x00000000
-   Source: SCR08_Template_Erstellen SCR08_Template_Erstellen
-   Description: WARNUNG [Template erstellen/pruefen] Versuch 2/3: Incorrect syntax near '='.
-End Info
-Info: 2026-06-16 16:28:18.48
-   Code: 0x00000000
-   Source: SCR08_Template_Erstellen SCR08_Template_Erstellen
-   Description: WARNUNG [Template erstellen/pruefen] Versuch 3/3: Incorrect syntax near '='.
-End Info
-Error: 2026-06-16 16:28:18.50
-   Code: 0x00000000
-   Source: SCR08_Template_Erstellen SCR08_Template_Erstellen
-   Description: [FEHLER_SCR08] tf_bsbm_betrieb: [Template erstellen/pruefen] fehlgeschlagen: Incorrect syntax near '='.
-End Error
-Error: 2026-06-16 16:28:18.50
-   Code: 0x00000000
-   Source: SCR08_Template_Erstellen SCR08_Template_Erstellen
-   Description: FEHLER Verfahren 'tf_bsbm_betrieb': [Template erstellen/pruefen] fehlgeschlagen: Incorrect syntax near '='.
-End Error
-Info: 2026-06-16 16:28:18.50
-   Code: 0x00000000
-   Source: SCR08_Template_Erstellen SCR08_Template_Erstellen
-   Description: Erfolgreich: 0 | Fehler: 1
-End Info
-Error: 2026-06-16 16:28:18.50
-   Code: 0x00000006
-   Source: SCR08_Template_Erstellen 
-   Description: The script returned a failure result.
-End Error
-Info: 2026-06-16 16:28:18.51
-   Code: 0x00000000
-   Source: OnTaskFailed OnFailed
-   Description: Cleanup: keine leeren _out_/_in_-Tabellen und keine ext-Tabellen gefunden
-End Info
-Warning: 2026-06-16 16:28:18.51
-   Code: 0x80019002
-   Source: Package 
-   Description: SSIS Warning Code DTS_W_MAXIMUMERRORCOUNTREACHED.  The Execution method succeeded, but the number of errors raised (3) reached the maximum allowed (1); resulting in failure. This occurs when the number of errors reaches the number specified in MaximumErrorCount. Change the MaximumErrorCount or fix the errors.
-End Warning
-DTExec: The package execution returned DTSER_FAILURE (1).
-Started:  16:26:56
-Finished: 16:28:18
-Elapsed:  82.437 seconds
- 
-[16.06.2026 16:28:20,31] SSIS-Ausfuehrung abgeschlossen 
-[16.06.2026 16:28:20,31] Exitcode: 1           
------------------------------------------------ 
+Paket	Task	Meldungstyp	Meldung
+Package	SCR13_Daten_Laden	Fehler	The script returned a failure result.
+Package	SCR13_Daten_Laden	info	  FEHLER 'tf_bvd_sgb2' pv=200705: Oracle-Tabelle via PolyBase [ext.tf_bvd_sgb2] lieferte 0 Zeilen fuer mon_id = 200705. Bitte pruefen: (1) existiert der Wert in Oracle (SELECT DISTINCT mon_id FROM ext.[tf_bvd_sgb2])? (2) ist die Faktenpartitionsspalte [mon_id] in der Parametertabelle fuer Verfahren [tf_bvd_sgb2] korrekt?
+Package	SCR13_Daten_Laden	info	  FEHLER 'tf_bvd_kreis_akt' pv=200705: Oracle-Tabelle via PolyBase [ext.tf_bvd_kreis_akt] lieferte 0 Zeilen fuer mon_id = 200705. Bitte pruefen: (1) existiert der Wert in Oracle (SELECT DISTINCT mon_id FROM ext.[tf_bvd_kreis_akt])? (2) ist die Faktenpartitionsspalte [mon_id] in der Parametertabelle fuer Verfahren [tf_bvd_kreis_akt] korrekt?
+Package	SCR13_Daten_Laden	info	FEHLER-DETAILS:
+Package	SCR13_Daten_Laden	info	Erfolgreich: 0 | Fehler: 2
+Package	SCR13_Daten_Laden	Fehler	[FEHLER_SCR13] tf_bvd_sgb2: 1 Partition(en) fehlgeschlagen
+Package	SCR13_Daten_Laden	Fehler	[FEHLER_SCR13] tf_bvd_kreis_akt: 1 Partition(en) fehlgeschlagen
+Package	SCR13_Daten_Laden	Fehler	FEHLER bei pv=200705 (tf_bvd_sgb2_in_200705): Oracle-Tabelle via PolyBase [ext.tf_bvd_sgb2] lieferte 0 Zeilen fuer mon_id = 200705. Bitte pruefen: (1) existiert der Wert in Oracle (SELECT DISTINCT mon_id FROM ext.[tf_bvd_sgb2])? (2) ist die Faktenpartitionsspalte [mon_id] in der Parametertabelle fuer Verfahren [tf_bvd_sgb2] korrekt?
+Package	SCR13_Daten_Laden	Fehler	FEHLER bei pv=200705 (tf_bvd_kreis_akt_in_200705): Oracle-Tabelle via PolyBase [ext.tf_bvd_kreis_akt] lieferte 0 Zeilen fuer mon_id = 200705. Bitte pruefen: (1) existiert der Wert in Oracle (SELECT DISTINCT mon_id FROM ext.[tf_bvd_kreis_akt])? (2) ist die Faktenpartitionsspalte [mon_id] in der Parametertabelle fuer Verfahren [tf_bvd_kreis_akt] korrekt?
+Package	SCR13_Daten_Laden	info	  SELECT INTO [tf_bvd_sgb2_in_200705_LOADING] WHERE mon_id = 200705 (wird zu _in_ umbenannt)
+Package	SCR13_Daten_Laden	info	  SELECT INTO [tf_bvd_kreis_akt_in_200705_LOADING] WHERE mon_id = 200705 (wird zu _in_ umbenannt)
+Package	SCR13_Daten_Laden	info	Arbeitspakete gesamt (Verfahren x Partition): 2 | Parallelitaet: 8
+Package	SCR13_Daten_Laden	info	  Partitionswerte: 1
+Package	SCR13_Daten_Laden	info	Verfahren: tf_bvd_sgb2 | Spalte: mon_id
+Package	SCR13_Daten_Laden	info	  Partitionswerte: 1
+Package	SCR13_Daten_Laden	info	  WARNUNG: Keine Partitionswerte in BA::objPartitionValues fuer 'tf_bvd_kreis' uebersprungen
+Package	SCR13_Daten_Laden	info	Verfahren: tf_bvd_kreis_akt | Spalte: mon_id
+Package	SCR13_Daten_Laden	info	Verfahren: tf_bvd_kreis | Spalte: mon_id
+Package	SCR13_Daten_Laden	info	  WARNUNG: Keine Partitionswerte in BA::objPartitionValues fuer 'tf_bvd_aa' uebersprungen
+Package	SCR13_Daten_Laden	info	Verfahren: tf_bvd_aa | Spalte: mon_id
+Package	SCR13_Daten_Laden	info	Verfahren: 4
+Package	SCR13_Daten_Laden	info	Partitionswerte gesamt: 2 Eintraege
+Package	SCR13_Daten_Laden	info	SCR13_Daten_Laden - Start
+Package	SCR12_Staging_Erstellen	info	Erfolgreich: 4 | Fehler: 0
+Package	SCR12_Staging_Erstellen	info	  Schritt 5 abgeschlossen OK
+Package	SCR12_Staging_Erstellen	info	[SCHRITT_5] tf_bvd_sgb2: Staging erstellt: 1 Partition(en) | NEU: 1 | AKTUALISIERUNG: 0
+Package	SCR12_Staging_Erstellen	info	  _out erstellt: 200705 | Modus: NEU
+Package	SCR12_Staging_Erstellen	info	Verfahren: tf_bvd_sgb2
+Package	SCR12_Staging_Erstellen	info	  Schritt 5 abgeschlossen OK
+Package	SCR12_Staging_Erstellen	info	[SCHRITT_5] tf_bvd_kreis_akt: Staging erstellt: 1 Partition(en) | NEU: 1 | AKTUALISIERUNG: 0
+Package	SCR12_Staging_Erstellen	info	  _out erstellt: 200705 | Modus: NEU
+Package	SCR12_Staging_Erstellen	info	Verfahren: tf_bvd_kreis_akt
+Package	SCR12_Staging_Erstellen	info	[WARNUNG_SCR10] tf_bvd_kreis: Keine Partitionswerte in BA::objPartitionValues
+Package	SCR12_Staging_Erstellen	info	  WARNUNG: Keine Partitionswerte fuer dieses Verfahren uebersprungen
+Package	SCR12_Staging_Erstellen	info	Verfahren: tf_bvd_kreis
+Package	SCR12_Staging_Erstellen	info	[WARNUNG_SCR10] tf_bvd_aa: Keine Partitionswerte in BA::objPartitionValues
+Package	SCR12_Staging_Erstellen	info	  WARNUNG: Keine Partitionswerte fuer dieses Verfahren uebersprungen
+Package	SCR12_Staging_Erstellen	info	Verfahren: tf_bvd_aa
+Package	SCR12_Staging_Erstellen	info	Verfahren aus Arbeitsliste: 4
+Package	SCR12_Staging_Erstellen	info	SCR12_Staging_Erstellen - Start
+Package	SCR12_Staging_Erstellen	info	Partitionswerte aus SCR09: 2 Eintraege
+Package	SCR11_Partitionsgrenzen	info	Erfolgreich: 4 | Fehler: 0
+Package	SCR11_Partitionsgrenzen	info	  tf_bvd_sgb2: 1 Partitionen (200705-200705)
+Package	SCR11_Partitionsgrenzen	info	  tf_bvd_kreis_akt: 1 Partitionen (200705-200705)
+Package	SCR11_Partitionsgrenzen	info	BA::objPartitionValues gesetzt: 2 Eintraege
+Package	SCR11_Partitionsgrenzen	info	  Schritt 4 abgeschlossen OK
+Package	SCR11_Partitionsgrenzen	info	[SCHRITT_4] tf_bvd_sgb2: Partitionsgrenzen erstellt. Modus=AUTOMATIC | Gesamt=1 | NEU=1 | Bereich=200705-200705
+Package	SCR11_Partitionsgrenzen	info	  SPLIT ausgefuehrt: 1 | Uebersprungen: 0
+Package	SCR11_Partitionsgrenzen	info	  Werte-Bereich: 200705 bis 200705 (1 Partitionen)
+Package	SCR11_Partitionsgrenzen	info	  NEU: 1
+Package	SCR11_Partitionsgrenzen	info	  Modus: AUTOMATIC
+Package	SCR11_Partitionsgrenzen	info	  Gesamt zu verarbeiten: 1
+Package	SCR11_Partitionsgrenzen	info	  ZUSAMMENFASSUNG: tf_bvd_sgb2
+Package	SCR11_Partitionsgrenzen	info	  Fehlend ZWISCHEN MIN-MAX: 0
+Package	SCR11_Partitionsgrenzen	info	  Fehlend NACH MSSQL MAX: 0
+Package	SCR11_Partitionsgrenzen	info	  Fehlend VOR MSSQL MIN: 1
+Package	SCR11_Partitionsgrenzen	info	  Fehlend MIN: 200705 | MAX: 200705
+Package	SCR11_Partitionsgrenzen	info	  Fehlende Werte: 1
+Package	SCR11_Partitionsgrenzen	info	  MSSQL vorhanden: 237
+Package	SCR11_Partitionsgrenzen	info	  Oracle gesamt: 235
+Package	SCR11_Partitionsgrenzen	info	  Entscheidung: APPEND (alle fehlenden Werte)
+Package	SCR11_Partitionsgrenzen	info	  MSSQL MIN: 200707 | MAX: 202703
+Package	SCR11_Partitionsgrenzen	info	  MSSQL Werte gesamt: 237
+Package	SCR11_Partitionsgrenzen	info	  Oracle MIN: 200705 | MAX: 202701
+Package	SCR11_Partitionsgrenzen	info	  Oracle Werte gesamt: 235
+Package	SCR11_Partitionsgrenzen	info	  Leere obere Grenzpartition entfernt: 202702
+Package	SCR11_Partitionsgrenzen	info	  MODE: AUTOMATIC (partition_wert aus Oracle)
+Package	SCR11_Partitionsgrenzen	info	Verfahren: tf_bvd_sgb2 | Tabelle: tf_bvd_sgb2 | Spalte: mon_id
+Package	SCR11_Partitionsgrenzen	info	  Schritt 4 abgeschlossen OK
+Package	SCR11_Partitionsgrenzen	info	[SCHRITT_4] tf_bvd_kreis_akt: Partitionsgrenzen erstellt. Modus=AUTOMATIC | Gesamt=1 | NEU=1 | Bereich=200705-200705
+Package	SCR11_Partitionsgrenzen	info	  SPLIT ausgefuehrt: 1 | Uebersprungen: 0
+Package	SCR11_Partitionsgrenzen	info	  Werte-Bereich: 200705 bis 200705 (1 Partitionen)
+Package	SCR11_Partitionsgrenzen	info	  NEU: 1
+Package	SCR11_Partitionsgrenzen	info	  Gesamt zu verarbeiten: 1
+Package	SCR11_Partitionsgrenzen	info	  Modus: AUTOMATIC
+Package	SCR11_Partitionsgrenzen	info	  ZUSAMMENFASSUNG: tf_bvd_kreis_akt
+Package	SCR11_Partitionsgrenzen	info	  Fehlend NACH MSSQL MAX: 0
+Package	SCR11_Partitionsgrenzen	info	  Fehlend VOR MSSQL MIN: 1
+Package	SCR11_Partitionsgrenzen	info	  Fehlend ZWISCHEN MIN-MAX: 0
+Package	SCR11_Partitionsgrenzen	info	  Fehlend MIN: 200705 | MAX: 200705
+Package	SCR11_Partitionsgrenzen	info	  MSSQL vorhanden: 189
+Package	SCR11_Partitionsgrenzen	info	  Fehlende Werte: 1
+Package	SCR11_Partitionsgrenzen	info	  Oracle gesamt: 187
+Package	SCR11_Partitionsgrenzen	info	  Entscheidung: APPEND (alle fehlenden Werte)
+Package	SCR11_Partitionsgrenzen	info	  MSSQL MIN: 201107 | MAX: 202703
+Package	SCR11_Partitionsgrenzen	info	  MSSQL Werte gesamt: 189
+Package	SCR11_Partitionsgrenzen	info	  Oracle MIN: 200705 | MAX: 202701
+Package	SCR11_Partitionsgrenzen	info	  Oracle Werte gesamt: 187
+Package	SCR11_Partitionsgrenzen	info	  Leere obere Grenzpartition entfernt: 202702
+Package	SCR11_Partitionsgrenzen	info	  MODE: AUTOMATIC (partition_wert aus Oracle)
+Package	SCR11_Partitionsgrenzen	info	Verfahren: tf_bvd_kreis_akt | Tabelle: tf_bvd_kreis_akt | Spalte: mon_id
+Package	SCR11_Partitionsgrenzen	info	  Keine fehlenden Werte uebersprungen
+Package	SCR11_Partitionsgrenzen	info	  Fehlende Werte: 0
+Package	SCR11_Partitionsgrenzen	info	  MSSQL vorhanden: 321
+Package	SCR11_Partitionsgrenzen	info	  Oracle gesamt: 237
+Package	SCR11_Partitionsgrenzen	info	  Entscheidung: APPEND (alle fehlenden Werte)
+Package	SCR11_Partitionsgrenzen	info	  MSSQL MIN: 200007 | MAX: 202703
+Package	SCR11_Partitionsgrenzen	info	  MSSQL Werte gesamt: 321
+Package	SCR11_Partitionsgrenzen	info	  Oracle MIN: 200705 | MAX: 202701
+Package	SCR11_Partitionsgrenzen	info	  Oracle Werte gesamt: 237
+Package	SCR11_Partitionsgrenzen	info	  Leere obere Grenzpartition entfernt: 202702
+Package	SCR11_Partitionsgrenzen	info	  MODE: AUTOMATIC (partition_wert aus Oracle)
+Package	SCR11_Partitionsgrenzen	info	Verfahren: tf_bvd_kreis | Tabelle: tf_bvd_kreis | Spalte: mon_id
+Package	SCR11_Partitionsgrenzen	info	  Keine fehlenden Werte uebersprungen
+Package	SCR11_Partitionsgrenzen	info	  Fehlende Werte: 0
+Package	SCR11_Partitionsgrenzen	info	  MSSQL vorhanden: 321
+Package	SCR11_Partitionsgrenzen	info	  Oracle gesamt: 237
+Package	SCR11_Partitionsgrenzen	info	  Entscheidung: APPEND (alle fehlenden Werte)
+Package	SCR11_Partitionsgrenzen	info	  MSSQL MIN: 200007 | MAX: 202703
+Package	SCR11_Partitionsgrenzen	info	  MSSQL Werte gesamt: 321
+Package	SCR11_Partitionsgrenzen	info	  Oracle MIN: 200705 | MAX: 202701
+Package	SCR11_Partitionsgrenzen	info	  Leere obere Grenzpartition entfernt: 202702
+Package	SCR11_Partitionsgrenzen	info	  Oracle Werte gesamt: 237
+Package	SCR11_Partitionsgrenzen	info	  MODE: AUTOMATIC (partition_wert aus Oracle)
+Package	SCR11_Partitionsgrenzen	info	Verfahren: tf_bvd_aa | Tabelle: tf_bvd_aa | Spalte: mon_id
+Package	SCR11_Partitionsgrenzen	info	Verfahren: 4
+Package	SCR11_Partitionsgrenzen	info	SCR11_Partitionsgrenzen - Start
+Package	SCR10_Faktentabelle_Erstellen	info	  -> Schritt 3 abgeschlossen
+Package	SCR10_Faktentabelle_Erstellen	info	Erfolgreich: 4 | Fehler: 0
+Package	SCR10_Faktentabelle_Erstellen	info	[SCHRITT_3] tf_bvd_sgb2: Faktentabelle existiert bereits (Struktur OK): dbo.tf_bvd_sgb2 -> uebersprungen
+Package	SCR10_Faktentabelle_Erstellen	info	  Faktentabelle dbo.tf_bvd_sgb2 existiert bereits (Struktur OK) -> uebersprungen
+Package	SCR10_Faktentabelle_Erstellen	info	Partitionsspalte: mon_id | IndexTyp: CCI | Komprimierung: NONE
+Package	SCR10_Faktentabelle_Erstellen	info	Verfahren: tf_bvd_sgb2 | Faktentabelle: tf_bvd_sgb2
+Package	SCR10_Faktentabelle_Erstellen	info	  -> Schritt 3 abgeschlossen
+Package	SCR10_Faktentabelle_Erstellen	info	[SCHRITT_3] tf_bvd_kreis_akt: Faktentabelle existiert bereits (Struktur OK): dbo.tf_bvd_kreis_akt -> uebersprungen
+Package	SCR10_Faktentabelle_Erstellen	info	  Faktentabelle dbo.tf_bvd_kreis_akt existiert bereits (Struktur OK) -> uebersprungen
+Package	SCR10_Faktentabelle_Erstellen	info	Partitionsspalte: mon_id | IndexTyp: CCI | Komprimierung: NONE
+Package	SCR10_Faktentabelle_Erstellen	info	Verfahren: tf_bvd_kreis_akt | Faktentabelle: tf_bvd_kreis_akt
+Package	SCR10_Faktentabelle_Erstellen	info	  -> Schritt 3 abgeschlossen
+Package	SCR10_Faktentabelle_Erstellen	info	[SCHRITT_3] tf_bvd_kreis: Faktentabelle existiert bereits (Struktur OK): dbo.tf_bvd_kreis -> uebersprungen
+Package	SCR10_Faktentabelle_Erstellen	info	  Faktentabelle dbo.tf_bvd_kreis existiert bereits (Struktur OK) -> uebersprungen
+Package	SCR10_Faktentabelle_Erstellen	info	Partitionsspalte: mon_id | IndexTyp: CCI | Komprimierung: NONE
+Package	SCR10_Faktentabelle_Erstellen	info	Verfahren: tf_bvd_kreis | Faktentabelle: tf_bvd_kreis
+Package	SCR10_Faktentabelle_Erstellen	info	  -> Schritt 3 abgeschlossen
+Package	SCR10_Faktentabelle_Erstellen	info	[SCHRITT_3] tf_bvd_aa: Faktentabelle existiert bereits (Struktur OK): dbo.tf_bvd_aa -> uebersprungen
+Package	SCR10_Faktentabelle_Erstellen	info	  Faktentabelle dbo.tf_bvd_aa existiert bereits (Struktur OK) -> uebersprungen
+Package	SCR10_Faktentabelle_Erstellen	info	Partitionsspalte: mon_id | IndexTyp: CCI | Komprimierung: NONE
+Package	SCR10_Faktentabelle_Erstellen	info	Verfahren: tf_bvd_aa | Faktentabelle: tf_bvd_aa
+Package	SCR10_Faktentabelle_Erstellen	info	Verfahren: 4
+Package	SCR10_Faktentabelle_Erstellen	info	SCR10_Faktentabelle_Erstellen - Start
+Package	SCR09_Ext_Tabelle_Erstellen	info	  Externe Tabelle erstellt OK
+Package	SCR09_Ext_Tabelle_Erstellen	info	Erfolgreich: 4 | Fehler: 0
+Package	SCR09_Ext_Tabelle_Erstellen	info	[SCHRITT_2] tf_bvd_sgb2: Externe Tabelle erstellt: ext.tf_bvd_sgb2
+Package	SCR09_Ext_Tabelle_Erstellen	info	  OK Externe Tabelle erfolgreich: ext.[tf_bvd_sgb2]
+Package	SCR09_Ext_Tabelle_Erstellen	info	  Oracle Location: ISTAT.XRO_DM_STAT_BVD.TF_BVD_SGB2
+Package	SCR09_Ext_Tabelle_Erstellen	info	  Erstelle externe Tabelle: ext.[tf_bvd_sgb2]
+Package	SCR09_Ext_Tabelle_Erstellen	info	  Externe Tabelle erstellt OK
+Package	SCR09_Ext_Tabelle_Erstellen	info	Verfahren: tf_bvd_sgb2 | Themengebiet: xro_dm_stat_bvd
+Package	SCR09_Ext_Tabelle_Erstellen	info	[SCHRITT_2] tf_bvd_kreis_akt: Externe Tabelle erstellt: ext.tf_bvd_kreis_akt
+Package	SCR09_Ext_Tabelle_Erstellen	info	  OK Externe Tabelle erfolgreich: ext.[tf_bvd_kreis_akt]
+Package	SCR09_Ext_Tabelle_Erstellen	info	  Oracle Location: ISTAT.XRO_DM_STAT_BVD.TF_BVD_KREIS_AKT
+Package	SCR09_Ext_Tabelle_Erstellen	info	  Erstelle externe Tabelle: ext.[tf_bvd_kreis_akt]
+Package	SCR09_Ext_Tabelle_Erstellen	info	Verfahren: tf_bvd_kreis_akt | Themengebiet: xro_dm_stat_bvd
+Package	SCR09_Ext_Tabelle_Erstellen	info	  Externe Tabelle erstellt OK
+Package	SCR09_Ext_Tabelle_Erstellen	info	[SCHRITT_2] tf_bvd_kreis: Externe Tabelle erstellt: ext.tf_bvd_kreis
+Package	SCR09_Ext_Tabelle_Erstellen	info	  OK Externe Tabelle erfolgreich: ext.[tf_bvd_kreis]
+Package	SCR09_Ext_Tabelle_Erstellen	info	  Oracle Location: ISTAT.XRO_DM_STAT_BVD.TF_BVD_KREIS
+Package	SCR09_Ext_Tabelle_Erstellen	info	  Erstelle externe Tabelle: ext.[tf_bvd_kreis]
+Package	SCR09_Ext_Tabelle_Erstellen	info	  Externe Tabelle erstellt OK
+Package	SCR09_Ext_Tabelle_Erstellen	info	Verfahren: tf_bvd_kreis | Themengebiet: xro_dm_stat_bvd
+Package	SCR09_Ext_Tabelle_Erstellen	info	[SCHRITT_2] tf_bvd_aa: Externe Tabelle erstellt: ext.tf_bvd_aa
+Package	SCR09_Ext_Tabelle_Erstellen	info	  OK Externe Tabelle erfolgreich: ext.[tf_bvd_aa]
+Package	SCR09_Ext_Tabelle_Erstellen	info	  Oracle Location: ISTAT.XRO_DM_STAT_BVD.TF_BVD_AA
+Package	SCR09_Ext_Tabelle_Erstellen	info	  Erstelle externe Tabelle: ext.[tf_bvd_aa]
+Package	SCR09_Ext_Tabelle_Erstellen	info	Verfahren: tf_bvd_aa | Themengebiet: xro_dm_stat_bvd
+Package	SCR09_Ext_Tabelle_Erstellen	info	Verfahren zur Verarbeitung: 4
+Package	SCR09_Ext_Tabelle_Erstellen	info	SCR09_Ext_Tabelle_Erstellen - Start
+Package	SCR08_Template_Erstellen	info	Erfolgreich: 4 | Fehler: 0
+Package	SCR08_Template_Erstellen	info	  Template erstellt OK
+Package	SCR08_Template_Erstellen	info	[SCHRITT_1] tf_bvd_sgb2: Template erstellt/geprueft: msi_dm_bvd.dbo.tf_bvd_sgb2_template
+Package	SCR08_Template_Erstellen	info	  Template erstellt bzw. Struktur geprueft OK
+Package	SCR08_Template_Erstellen	info	  Template fuer: tf_bvd_sgb2
+Package	SCR08_Template_Erstellen	info	Verfahren: tf_bvd_sgb2 | Themengebiet: xro_dm_stat_bvd
+Package	SCR08_Template_Erstellen	info	[SCHRITT_1] tf_bvd_kreis_akt: Template erstellt/geprueft: msi_dm_bvd.dbo.tf_bvd_kreis_akt_template
+Package	SCR08_Template_Erstellen	info	  Template erstellt OK
+Package	SCR08_Template_Erstellen	info	  Template erstellt bzw. Struktur geprueft OK
+Package	SCR08_Template_Erstellen	info	  Template fuer: tf_bvd_kreis_akt
+Package	SCR08_Template_Erstellen	info	Verfahren: tf_bvd_kreis_akt | Themengebiet: xro_dm_stat_bvd
+Package	SCR08_Template_Erstellen	info	  Template erstellt OK
+Package	SCR08_Template_Erstellen	info	[SCHRITT_1] tf_bvd_kreis: Template erstellt/geprueft: msi_dm_bvd.dbo.tf_bvd_kreis_template
+Package	SCR08_Template_Erstellen	info	  Template erstellt bzw. Struktur geprueft OK
+Package	SCR08_Template_Erstellen	info	  Template fuer: tf_bvd_kreis
+Package	SCR08_Template_Erstellen	info	Verfahren: tf_bvd_kreis | Themengebiet: xro_dm_stat_bvd
+Package	SCR08_Template_Erstellen	info	  Template erstellt OK
+Package	SCR08_Template_Erstellen	info	[SCHRITT_1] tf_bvd_aa: Template erstellt/geprueft: msi_dm_bvd.dbo.tf_bvd_aa_template
+Package	SCR08_Template_Erstellen	info	  Template erstellt bzw. Struktur geprueft OK
+Package	SCR08_Template_Erstellen	info	  Template fuer: tf_bvd_aa
+Package	SCR08_Template_Erstellen	info	Verfahren: tf_bvd_aa | Themengebiet: xro_dm_stat_bvd
+Package	SCR08_Template_Erstellen	info	Verfahren zur Verarbeitung: 4
+Package	SCR08_Template_Erstellen	info	SCR08_Template_Erstellen - Start
+Package	SCR07_Schemadaten_Kopieren	info	Erfolgreich: 4 | Fehler: 0
+Package	SCR07_Schemadaten_Kopieren	info	Staging-Tabelle dbo.ddl_staging bleibt fuer Debugging erhalten
+Package	SCR07_Schemadaten_Kopieren	info	  10 Spalten kopiert OK
+Package	SCR07_Schemadaten_Kopieren	info	[SCHRITT_5] tf_bvd_sgb2: Schemadaten kopiert: 10 Spalten
+Package	SCR07_Schemadaten_Kopieren	info	Verfahren: tf_bvd_sgb2 | Themengebiet: xro_dm_stat_bvd
+Package	SCR07_Schemadaten_Kopieren	info	  8 Spalten kopiert OK
+Package	SCR07_Schemadaten_Kopieren	info	[SCHRITT_5] tf_bvd_kreis_akt: Schemadaten kopiert: 8 Spalten
+Package	SCR07_Schemadaten_Kopieren	info	Verfahren: tf_bvd_kreis_akt | Themengebiet: xro_dm_stat_bvd
+Package	SCR07_Schemadaten_Kopieren	info	  30 Spalten kopiert OK
+Package	SCR07_Schemadaten_Kopieren	info	[SCHRITT_5] tf_bvd_kreis: Schemadaten kopiert: 30 Spalten
+Package	SCR07_Schemadaten_Kopieren	info	Verfahren: tf_bvd_kreis | Themengebiet: xro_dm_stat_bvd
+Package	SCR07_Schemadaten_Kopieren	info	  30 Spalten kopiert OK
+Package	SCR07_Schemadaten_Kopieren	info	[SCHRITT_5] tf_bvd_aa: Schemadaten kopiert: 30 Spalten
+Package	SCR07_Schemadaten_Kopieren	info	Verfahren: tf_bvd_aa | Themengebiet: xro_dm_stat_bvd
+Package	SCR07_Schemadaten_Kopieren	info	Staging abgeschlossen: 1017204 Zeilen geladen.
+Package	SCR07_Schemadaten_Kopieren	info	Oracle-Abfrage laeuft (kann 20-60 Sekunden dauern)...
+Package	SCR07_Schemadaten_Kopieren	info	Quelle: [msi_dm_bvd].[ext].[vm_ddl_sql_server]
+Package	SCR07_Schemadaten_Kopieren	info	Oracle-Daten werden in Staging-Tabelle geladen...
+Package	SCR07_Schemadaten_Kopieren	info	Verfahren zur Verarbeitung: 4
+Package	SCR07_Schemadaten_Kopieren	info	Ziel-Tabelle tm_polybase_struktur geprueft/erstellt.
+Package	SCR07_Schemadaten_Kopieren	info	SCR07_Schemadaten_Kopieren - Start
+Package	SCR06 Arbeitsliste Aufbauen	info	SCR_Arbeitsliste_Aufbauen_Fakten erfolgreich abgeschlossen OK
+Package	SCR06 Arbeitsliste Aufbauen	info	Neue Verfahren : 4
+Package	SCR06 Arbeitsliste Aufbauen	info	ZUSAMMENFASSUNG
+Package	SCR06 Arbeitsliste Aufbauen	info	  - ANDERE   : 0
+Package	SCR06 Arbeitsliste Aufbauen	info	Kein Reset nötig (nur AUSSTEHEND oder keine Daten)
+Package	SCR06 Arbeitsliste Aufbauen	info	  - FEHLER   : 0
+Package	SCR06 Arbeitsliste Aufbauen	info	  - ERFOLG   : 0
+Package	SCR06 Arbeitsliste Aufbauen	info	  - Total    : 47
+Package	SCR06 Arbeitsliste Aufbauen	info	Status-Analyse (alle Verfahren aus Steuerliste):
+Package	SCR06 Arbeitsliste Aufbauen	info	Schritt 2: Status analysieren und zuruecksetzen
+Package	SCR06 Arbeitsliste Aufbauen	info	Neue Verfahren eingetragen: 4
+Package	SCR06 Arbeitsliste Aufbauen	info	Schritt 1: Neue Verfahren aus Steuerliste eintragen
+Package	SCR06 Arbeitsliste Aufbauen	info	Aktueller Lauf: Datei [f.istat.xro_dm_stat_bvd.urladung.csv] | Tabellen in Steuerliste (4): tf_bvd_aa, tf_bvd_kreis, tf_bvd_kreis_akt, tf_bvd_sgb2
+Package	SCR06 Arbeitsliste Aufbauen	info	Pflichtfelder-Pruefung: alle Variablen vorhanden OK
+Package	SCR06 Arbeitsliste Aufbauen	info	SCR_06_Arbeitsliste_Aufbauen_Fakten - Start
+Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	ERGEBNIS: BESTANDEN - Alle Parameter vollstaendig und befuellt OK
+Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	Mit Fehlern              : 0
+Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	Vollstaendig (OK)         : 4
+Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	Verfahren geprueft        : 4
+Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	ZUSAMMENFASSUNG SCR_05_Parameter_Vollstaendigkeitspruefung
+Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  OK Alle Pflichtparameter fuer 'tf_bvd_sgb2' vorhanden und befuellt.
+Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      Anzahl_ParallelTasks
+Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      DateFormat
+Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      FaktenClusteredIndex
+Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      Faktenkomprimierung
+Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      Faktenpartitionsspalte
+Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      Faktentabelle
+Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      FaktentabelleTemplate
+Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	Pruefe Verfahren: tf_bvd_sgb2
+Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  OK Alle Pflichtparameter fuer 'tf_bvd_kreis_akt' vorhanden und befuellt.
+Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      Anzahl_ParallelTasks
+Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      DateFormat
+Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      FaktenClusteredIndex
+Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      Faktenkomprimierung
+Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      Faktenpartitionsspalte
+Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      Faktentabelle
+Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      FaktentabelleTemplate
+Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	Pruefe Verfahren: tf_bvd_kreis_akt
+Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  OK Alle Pflichtparameter fuer 'tf_bvd_kreis' vorhanden und befuellt.
+Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      Anzahl_ParallelTasks
+Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      DateFormat
+Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      FaktenClusteredIndex
+Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      Faktenkomprimierung
+Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      Faktenpartitionsspalte
+Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      Faktentabelle
+Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      FaktentabelleTemplate
+Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	Pruefe Verfahren: tf_bvd_kreis
+Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  OK Alle Pflichtparameter fuer 'tf_bvd_aa' vorhanden und befuellt.
+Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      Anzahl_ParallelTasks
+Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      DateFormat
+Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      FaktenClusteredIndex
+Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      Faktenkomprimierung
+Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      Faktenpartitionsspalte
+Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      Faktentabelle
+Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      FaktentabelleTemplate
+Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	Pruefe Verfahren: tf_bvd_aa
+Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	Verfahren in Steuerliste gefunden: 4
+Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	Schritt 3: Parametertabelle vollstaendig pruefen
+Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	Schritt 2: Verfahren aus Steuerliste laden
+Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	Steuerlisten-Tabelle enthaelt 4 Zeile(n) OK
+Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	Steuerlisten-Tabelle [dbo.tm_steuerlistenfile_Fakten] vorhanden OK
+Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	Schritt 1: Steuerlisten-Tabelle pruefen
+Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	SSIS-Variablen-Pruefung: alle vorhanden OK
+Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	Pflichtparameter     : FaktentabelleTemplate, Faktentabelle, Faktenpartitionsspalte, Faktenkomprimierung, FaktenClusteredIndex, DateFormat, Anzahl_ParallelTasks
+Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	SCR_05_Parameter_Vollstaendigkeitspruefung - Start
+Package	SC04 Whereclasuse	info	partition_wert NULL    : 4
+Package	SC04 Whereclasuse	info	partition_wert gefuellt: 0
+Package	SC04 Whereclasuse	info	  tf_bvd_sgb2_*                                      -> wert=NULL
+Package	SC04 Whereclasuse	info	  tf_bvd_kreis_akt_*                                 -> wert=NULL
+Package	SC04 Whereclasuse	info	  tf_bvd_kreis_*                                     -> wert=NULL
+Package	SC04 Whereclasuse	info	  tf_bvd_aa_*                                        -> wert=NULL
+Package	SC04 Whereclasuse	info	Steuerlisten-Zeilen : 4
+Package	SC04 Whereclasuse	info	Spalten geprueft/angelegt OK
+Package	SC04 Whereclasuse	info	Steuerlisten-Tabelle : dbo.tm_steuerlistenfile_Fakten
+Package	SC04 Whereclasuse	info	Referenzdatum: 01.03.2026 00:00:00
+Package	SC04 Whereclasuse	info	SC04_Whereclause - Start
+Package	SCR03 Stuerliste Laden	info	SCR_03_Steuerlisten_Laden erfolgreich abgeschlossen OK
+Package	SCR03 Stuerliste Laden	info	Datei verschoben nach: F:\STL\Done\f.istat.xro_dm_stat_bvd.urladung.csv
+Package	SCR03 Stuerliste Laden	info	Geladene Tabellen aus [f.istat.xro_dm_stat_bvd.urladung.csv] (4): tf_bvd_aa, tf_bvd_kreis, tf_bvd_kreis_akt, tf_bvd_sgb2
+Package	SCR03 Stuerliste Laden	info	Datei erfolgreich verarbeitet: f.istat.xro_dm_stat_bvd.urladung.csv OK
+Package	SCR03 Stuerliste Laden	info	  Zeilen gesamt: 4 | INSERT: 4 | Uebersprungen: 0
+Package	SCR03 Stuerliste Laden	info	  Arbeitstabelle: vollstaendig geleert
+Package	SCR03 Stuerliste Laden	info	  Themengebiet : xro_dm_stat_bvd
+Package	SCR03 Stuerliste Laden	info	  Tabellentyp  : f
+Package	SCR03 Stuerliste Laden	info	  Umgebung     : istat
+Package	SCR03 Stuerliste Laden	info	Verarbeite Datei: f.istat.xro_dm_stat_bvd.urladung.csv
+Package	SCR03 Stuerliste Laden	info	Vollstaendiger Pfad : F:\STL\f.istat.xro_dm_stat_bvd.urladung.csv
+Package	SCR03 Stuerliste Laden	info	Arbeitstabelle und Audit-Tabelle geprueft/angelegt OK
+Package	SCR03 Stuerliste Laden	info	Audit-Tabelle  : dbo.tm_steuerlistenfile_Fakten_audit
+Package	SCR03 Stuerliste Laden	info	Arbeitstabelle : dbo.tm_steuerlistenfile_Fakten
+Package	SCR03 Stuerliste Laden	info	Pflichtfelder-Pruefung: alle Variablen vorhanden OK
+Package	SCR03 Stuerliste Laden	info	SCR_03_Steuerlisten_Laden - Start
+Package	SCR02 Vorbereitungen	info	SCR_01_Vorbereitungen erfolgreich abgeschlossen.
+Package	SCR02 Vorbereitungen	info	  Index erstellt: IX_vm_ddl_sql_server_TABNAME_COLNAME (TABNAME, COLNAME)
+Package	SCR02 Vorbereitungen	info	  dbo-Kopie erstellt: dbo.vm_ddl_sql_server | Zeilen: 1017204
+Package	SCR02 Vorbereitungen	info	  Alte dbo-Kopie geloescht (falls vorhanden)
+Package	SCR02 Vorbereitungen	info	Schritt 8: Lokale dbo-Kopie [dbo.vm_ddl_sql_server] erstellen
+Package	SCR02 Vorbereitungen	info	Externe Partitionssicht [ext.[v_partition_info]]: erfolgreich angelegt 
+Package	SCR02 Vorbereitungen	info	  Oracle Location: ISTAT.BI_DM_EXPORT.V_PARTITION_INFO
+Package	SCR02 Vorbereitungen	info	Externe Partitionssicht [ext.[v_partition_info]]: geloescht (falls vorhanden) wird neu angelegt
+Package	SCR02 Vorbereitungen	info	Schritt 7a: Externe Partitionssicht [ext.v_partition_info] pruefen
+Package	SCR02 Vorbereitungen	info	Externe DDL-Tabelle [ext.vm_ddl_sql_server]: erfolgreich angelegt 
+Package	SCR02 Vorbereitungen	info	Externe DDL-Tabelle [ext.vm_ddl_sql_server]: nicht vorhanden wird angelegt
+Package	SCR02 Vorbereitungen	info	Schritt 7: Externe DDL-Tabelle [ext.vm_ddl_sql_server] pruefen
+Package	SCR02 Vorbereitungen	info	Schema [ext]: erfolgreich angelegt 
+Package	SCR02 Vorbereitungen	info	Schema [ext]: nicht vorhanden wird angelegt
+Package	SCR02 Vorbereitungen	info	External Data Source [Oracle-istat]: erfolgreich angelegt 
+Package	SCR02 Vorbereitungen	info	Schritt 6: Schema [ext] pruefen
+Package	SCR02 Vorbereitungen	info	External Data Source [Oracle-istat]: nicht vorhanden wird angelegt
+Package	SCR02 Vorbereitungen	info	Schritt 5: External Data Source pruefen
+Package	SCR02 Vorbereitungen	info	Credential [Q0003713_BI_DM_EXPORT]: erfolgreich angelegt 
+Package	SCR02 Vorbereitungen	info	Credential [Q0003713_BI_DM_EXPORT]: nicht vorhanden wird angelegt
+Package	SCR02 Vorbereitungen	info	Master Key: erfolgreich angelegt 
+Package	SCR02 Vorbereitungen	info	Schritt 4: PolyBase Credential pruefen
+Package	SCR02 Vorbereitungen	info	Master Key: nicht vorhanden wird angelegt
+Package	SCR02 Vorbereitungen	info	Schritt 3: PolyBase Master Key pruefen
+Package	SCR02 Vorbereitungen	info	ETL_Fkt_FehlerHistorie: geprueft/angelegt 
+Package	SCR02 Vorbereitungen	info	Schritt 2: ETL_Fkt_FehlerHistorie sicherstellen
+Package	SCR02 Vorbereitungen	info	ETL_Fkt_Arbeitsliste: geprueft/angelegt 
+Package	SCR02 Vorbereitungen	info	Schritt 1: ETL_Fkt_Arbeitsliste sicherstellen
+Package	SCR02 Vorbereitungen	info	Pflichtfelder-Pruefung: alle Variablen vorhanden 
+Package	SCR02 Vorbereitungen	info	Steuerlisten-Tabelle: dbo.tm_steuerlistenfile_Fakten
+Package	SCR02 Vorbereitungen	info	SCR_02_Vorbereitungen - Start
+Package	SCR01 Parameter einlesen	info	VORABPRUEFUNG BESTANDEN Paket wird fortgesetzt.
+Package	SCR01 Parameter einlesen	info	VALIDATION_FAILED = 0
+Package	SCR01 Parameter einlesen	info	[OK]       PARAM_PROTOKOLL_TABELLE                  = tm_msi_dm_bvd_prot
+Package	SCR01 Parameter einlesen	info	[OK]       PARAM_PROTOKOLL_SP                       = usp_SSIS_Protokoll
+Package	SCR01 Parameter einlesen	info	[OK]       PARAM_PROTOKOLL_DB                       = msi_dm_bvd
+Package	SCR01 Parameter einlesen	info	Protokollierung
+Package	SCR01 Parameter einlesen	info	[OK]       PARAM_MAXPARALLEL                        = 8
+Package	SCR01 Parameter einlesen	info	Verarbeitung
+Package	SCR01 Parameter einlesen	info	[OK]       PARAM_EXT_TABLE_NAME                     = vm_ddl_sql_server
+Package	SCR01 Parameter einlesen	info	[OK]       PARAM_EXT_TABLE_SCHEMA                   = ext
+Package	SCR01 Parameter einlesen	info	[OK]       PARAM_EXT_SOURCE_LOCATION                = oracle://l9800022db.dst.baintern.de:57575
+Package	SCR01 Parameter einlesen	info	[OK]       PARAM_EXT_TABLE_LOCATION                 = istat.STATRT.VM_DDL_SQL_SERVER
+Package	SCR01 Parameter einlesen	info	[OK]       PARAM_EXT_SOURCE_NAME                    = Oracle-istat
+Package	SCR01 Parameter einlesen	info	PolyBase / External Source
+Package	SCR01 Parameter einlesen	info	[OK]       PARAM_PARAMETERTABELLE                   = tm_msi_dm_bvd_param
+Package	SCR01 Parameter einlesen	info	[OK]       PARAM_PARAMETER_DB                       = msi_dm_bvd
+Package	SCR01 Parameter einlesen	info	Parametertabelle
+Package	SCR01 Parameter einlesen	info	[OK]       PARAM_STEUERLISTEN_TABELLE               = tm_steuerlistenfile_Fakten
+Package	SCR01 Parameter einlesen	info	[OK]       PARAM_STL_ORDNER                         = F:\STL
+Package	SCR01 Parameter einlesen	info	Steuerlisten
+Package	SCR01 Parameter einlesen	info	[OK]       ATOMIC_ORACLE_PASSWORD                   = [Wert verborgen]
+Package	SCR01 Parameter einlesen	info	[OK]       ATOMIC_ORACLE_USERNAME                   = BI_DM_EXPORT
+Package	SCR01 Parameter einlesen	info	Oracle Credentials
+Package	SCR01 Parameter einlesen	info	[OK]       PARAM_VERFAHREN                          = UEB
+Package	SCR01 Parameter einlesen	info	[OK]       PARAM_DATAMART                           = msi_dm_bvd
+Package	SCR01 Parameter einlesen	info	[OK]       PARAM_DATENBANK                          = msi_dm_bvd
+Package	SCR01 Parameter einlesen	info	[OK]       PARAM_CONNECTION_SERVER                  = Q0003713\Abnahme21
+Package	SCR01 Parameter einlesen	info	[OK]       PARAM_SERVER                             = Q0003713
+Package	SCR01 Parameter einlesen	info	Verbindung / Server
+Package	SCR01 Parameter einlesen	info	SCR01_Parameter_Einlesen - Start
+Package	Paketstart	info	Paketstart erfolgreich abgeschlossen.
+Package	Paketstart	info	Schritt 4: Neuen Lauf anlegen
+Package	Paketstart	info	Verfahren auf AUSSTEHEND zurueckgesetzt: -1
+Package	Paketstart	info	Schritt 3: ETL_Fkt_ArbeitslisteFEHLER AUSSTEHEND
+Package	Paketstart	info	Verwaiste Laeufe auf ABGEBROCHEN gesetzt: 0
+Package	Paketstart	info	ETL_Fakt_LaufHistorie: geprueft/angelegt.
+Package	Paketstart	info	Schritt 2: Verwaiste Laeufe (LAUFEND) auf ABGEBROCHEN setzen
+Package	Paketstart	info	Schritt 1: ETL_Fakt_LaufHistorie sicherstellen
+Package	Paketstart	info	Fakten Laden - Paketstart
