@@ -403,6 +403,15 @@ Partial Public Class ScriptMain
                         End Using
                     End Using
                 End Using
+                ' Oracle Interval-Partitionierung haelt stets eine leere obere
+                ' Grenzpartition (offener Folgemonat, z.B. 202606) vor. Dieser
+                ' hoechste Wert traegt keine Daten -> entfernen, damit er nicht
+                ' als leere Partition durch die Pipeline (SCR12/13/16/19) laeuft.
+                If liste.Count > 1 Then
+                    Dim maxWert As Integer = liste.Max()
+                    liste.RemoveAll(Function(w) w = maxWert)
+                    Log("  Leere obere Grenzpartition entfernt: " & maxWert.ToString())
+                End If
                 Return liste
             Catch ex As Exception
                 If versuch < MAX_VERSUCHE Then System.Threading.Thread.Sleep(WARTE_SEK * 1000) Else Throw
