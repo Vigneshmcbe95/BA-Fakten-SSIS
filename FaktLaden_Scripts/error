@@ -1,20 +1,16 @@
-Mit INSERT INTO wird doch die Tabelle erst erstellt….
+Hallo Nils,
 
-Wenn du erst eine Tabelle mit CCI erstellst, müsstest du mit INSERT INTO arbeiten. Der ja leider nicht so schnell arbeitet. Kann man aber mal testen. 
+es ist wieder auf Fehler gelaufen:
+            FEHLER – Verfahren nicht in Parametertabelle gefunden:
+            Verfahren        : vf_ast_stea
+            Parametertabelle : msi_dm_ast.dbo.tm_msi_dm_ast_param
+→ Bitte tragen Sie das Verfahren 'vf_ast_stea' mit allen Pflichtparametern in die Parametertabelle [msi_dm_ast].[dbo].[tm_msi_dm_ast_param] ein.
 
-Von: Schroeder Sebastian <Sebastian.Schroeder3@arbeitsagentur.de> 
-Gesendet: Dienstag, 16. Juni 2026 15:57
-An: Kästner Thomas <Thomas.Kaestner2@arbeitsagentur.de>; Rümmeli Nils - extern <nils.ruemmeli@arbeitsagentur.de>
-Betreff: Stagetabelle und CCI
+Info für dich:
+Die Fakten für tf_stea in msi_dm_ast werden auf Oracle aus dem View vf_stea geholt, werden aber auf SQL Server in der partitionierten Tabelle tf_stea gespeichert.
+D.h. in der Parameter-Tabelle ist kein vf_stea sondern nur tf_stea zu finden, weil die geladenen Daten in die tf_stea partitionierte Tabelle gespeichert werden.
+Also, so was muss man bei Steuerlisten deren Namen nicht nicht mit tf… sondern mit vf… anfangen.
 
-Hallo zusammen,
 
-es wird erst in Stagetabellen geladen und dann mit CCI indiziert.
-
-Es müsste doch viel performanter sein, die Zieltabelle mit CCI erstellen und dann den INSERT INTO durchzuführen, oder?
-
-Grüße
-
-Sebastian
-https://learn.microsoft.com/en-us/sql/relational-databases/indexes/columnstore-indexes-data-loading-guidance?view=sql-server-ver17
-Habs mir selber beantwortet, passt.
+Viele Grüße
+Feriz
