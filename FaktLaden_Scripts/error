@@ -1,268 +1,114 @@
-Task	Meldungstyp	Meldung
-SCR13_Daten_Laden	Fehler	The script returned a failure result.
-SCR13_Daten_Laden	info	  FEHLER 'tf_bzg_bezugsgroesse' pv=202606: Oracle-Tabelle via PolyBase [ext.tf_bzg_bezugsgroesse] lieferte 0 Zeilen fuer mon_id = 202606. Bitte pruefen: (1) existiert der Wert in Oracle (SELECT DISTINCT mon_id FROM ext.[tf_bzg_bezugsgroesse])? (2) ist die Faktenpartitionsspalte [mon_id] in der Parametertabelle fuer Verfahren [tf_bzg_bezugsgroesse] korrekt?
-SCR13_Daten_Laden	info	  FEHLER 'tf_bzg_bezugsgroesse' pv=201713: Oracle-Tabelle via PolyBase [ext.tf_bzg_bezugsgroesse] lieferte 0 Zeilen fuer mon_id = 201713. Bitte pruefen: (1) existiert der Wert in Oracle (SELECT DISTINCT mon_id FROM ext.[tf_bzg_bezugsgroesse])? (2) ist die Faktenpartitionsspalte [mon_id] in der Parametertabelle fuer Verfahren [tf_bzg_bezugsgroesse] korrekt?
-SCR13_Daten_Laden	info	  FEHLER 'tf_bzg_bezugsgroesse' pv=201613: Oracle-Tabelle via PolyBase [ext.tf_bzg_bezugsgroesse] lieferte 0 Zeilen fuer mon_id = 201613. Bitte pruefen: (1) existiert der Wert in Oracle (SELECT DISTINCT mon_id FROM ext.[tf_bzg_bezugsgroesse])? (2) ist die Faktenpartitionsspalte [mon_id] in der Parametertabelle fuer Verfahren [tf_bzg_bezugsgroesse] korrekt?
-SCR13_Daten_Laden	info	  FEHLER 'tf_bzg_bezugsgroesse' pv=201513: Oracle-Tabelle via PolyBase [ext.tf_bzg_bezugsgroesse] lieferte 0 Zeilen fuer mon_id = 201513. Bitte pruefen: (1) existiert der Wert in Oracle (SELECT DISTINCT mon_id FROM ext.[tf_bzg_bezugsgroesse])? (2) ist die Faktenpartitionsspalte [mon_id] in der Parametertabelle fuer Verfahren [tf_bzg_bezugsgroesse] korrekt?
-SCR13_Daten_Laden	info	  FEHLER 'tf_bzg_bezugsgroesse' pv=201313: Oracle-Tabelle via PolyBase [ext.tf_bzg_bezugsgroesse] lieferte 0 Zeilen fuer mon_id = 201313. Bitte pruefen: (1) existiert der Wert in Oracle (SELECT DISTINCT mon_id FROM ext.[tf_bzg_bezugsgroesse])? (2) ist die Faktenpartitionsspalte [mon_id] in der Parametertabelle fuer Verfahren [tf_bzg_bezugsgroesse] korrekt?
-SCR13_Daten_Laden	info	  FEHLER 'tf_bzg_bezugsgroesse' pv=201413: Oracle-Tabelle via PolyBase [ext.tf_bzg_bezugsgroesse] lieferte 0 Zeilen fuer mon_id = 201413. Bitte pruefen: (1) existiert der Wert in Oracle (SELECT DISTINCT mon_id FROM ext.[tf_bzg_bezugsgroesse])? (2) ist die Faktenpartitionsspalte [mon_id] in der Parametertabelle fuer Verfahren [tf_bzg_bezugsgroesse] korrekt?
-SCR13_Daten_Laden	info	  FEHLER 'tf_bzg_bezugsgroesse' pv=201213: Oracle-Tabelle via PolyBase [ext.tf_bzg_bezugsgroesse] lieferte 0 Zeilen fuer mon_id = 201213. Bitte pruefen: (1) existiert der Wert in Oracle (SELECT DISTINCT mon_id FROM ext.[tf_bzg_bezugsgroesse])? (2) ist die Faktenpartitionsspalte [mon_id] in der Parametertabelle fuer Verfahren [tf_bzg_bezugsgroesse] korrekt?
-SCR13_Daten_Laden	info	  FEHLER 'tf_bzg_bezugsgroesse' pv=201113: Oracle-Tabelle via PolyBase [ext.tf_bzg_bezugsgroesse] lieferte 0 Zeilen fuer mon_id = 201113. Bitte pruefen: (1) existiert der Wert in Oracle (SELECT DISTINCT mon_id FROM ext.[tf_bzg_bezugsgroesse])? (2) ist die Faktenpartitionsspalte [mon_id] in der Parametertabelle fuer Verfahren [tf_bzg_bezugsgroesse] korrekt?
-SCR13_Daten_Laden	info	  FEHLER 'tf_bzg_bezugsgroesse' pv=201013: Oracle-Tabelle via PolyBase [ext.tf_bzg_bezugsgroesse] lieferte 0 Zeilen fuer mon_id = 201013. Bitte pruefen: (1) existiert der Wert in Oracle (SELECT DISTINCT mon_id FROM ext.[tf_bzg_bezugsgroesse])? (2) ist die Faktenpartitionsspalte [mon_id] in der Parametertabelle fuer Verfahren [tf_bzg_bezugsgroesse] korrekt?
-SCR13_Daten_Laden	info	  FEHLER 'tf_bzg_bezugsgroesse' pv=200813: Oracle-Tabelle via PolyBase [ext.tf_bzg_bezugsgroesse] lieferte 0 Zeilen fuer mon_id = 200813. Bitte pruefen: (1) existiert der Wert in Oracle (SELECT DISTINCT mon_id FROM ext.[tf_bzg_bezugsgroesse])? (2) ist die Faktenpartitionsspalte [mon_id] in der Parametertabelle fuer Verfahren [tf_bzg_bezugsgroesse] korrekt?
-SCR13_Daten_Laden	info	  FEHLER 'tf_bzg_bezugsgroesse' pv=200913: Oracle-Tabelle via PolyBase [ext.tf_bzg_bezugsgroesse] lieferte 0 Zeilen fuer mon_id = 200913. Bitte pruefen: (1) existiert der Wert in Oracle (SELECT DISTINCT mon_id FROM ext.[tf_bzg_bezugsgroesse])? (2) ist die Faktenpartitionsspalte [mon_id] in der Parametertabelle fuer Verfahren [tf_bzg_bezugsgroesse] korrekt?
-SCR13_Daten_Laden	info	  FEHLER 'tf_bzg_bezugsgroesse' pv=200713: Oracle-Tabelle via PolyBase [ext.tf_bzg_bezugsgroesse] lieferte 0 Zeilen fuer mon_id = 200713. Bitte pruefen: (1) existiert der Wert in Oracle (SELECT DISTINCT mon_id FROM ext.[tf_bzg_bezugsgroesse])? (2) ist die Faktenpartitionsspalte [mon_id] in der Parametertabelle fuer Verfahren [tf_bzg_bezugsgroesse] korrekt?
-SCR13_Daten_Laden	info	FEHLER-DETAILS:
-SCR13_Daten_Laden	Fehler	[FEHLER_SCR13] tf_bzg_bezugsgroesse: 12 Partition(en) fehlgeschlagen
-SCR13_Daten_Laden	info	Erfolgreich: 0 | Fehler: 12
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_201812 bereits gefuellt (2286699 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_201811 bereits gefuellt (2286699 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_201810 bereits gefuellt (2286699 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_201404 bereits gefuellt (2223347 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_201809 bereits gefuellt (2286699 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_201112 bereits gefuellt (2336558 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_201403 bereits gefuellt (2223347 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_201808 bereits gefuellt (2286699 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_201111 bereits gefuellt (2336558 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_201402 bereits gefuellt (2223347 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_201807 bereits gefuellt (2286699 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_201110 bereits gefuellt (2336558 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	Fehler	FEHLER bei pv=201313 (tf_bzg_bezugsgroesse_in_201313): Oracle-Tabelle via PolyBase [ext.tf_bzg_bezugsgroesse] lieferte 0 Zeilen fuer mon_id = 201313. Bitte pruefen: (1) existiert der Wert in Oracle (SELECT DISTINCT mon_id FROM ext.[tf_bzg_bezugsgroesse])? (2) ist die Faktenpartitionsspalte [mon_id] in der Parametertabelle fuer Verfahren [tf_bzg_bezugsgroesse] korrekt?
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_201806 bereits gefuellt (2286699 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_201109 bereits gefuellt (2336558 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_201805 bereits gefuellt (2286699 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_201303 bereits gefuellt (2231429 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_201108 bereits gefuellt (2336558 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_201804 bereits gefuellt (2262833 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_201107 bereits gefuellt (2336558 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_201302 bereits gefuellt (2231429 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_201803 bereits gefuellt (2262833 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_201106 bereits gefuellt (2336558 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	Fehler	FEHLER bei pv=201213 (tf_bzg_bezugsgroesse_in_201213): Oracle-Tabelle via PolyBase [ext.tf_bzg_bezugsgroesse] lieferte 0 Zeilen fuer mon_id = 201213. Bitte pruefen: (1) existiert der Wert in Oracle (SELECT DISTINCT mon_id FROM ext.[tf_bzg_bezugsgroesse])? (2) ist die Faktenpartitionsspalte [mon_id] in der Parametertabelle fuer Verfahren [tf_bzg_bezugsgroesse] korrekt?
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_201802 bereits gefuellt (2262833 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_201105 bereits gefuellt (2336558 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	Fehler	FEHLER bei pv=201713 (tf_bzg_bezugsgroesse_in_201713): Oracle-Tabelle via PolyBase [ext.tf_bzg_bezugsgroesse] lieferte 0 Zeilen fuer mon_id = 201713. Bitte pruefen: (1) existiert der Wert in Oracle (SELECT DISTINCT mon_id FROM ext.[tf_bzg_bezugsgroesse])? (2) ist die Faktenpartitionsspalte [mon_id] in der Parametertabelle fuer Verfahren [tf_bzg_bezugsgroesse] korrekt?
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_201104 bereits gefuellt (2400118 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_201103 bereits gefuellt (2400118 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_200908 bereits gefuellt (2051976 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_200907 bereits gefuellt (2051976 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_201102 bereits gefuellt (2400118 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_200906 bereits gefuellt (2051976 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	Fehler	FEHLER bei pv=201013 (tf_bzg_bezugsgroesse_in_201013): Oracle-Tabelle via PolyBase [ext.tf_bzg_bezugsgroesse] lieferte 0 Zeilen fuer mon_id = 201013. Bitte pruefen: (1) existiert der Wert in Oracle (SELECT DISTINCT mon_id FROM ext.[tf_bzg_bezugsgroesse])? (2) ist die Faktenpartitionsspalte [mon_id] in der Parametertabelle fuer Verfahren [tf_bzg_bezugsgroesse] korrekt?
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_200905 bereits gefuellt (2051976 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_200904 bereits gefuellt (2154347 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_200903 bereits gefuellt (2154347 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_200902 bereits gefuellt (2154347 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	Fehler	FEHLER bei pv=200813 (tf_bzg_bezugsgroesse_in_200813): Oracle-Tabelle via PolyBase [ext.tf_bzg_bezugsgroesse] lieferte 0 Zeilen fuer mon_id = 200813. Bitte pruefen: (1) existiert der Wert in Oracle (SELECT DISTINCT mon_id FROM ext.[tf_bzg_bezugsgroesse])? (2) ist die Faktenpartitionsspalte [mon_id] in der Parametertabelle fuer Verfahren [tf_bzg_bezugsgroesse] korrekt?
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_201608 bereits gefuellt (2224318 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_201607 bereits gefuellt (2224318 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_201606 bereits gefuellt (2224318 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_201605 bereits gefuellt (2224318 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_201604 bereits gefuellt (2231543 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_201603 bereits gefuellt (2231543 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_201602 bereits gefuellt (2231543 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	Fehler	FEHLER bei pv=201513 (tf_bzg_bezugsgroesse_in_201513): Oracle-Tabelle via PolyBase [ext.tf_bzg_bezugsgroesse] lieferte 0 Zeilen fuer mon_id = 201513. Bitte pruefen: (1) existiert der Wert in Oracle (SELECT DISTINCT mon_id FROM ext.[tf_bzg_bezugsgroesse])? (2) ist die Faktenpartitionsspalte [mon_id] in der Parametertabelle fuer Verfahren [tf_bzg_bezugsgroesse] korrekt?
-SCR13_Daten_Laden	info	  SELECT INTO [tf_bzg_bezugsgroesse_in_201313_LOADING] WHERE mon_id = 201313 (wird zu _in_ umbenannt)
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_201312 bereits gefuellt (2223347 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_201311 bereits gefuellt (2223347 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_201310 bereits gefuellt (2223347 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	Fehler	FEHLER bei pv=202606 (tf_bzg_bezugsgroesse_in_202606): Oracle-Tabelle via PolyBase [ext.tf_bzg_bezugsgroesse] lieferte 0 Zeilen fuer mon_id = 202606. Bitte pruefen: (1) existiert der Wert in Oracle (SELECT DISTINCT mon_id FROM ext.[tf_bzg_bezugsgroesse])? (2) ist die Faktenpartitionsspalte [mon_id] in der Parametertabelle fuer Verfahren [tf_bzg_bezugsgroesse] korrekt?
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_201309 bereits gefuellt (2223347 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_201308 bereits gefuellt (2223347 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_201307 bereits gefuellt (2223347 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  SELECT INTO [tf_bzg_bezugsgroesse_in_201213_LOADING] WHERE mon_id = 201213 (wird zu _in_ umbenannt)
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_201306 bereits gefuellt (2223347 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_201212 bereits gefuellt (2231429 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  SELECT INTO [tf_bzg_bezugsgroesse_in_201713_LOADING] WHERE mon_id = 201713 (wird zu _in_ umbenannt)
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_201305 bereits gefuellt (2223347 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_201712 bereits gefuellt (2262833 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_201304 bereits gefuellt (2231429 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_201211 bereits gefuellt (2231429 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_200807 bereits gefuellt (2154347 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_201711 bereits gefuellt (2262833 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_201011 bereits gefuellt (2400118 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_200806 bereits gefuellt (2154344 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_201210 bereits gefuellt (2231429 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_201710 bereits gefuellt (2262833 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_201010 bereits gefuellt (2400118 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_201209 bereits gefuellt (2231429 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_200805 bereits gefuellt (2154344 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  SELECT INTO [tf_bzg_bezugsgroesse_in_201013_LOADING] WHERE mon_id = 201013 (wird zu _in_ umbenannt)
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_201709 bereits gefuellt (2262833 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_201012 bereits gefuellt (2400118 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_201009 bereits gefuellt (2400118 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_201208 bereits gefuellt (2231429 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_200804 bereits gefuellt (2116197 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_201708 bereits gefuellt (2262833 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_202512 bereits gefuellt (4904527 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_201008 bereits gefuellt (2400118 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_200803 bereits gefuellt (2123271 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  SELECT INTO [tf_bzg_bezugsgroesse_in_200813_LOADING] WHERE mon_id = 200813 (wird zu _in_ umbenannt)
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_201707 bereits gefuellt (2262833 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_201207 bereits gefuellt (2231429 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_200812 bereits gefuellt (2154347 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_200802 bereits gefuellt (2123271 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_201706 bereits gefuellt (2262833 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_201206 bereits gefuellt (2231429 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_201007 bereits gefuellt (2400118 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_202511 bereits gefuellt (4904527 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_200811 bereits gefuellt (2154347 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	Fehler	FEHLER bei pv=200713 (tf_bzg_bezugsgroesse_in_200713): Oracle-Tabelle via PolyBase [ext.tf_bzg_bezugsgroesse] lieferte 0 Zeilen fuer mon_id = 200713. Bitte pruefen: (1) existiert der Wert in Oracle (SELECT DISTINCT mon_id FROM ext.[tf_bzg_bezugsgroesse])? (2) ist die Faktenpartitionsspalte [mon_id] in der Parametertabelle fuer Verfahren [tf_bzg_bezugsgroesse] korrekt?
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_201205 bereits gefuellt (2231429 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_201705 bereits gefuellt (2262833 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_201006 bereits gefuellt (2400118 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  SELECT INTO [tf_bzg_bezugsgroesse_in_202606_LOADING] WHERE mon_id = 202606 (wird zu _in_ umbenannt)
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_202510 bereits gefuellt (4904527 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_201204 bereits gefuellt (2336558 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_201704 bereits gefuellt (2224318 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_202605 bereits gefuellt (4959368 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_200810 bereits gefuellt (2154347 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_201005 bereits gefuellt (2400118 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_200809 bereits gefuellt (2154347 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_201203 bereits gefuellt (2336558 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_201703 bereits gefuellt (2224318 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_201004 bereits gefuellt (2051976 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_202604 bereits gefuellt (4904527 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_200808 bereits gefuellt (2154347 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_202509 bereits gefuellt (4904527 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_201202 bereits gefuellt (2336558 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_201702 bereits gefuellt (2224318 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_201003 bereits gefuellt (2051976 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_202308 bereits gefuellt (4514338 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_201002 bereits gefuellt (2051976 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_202508 bereits gefuellt (4904527 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	Fehler	FEHLER bei pv=201613 (tf_bzg_bezugsgroesse_in_201613): Oracle-Tabelle via PolyBase [ext.tf_bzg_bezugsgroesse] lieferte 0 Zeilen fuer mon_id = 201613. Bitte pruefen: (1) existiert der Wert in Oracle (SELECT DISTINCT mon_id FROM ext.[tf_bzg_bezugsgroesse])? (2) ist die Faktenpartitionsspalte [mon_id] in der Parametertabelle fuer Verfahren [tf_bzg_bezugsgroesse] korrekt?
-SCR13_Daten_Laden	info	  SELECT INTO [tf_bzg_bezugsgroesse_in_201513_LOADING] WHERE mon_id = 201513 (wird zu _in_ umbenannt)
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_202603 bereits gefuellt (4904527 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	Fehler	FEHLER bei pv=201113 (tf_bzg_bezugsgroesse_in_201113): Oracle-Tabelle via PolyBase [ext.tf_bzg_bezugsgroesse] lieferte 0 Zeilen fuer mon_id = 201113. Bitte pruefen: (1) existiert der Wert in Oracle (SELECT DISTINCT mon_id FROM ext.[tf_bzg_bezugsgroesse])? (2) ist die Faktenpartitionsspalte [mon_id] in der Parametertabelle fuer Verfahren [tf_bzg_bezugsgroesse] korrekt?
-SCR13_Daten_Laden	Fehler	FEHLER bei pv=200913 (tf_bzg_bezugsgroesse_in_200913): Oracle-Tabelle via PolyBase [ext.tf_bzg_bezugsgroesse] lieferte 0 Zeilen fuer mon_id = 200913. Bitte pruefen: (1) existiert der Wert in Oracle (SELECT DISTINCT mon_id FROM ext.[tf_bzg_bezugsgroesse])? (2) ist die Faktenpartitionsspalte [mon_id] in der Parametertabelle fuer Verfahren [tf_bzg_bezugsgroesse] korrekt?
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_201512 bereits gefuellt (2231543 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_202307 bereits gefuellt (4514338 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_201511 bereits gefuellt (2231543 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_202602 bereits gefuellt (4904527 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_202507 bereits gefuellt (4904527 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_201510 bereits gefuellt (2231543 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_202601 bereits gefuellt (4904527 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_202506 bereits gefuellt (4904527 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_202306 bereits gefuellt (4514338 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_202104 bereits gefuellt (2259650 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_202505 bereits gefuellt (4904527 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_201509 bereits gefuellt (2231543 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_202305 bereits gefuellt (4514338 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_202103 bereits gefuellt (2259650 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_201508 bereits gefuellt (2231543 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_202304 bereits gefuellt (4373889 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_202102 bereits gefuellt (2259650 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_202504 bereits gefuellt (4764293 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_201507 bereits gefuellt (2231543 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_202303 bereits gefuellt (4373889 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_202101 bereits gefuellt (2259650 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_202503 bereits gefuellt (4764293 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_201506 bereits gefuellt (2231543 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_202012 bereits gefuellt (2259650 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_202302 bereits gefuellt (4373889 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_201505 bereits gefuellt (2231543 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_202502 bereits gefuellt (4764293 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_202011 bereits gefuellt (2259650 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_202301 bereits gefuellt (4373889 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_201504 bereits gefuellt (2245049 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_202010 bereits gefuellt (2259650 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_202501 bereits gefuellt (4764293 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_202212 bereits gefuellt (4373889 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_201503 bereits gefuellt (2245049 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_202412 bereits gefuellt (4764293 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_202009 bereits gefuellt (2259650 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_202211 bereits gefuellt (4373889 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_201502 bereits gefuellt (2245049 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_202008 bereits gefuellt (2259650 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_202210 bereits gefuellt (4373889 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	Fehler	FEHLER bei pv=201413 (tf_bzg_bezugsgroesse_in_201413): Oracle-Tabelle via PolyBase [ext.tf_bzg_bezugsgroesse] lieferte 0 Zeilen fuer mon_id = 201413. Bitte pruefen: (1) existiert der Wert in Oracle (SELECT DISTINCT mon_id FROM ext.[tf_bzg_bezugsgroesse])? (2) ist die Faktenpartitionsspalte [mon_id] in der Parametertabelle fuer Verfahren [tf_bzg_bezugsgroesse] korrekt?
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_202411 bereits gefuellt (4764293 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_202007 bereits gefuellt (2259650 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_202410 bereits gefuellt (4764293 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_202006 bereits gefuellt (2259650 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_202209 bereits gefuellt (4373889 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_202005 bereits gefuellt (2259650 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_202208 bereits gefuellt (4373889 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_202409 bereits gefuellt (4764293 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_202004 bereits gefuellt (2260826 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_202408 bereits gefuellt (4764293 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_202207 bereits gefuellt (4373889 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_202003 bereits gefuellt (2260826 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_202407 bereits gefuellt (4764293 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_202206 bereits gefuellt (4373889 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_202002 bereits gefuellt (2260826 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_202406 bereits gefuellt (4764293 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_202205 bereits gefuellt (4373889 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_202001 bereits gefuellt (2260826 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_202405 bereits gefuellt (4764293 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_202204 bereits gefuellt (2218391 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_201912 bereits gefuellt (2260826 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_202404 bereits gefuellt (4514338 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_202203 bereits gefuellt (2218391 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_201911 bereits gefuellt (2260826 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  SELECT INTO [tf_bzg_bezugsgroesse_in_200713_LOADING] WHERE mon_id = 200713 (wird zu _in_ umbenannt)
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_202403 bereits gefuellt (4514338 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_200712 bereits gefuellt (2123072 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_202202 bereits gefuellt (2218391 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_201910 bereits gefuellt (2260826 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  SELECT INTO [tf_bzg_bezugsgroesse_in_201413_LOADING] WHERE mon_id = 201413 (wird zu _in_ umbenannt)
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_200711 bereits gefuellt (2123053 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_202402 bereits gefuellt (4514338 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_202201 bereits gefuellt (2218391 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_201412 bereits gefuellt (2245049 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_201909 bereits gefuellt (2260826 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_202112 bereits gefuellt (2218391 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_201908 bereits gefuellt (2260826 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_201411 bereits gefuellt (2245049 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_200710 bereits gefuellt (2123072 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_202111 bereits gefuellt (2218391 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_200709 bereits gefuellt (2128488 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_201410 bereits gefuellt (2245049 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_201907 bereits gefuellt (2260826 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_202401 bereits gefuellt (4514338 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_202110 bereits gefuellt (2218391 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_200708 bereits gefuellt (2129903 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_201906 bereits gefuellt (2260826 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_201409 bereits gefuellt (2245049 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_202109 bereits gefuellt (2218391 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  SELECT INTO [tf_bzg_bezugsgroesse_in_201613_LOADING] WHERE mon_id = 201613 (wird zu _in_ umbenannt)
-SCR13_Daten_Laden	info	  SELECT INTO [tf_bzg_bezugsgroesse_in_200913_LOADING] WHERE mon_id = 200913 (wird zu _in_ umbenannt)
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_202312 bereits gefuellt (4514338 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_201612 bereits gefuellt (2224318 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_200912 bereits gefuellt (2051976 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_201905 bereits gefuellt (2260826 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_201408 bereits gefuellt (2245049 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_200707 bereits gefuellt (2135854 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_202108 bereits gefuellt (2218391 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_201904 bereits gefuellt (2286699 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_202311 bereits gefuellt (4514338 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_201611 bereits gefuellt (2224318 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_200911 bereits gefuellt (2051976 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_201407 bereits gefuellt (2245049 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_202107 bereits gefuellt (2218391 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_200910 bereits gefuellt (2051976 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_201610 bereits gefuellt (2224318 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_201903 bereits gefuellt (2286699 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_202310 bereits gefuellt (4514338 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_200706 bereits gefuellt (2136778 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_202106 bereits gefuellt (2218391 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_201406 bereits gefuellt (2245049 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_201902 bereits gefuellt (2286699 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_200909 bereits gefuellt (2051976 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_202309 bereits gefuellt (4514338 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_201405 bereits gefuellt (2245049 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_201609 bereits gefuellt (2224318 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_200705 bereits gefuellt (2136884 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_202105 bereits gefuellt (2218391 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  tf_bzg_bezugsgroesse_in_201901 bereits gefuellt (2286699 Zeilen) uebersprungen OK
-SCR13_Daten_Laden	info	  SELECT INTO [tf_bzg_bezugsgroesse_in_201113_LOADING] WHERE mon_id = 201113 (wird zu _in_ umbenannt)
-SCR13_Daten_Laden	info	Arbeitspakete gesamt (Verfahren x Partition): 230 | Parallelitaet: 8
-SCR13_Daten_Laden	info	  Partitionswerte: 230
-SCR13_Daten_Laden	info	Verfahren: tf_bzg_bezugsgroesse | Spalte: mon_id
-SCR13_Daten_Laden	info	Verfahren: 1
-SCR13_Daten_Laden	info	Partitionswerte gesamt: 230 Eintraege
-SCR13_Daten_Laden	info	SCR13_Daten_Laden - Start
-SCR12_Staging_Erstellen	info	  Schritt 5 abgeschlossen OK
-SCR12_Staging_Erstellen	info	Erfolgreich: 1 | Fehler: 0
-SCR12_Staging_Erstellen	info	[SCHRITT_5] tf_bzg_bezugsgroesse: Staging erstellt: 230 Partition(en) | NEU: 230 | AKTUALISIERUNG: 0
+Verfahren	Paket	Task	Meldungstyp	Meldung
+BST	Package	SCR08_Template_Erstellen	Fehler	The script returned a failure result.
+BST	Package	SCR08_Template_Erstellen	info	Erfolgreich: 0 | Fehler: 1
+BST	Package	SCR08_Template_Erstellen	Fehler	[FEHLER_SCR08] tf_bsbm_betrieb: [Template erstellen/pruefen] fehlgeschlagen: Incorrect syntax near '='.
+BST	Package	SCR08_Template_Erstellen	Fehler	FEHLER Verfahren 'tf_bsbm_betrieb': [Template erstellen/pruefen] fehlgeschlagen: Incorrect syntax near '='.
+BST	Package	SCR08_Template_Erstellen	info	WARNUNG [Template erstellen/pruefen] Versuch 3/3: Incorrect syntax near '='.
+BST	Package	SCR08_Template_Erstellen	info	WARNUNG [Template erstellen/pruefen] Versuch 2/3: Incorrect syntax near '='.
+BST	Package	SCR08_Template_Erstellen	info	SQL Statement [Template erstellen/pruefen]: DECLARE @t  nvarchar(128) = N'tf_bsbm_betrieb';
+DECLARE @s  nvarchar(128) = N'xro_dm_stat_bsbm';
+DECLARE @db nvarchar(128) = N'msi_dm_bsbm';
+DECLARE @cols nvarchar(max), @colsExt nvarchar(max), @sql nvarchar(max), @tmpl nvarchar(300), @tmplObj int, @d int;
+
+-- Soll-Spalten (columns_dbo) und ext-Struktur (columns_ext) aus tm_polybase_struktur laden
+SELECT @cols    = STRING_AGG(CAST(columns_dbo AS nvarchar(max)), CONCAT(N',', CHAR(13), CHAR(10)))
+                    WITHIN GROUP (ORDER BY colno),
+       @colsExt = STRING_AGG(CAST(columns_ext AS nvarchar(max)), CONCAT(N',', CHAR(13), CHAR(10)))
+                    WITHIN GROUP (ORDER BY colno)
+FROM dbo.tm_polybase_struktur
+WHERE tabname = LOWER(@t) AND themengebiet = @s;
+
+IF @cols IS NULL OR @colsExt IS NULL
+    THROW 50001, 'Keine columns_dbo/columns_ext Metadaten gefunden', 1;
+
+SET @tmpl    = CONCAT('[', @db, '].dbo.[', @t, '_template]');
+SET @tmplObj = OBJECT_ID(@tmpl);
+
+IF @tmplObj IS NULL
+BEGIN
+    -- Template existiert nicht -> aus columns_dbo erstellen (nur Struktur)
+    -- ext.<t> existiert erst ab SCR09 -> Struktur lokal als #ext_struct nachbilden
+    SET @sql = N'CREATE TABLE #ext_struct (' + @colsExt + N');' +
+               N'SELECT TOP 0 ' + @cols + N' INTO ' + @tmpl + N' FROM #ext_struct;';
+    EXEC sp_executesql @sql;
+END
+ELSE
+BEGIN
+    -- Template existiert -> Struktur (Spaltenname/Typ/Laenge/Nullable) gegen Soll pruefen
+    SET @sql =
+        N'CREATE TABLE #ext_struct (' + @colsExt + N');' +
+        N'SELECT TOP 0 ' + @cols + N' INTO #soll FROM #ext_struct;' +
+        N';WITH soll AS (SELECT c.name COLLATE DATABASE_DEFAULT AS nm, ty.name COLLATE DATABASE_DEFAULT AS typ, c.max_length AS ml, c.precision AS pr, c.scale AS sc, c.is_nullable AS nu' +
+          N' FROM tempdb.sys.columns c JOIN tempdb.sys.types ty ON ty.user_type_id=c.user_type_id WHERE c.object_id=OBJECT_ID(N''tempdb..#soll'')),' +
+          N' ist AS (SELECT c.name COLLATE DATABASE_DEFAULT AS nm, ty.name COLLATE DATABASE_DEFAULT AS typ, c.max_length AS ml, c.precision AS pr, c.scale AS sc, c.is_nullable AS nu' +
+          N' FROM ' + QUOTENAME(@db) + N'.sys.columns c JOIN ' + QUOTENAME(@db) + N'.sys.types ty ON ty.user_type_id=c.user_type_id WHERE c.object_id=@po)' +
+          N' SELECT @cnt = COUNT(*) FROM ((SELECT * FROM soll EXCEPT SELECT * FROM ist) UNION ALL (SELECT * FROM ist EXCEPT SELECT * FROM soll)) x;';
+    EXEC sp_executesql @sql, N'@po int, @cnt int OUTPUT', @po=@tmplObj, @cnt=@d OUTPUT;
+    IF @d > 0
+    BEGIN
+        DECLARE @msg nvarchar(400) = CONCAT('Template ', @tmpl, ': Struktur weicht von columns_dbo (Soll) ab - Lauf wird abgebrochen. Template manuell pruefen/loeschen.');
+        THROW 50010, @msg, 1;
+    END
+END
+BST	Package	SCR08_Template_Erstellen	info	WARNUNG [Template erstellen/pruefen] Versuch 1/3: Incorrect syntax near '='.
+BST	Package	SCR08_Template_Erstellen	info	  Template fuer: tf_bsbm_betrieb
+BST	Package	SCR08_Template_Erstellen	info	Verfahren: tf_bsbm_betrieb | Themengebiet: xro_dm_stat_bsbm
+BST	Package	SCR08_Template_Erstellen	info	Verfahren zur Verarbeitung: 1
+BST	Package	SCR08_Template_Erstellen	info	SCR08_Template_Erstellen - Start
+BST	Package	SCR07_Schemadaten_Kopieren	info	Erfolgreich: 1 | Fehler: 0
+BST	Package	SCR07_Schemadaten_Kopieren	info	Staging-Tabelle dbo.ddl_staging bleibt fuer Debugging erhalten
+BST	Package	SCR07_Schemadaten_Kopieren	info	  39 Spalten kopiert OK
+BST	Package	SCR07_Schemadaten_Kopieren	info	[SCHRITT_5] tf_bsbm_betrieb: Schemadaten kopiert: 39 Spalten
+BST	Package	SCR07_Schemadaten_Kopieren	info	Verfahren: tf_bsbm_betrieb | Themengebiet: xro_dm_stat_bsbm
+BST	Package	SCR07_Schemadaten_Kopieren	info	Staging-Tabelle existiert bereits mit 1016733 Zeilen - wird wiederverwendet
+BST	Package	SCR07_Schemadaten_Kopieren	info	Oracle-Daten werden in Staging-Tabelle geladen...
+BST	Package	SCR07_Schemadaten_Kopieren	info	Quelle: [msi_dm_bsbm].[ext].[vm_ddl_sql_server]
+BST	Package	SCR07_Schemadaten_Kopieren	info	Verfahren zur Verarbeitung: 1
+BST	Package	SCR07_Schemadaten_Kopieren	info	Ziel-Tabelle tm_polybase_struktur geprueft/erstellt.
+BST	Package	SCR07_Schemadaten_Kopieren	info	SCR07_Schemadaten_Kopieren - Start
+BST	Package	SCR06 Arbeitsliste Aufbauen	info	SCR_Arbeitsliste_Aufbauen_Fakten erfolgreich abgeschlossen OK
+BST	Package	SCR06 Arbeitsliste Aufbauen	info	Neue Verfahren : 0
+BST	Package	SCR06 Arbeitsliste Aufbauen	info	ZUSAMMENFASSUNG
+BST	Package	SCR06 Arbeitsliste Aufbauen	info	FEHLER vorhanden → Nur FEHLER zu AUSSTEHEND (Erfolge bleiben) → 1 Zeilen zurückgesetzt
+BST	Package	SCR06 Arbeitsliste Aufbauen	info	  - ANDERE   : 24
+BST	Package	SCR06 Arbeitsliste Aufbauen	info	  - FEHLER   : 12
+BST	Package	SCR06 Arbeitsliste Aufbauen	info	  - ERFOLG   : 0
+BST	Package	SCR06 Arbeitsliste Aufbauen	info	  - Total    : 36
+BST	Package	SCR06 Arbeitsliste Aufbauen	info	Status-Analyse (alle Verfahren aus Steuerliste):
+BST	Package	SCR06 Arbeitsliste Aufbauen	info	Schritt 2: Status analysieren und zuruecksetzen
+BST	Package	SCR06 Arbeitsliste Aufbauen	info	Neue Verfahren eingetragen: 0
+BST	Package	SCR06 Arbeitsliste Aufbauen	info	Schritt 1: Neue Verfahren aus Steuerliste eintragen
+BST	Package	SCR06 Arbeitsliste Aufbauen	info	Aktueller Lauf: Datei [f.istat.xro_dm_stat_bsbm.stva_m03_perm.csv] | Tabellen in Steuerliste (3): tf_bsbm_arbnehm, tf_bsbm_betrieb, tf_bsbm_betrieb_all
+BST	Package	SCR06 Arbeitsliste Aufbauen	info	Pflichtfelder-Pruefung: alle Variablen vorhanden OK
+BST	Package	SCR06 Arbeitsliste Aufbauen	info	SCR_06_Arbeitsliste_Aufbauen_Fakten - Start
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	ERGEBNIS: BESTANDEN - Alle Parameter vollstaendig und befuellt OK
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	Mit Fehlern              : 0
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	Vollstaendig (OK)         : 3
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	Verfahren geprueft        : 3
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  OK Alle Pflichtparameter fuer 'tf_bsbm_betrieb_all' vorhanden und befuellt.
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	ZUSAMMENFASSUNG SCR_05_Parameter_Vollstaendigkeitspruefung
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      Anzahl_ParallelTasks
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      DateFormat
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      FaktenClusteredIndex
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      Faktenkomprimierung
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      Faktenpartitionsspalte
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      Faktentabelle
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      FaktentabelleTemplate
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	Pruefe Verfahren: tf_bsbm_betrieb_all
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  OK Alle Pflichtparameter fuer 'tf_bsbm_betrieb' vorhanden und befuellt.
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      Anzahl_ParallelTasks
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      FaktenClusteredIndex
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      DateFormat
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      Faktenkomprimierung
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      Faktenpartitionsspalte
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      Faktentabelle
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      FaktentabelleTemplate
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  OK Alle Pflichtparameter fuer 'tf_bsbm_arbnehm' vorhanden und befuellt.
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	Pruefe Verfahren: tf_bsbm_betrieb
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      Anzahl_ParallelTasks
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      FaktenClusteredIndex
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      DateFormat
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      Faktenkomprimierung
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      Faktenpartitionsspalte
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      Faktentabelle
+BST	Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      FaktentabelleTemplate
