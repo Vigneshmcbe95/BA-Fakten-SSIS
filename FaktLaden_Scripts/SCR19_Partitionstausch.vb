@@ -77,6 +77,17 @@ Partial Public Class ScriptMain
                         Dim inTable  As String = v.Faktentabelle.ToLower() & "_in_"  & pvStr
                         Dim outTable As String = v.Faktentabelle.ToLower() & "_out_" & pvStr
                         Log("  Partition: " & pvStr)
+                        ' Leere Grenzpartition (keine Oracle-Daten, z.B. 202606): _in_-Tabelle
+                        ' wurde von SCR13 nicht erzeugt -> Tausch ueberspringen statt Fehler.
+                        ' Leere _out_-Huelle aufraeumen, damit kein Waisenobjekt bleibt.
+                        If Convert.ToInt32(SqlSkalar(connStr, "SELECT CASE WHEN OBJECT_ID('dbo.[" & inTable & "]','U') IS NULL THEN 0 ELSE 1 END", "in vorhanden")) = 0 Then
+                            Log("  Keine Daten geladen (leere Partition) -> Tausch uebersprungen: " & pvStr)
+                            LogSchreiben(connStr, v.Verfahren, "LEER_" & pvStr, "Keine Daten in Oracle - Partitionstausch uebersprungen")
+                            If Convert.ToInt32(SqlSkalar(connStr, "SELECT CASE WHEN OBJECT_ID('dbo.[" & outTable & "]','U') IS NOT NULL THEN 1 ELSE 0 END", "out vorhanden")) = 1 Then
+                                SqlAusfuehren(connStr, "DROP TABLE dbo.[" & outTable & "];", "drop leeres _out")
+                            End If
+                            Continue For
+                        End If
                         ' Partitionsnummer per $partition-Funktion — gibt direkt die korrekte Nummer zurueck
                         Dim pnr As Object = SqlSkalar(connStr,
                             "SELECT $partition.[" & pf & "](" & pvStr & ")",

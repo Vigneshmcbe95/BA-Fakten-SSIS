@@ -84,6 +84,12 @@ Partial Public Class ScriptMain
                         For Each tbl As String In New String() {
                                 v.Faktentabelle.ToLower() & "_in_"  & wert,
                                 v.Faktentabelle.ToLower() & "_out_" & wert}
+                            ' Leere Grenzpartition (keine Oracle-Daten, z.B. 202606): _in_-Tabelle
+                            ' wurde von SCR13 nicht erzeugt -> ueberspringen statt Fehler.
+                            If Convert.ToInt32(SqlSkalar(connStr, "SELECT CASE WHEN OBJECT_ID('dbo.[" & tbl & "]','U') IS NULL THEN 0 ELSE 1 END", "Tabelle pruefen")) = 0 Then
+                                Log("  Tabelle nicht vorhanden (keine Daten geladen) uebersprungen: " & tbl)
+                                Continue For
+                            End If
                             Log("  Index auf: " & tbl)
                             If v.IndexType = "TRUE" Then
                                 If Not IndexVorhanden(connStr, tbl, "CI_" & tbl) Then
