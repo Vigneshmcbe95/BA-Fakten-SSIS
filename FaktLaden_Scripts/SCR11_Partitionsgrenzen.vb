@@ -150,43 +150,64 @@ Partial Public Class ScriptMain
                             Next
 
                         Else
-                            ' ─── APPEND: Lade ALLE fehlenden Oracle-Werte ───
-                            Log("  MSSQL MIN: " & mssqlWerte.Min().ToString() & " | MAX: " & mssqlWerte.Max().ToString())
-                            Log("  Entscheidung: APPEND (alle fehlenden Werte)")
+                            ' ─── APPEND: fehlende Oracle-Werte ermitteln ───
+                            Dim oMin As Integer = oracleAlleWerte.Min()
+                            Dim oMax As Integer = oracleAlleWerte.Max()
+                            Dim mMin As Integer = mssqlWerte.Min()
+                            Dim mMax As Integer = mssqlWerte.Max()
+                            Log("  MSSQL MIN: " & mMin.ToString() & " | MAX: " & mMax.ToString())
+                            Log("  Entscheidung: APPEND (fehlende Werte)")
 
-                            ' ═════════════════════════════════════════════════════════
-                            ' FIX: Load ALL Oracle values NOT in MSSQL
-                            ' This catches:
-                            ' - Historical values before MSSQL MIN
-                            ' - Gap values between MSSQL MIN and MAX
-                            ' - Future values after MSSQL MAX
-                            ' ═════════════════════════════════════════════════════════
                             Dim neueWerte As List(Of Integer) = oracleAlleWerte.Where(Function(w) Not mssqlWerte.Contains(w)).ToList()
 
-                            Log("  Oracle gesamt: " & oracleAlleWerte.Count.ToString())
-                            Log("  MSSQL vorhanden: " & mssqlWerte.Count.ToString())
-                            Log("  Fehlende Werte: " & neueWerte.Count.ToString())
+                            ' ═════════════════════════════════════════════════════════
+                            ' Fehlende Werte UNTERHALB des MSSQL-Minimums sind leere
+                            ' Oracle-Grenzpartitionen (die 1. Partition ohne Daten -
+                            ' gilt fuer 6- und 8-stelliges Schema). MSSQL enthaelt die
+                            ' echten Daten bereits ab mMin -> diese Werte NICHT laden,
+                            ' sonst liefert ext.<fakt> 0 Zeilen (Fehlalarm).
+                            ' ═════════════════════════════════════════════════════════
+                            Dim leereFloor As List(Of Integer) =
+                                neueWerte.Where(Function(w) w < mMin).OrderBy(Function(w) w).ToList()
+                            Dim echtFehlend As List(Of Integer) =
+                                neueWerte.Where(Function(w) w >= mMin).OrderBy(Function(w) w).ToList()
 
-                            If neueWerte.Count = 0 Then
-                                Log("  Keine fehlenden Werte uebersprungen")
+                            Log("  Oracle gesamt: " & oracleAlleWerte.Count.ToString() &
+                                " | MSSQL vorhanden: " & mssqlWerte.Count.ToString() &
+                                " | fehlend: " & neueWerte.Count.ToString())
+
+                            If leereFloor.Count > 0 Then
+                                Log("  Leere Grenzpartition(en) unterhalb MSSQL-MIN (" & mMin.ToString() &
+                                    ") ignoriert: " & String.Join(", ", leereFloor.ToArray()))
+                            End If
+
+                            If echtFehlend.Count = 0 Then
+                                ' Es gibt keine echten neuen Werte -> alles bereits geladen.
+                                Log("  Alle Daten bereits geladen - kein neuer Ladevorgang noetig.")
+                                Log("  Oracle: MIN=" & oMin.ToString() & " MAX=" & oMax.ToString() &
+                                    " | MSSQL: MIN=" & mMin.ToString() & " MAX=" & mMax.ToString())
+                                ProtokollSchreiben(connStr, v.Verfahren, "SCHRITT_4",
+                                    "Alle Daten bereits geladen - kein neuer Ladevorgang noetig. " &
+                                    "Oracle " & oMin.ToString() & "-" & oMax.ToString() &
+                                    " | MSSQL " & mMin.ToString() & "-" & mMax.ToString() &
+                                    If(leereFloor.Count > 0,
+                                       " (leere Grenzpartition ignoriert: " & String.Join(",", leereFloor.ToArray()) & ")",
+                                       ""))
                                 StatusSetzen(connStr, v.ID, "PARTITIONSGRENZEN_ERSTELLT")
                                 cntOK += 1
                                 Continue For
                             End If
 
-                            ' Show where gaps are
-                            Log("  Fehlend MIN: " & neueWerte.Min().ToString() & " | MAX: " & neueWerte.Max().ToString())
+                            ' Lage der echten Luecken protokollieren
+                            Dim dazwischen As Integer = echtFehlend.Where(Function(w) w <= mMax).Count()
+                            Dim nachMax As Integer = echtFehlend.Where(Function(w) w > mMax).Count()
+                            Log("  Echt fehlend: " & echtFehlend.Count.ToString() &
+                                " | ZWISCHEN MIN-MAX: " & dazwischen.ToString() &
+                                " | NACH MSSQL MAX: " & nachMax.ToString())
+                            Log("  Echt fehlend MIN: " & echtFehlend.Min().ToString() &
+                                " | MAX: " & echtFehlend.Max().ToString())
 
-                            ' Count gaps in different regions
-                            Dim vorMin As Integer = neueWerte.Where(Function(w) w < mssqlWerte.Min()).Count()
-                            Dim nachMax As Integer = neueWerte.Where(Function(w) w > mssqlWerte.Max()).Count()
-                            Dim dazwischen As Integer = neueWerte.Count - vorMin - nachMax
-
-                            Log("  Fehlend VOR MSSQL MIN: " & vorMin.ToString())
-                            Log("  Fehlend ZWISCHEN MIN-MAX: " & dazwischen.ToString())
-                            Log("  Fehlend NACH MSSQL MAX: " & nachMax.ToString())
-
-                            For Each nw As Integer In neueWerte
+                            For Each nw As Integer In echtFehlend
                                 zuVerarbeiten.Add(New PartitionsEintrag With {.Wert = nw, .Modus = "NEU"})
                             Next
                         End If
