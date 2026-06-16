@@ -204,14 +204,14 @@ SELECT DISTINCT
     ddl.COLNO,
     -- columns_dbo: DBO-Tabellen Definition
     CONCAT(
-        CHAR(9), LOWER(ddl.COLNAME), ' = ',
+        CHAR(9), QUOTENAME(LOWER(ddl.COLNAME)), ' = ',
         CASE WHEN ddl.IS_NULLABLE = 0 THEN 'ISNULL(' ELSE '' END,
         CASE WHEN ddl.TYPNAME IN ('nvarchar','varchar','nchar','char')
              THEN CONCAT('CONVERT(', ddl.TYPNAME COLLATE Latin1_General_100_CI_AS_SC_UTF8,
                          '(', ddl.COLLENGTH, '), ')
              ELSE ''
         END,
-        UPPER(ddl.COLNAME),
+        QUOTENAME(UPPER(ddl.COLNAME)),
         CASE WHEN ddl.TYPNAME IN ('nvarchar','varchar','nchar','char')
              THEN ' COLLATE Latin1_General_100_CI_AS_SC_UTF8)'
              ELSE ''
@@ -229,7 +229,7 @@ SELECT DISTINCT
     ),
     -- columns_ext: EXT-Tabellen Definition
     CONCAT(
-        CHAR(9), UPPER(ddl.COLNAME), ' ', ddl.TYPNAME,
+        CHAR(9), QUOTENAME(UPPER(ddl.COLNAME)), ' ', ddl.TYPNAME,
         CASE WHEN ddl.TYPNAME IN ('nvarchar','varchar','nchar','char')
              THEN CONCAT('(',
                     CASE WHEN ddl.COLLENGTH * 4 > 4000
