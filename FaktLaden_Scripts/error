@@ -1,19 +1,171 @@
-In den Steuerliste steht manchmal
-Dann v aus einer View geladen-
+USE [msi_dm_bst_v3]
+GO
 
-Das wird in 3 von den 15 Sachen entladen.
+/****** Object:  Table [dbo].[tf_bst_btg_v2_template]    Script Date: 17.06.2026 12:25:42 ******/
+SET ANSI_NULLS ON
+GO
 
-Der Mechanismus wurde gelöst.
+SET QUOTED_IDENTIFIER ON
+GO
 
-In der Steuertabelle steht weiter die tf dinr.
-Bei uns auf SQL Server als Tabelle anlegen.
+CREATE TABLE [dbo].[tf_bst_btg_v2_template](
+	[btr_id] [int] NOT NULL,
+	[mow_id] [int] NOT NULL,
+	[bgs_id_ges] [int] NOT NULL,
+	[bgs_id_sv] [int] NOT NULL,
+	[bgs_id_hbv] [int] NOT NULL,
+	[bgs_id_lar] [int] NOT NULL,
+	[bbs_id] [smallint] NOT NULL,
+	[dbz_id] [int] NOT NULL,
+	[l93_id] [int] NOT NULL,
+	[l03_id] [int] NOT NULL,
+	[l08_id] [smallint] NOT NULL,
+	[gst_id_b] [int] NOT NULL,
+	[ort_id_b] [int] NOT NULL,
+	[str_id_b] [int] NOT NULL,
+	[jan_id_fkt] [smallint] NOT NULL,
+	[fbs_btr_anzahl] [smallint] NOT NULL,
+	[gee_id_b] [smallint] NOT NULL,
+	[git_id_laea_100m_b] [int] NOT NULL,
+	[git_id_utm32_100m_b] [int] NOT NULL,
+	[xbp_id] [int] NOT NULL,
+	[ort_id_b_orig] [int] NOT NULL,
+	[l25_id] [smallint] NOT NULL
+) ON [PRIMARY]
+GO
 
-VF in der Steuerliste. v Steuerlisten.
-Extra Listen oder in die Fakten einbauen?
 
-Wenn eine V Steuerliste.
-Als Tabelle tf anlegen.
-Die external Table auf die View
-auf die TF Stage umbennen
-
-v in Steuerliste und t in der Parameter liste. Dann muss es zusammen 
+ vs themengebiet	tabname	colname	colno	columns_dbo
+xro_dm_stat_bst	tf_bst_btg_v2	bbs_id	7		bbs_id = ISNULL(BBS_ID, 0)
+xro_dm_stat_bst	tf_bst_btg_v2	bgs_id_ges	3		bgs_id_ges = ISNULL(BGS_ID_GES, 0)
+xro_dm_stat_bst	tf_bst_btg_v2	bgs_id_hbv	5		bgs_id_hbv = ISNULL(BGS_ID_HBV, 0)
+xro_dm_stat_bst	tf_bst_btg_v2	bgs_id_lar	6		bgs_id_lar = ISNULL(BGS_ID_LAR, 0)
+xro_dm_stat_bst	tf_bst_btg_v2	bgs_id_sv	4		bgs_id_sv = ISNULL(BGS_ID_SV, 0)
+xro_dm_stat_bst	tf_bst_btg_v2	btr_id	1		btr_id = ISNULL(BTR_ID, 0)
+xro_dm_stat_bst	tf_bst_btg_v2	dbz_id	8		dbz_id = ISNULL(DBZ_ID, 0)
+xro_dm_stat_bst	tf_bst_btg_v2	fbs_btr_anzahl	16		fbs_btr_anzahl = ISNULL(FBS_BTR_ANZAHL, 0)
+xro_dm_stat_bst	tf_bst_btg_v2	gee_id_b	17		gee_id_b = ISNULL(GEE_ID_B, 0)
+xro_dm_stat_bst	tf_bst_btg_v2	git_id_laea_100m_b	18		git_id_laea_100m_b = ISNULL(GIT_ID_LAEA_100M_B, 0)
+xro_dm_stat_bst	tf_bst_btg_v2	git_id_utm32_100m_b	19		git_id_utm32_100m_b = ISNULL(GIT_ID_UTM32_100M_B, 0)
+xro_dm_stat_bst	tf_bst_btg_v2	gst_id_b	12		gst_id_b = ISNULL(GST_ID_B, 0)
+xro_dm_stat_bst	tf_bst_btg_v2	jan_id_fkt	15		jan_id_fkt = ISNULL(JAN_ID_FKT, 0)
+xro_dm_stat_bst	tf_bst_btg_v2	l03_id	10		l03_id = ISNULL(L03_ID, 0)
+xro_dm_stat_bst	tf_bst_btg_v2	l08_id	11		l08_id = ISNULL(L08_ID, 0)
+xro_dm_stat_bst	tf_bst_btg_v2	l25_id	22		l25_id = ISNULL(L25_ID, 0)
+xro_dm_stat_bst	tf_bst_btg_v2	l93_id	9		l93_id = ISNULL(L93_ID, 0)
+xro_dm_stat_bst	tf_bst_btg_v2	mow_id	2		mow_id = ISNULL(MOW_ID, 0)
+xro_dm_stat_bst	tf_bst_btg_v2	ort_id_b	13		ort_id_b = ISNULL(ORT_ID_B, 0)
+xro_dm_stat_bst	tf_bst_btg_v2	ort_id_b_orig	21		ort_id_b_orig = ISNULL(ORT_ID_B_ORIG, 0)
+xro_dm_stat_bst	tf_bst_btg_v2	str_id_b	14		str_id_b = ISNULL(STR_ID_B, 0)
+xro_dm_stat_bst	tf_bst_btg_v2	xbp_id	20		xbp_id = ISNULL(XBP_ID, 0) source -->THMNAME	TABNAME	COLNAME	COLNO	IS_NULLABLE	COLLENGTH	PRECISION	SCALE	TYPNAME
+svs60m_stat_bst	tf_bst_btg_v2	btr_id	1	0	0	10	0	int
+svs60m_stat_bst	tf_bst_btg_v2	mow_id	2	0	0	10	0	int
+svs60m_stat_bst	tf_bst_btg_v2	bgs_id_ges	3	0	0	10	0	int
+svs60m_stat_bst	tf_bst_btg_v2	bgs_id_sv	4	0	0	10	0	int
+svs60m_stat_bst	tf_bst_btg_v2	bgs_id_hbv	5	0	0	10	0	int
+svs60m_stat_bst	tf_bst_btg_v2	bgs_id_lar	6	0	0	10	0	int
+svs60m_stat_bst	tf_bst_btg_v2	bbs_id	7	0	0	5	0	smallint
+svs60m_stat_bst	tf_bst_btg_v2	dbz_id	8	0	0	5	0	smallint
+svs60m_stat_bst	tf_bst_btg_v2	l93_id	9	0	0	10	0	int
+svs60m_stat_bst	tf_bst_btg_v2	l03_id	10	0	0	10	0	int
+svs60m_stat_bst	tf_bst_btg_v2	l08_id	11	0	0	5	0	smallint
+svs60m_stat_bst	tf_bst_btg_v2	gst_id_b	12	0	0	10	0	int
+svs60m_stat_bst	tf_bst_btg_v2	ort_id_b	13	0	0	10	0	int
+svs60m_stat_bst	tf_bst_btg_v2	str_id_b	14	0	0	10	0	int
+svs60m_stat_bst	tf_bst_btg_v2	jan_id_fkt	15	0	0	5	0	smallint
+svs60m_stat_bst	tf_bst_btg_v2	fbs_btr_anzahl	16	0	0	5	0	smallint
+svs60m_stat_bst	tf_bst_btg_v2	gee_id_b	17	0	0	5	0	smallint
+svs60m_stat_bst	tf_bst_btg_v2	git_id_laea_100m_b	18	0	0	10	0	int
+svs60m_stat_bst	tf_bst_btg_v2	git_id_utm32_100m_b	19	0	0	10	0	int
+svs60m_stat_bst	tf_bst_btg_v2	xbp_id	20	0	0	10	0	int
+svs60m_stat_bst	tf_bst_btg_v2	ort_id_b_orig	21	0	0	10	0	int
+svs60m_stat_bst	tf_bst_btg_v2	l25_id	22	0	0	5	0	smallint
+psd1_dm_stat_bst	tf_bst_btg_v2	btr_id	1	0	0	10	0	int
+psd1_dm_stat_bst	tf_bst_btg_v2	mow_id	2	0	0	10	0	int
+psd1_dm_stat_bst	tf_bst_btg_v2	bgs_id_ges	3	0	0	10	0	int
+psd1_dm_stat_bst	tf_bst_btg_v2	bgs_id_sv	4	0	0	10	0	int
+psd1_dm_stat_bst	tf_bst_btg_v2	bgs_id_hbv	5	0	0	10	0	int
+psd1_dm_stat_bst	tf_bst_btg_v2	bgs_id_lar	6	0	0	10	0	int
+psd1_dm_stat_bst	tf_bst_btg_v2	bbs_id	7	0	0	5	0	smallint
+psd1_dm_stat_bst	tf_bst_btg_v2	dbz_id	8	0	0	5	0	smallint
+psd1_dm_stat_bst	tf_bst_btg_v2	l93_id	9	0	0	10	0	int
+psd1_dm_stat_bst	tf_bst_btg_v2	l03_id	10	0	0	10	0	int
+psd1_dm_stat_bst	tf_bst_btg_v2	l08_id	11	0	0	5	0	smallint
+psd1_dm_stat_bst	tf_bst_btg_v2	gst_id_b	12	0	0	10	0	int
+psd1_dm_stat_bst	tf_bst_btg_v2	ort_id_b	13	0	0	10	0	int
+psd1_dm_stat_bst	tf_bst_btg_v2	str_id_b	14	0	0	10	0	int
+psd1_dm_stat_bst	tf_bst_btg_v2	jan_id_fkt	15	0	0	5	0	smallint
+psd1_dm_stat_bst	tf_bst_btg_v2	fbs_btr_anzahl	16	0	0	5	0	smallint
+psd1_dm_stat_bst	tf_bst_btg_v2	gee_id_b	17	0	0	5	0	smallint
+psd1_dm_stat_bst	tf_bst_btg_v2	git_id_laea_100m_b	18	0	0	10	0	int
+psd1_dm_stat_bst	tf_bst_btg_v2	git_id_utm32_100m_b	19	0	0	10	0	int
+psd1_dm_stat_bst	tf_bst_btg_v2	xbp_id	20	0	0	10	0	int
+psd1_dm_stat_bst	tf_bst_btg_v2	ort_id_b_orig	21	0	0	10	0	int
+psd1_dm_stat_bst	tf_bst_btg_v2	l25_id	22	0	0	5	0	smallint
+svs02dm_ueb_kleingl	tf_bst_btg_v2	btr_id	1	0	0	10	0	int
+svs02dm_ueb_kleingl	tf_bst_btg_v2	mow_id	2	0	0	10	0	int
+svs02dm_ueb_kleingl	tf_bst_btg_v2	bgs_id_ges	3	0	0	10	0	int
+svs02dm_ueb_kleingl	tf_bst_btg_v2	bgs_id_sv	4	0	0	10	0	int
+svs02dm_ueb_kleingl	tf_bst_btg_v2	bgs_id_hbv	5	0	0	10	0	int
+svs02dm_ueb_kleingl	tf_bst_btg_v2	bgs_id_lar	6	0	0	10	0	int
+svs02dm_ueb_kleingl	tf_bst_btg_v2	bbs_id	7	0	0	5	0	smallint
+svs02dm_ueb_kleingl	tf_bst_btg_v2	dbz_id	8	0	0	5	0	smallint
+svs02dm_ueb_kleingl	tf_bst_btg_v2	l93_id	9	0	0	10	0	int
+svs02dm_ueb_kleingl	tf_bst_btg_v2	l03_id	10	0	0	10	0	int
+svs02dm_ueb_kleingl	tf_bst_btg_v2	l08_id	11	0	0	5	0	smallint
+svs02dm_ueb_kleingl	tf_bst_btg_v2	gst_id_b	12	0	0	10	0	int
+svs02dm_ueb_kleingl	tf_bst_btg_v2	ort_id_b	13	0	0	10	0	int
+svs02dm_ueb_kleingl	tf_bst_btg_v2	str_id_b	14	0	0	10	0	int
+svs02dm_ueb_kleingl	tf_bst_btg_v2	jan_id_fkt	15	0	0	5	0	smallint
+svs02dm_ueb_kleingl	tf_bst_btg_v2	fbs_btr_anzahl	16	0	0	5	0	smallint
+svs02dm_ueb_kleingl	tf_bst_btg_v2	gee_id_b	17	0	0	5	0	smallint
+svs02dm_ueb_kleingl	tf_bst_btg_v2	git_id_laea_100m_b	18	0	0	10	0	int
+svs02dm_ueb_kleingl	tf_bst_btg_v2	git_id_utm32_100m_b	19	0	0	10	0	int
+svs02dm_ueb_kleingl	tf_bst_btg_v2	xbp_id	20	0	0	10	0	int
+svs02dm_ueb_kleingl	tf_bst_btg_v2	ort_id_b_orig	21	0	0	10	0	int
+xro_dm_stat_bst	tf_bst_btg_v2	btr_id	1	0	0	10	0	int
+xro_dm_stat_bst	tf_bst_btg_v2	mow_id	2	0	0	10	0	int
+xro_dm_stat_bst	tf_bst_btg_v2	bgs_id_ges	3	0	0	10	0	int
+xro_dm_stat_bst	tf_bst_btg_v2	bgs_id_sv	4	0	0	10	0	int
+xro_dm_stat_bst	tf_bst_btg_v2	bgs_id_hbv	5	0	0	10	0	int
+xro_dm_stat_bst	tf_bst_btg_v2	bgs_id_lar	6	0	0	10	0	int
+xro_dm_stat_bst	tf_bst_btg_v2	bbs_id	7	0	0	5	0	smallint
+xro_dm_stat_bst	tf_bst_btg_v2	dbz_id	8	0	0	5	0	smallint
+xro_dm_stat_bst	tf_bst_btg_v2	l93_id	9	0	0	10	0	int
+xro_dm_stat_bst	tf_bst_btg_v2	l03_id	10	0	0	10	0	int
+xro_dm_stat_bst	tf_bst_btg_v2	l08_id	11	0	0	5	0	smallint
+xro_dm_stat_bst	tf_bst_btg_v2	gst_id_b	12	0	0	10	0	int
+xro_dm_stat_bst	tf_bst_btg_v2	ort_id_b	13	0	0	10	0	int
+xro_dm_stat_bst	tf_bst_btg_v2	str_id_b	14	0	0	10	0	int
+xro_dm_stat_bst	tf_bst_btg_v2	jan_id_fkt	15	0	0	5	0	smallint
+xro_dm_stat_bst	tf_bst_btg_v2	fbs_btr_anzahl	16	0	0	5	0	smallint
+xro_dm_stat_bst	tf_bst_btg_v2	gee_id_b	17	0	0	5	0	smallint
+xro_dm_stat_bst	tf_bst_btg_v2	git_id_laea_100m_b	18	0	0	10	0	int
+xro_dm_stat_bst	tf_bst_btg_v2	git_id_utm32_100m_b	19	0	0	10	0	int
+xro_dm_stat_bst	tf_bst_btg_v2	xbp_id	20	0	0	10	0	int
+xro_dm_stat_bst	tf_bst_btg_v2	ort_id_b_orig	21	0	0	10	0	int
+xro_dm_stat_bst	tf_bst_btg_v2	l25_id	22	0	0	5	0	smallint
+svs30m_stat_bst	tf_bst_btg_v2	btr_id	1	0	0	10	0	int
+svs30m_stat_bst	tf_bst_btg_v2	mow_id	2	0	0	10	0	int
+svs30m_stat_bst	tf_bst_btg_v2	bgs_id_ges	3	0	0	10	0	int
+svs30m_stat_bst	tf_bst_btg_v2	bgs_id_sv	4	0	0	10	0	int
+svs30m_stat_bst	tf_bst_btg_v2	bgs_id_hbv	5	0	0	10	0	int
+svs30m_stat_bst	tf_bst_btg_v2	bgs_id_lar	6	0	0	10	0	int
+svs30m_stat_bst	tf_bst_btg_v2	bbs_id	7	0	0	5	0	smallint
+svs30m_stat_bst	tf_bst_btg_v2	dbz_id	8	0	0	5	0	smallint
+svs30m_stat_bst	tf_bst_btg_v2	l93_id	9	0	0	10	0	int
+svs30m_stat_bst	tf_bst_btg_v2	l03_id	10	0	0	10	0	int
+svs30m_stat_bst	tf_bst_btg_v2	l08_id	11	0	0	5	0	smallint
+svs30m_stat_bst	tf_bst_btg_v2	gst_id_b	12	0	0	10	0	int
+svs30m_stat_bst	tf_bst_btg_v2	ort_id_b	13	0	0	10	0	int
+svs30m_stat_bst	tf_bst_btg_v2	str_id_b	14	0	0	10	0	int
+svs30m_stat_bst	tf_bst_btg_v2	jan_id_fkt	15	0	0	5	0	smallint
+svs30m_stat_bst	tf_bst_btg_v2	fbs_btr_anzahl	16	0	0	5	0	smallint
+svs30m_stat_bst	tf_bst_btg_v2	gee_id_b	17	0	0	5	0	smallint
+svs30m_stat_bst	tf_bst_btg_v2	git_id_laea_100m_b	18	0	0	10	0	int
+svs30m_stat_bst	tf_bst_btg_v2	git_id_utm32_100m_b	19	0	0	10	0	int
+svs30m_stat_bst	tf_bst_btg_v2	xbp_id	20	0	0	10	0	int
+svs30m_stat_bst	tf_bst_btg_v2	ort_id_b_orig	21	0	0	10	0	int
+svs30m_stat_bst	tf_bst_btg_v2	l25_id	22	0	0	5	0	smallint
+svs30m_stat_bst	tf_bst_btg_v2	bgs_id_anue	23	0	0	10	0	int
+svs30m_stat_bst	tf_bst_btg_v2	bgs_id_anue_sv	24	0	0	10	0	int
