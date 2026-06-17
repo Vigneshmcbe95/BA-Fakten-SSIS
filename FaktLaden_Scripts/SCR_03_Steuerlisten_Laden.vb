@@ -68,7 +68,7 @@ Partial Public Class ScriptMain
 
             ' Zentrale Insert-Only-Audit-Tabelle fuer FAKTEN und DIMENSIONEN
             ' (beide STL-Loader schreiben hier hinein; nur INSERT, kein DELETE/UPDATE).
-            _auditTabelle = "tm_steuerliste_audit"
+            _auditTabelle = "tm_steuerlisten_audit"
             Log("Arbeitstabelle : dbo." & _steuerlistenTabelle)
             Log("Audit-Tabelle  : dbo." & _auditTabelle)
 
@@ -170,7 +170,7 @@ BEGIN
             CONSTRAINT PK_" & a & " PRIMARY KEY,
         bereich        NVARCHAR(10)   NULL,
         tabelle        NVARCHAR(255)  NULL,
-        FILE_NAME      NVARCHAR(255)  NULL,
+        file_name      NVARCHAR(255)  NULL,
         tabellentyp    NVARCHAR(255)  NULL,
         umgebung       NVARCHAR(255)  NULL,
         load_Date      DATETIME       NULL,
@@ -246,7 +246,7 @@ END;"
                 ' 1. Audit-Tabelle: tabelle = parsed name, tabname_filter = raw line
                 SqlMitParameternAusfuehren(connStr,
                     "INSERT INTO dbo." & _auditTabelle &
-                    " (bereich, tabelle, FILE_NAME, tabellentyp, umgebung," &
+                    " (bereich, tabelle, file_name, tabellentyp, umgebung," &
                     "  load_Date, themengebiet, bearbeiter, tabname_filter)" &
                     " VALUES ('FAKT', @tab, @f, @typ, @umb, @dat, @thm, @bea, @filter)",
                     "INSERT Audit",
