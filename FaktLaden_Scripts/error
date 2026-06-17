@@ -1,40 +1,19 @@
-themengebiet	tabname	colname	colno	columns_dbo	columns_ext
-xro_dm_stat_bsbm	tf_bsbm_betrieb	aam_id	12		[aam_id] = ISNULL([AAM_ID], 0)		[AAM_ID] int NULL
-xro_dm_stat_bsbm	tf_bsbm_betrieb	aga_id	4		[aga_id] = ISNULL([AGA_ID], 0)		[AGA_ID] smallint NULL
-xro_dm_stat_bsbm	tf_bsbm_betrieb	anzarb	19		[anzarb] = ISNULL([ANZARB], 0)		[ANZARB] int NULL
-xro_dm_stat_bsbm	tf_bsbm_betrieb	anzarb_ap_mschnitt	28		[anzarb_ap_mschnitt] = ISNULL([ANZARB_AP_MSCHNITT]		[ANZARB_AP_MSCHNITT] decimal(38) NULL
-xro_dm_stat_bsbm	tf_bsbm_betrieb	anzarb_apl_nach	27		[anzarb_apl_nach] = ISNULL([ANZARB_APL_NACH], 0)		[ANZARB_APL_NACH] smallint NULL
-xro_dm_stat_bsbm	tf_bsbm_betrieb	anzarb_apl_vor	26		[anzarb_apl_vor] = ISNULL([ANZARB_APL_VOR], 0)		[ANZARB_APL_VOR] int NULL
-xro_dm_stat_bsbm	tf_bsbm_betrieb	anzarb_azubi	20		[anzarb_azubi] = ISNULL([ANZARB_AZUBI], 0)		[ANZARB_AZUBI] int NULL
-xro_dm_stat_bsbm	tf_bsbm_betrieb	anzarb_azubi_mschnitt	29		[anzarb_azubi_mschnitt] = ISNULL([ANZARB_AZUBI_MSCHNITT]		[ANZARB_AZUBI_MSCHNITT] decimal(38) NULL
-xro_dm_stat_bsbm	tf_bsbm_betrieb	anzarb_pfl	23		[anzarb_pfl] = ISNULL([ANZARB_PFL], 0)		[ANZARB_PFL] int NULL
-xro_dm_stat_bsbm	tf_bsbm_betrieb	anzarb_pflbes	24		[anzarb_pflbes] = ISNULL([ANZARB_PFLBES], 0)		[ANZARB_PFLBES] int NULL
-xro_dm_stat_bsbm	tf_bsbm_betrieb	anzarb_pflicht_mschnitt	32		[anzarb_pflicht_mschnitt] = ISNULL([ANZARB_PFLICHT_MSCHNITT]		[ANZARB_PFLICHT_MSCHNITT] decimal(38) NULL
-xro_dm_stat_bsbm	tf_bsbm_betrieb	anzarb_pflichtb_mschnitt	33		[anzarb_pflichtb_mschnitt] = ISNULL([ANZARB_PFLICHTB_MSCHNITT]		[ANZARB_PFLICHTB_MSCHNITT] decimal(38) NULL
-xro_dm_stat_bsbm	tf_bsbm_betrieb	anzarb_pflichtu_mschnitt	34		[anzarb_pflichtu_mschnitt] = ISNULL([ANZARB_PFLICHTU_MSCHNITT]		[ANZARB_PFLICHTU_MSCHNITT] decimal(38) NULL
-xro_dm_stat_bsbm	tf_bsbm_betrieb	anzarb_pflunbes	25		[anzarb_pflunbes] = ISNULL([ANZARB_PFLUNBES], 0)		[ANZARB_PFLUNBES] int NULL
-xro_dm_stat_bsbm	tf_bsbm_betrieb	anzarb_sonst	21		[anzarb_sonst] = ISNULL([ANZARB_SONST], 0)		[ANZARB_SONST] int NULL
-xro_dm_stat_bsbm	tf_bsbm_betrieb	anzarb_sonst_mschnitt	30		[anzarb_sonst_mschnitt] = ISNULL([ANZARB_SONST_MSCHNITT]		[ANZARB_SONST_MSCHNITT] decimal(38) NULL
-xro_dm_stat_bsbm	tf_bsbm_betrieb	anzarb_zaehl	22		[anzarb_zaehl] = ISNULL([ANZARB_ZAEHL], 0)		[ANZARB_ZAEHL] int NULL
-xro_dm_stat_bsbm	tf_bsbm_betrieb	anzarb_zaehl_mschnitt	31		[anzarb_zaehl_mschnitt] = ISNULL([ANZARB_ZAEHL_MSCHNITT]		[ANZARB_ZAEHL_MSCHNITT] decimal(38) NULL
-xro_dm_stat_bsbm	tf_bsbm_betrieb	aua_id	9		[aua_id] = ISNULL([AUA_ID], 0)		[AUA_ID] smallint NULL
-xro_dm_stat_bsbm	tf_bsbm_betrieb	azw_id	5		[azw_id] = ISNULL([AZW_ID], 0)		[AZW_ID] int NULL
-xro_dm_stat_bsbm	tf_bsbm_betrieb	bpf_id	37		[bpf_id] = ISNULL([BPF_ID], 0)		[BPF_ID] smallint NULL
-xro_dm_stat_bsbm	tf_bsbm_betrieb	btr_anzahl	35		[btr_anzahl] = ISNULL([BTR_ANZAHL], 0)		[BTR_ANZAHL] smallint NULL
-xro_dm_stat_bsbm	tf_bsbm_betrieb	btr_id	1		[btr_id] = ISNULL([BTR_ID], 0)		[BTR_ID] int NULL
-xro_dm_stat_bsbm	tf_bsbm_betrieb	ego_id	17		[ego_id] = ISNULL([EGO_ID], 0)		[EGO_ID] smallint NULL
-xro_dm_stat_bsbm	tf_bsbm_betrieb	ela_id	3		[ela_id] = ISNULL([ELA_ID], 0)		[ELA_ID] int NULL
-xro_dm_stat_bsbm	tf_bsbm_betrieb	gpd_id	39		[gpd_id] = ISNULL([GPD_ID], 0)		[GPD_ID] smallint NULL
-xro_dm_stat_bsbm	tf_bsbm_betrieb	grk_id	16		[grk_id] = ISNULL([GRK_ID], 0)		[GRK_ID] smallint NULL
-xro_dm_stat_bsbm	tf_bsbm_betrieb	jan_id_bt	6		[jan_id_bt] = ISNULL([JAN_ID_BT], 0)		[JAN_ID_BT] smallint NULL
-xro_dm_stat_bsbm	tf_bsbm_betrieb	jan_id_btrkz	8		[jan_id_btrkz] = ISNULL([JAN_ID_BTRKZ], 0)		[JAN_ID_BTRKZ] smallint NULL
-xro_dm_stat_bsbm	tf_bsbm_betrieb	jan_id_sbm	7		[jan_id_sbm] = ISNULL([JAN_ID_SBM], 0)		[JAN_ID_SBM] smallint NULL
-xro_dm_stat_bsbm	tf_bsbm_betrieb	jhw_id	2		[jhw_id] = ISNULL([JHW_ID], 0)		[JHW_ID] int NULL
-xro_dm_stat_bsbm	tf_bsbm_betrieb	l03_id	10		[l03_id] = ISNULL([L03_ID], 0)		[L03_ID] int NULL
-xro_dm_stat_bsbm	tf_bsbm_betrieb	l08_id	11		[l08_id] = ISNULL([L08_ID], 0)		[L08_ID] smallint NULL
-xro_dm_stat_bsbm	tf_bsbm_betrieb	l25_id	38		[l25_id] = ISNULL([L25_ID], 0)		[L25_ID] smallint NULL
-xro_dm_stat_bsbm	tf_bsbm_betrieb	ort_id	14		[ort_id] = ISNULL([ORT_ID], 0)		[ORT_ID] int NULL
-xro_dm_stat_bsbm	tf_bsbm_betrieb	pfk_id	18		[pfk_id] = ISNULL([PFK_ID], 0)		[PFK_ID] smallint NULL
-xro_dm_stat_bsbm	tf_bsbm_betrieb	sb_istquote	36		[sb_istquote] = ISNULL([SB_ISTQUOTE]		[SB_ISTQUOTE] decimal(38) NULL
-xro_dm_stat_bsbm	tf_bsbm_betrieb	ste_id	15		[ste_id] = ISNULL([STE_ID], 0)		[STE_ID] smallint NULL
-xro_dm_stat_bsbm	tf_bsbm_betrieb	str_id	13		[str_id] = ISNULL([STR_ID], 0)		[STR_ID] int NULL
+In den Steuerliste steht manchmal
+Dann v aus einer View geladen-
+
+Das wird in 3 von den 15 Sachen entladen.
+
+Der Mechanismus wurde gelöst.
+
+In der Steuertabelle steht weiter die tf dinr.
+Bei uns auf SQL Server als Tabelle anlegen.
+
+VF in der Steuerliste. v Steuerlisten.
+Extra Listen oder in die Fakten einbauen?
+
+Wenn eine V Steuerliste.
+Als Tabelle tf anlegen.
+Die external Table auf die View
+auf die TF Stage umbennen
+
+v in Steuerliste und t in der Parameter liste. Dann muss es zusammen 
