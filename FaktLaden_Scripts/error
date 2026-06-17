@@ -81,6 +81,9 @@ CREATE TABLE [dbo].[tf_bst_btg_v2_template](
 ) ON [PRIMARY]
 GO
 
+SELECT*
+  FROM [msi_dm_bst_v3].[ext].[vm_ddl_sql_server]
+    Where tabname ='tf_bst_btg_v2'
 
  vs themengebiet	tabname	colname	colno	columns_dbo
 xro_dm_stat_bst	tf_bst_btg_v2	bbs_id	7		bbs_id = ISNULL(BBS_ID, 0)
