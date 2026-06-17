@@ -103,7 +103,7 @@ Partial Public Class ScriptMain
             "DECLARE @t  nvarchar(128) = N'" & v.Faktentabelle.ToLower() & "';" & vbCrLf &
             "DECLARE @s  nvarchar(128) = N'" & v.Themengebiet.Trim().ToLower() & "';" & vbCrLf &
             "DECLARE @db nvarchar(128) = N'" & _datenbank & "';" & vbCrLf &
-            "DECLARE @cols nvarchar(max), @colsExt nvarchar(max), @sql nvarchar(max), @tmpl nvarchar(300), @tmplObj int, @d int;" & vbCrLf & vbCrLf &
+            "DECLARE @cols nvarchar(max), @colsExt nvarchar(max), @sql nvarchar(max), @tmpl nvarchar(300), @tmplObj int, @diff nvarchar(max);" & vbCrLf & vbCrLf &
             "-- Soll-Spalten (columns_dbo) und ext-Struktur (columns_ext) aus tm_polybase_struktur laden" & vbCrLf &
             "SELECT @cols    = STRING_AGG(CAST(columns_dbo AS nvarchar(max)), CONCAT(N',', CHAR(13), CHAR(10)))" & vbCrLf &
             "                    WITHIN GROUP (ORDER BY colno)," & vbCrLf &
@@ -133,11 +133,16 @@ Partial Public Class ScriptMain
             "          N' FROM tempdb.sys.columns c JOIN tempdb.sys.types ty ON ty.user_type_id=c.user_type_id WHERE c.object_id=OBJECT_ID(N''tempdb..#soll'')),' +" & vbCrLf &
             "          N' ist AS (SELECT c.name COLLATE DATABASE_DEFAULT AS nm, ty.name COLLATE DATABASE_DEFAULT AS typ, c.max_length AS ml, c.precision AS pr, c.scale AS sc, c.is_nullable AS nu' +" & vbCrLf &
             "          N' FROM ' + QUOTENAME(@db) + N'.sys.columns c JOIN ' + QUOTENAME(@db) + N'.sys.types ty ON ty.user_type_id=c.user_type_id WHERE c.object_id=@po)' +" & vbCrLf &
-            "          N' SELECT @cnt = COUNT(*) FROM ((SELECT * FROM soll EXCEPT SELECT * FROM ist) UNION ALL (SELECT * FROM ist EXCEPT SELECT * FROM soll)) x;';" & vbCrLf &
-            "    EXEC sp_executesql @sql, N'@po int, @cnt int OUTPUT', @po=@tmplObj, @cnt=@d OUTPUT;" & vbCrLf &
-            "    IF @d > 0" & vbCrLf &
+            "          N' SELECT @diff = STRING_AGG(z, CHAR(13)+CHAR(10)) FROM (' +" & vbCrLf &
+            "          N'   SELECT CONCAT(COALESCE(s.nm,i.nm),' +" & vbCrLf &
+            "          N'     '' | SOLL(Oracle): '', CASE WHEN s.nm IS NULL THEN ''(fehlt)'' ELSE CONCAT(s.typ,'' len='',s.ml,'' pr='',s.pr,'' sc='',s.sc,'' null='',s.nu) END,' +" & vbCrLf &
+            "          N'     '' | IST(Template): '', CASE WHEN i.nm IS NULL THEN ''(fehlt)'' ELSE CONCAT(i.typ,'' len='',i.ml,'' pr='',i.pr,'' sc='',i.sc,'' null='',i.nu) END) AS z' +" & vbCrLf &
+            "          N'   FROM soll s FULL OUTER JOIN ist i ON s.nm=i.nm' +" & vbCrLf &
+            "          N'   WHERE s.nm IS NULL OR i.nm IS NULL OR s.typ<>i.typ OR s.ml<>i.ml OR s.pr<>i.pr OR s.sc<>i.sc OR s.nu<>i.nu) d;';" & vbCrLf &
+            "    EXEC sp_executesql @sql, N'@po int, @diff nvarchar(max) OUTPUT', @po=@tmplObj, @diff=@diff OUTPUT;" & vbCrLf &
+            "    IF @diff IS NOT NULL" & vbCrLf &
             "    BEGIN" & vbCrLf &
-            "        DECLARE @msg nvarchar(400) = CONCAT('Template ', @tmpl, ': Struktur weicht von columns_dbo (Soll) ab - Lauf wird abgebrochen. Template manuell pruefen/loeschen.');" & vbCrLf &
+            "        DECLARE @msg nvarchar(2048) = LEFT(CONCAT('Template ', @tmpl, ': Struktur weicht von columns_dbo (Soll) ab. Nicht uebereinstimmende Spalten (Spalte | SOLL=Oracle | IST=Template):', CHAR(13), CHAR(10), @diff), 2048);" & vbCrLf &
             "        THROW 50010, @msg, 1;" & vbCrLf &
             "    END" & vbCrLf &
             "END"
