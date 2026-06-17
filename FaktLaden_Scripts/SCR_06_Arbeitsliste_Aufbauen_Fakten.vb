@@ -169,7 +169,7 @@ INSERT INTO dbo.ETL_Fkt_Arbeitsliste
        (RunID, Verfahren, Themengebiet, Status, LetzterSchritt, Versuche, AktualisiertAm)
 SELECT DISTINCT
     @runID,
-    LOWER(p.Verfahren),
+    LOWER(LTRIM(RTRIM(f.tabelle))),
     LOWER(f.themengebiet),
     'AUSSTEHEND',
     NULL,
@@ -177,11 +177,11 @@ SELECT DISTINCT
     GETDATE()
 FROM " & _parameterDB & ".dbo." & _parametertabelle & " p
 INNER JOIN dbo." & _steuerlistenTabelle & " f
-    ON LOWER(LTRIM(RTRIM(f.tabelle))) = LOWER(LTRIM(RTRIM(p.Verfahren)))" & DateiFilter() & "
+    ON dbo.fn_ParamVerfahren(LOWER(LTRIM(RTRIM(f.tabelle)))) = LOWER(LTRIM(RTRIM(p.Verfahren)))" & DateiFilter() & "
 WHERE p.Verfahren IS NOT NULL
   AND NOT EXISTS (
       SELECT 1 FROM dbo.ETL_Fkt_Arbeitsliste a
-      WHERE a.Verfahren = LOWER(p.Verfahren)
+      WHERE dbo.fn_ParamVerfahren(a.Verfahren) = LOWER(p.Verfahren)
         AND LOWER(LTRIM(RTRIM(a.Themengebiet))) = LOWER(LTRIM(RTRIM(f.themengebiet)))
   );"
 
@@ -217,9 +217,9 @@ SELECT
     COUNT(*) AS Total
 FROM " & _parameterDB & ".dbo." & _parametertabelle & " p
 INNER JOIN dbo." & _steuerlistenTabelle & " f
-    ON LOWER(LTRIM(RTRIM(f.tabelle))) = LOWER(LTRIM(RTRIM(p.Verfahren)))" & DateiFilter() & "
+    ON dbo.fn_ParamVerfahren(LOWER(LTRIM(RTRIM(f.tabelle)))) = LOWER(LTRIM(RTRIM(p.Verfahren)))" & DateiFilter() & "
 LEFT JOIN dbo.ETL_Fkt_Arbeitsliste a
-    ON a.Verfahren = LOWER(p.Verfahren)
+    ON dbo.fn_ParamVerfahren(a.Verfahren) = LOWER(p.Verfahren)
     AND LOWER(LTRIM(RTRIM(a.Themengebiet))) = LOWER(LTRIM(RTRIM(f.themengebiet)))
 WHERE p.Verfahren IS NOT NULL;"
 
@@ -279,8 +279,8 @@ SET a.Status = 'AUSSTEHEND',
     a.Versuche = 0,
     a.AktualisiertAm = GETDATE()
 FROM dbo.ETL_Fkt_Arbeitsliste a
-INNER JOIN " & _parameterDB & ".dbo." & _parametertabelle & " p ON LOWER(p.Verfahren) = a.Verfahren
-INNER JOIN dbo." & _steuerlistenTabelle & " f ON LOWER(LTRIM(RTRIM(f.tabelle))) = LOWER(LTRIM(RTRIM(p.Verfahren)))
+INNER JOIN " & _parameterDB & ".dbo." & _parametertabelle & " p ON LOWER(p.Verfahren) = dbo.fn_ParamVerfahren(a.Verfahren)
+INNER JOIN dbo." & _steuerlistenTabelle & " f ON dbo.fn_ParamVerfahren(LOWER(LTRIM(RTRIM(f.tabelle)))) = LOWER(LTRIM(RTRIM(p.Verfahren)))
     AND LOWER(LTRIM(RTRIM(f.themengebiet))) = LOWER(LTRIM(RTRIM(a.Themengebiet)))" & DateiFilter() & "
 WHERE a.Status = 'ERFOLG'
   AND p.Verfahren IS NOT NULL;"
@@ -296,8 +296,8 @@ SET a.Status = 'AUSSTEHEND',
     a.Versuche = 0,
     a.AktualisiertAm = GETDATE()
 FROM dbo.ETL_Fkt_Arbeitsliste a
-INNER JOIN " & _parameterDB & ".dbo." & _parametertabelle & " p ON LOWER(p.Verfahren) = a.Verfahren
-INNER JOIN dbo." & _steuerlistenTabelle & " f ON LOWER(LTRIM(RTRIM(f.tabelle))) = LOWER(LTRIM(RTRIM(p.Verfahren)))
+INNER JOIN " & _parameterDB & ".dbo." & _parametertabelle & " p ON LOWER(p.Verfahren) = dbo.fn_ParamVerfahren(a.Verfahren)
+INNER JOIN dbo." & _steuerlistenTabelle & " f ON dbo.fn_ParamVerfahren(LOWER(LTRIM(RTRIM(f.tabelle)))) = LOWER(LTRIM(RTRIM(p.Verfahren)))
     AND LOWER(LTRIM(RTRIM(f.themengebiet))) = LOWER(LTRIM(RTRIM(a.Themengebiet)))" & DateiFilter() & "
 WHERE a.Status = 'FEHLER'
   AND p.Verfahren IS NOT NULL;"
@@ -313,8 +313,8 @@ SET a.Status = 'AUSSTEHEND',
     a.Versuche = 0,
     a.AktualisiertAm = GETDATE()
 FROM dbo.ETL_Fkt_Arbeitsliste a
-INNER JOIN " & _parameterDB & ".dbo." & _parametertabelle & " p ON LOWER(p.Verfahren) = a.Verfahren
-INNER JOIN dbo." & _steuerlistenTabelle & " f ON LOWER(LTRIM(RTRIM(f.tabelle))) = LOWER(LTRIM(RTRIM(p.Verfahren)))
+INNER JOIN " & _parameterDB & ".dbo." & _parametertabelle & " p ON LOWER(p.Verfahren) = dbo.fn_ParamVerfahren(a.Verfahren)
+INNER JOIN dbo." & _steuerlistenTabelle & " f ON dbo.fn_ParamVerfahren(LOWER(LTRIM(RTRIM(f.tabelle)))) = LOWER(LTRIM(RTRIM(p.Verfahren)))
     AND LOWER(LTRIM(RTRIM(f.themengebiet))) = LOWER(LTRIM(RTRIM(a.Themengebiet)))" & DateiFilter() & "
 WHERE a.Status NOT IN ('ERFOLG', 'AUSSTEHEND')
   AND p.Verfahren IS NOT NULL;"
@@ -353,8 +353,8 @@ UPDATE a
 SET a.RunID = @runID,
     a.AktualisiertAm = GETDATE()
 FROM dbo.ETL_Fkt_Arbeitsliste a
-INNER JOIN " & _parameterDB & ".dbo." & _parametertabelle & " p ON LOWER(p.Verfahren) = a.Verfahren
-INNER JOIN dbo." & _steuerlistenTabelle & " f ON LOWER(LTRIM(RTRIM(f.tabelle))) = LOWER(LTRIM(RTRIM(p.Verfahren)))
+INNER JOIN " & _parameterDB & ".dbo." & _parametertabelle & " p ON LOWER(p.Verfahren) = dbo.fn_ParamVerfahren(a.Verfahren)
+INNER JOIN dbo." & _steuerlistenTabelle & " f ON dbo.fn_ParamVerfahren(LOWER(LTRIM(RTRIM(f.tabelle)))) = LOWER(LTRIM(RTRIM(p.Verfahren)))
     AND LOWER(LTRIM(RTRIM(f.themengebiet))) = LOWER(LTRIM(RTRIM(a.Themengebiet)))" & DateiFilter() & "
 WHERE p.Verfahren IS NOT NULL;"
 
