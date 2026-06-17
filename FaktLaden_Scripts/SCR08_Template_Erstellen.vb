@@ -101,16 +101,18 @@ Partial Public Class ScriptMain
     Private Sub TemplateErstellen(connStr As String, v As VerfahrenInfo)
         Dim sql As String =
             "DECLARE @t  nvarchar(128) = N'" & v.Faktentabelle.ToLower() & "';" & vbCrLf &
+            "DECLARE @v  nvarchar(128) = N'" & v.Verfahren.ToLower() & "';" & vbCrLf &
             "DECLARE @s  nvarchar(128) = N'" & v.Themengebiet.Trim().ToLower() & "';" & vbCrLf &
             "DECLARE @db nvarchar(128) = N'" & _datenbank & "';" & vbCrLf &
             "DECLARE @cols nvarchar(max), @colsExt nvarchar(max), @sql nvarchar(max), @tmpl nvarchar(300), @tmplObj int, @diff nvarchar(max);" & vbCrLf & vbCrLf &
             "-- Soll-Spalten (columns_dbo) und ext-Struktur (columns_ext) aus tm_polybase_struktur laden" & vbCrLf &
+            "-- Schluessel = Verfahren/@v (Oracle-Objektname, z.B. vf_stea), NICHT die Zieltabelle @t." & vbCrLf &
             "SELECT @cols    = STRING_AGG(CAST(columns_dbo AS nvarchar(max)), CONCAT(N',', CHAR(13), CHAR(10)))" & vbCrLf &
             "                    WITHIN GROUP (ORDER BY colno)," & vbCrLf &
             "       @colsExt = STRING_AGG(CAST(columns_ext AS nvarchar(max)), CONCAT(N',', CHAR(13), CHAR(10)))" & vbCrLf &
             "                    WITHIN GROUP (ORDER BY colno)" & vbCrLf &
             "FROM dbo.tm_polybase_struktur" & vbCrLf &
-            "WHERE tabname = LOWER(@t) AND themengebiet = @s;" & vbCrLf & vbCrLf &
+            "WHERE tabname = LOWER(@v) AND themengebiet = @s;" & vbCrLf & vbCrLf &
             "IF @cols IS NULL OR @colsExt IS NULL" & vbCrLf &
             "    THROW 50001, 'Keine columns_dbo/columns_ext Metadaten gefunden', 1;" & vbCrLf & vbCrLf &
             "SET @tmpl    = CONCAT('[', @db, '].dbo.[', @t, '_template]');" & vbCrLf &
