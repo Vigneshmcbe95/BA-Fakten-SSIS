@@ -1,221 +1,130 @@
 Task	Meldungstyp	Meldung
-SCR08_Template_Erstellen	info	SQL Statement [Template erstellen/pruefen]: DECLARE @t  nvarchar(128) = N'tf_bsbm_betrieb';
-DECLARE @s  nvarchar(128) = N'xro_dm_stat_bsbm';
-DECLARE @db nvarchar(128) = N'msi_dm_bsbm';
-DECLARE @cols nvarchar(max), @colsExt nvarchar(max), @sql nvarchar(max), @tmpl nvarchar(300), @tmplObj int, @d int;
-
--- Soll-Spalten (columns_dbo) und ext-Struktur (columns_ext) aus tm_polybase_struktur laden
-SELECT @cols    = STRING_AGG(CAST(columns_dbo AS nvarchar(max)), CONCAT(N',', CHAR(13), CHAR(10)))
-                    WITHIN GROUP (ORDER BY colno),
-       @colsExt = STRING_AGG(CAST(columns_ext AS nvarchar(max)), CONCAT(N',', CHAR(13), CHAR(10)))
-                    WITHIN GROUP (ORDER BY colno)
-FROM dbo.tm_polybase_struktur
-WHERE tabname = LOWER(@t) AND themengebiet = @s;
-
-IF @cols IS NULL OR @colsExt IS NULL
-    THROW 50001, 'Keine columns_dbo/columns_ext Metadaten gefunden', 1;
-
-SET @tmpl    = CONCAT('[', @db, '].dbo.[', @t, '_template]');
-SET @tmplObj = OBJECT_ID(@tmpl);
-
-IF @tmplObj IS NULL
-BEGIN
-    -- Template existiert nicht -> aus columns_dbo erstellen (nur Struktur)
-    -- ext.<t> existiert erst ab SCR09 -> Struktur lokal als #ext_struct nachbilden
-    SET @sql = N'CREATE TABLE #ext_struct (' + @colsExt + N');' +
-               N'SELECT TOP 0 ' + @cols + N' INTO ' + @tmpl + N' FROM #ext_struct;';
-    EXEC sp_executesql @sql;
-END
-ELSE
-BEGIN
-    -- Template existiert -> Struktur (Spaltenname/Typ/Laenge/Nullable) gegen Soll pruefen
-    SET @sql =
-        N'CREATE TABLE #ext_struct (' + @colsExt + N');' +
-        N'SELECT TOP 0 ' + @cols + N' INTO #soll FROM #ext_struct;' +
-        N';WITH soll AS (SELECT c.name COLLATE DATABASE_DEFAULT AS nm, ty.name COLLATE DATABASE_DEFAULT AS typ, c.max_length AS ml, c.precision AS pr, c.scale AS sc, c.is_nullable AS nu' +
-          N' FROM tempdb.sys.columns c JOIN tempdb.sys.types ty ON ty.user_type_id=c.user_type_id WHERE c.object_id=OBJECT_ID(N''tempdb..#soll'')),' +
-          N' ist AS (SELECT c.name COLLATE DATABASE_DEFAULT AS nm, ty.name COLLATE DATABASE_DEFAULT AS typ, c.max_length AS ml, c.precision AS pr, c.scale AS sc, c.is_nullable AS nu' +
-          N' FROM ' + QUOTENAME(@db) + N'.sys.columns c JOIN ' + QUOTENAME(@db) + N'.sys.types ty ON ty.user_type_id=c.user_type_id WHERE c.object_id=@po)' +
-          N' SELECT @cnt = COUNT(*) FROM ((SELECT * FROM soll EXCEPT SELECT * FROM ist) UNION ALL (SELECT * FROM ist EXCEPT SELECT * FROM soll)) x;';
-    EXEC sp_executesql @sql, N'@po int, @cnt int OUTPUT', @po=@tmplObj, @cnt=@d OUTPUT;
-    IF @d > 0
-    BEGIN
-        DECLARE @msg nvarchar(400) = CONCAT('Template ', @tmpl, ': Struktur weicht von columns_dbo (Soll) ab - Lauf wird abgebrochen. Template manuell pruefen/loeschen.');
-        THROW 50010, @msg, 1;
-    END
-END
-SCR08_Template_Erstellen	info	WARNUNG [Template erstellen/pruefen] Versuch 1/3: Incorrect syntax near '='.
-SCR08_Template_Erstellen	info	  Template fuer: tf_bsbm_betriebUSE [msi_dm_bst_v3]
-GO
-
-/****** Object:  Table [dbo].[tf_bst_btg_v2_template]    Script Date: 17.06.2026 12:25:42 ******/
-SET ANSI_NULLS ON
-GO
-
-SET QUOTED_IDENTIFIER ON
-GO
-
-CREATE TABLE [dbo].[tf_bst_btg_v2_template](
-	[btr_id] [int] NOT NULL,
-	[mow_id] [int] NOT NULL,
-	[bgs_id_ges] [int] NOT NULL,
-	[bgs_id_sv] [int] NOT NULL,
-	[bgs_id_hbv] [int] NOT NULL,
-	[bgs_id_lar] [int] NOT NULL,
-	[bbs_id] [smallint] NOT NULL,
-	[dbz_id] [int] NOT NULL,
-	[l93_id] [int] NOT NULL,
-	[l03_id] [int] NOT NULL,
-	[l08_id] [smallint] NOT NULL,
-	[gst_id_b] [int] NOT NULL,
-	[ort_id_b] [int] NOT NULL,
-	[str_id_b] [int] NOT NULL,
-	[jan_id_fkt] [smallint] NOT NULL,
-	[fbs_btr_anzahl] [smallint] NOT NULL,
-	[gee_id_b] [smallint] NOT NULL,
-	[git_id_laea_100m_b] [int] NOT NULL,
-	[git_id_utm32_100m_b] [int] NOT NULL,
-	[xbp_id] [int] NOT NULL,
-	[ort_id_b_orig] [int] NOT NULL,
-	[l25_id] [smallint] NOT NULL
-) ON [PRIMARY]
-GO
-
-SELECT*
-  FROM [msi_dm_bst_v3].[ext].[vm_ddl_sql_server]
-    Where tabname ='tf_bst_btg_v2'
-
- vs themengebiet	tabname	colname	colno	columns_dbo
-xro_dm_stat_bst	tf_bst_btg_v2	bbs_id	7		bbs_id = ISNULL(BBS_ID, 0)
-xro_dm_stat_bst	tf_bst_btg_v2	bgs_id_ges	3		bgs_id_ges = ISNULL(BGS_ID_GES, 0)
-xro_dm_stat_bst	tf_bst_btg_v2	bgs_id_hbv	5		bgs_id_hbv = ISNULL(BGS_ID_HBV, 0)
-xro_dm_stat_bst	tf_bst_btg_v2	bgs_id_lar	6		bgs_id_lar = ISNULL(BGS_ID_LAR, 0)
-xro_dm_stat_bst	tf_bst_btg_v2	bgs_id_sv	4		bgs_id_sv = ISNULL(BGS_ID_SV, 0)
-xro_dm_stat_bst	tf_bst_btg_v2	btr_id	1		btr_id = ISNULL(BTR_ID, 0)
-xro_dm_stat_bst	tf_bst_btg_v2	dbz_id	8		dbz_id = ISNULL(DBZ_ID, 0)
-xro_dm_stat_bst	tf_bst_btg_v2	fbs_btr_anzahl	16		fbs_btr_anzahl = ISNULL(FBS_BTR_ANZAHL, 0)
-xro_dm_stat_bst	tf_bst_btg_v2	gee_id_b	17		gee_id_b = ISNULL(GEE_ID_B, 0)
-xro_dm_stat_bst	tf_bst_btg_v2	git_id_laea_100m_b	18		git_id_laea_100m_b = ISNULL(GIT_ID_LAEA_100M_B, 0)
-xro_dm_stat_bst	tf_bst_btg_v2	git_id_utm32_100m_b	19		git_id_utm32_100m_b = ISNULL(GIT_ID_UTM32_100M_B, 0)
-xro_dm_stat_bst	tf_bst_btg_v2	gst_id_b	12		gst_id_b = ISNULL(GST_ID_B, 0)
-xro_dm_stat_bst	tf_bst_btg_v2	jan_id_fkt	15		jan_id_fkt = ISNULL(JAN_ID_FKT, 0)
-xro_dm_stat_bst	tf_bst_btg_v2	l03_id	10		l03_id = ISNULL(L03_ID, 0)
-xro_dm_stat_bst	tf_bst_btg_v2	l08_id	11		l08_id = ISNULL(L08_ID, 0)
-xro_dm_stat_bst	tf_bst_btg_v2	l25_id	22		l25_id = ISNULL(L25_ID, 0)
-xro_dm_stat_bst	tf_bst_btg_v2	l93_id	9		l93_id = ISNULL(L93_ID, 0)
-xro_dm_stat_bst	tf_bst_btg_v2	mow_id	2		mow_id = ISNULL(MOW_ID, 0)
-xro_dm_stat_bst	tf_bst_btg_v2	ort_id_b	13		ort_id_b = ISNULL(ORT_ID_B, 0)
-xro_dm_stat_bst	tf_bst_btg_v2	ort_id_b_orig	21		ort_id_b_orig = ISNULL(ORT_ID_B_ORIG, 0)
-xro_dm_stat_bst	tf_bst_btg_v2	str_id_b	14		str_id_b = ISNULL(STR_ID_B, 0)
-xro_dm_stat_bst	tf_bst_btg_v2	xbp_id	20		xbp_id = ISNULL(XBP_ID, 0) source -->THMNAME	TABNAME	COLNAME	COLNO	IS_NULLABLE	COLLENGTH	PRECISION	SCALE	TYPNAME
-svs60m_stat_bst	tf_bst_btg_v2	btr_id	1	0	0	10	0	int
-svs60m_stat_bst	tf_bst_btg_v2	mow_id	2	0	0	10	0	int
-svs60m_stat_bst	tf_bst_btg_v2	bgs_id_ges	3	0	0	10	0	int
-svs60m_stat_bst	tf_bst_btg_v2	bgs_id_sv	4	0	0	10	0	int
-svs60m_stat_bst	tf_bst_btg_v2	bgs_id_hbv	5	0	0	10	0	int
-svs60m_stat_bst	tf_bst_btg_v2	bgs_id_lar	6	0	0	10	0	int
-svs60m_stat_bst	tf_bst_btg_v2	bbs_id	7	0	0	5	0	smallint
-svs60m_stat_bst	tf_bst_btg_v2	dbz_id	8	0	0	5	0	smallint
-svs60m_stat_bst	tf_bst_btg_v2	l93_id	9	0	0	10	0	int
-svs60m_stat_bst	tf_bst_btg_v2	l03_id	10	0	0	10	0	int
-svs60m_stat_bst	tf_bst_btg_v2	l08_id	11	0	0	5	0	smallint
-svs60m_stat_bst	tf_bst_btg_v2	gst_id_b	12	0	0	10	0	int
-svs60m_stat_bst	tf_bst_btg_v2	ort_id_b	13	0	0	10	0	int
-svs60m_stat_bst	tf_bst_btg_v2	str_id_b	14	0	0	10	0	int
-svs60m_stat_bst	tf_bst_btg_v2	jan_id_fkt	15	0	0	5	0	smallint
-svs60m_stat_bst	tf_bst_btg_v2	fbs_btr_anzahl	16	0	0	5	0	smallint
-svs60m_stat_bst	tf_bst_btg_v2	gee_id_b	17	0	0	5	0	smallint
-svs60m_stat_bst	tf_bst_btg_v2	git_id_laea_100m_b	18	0	0	10	0	int
-svs60m_stat_bst	tf_bst_btg_v2	git_id_utm32_100m_b	19	0	0	10	0	int
-svs60m_stat_bst	tf_bst_btg_v2	xbp_id	20	0	0	10	0	int
-svs60m_stat_bst	tf_bst_btg_v2	ort_id_b_orig	21	0	0	10	0	int
-svs60m_stat_bst	tf_bst_btg_v2	l25_id	22	0	0	5	0	smallint
-psd1_dm_stat_bst	tf_bst_btg_v2	btr_id	1	0	0	10	0	int
-psd1_dm_stat_bst	tf_bst_btg_v2	mow_id	2	0	0	10	0	int
-psd1_dm_stat_bst	tf_bst_btg_v2	bgs_id_ges	3	0	0	10	0	int
-psd1_dm_stat_bst	tf_bst_btg_v2	bgs_id_sv	4	0	0	10	0	int
-psd1_dm_stat_bst	tf_bst_btg_v2	bgs_id_hbv	5	0	0	10	0	int
-psd1_dm_stat_bst	tf_bst_btg_v2	bgs_id_lar	6	0	0	10	0	int
-psd1_dm_stat_bst	tf_bst_btg_v2	bbs_id	7	0	0	5	0	smallint
-psd1_dm_stat_bst	tf_bst_btg_v2	dbz_id	8	0	0	5	0	smallint
-psd1_dm_stat_bst	tf_bst_btg_v2	l93_id	9	0	0	10	0	int
-psd1_dm_stat_bst	tf_bst_btg_v2	l03_id	10	0	0	10	0	int
-psd1_dm_stat_bst	tf_bst_btg_v2	l08_id	11	0	0	5	0	smallint
-psd1_dm_stat_bst	tf_bst_btg_v2	gst_id_b	12	0	0	10	0	int
-psd1_dm_stat_bst	tf_bst_btg_v2	ort_id_b	13	0	0	10	0	int
-psd1_dm_stat_bst	tf_bst_btg_v2	str_id_b	14	0	0	10	0	int
-psd1_dm_stat_bst	tf_bst_btg_v2	jan_id_fkt	15	0	0	5	0	smallint
-psd1_dm_stat_bst	tf_bst_btg_v2	fbs_btr_anzahl	16	0	0	5	0	smallint
-psd1_dm_stat_bst	tf_bst_btg_v2	gee_id_b	17	0	0	5	0	smallint
-psd1_dm_stat_bst	tf_bst_btg_v2	git_id_laea_100m_b	18	0	0	10	0	int
-psd1_dm_stat_bst	tf_bst_btg_v2	git_id_utm32_100m_b	19	0	0	10	0	int
-psd1_dm_stat_bst	tf_bst_btg_v2	xbp_id	20	0	0	10	0	int
-psd1_dm_stat_bst	tf_bst_btg_v2	ort_id_b_orig	21	0	0	10	0	int
-psd1_dm_stat_bst	tf_bst_btg_v2	l25_id	22	0	0	5	0	smallint
-svs02dm_ueb_kleingl	tf_bst_btg_v2	btr_id	1	0	0	10	0	int
-svs02dm_ueb_kleingl	tf_bst_btg_v2	mow_id	2	0	0	10	0	int
-svs02dm_ueb_kleingl	tf_bst_btg_v2	bgs_id_ges	3	0	0	10	0	int
-svs02dm_ueb_kleingl	tf_bst_btg_v2	bgs_id_sv	4	0	0	10	0	int
-svs02dm_ueb_kleingl	tf_bst_btg_v2	bgs_id_hbv	5	0	0	10	0	int
-svs02dm_ueb_kleingl	tf_bst_btg_v2	bgs_id_lar	6	0	0	10	0	int
-svs02dm_ueb_kleingl	tf_bst_btg_v2	bbs_id	7	0	0	5	0	smallint
-svs02dm_ueb_kleingl	tf_bst_btg_v2	dbz_id	8	0	0	5	0	smallint
-svs02dm_ueb_kleingl	tf_bst_btg_v2	l93_id	9	0	0	10	0	int
-svs02dm_ueb_kleingl	tf_bst_btg_v2	l03_id	10	0	0	10	0	int
-svs02dm_ueb_kleingl	tf_bst_btg_v2	l08_id	11	0	0	5	0	smallint
-svs02dm_ueb_kleingl	tf_bst_btg_v2	gst_id_b	12	0	0	10	0	int
-svs02dm_ueb_kleingl	tf_bst_btg_v2	ort_id_b	13	0	0	10	0	int
-svs02dm_ueb_kleingl	tf_bst_btg_v2	str_id_b	14	0	0	10	0	int
-svs02dm_ueb_kleingl	tf_bst_btg_v2	jan_id_fkt	15	0	0	5	0	smallint
-svs02dm_ueb_kleingl	tf_bst_btg_v2	fbs_btr_anzahl	16	0	0	5	0	smallint
-svs02dm_ueb_kleingl	tf_bst_btg_v2	gee_id_b	17	0	0	5	0	smallint
-svs02dm_ueb_kleingl	tf_bst_btg_v2	git_id_laea_100m_b	18	0	0	10	0	int
-svs02dm_ueb_kleingl	tf_bst_btg_v2	git_id_utm32_100m_b	19	0	0	10	0	int
-svs02dm_ueb_kleingl	tf_bst_btg_v2	xbp_id	20	0	0	10	0	int
-svs02dm_ueb_kleingl	tf_bst_btg_v2	ort_id_b_orig	21	0	0	10	0	int
-xro_dm_stat_bst	tf_bst_btg_v2	btr_id	1	0	0	10	0	int
-xro_dm_stat_bst	tf_bst_btg_v2	mow_id	2	0	0	10	0	int
-xro_dm_stat_bst	tf_bst_btg_v2	bgs_id_ges	3	0	0	10	0	int
-xro_dm_stat_bst	tf_bst_btg_v2	bgs_id_sv	4	0	0	10	0	int
-xro_dm_stat_bst	tf_bst_btg_v2	bgs_id_hbv	5	0	0	10	0	int
-xro_dm_stat_bst	tf_bst_btg_v2	bgs_id_lar	6	0	0	10	0	int
-xro_dm_stat_bst	tf_bst_btg_v2	bbs_id	7	0	0	5	0	smallint
-xro_dm_stat_bst	tf_bst_btg_v2	dbz_id	8	0	0	5	0	smallint
-xro_dm_stat_bst	tf_bst_btg_v2	l93_id	9	0	0	10	0	int
-xro_dm_stat_bst	tf_bst_btg_v2	l03_id	10	0	0	10	0	int
-xro_dm_stat_bst	tf_bst_btg_v2	l08_id	11	0	0	5	0	smallint
-xro_dm_stat_bst	tf_bst_btg_v2	gst_id_b	12	0	0	10	0	int
-xro_dm_stat_bst	tf_bst_btg_v2	ort_id_b	13	0	0	10	0	int
-xro_dm_stat_bst	tf_bst_btg_v2	str_id_b	14	0	0	10	0	int
-xro_dm_stat_bst	tf_bst_btg_v2	jan_id_fkt	15	0	0	5	0	smallint
-xro_dm_stat_bst	tf_bst_btg_v2	fbs_btr_anzahl	16	0	0	5	0	smallint
-xro_dm_stat_bst	tf_bst_btg_v2	gee_id_b	17	0	0	5	0	smallint
-xro_dm_stat_bst	tf_bst_btg_v2	git_id_laea_100m_b	18	0	0	10	0	int
-xro_dm_stat_bst	tf_bst_btg_v2	git_id_utm32_100m_b	19	0	0	10	0	int
-xro_dm_stat_bst	tf_bst_btg_v2	xbp_id	20	0	0	10	0	int
-xro_dm_stat_bst	tf_bst_btg_v2	ort_id_b_orig	21	0	0	10	0	int
-xro_dm_stat_bst	tf_bst_btg_v2	l25_id	22	0	0	5	0	smallint
-svs30m_stat_bst	tf_bst_btg_v2	btr_id	1	0	0	10	0	int
-svs30m_stat_bst	tf_bst_btg_v2	mow_id	2	0	0	10	0	int
-svs30m_stat_bst	tf_bst_btg_v2	bgs_id_ges	3	0	0	10	0	int
-svs30m_stat_bst	tf_bst_btg_v2	bgs_id_sv	4	0	0	10	0	int
-svs30m_stat_bst	tf_bst_btg_v2	bgs_id_hbv	5	0	0	10	0	int
-svs30m_stat_bst	tf_bst_btg_v2	bgs_id_lar	6	0	0	10	0	int
-svs30m_stat_bst	tf_bst_btg_v2	bbs_id	7	0	0	5	0	smallint
-svs30m_stat_bst	tf_bst_btg_v2	dbz_id	8	0	0	5	0	smallint
-svs30m_stat_bst	tf_bst_btg_v2	l93_id	9	0	0	10	0	int
-svs30m_stat_bst	tf_bst_btg_v2	l03_id	10	0	0	10	0	int
-svs30m_stat_bst	tf_bst_btg_v2	l08_id	11	0	0	5	0	smallint
-svs30m_stat_bst	tf_bst_btg_v2	gst_id_b	12	0	0	10	0	int
-svs30m_stat_bst	tf_bst_btg_v2	ort_id_b	13	0	0	10	0	int
-svs30m_stat_bst	tf_bst_btg_v2	str_id_b	14	0	0	10	0	int
-svs30m_stat_bst	tf_bst_btg_v2	jan_id_fkt	15	0	0	5	0	smallint
-svs30m_stat_bst	tf_bst_btg_v2	fbs_btr_anzahl	16	0	0	5	0	smallint
-svs30m_stat_bst	tf_bst_btg_v2	gee_id_b	17	0	0	5	0	smallint
-svs30m_stat_bst	tf_bst_btg_v2	git_id_laea_100m_b	18	0	0	10	0	int
-svs30m_stat_bst	tf_bst_btg_v2	git_id_utm32_100m_b	19	0	0	10	0	int
-svs30m_stat_bst	tf_bst_btg_v2	xbp_id	20	0	0	10	0	int
-svs30m_stat_bst	tf_bst_btg_v2	ort_id_b_orig	21	0	0	10	0	int
-svs30m_stat_bst	tf_bst_btg_v2	l25_id	22	0	0	5	0	smallint
-svs30m_stat_bst	tf_bst_btg_v2	bgs_id_anue	23	0	0	10	0	int
-svs30m_stat_bst	tf_bst_btg_v2	bgs_id_anue_sv	24	0	0	10	0	int
+SCR06 Arbeitsliste Aufbauen	Fehler	The script returned a failure result.
+SCR06 Arbeitsliste Aufbauen	Fehler	Stack Trace:    at ST_0ee0946e9847459c88ff71f770e40673.ScriptMain.StatusAnalysierenUndZuruecksetzen()
+   at ST_0ee0946e9847459c88ff71f770e40673.ScriptMain.Main()
+SCR06 Arbeitsliste Aufbauen	Fehler	KRITISCHER FEHLER: Keine der aus [v.istat.xro_dm_stat_ast_av_stea.urladung_perm.csv] geladenen Tabellen ist als Verfahren in der Parametertabelle [msi_dm_ast.dbo.tm_msi_dm_ast_param] vorhanden (Tabellenliste siehe Log oben).
+SCR06 Arbeitsliste Aufbauen	info	  - ANDERE   : 0
+SCR06 Arbeitsliste Aufbauen	info	  - FEHLER   : 0
+SCR06 Arbeitsliste Aufbauen	info	  - ERFOLG   : 0
+SCR06 Arbeitsliste Aufbauen	info	  - Total    : 0
+SCR06 Arbeitsliste Aufbauen	info	Status-Analyse (alle Verfahren aus Steuerliste):
+SCR06 Arbeitsliste Aufbauen	info	Schritt 2: Status analysieren und zuruecksetzen
+SCR06 Arbeitsliste Aufbauen	info	Neue Verfahren eingetragen: 0
+SCR06 Arbeitsliste Aufbauen	info	Schritt 1: Neue Verfahren aus Steuerliste eintragen
+SCR06 Arbeitsliste Aufbauen	info	Aktueller Lauf: Datei [v.istat.xro_dm_stat_ast_av_stea.urladung_perm.csv] | Tabellen in Steuerliste (1): vf_ast_stea
+SCR06 Arbeitsliste Aufbauen	info	Pflichtfelder-Pruefung: alle Variablen vorhanden OK
+SCR06 Arbeitsliste Aufbauen	info	SCR_06_Arbeitsliste_Aufbauen_Fakten - Start
+SCR05 Parameter_Vollstaendigkeitspruefung	info	ERGEBNIS: BESTANDEN - Alle Parameter vollstaendig und befuellt OK
+SCR05 Parameter_Vollstaendigkeitspruefung	info	Mit Fehlern              : 0
+SCR05 Parameter_Vollstaendigkeitspruefung	info	Vollstaendig (OK)         : 1
+SCR05 Parameter_Vollstaendigkeitspruefung	info	Verfahren geprueft        : 1
+SCR05 Parameter_Vollstaendigkeitspruefung	info	ZUSAMMENFASSUNG SCR_05_Parameter_Vollstaendigkeitspruefung
+SCR05 Parameter_Vollstaendigkeitspruefung	info	  OK Alle Pflichtparameter fuer 'vf_ast_stea' vorhanden und befuellt.
+SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      Anzahl_ParallelTasks
+SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      DateFormat
+SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      FaktenClusteredIndex
+SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      Faktenkomprimierung
+SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      Faktenpartitionsspalte
+SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      Faktentabelle
+SCR05 Parameter_Vollstaendigkeitspruefung	info	  [OK]      FaktentabelleTemplate
+SCR05 Parameter_Vollstaendigkeitspruefung	info	Pruefe Verfahren: vf_ast_stea
+SCR05 Parameter_Vollstaendigkeitspruefung	info	Schritt 3: Parametertabelle vollstaendig pruefen
+SCR05 Parameter_Vollstaendigkeitspruefung	info	Verfahren in Steuerliste gefunden: 1
+SCR05 Parameter_Vollstaendigkeitspruefung	info	Schritt 2: Verfahren aus Steuerliste laden
+SCR05 Parameter_Vollstaendigkeitspruefung	info	Steuerlisten-Tabelle enthaelt 1 Zeile(n) OK
+SCR05 Parameter_Vollstaendigkeitspruefung	info	Steuerlisten-Tabelle [dbo.tm_steuerlistenfile_Fakten] vorhanden OK
+SCR05 Parameter_Vollstaendigkeitspruefung	info	Schritt 1: Steuerlisten-Tabelle pruefen
+SCR05 Parameter_Vollstaendigkeitspruefung	info	SSIS-Variablen-Pruefung: alle vorhanden OK
+SCR05 Parameter_Vollstaendigkeitspruefung	info	Pflichtparameter     : FaktentabelleTemplate, Faktentabelle, Faktenpartitionsspalte, Faktenkomprimierung, FaktenClusteredIndex, DateFormat, Anzahl_ParallelTasks
+SCR05 Parameter_Vollstaendigkeitspruefung	info	SCR_05_Parameter_Vollstaendigkeitspruefung - Start
+SC04 Whereclasuse	info	partition_wert NULL    : 1
+SC04 Whereclasuse	info	partition_wert gefuellt: 0
+SC04 Whereclasuse	info	  vf_ast_stea_*                                      -> wert=NULL
+SC04 Whereclasuse	info	Steuerlisten-Zeilen : 1
+SC04 Whereclasuse	info	Spalten geprueft/angelegt OK
+SC04 Whereclasuse	info	Steuerlisten-Tabelle : dbo.tm_steuerlistenfile_Fakten
+SC04 Whereclasuse	info	Referenzdatum: 01.03.2026 00:00:00
+SC04 Whereclasuse	info	SC04_Whereclause - Start
+SCR03 Stuerliste Laden	info	SCR_03_Steuerlisten_Laden erfolgreich abgeschlossen OK
+SCR03 Stuerliste Laden	info	Datei endet auf _perm.csv -> bleibt im Quellordner
+SCR03 Stuerliste Laden	info	Geladene Tabellen aus [v.istat.xro_dm_stat_ast_av_stea.urladung_perm.csv] (1): vf_ast_stea
+SCR03 Stuerliste Laden	info	Datei erfolgreich verarbeitet: v.istat.xro_dm_stat_ast_av_stea.urladung_perm.csv OK
+SCR03 Stuerliste Laden	info	  Zeilen gesamt: 1 | INSERT: 1 | Uebersprungen: 0
+SCR03 Stuerliste Laden	info	  Arbeitstabelle: vollstaendig geleert
+SCR03 Stuerliste Laden	info	  Themengebiet : xro_dm_stat_ast_av_stea
+SCR03 Stuerliste Laden	info	  Umgebung     : istat
+SCR03 Stuerliste Laden	info	  Tabellentyp  : v
+SCR03 Stuerliste Laden	info	Verarbeite Datei: v.istat.xro_dm_stat_ast_av_stea.urladung_perm.csv
+SCR03 Stuerliste Laden	info	Vollstaendiger Pfad : F:\STL\v.istat.xro_dm_stat_ast_av_stea.urladung_perm.csv
+SCR03 Stuerliste Laden	info	Arbeitstabelle und Audit-Tabelle geprueft/angelegt OK
+SCR03 Stuerliste Laden	info	Audit-Tabelle  : dbo.tm_steuerlistenfile_Fakten_audit
+SCR03 Stuerliste Laden	info	Arbeitstabelle : dbo.tm_steuerlistenfile_Fakten
+SCR03 Stuerliste Laden	info	Pflichtfelder-Pruefung: alle Variablen vorhanden OK
+SCR03 Stuerliste Laden	info	SCR_03_Steuerlisten_Laden - Start
+SCR02 Vorbereitungen	info	SCR_01_Vorbereitungen erfolgreich abgeschlossen.
+SCR02 Vorbereitungen	info	  Index erstellt: IX_vm_ddl_sql_server_TABNAME_COLNAME (TABNAME, COLNAME)
+SCR02 Vorbereitungen	info	  dbo-Kopie erstellt: dbo.vm_ddl_sql_server | Zeilen: 1019129
+SCR02 Vorbereitungen	info	  Alte dbo-Kopie geloescht (falls vorhanden)
+SCR02 Vorbereitungen	info	Schritt 8: Lokale dbo-Kopie [dbo.vm_ddl_sql_server] erstellen
+SCR02 Vorbereitungen	info	Externe Partitionssicht [ext.[v_partition_info]]: erfolgreich angelegt 
+SCR02 Vorbereitungen	info	  Oracle Location: ISTAT.BI_DM_EXPORT.V_PARTITION_INFO
+SCR02 Vorbereitungen	info	Externe Partitionssicht [ext.[v_partition_info]]: geloescht (falls vorhanden) wird neu angelegt
+SCR02 Vorbereitungen	info	Schritt 7a: Externe Partitionssicht [ext.v_partition_info] pruefen
+SCR02 Vorbereitungen	info	Externe DDL-Tabelle [ext.vm_ddl_sql_server]: bereits vorhanden uebersprungen 
+SCR02 Vorbereitungen	info	Schritt 7: Externe DDL-Tabelle [ext.vm_ddl_sql_server] pruefen
+SCR02 Vorbereitungen	info	Schema [ext]: bereits vorhanden uebersprungen 
+SCR02 Vorbereitungen	info	Schritt 6: Schema [ext] pruefen
+SCR02 Vorbereitungen	info	External Data Source [Oracle-istat]: bereits vorhanden uebersprungen 
+SCR02 Vorbereitungen	info	Schritt 5: External Data Source pruefen
+SCR02 Vorbereitungen	info	Credential [Q0001157_BI_DM_EXPORT]: bereits vorhanden uebersprungen 
+SCR02 Vorbereitungen	info	Schritt 4: PolyBase Credential pruefen
+SCR02 Vorbereitungen	info	Master Key: bereits vorhanden uebersprungen 
+SCR02 Vorbereitungen	info	Schritt 3: PolyBase Master Key pruefen
+SCR02 Vorbereitungen	info	ETL_Fkt_FehlerHistorie: geprueft/angelegt 
+SCR02 Vorbereitungen	info	Schritt 2: ETL_Fkt_FehlerHistorie sicherstellen
+SCR02 Vorbereitungen	info	Mapping-Funktion dbo.fn_ParamVerfahren: geprueft/angelegt 
+SCR02 Vorbereitungen	info	Schritt 1b: Mapping-Funktion dbo.fn_ParamVerfahren sicherstellen
+SCR02 Vorbereitungen	info	ETL_Fkt_Arbeitsliste: geprueft/angelegt 
+SCR02 Vorbereitungen	info	Schritt 1: ETL_Fkt_Arbeitsliste sicherstellen
+SCR02 Vorbereitungen	info	Pflichtfelder-Pruefung: alle Variablen vorhanden 
+SCR02 Vorbereitungen	info	Steuerlisten-Tabelle: dbo.tm_steuerlistenfile_Fakten
+SCR02 Vorbereitungen	info	SCR_02_Vorbereitungen - Start
+SCR01 Parameter einlesen	info	VORABPRUEFUNG BESTANDEN Paket wird fortgesetzt.
+SCR01 Parameter einlesen	info	VALIDATION_FAILED = 0
+SCR01 Parameter einlesen	info	[OK]       PARAM_PROTOKOLL_TABELLE                  = tm_msi_dm_ast_prot
+SCR01 Parameter einlesen	info	[OK]       PARAM_PROTOKOLL_SP                       = usp_SSIS_Protokoll
+SCR01 Parameter einlesen	info	[OK]       PARAM_PROTOKOLL_DB                       = msi_dm_ast
+SCR01 Parameter einlesen	info	Protokollierung
+SCR01 Parameter einlesen	info	[OK]       PARAM_MAXPARALLEL                        = 8
+SCR01 Parameter einlesen	info	Verarbeitung
+SCR01 Parameter einlesen	info	[OK]       PARAM_EXT_TABLE_NAME                     = vm_ddl_sql_server
+SCR01 Parameter einlesen	info	[OK]       PARAM_EXT_TABLE_SCHEMA                   = ext
+SCR01 Parameter einlesen	info	[OK]       PARAM_EXT_TABLE_LOCATION                 = istat.STATRT.VM_DDL_SQL_SERVER
+SCR01 Parameter einlesen	info	[OK]       PARAM_EXT_SOURCE_LOCATION                = oracle://l9800022db.dst.baintern.de:57575
+SCR01 Parameter einlesen	info	[OK]       PARAM_EXT_SOURCE_NAME                    = Oracle-istat
+SCR01 Parameter einlesen	info	PolyBase / External Source
+SCR01 Parameter einlesen	info	[OK]       PARAM_PARAMETERTABELLE                   = tm_msi_dm_ast_param
+SCR01 Parameter einlesen	info	[OK]       PARAM_PARAMETER_DB                       = msi_dm_ast
+SCR01 Parameter einlesen	info	Parametertabelle
+SCR01 Parameter einlesen	info	[OK]       PARAM_STEUERLISTEN_TABELLE               = tm_steuerlistenfile_Fakten
+SCR01 Parameter einlesen	info	[OK]       PARAM_STL_ORDNER                         = F:\STL
+SCR01 Parameter einlesen	info	Steuerlisten
+SCR01 Parameter einlesen	info	[OK]       ATOMIC_ORACLE_PASSWORD                   = [Wert verborgen]
+SCR01 Parameter einlesen	info	[OK]       ATOMIC_ORACLE_USERNAME                   = BI_DM_EXPORT
+SCR01 Parameter einlesen	info	Oracle Credentials
+SCR01 Parameter einlesen	info	[OK]       PARAM_DATAMART                           = msi_dm_ast
+SCR01 Parameter einlesen	info	[OK]       PARAM_VERFAHREN                          = AST
+SCR01 Parameter einlesen	info	[OK]       PARAM_DATENBANK                          = msi_dm_ast
+SCR01 Parameter einlesen	info	[OK]       PARAM_CONNECTION_SERVER                  = Q0001157\Abnahme23
+SCR01 Parameter einlesen	info	[OK]       PARAM_SERVER                             = Q0001157
+SCR01 Parameter einlesen	info	Verbindung / Server
+SCR01 Parameter einlesen	info	SCR01_Parameter_Einlesen - Start
+Paketstart	info	Paketstart erfolgreich abgeschlossen.
+Paketstart	info	Schritt 4: Neuen Lauf anlegen
+Paketstart	info	Verfahren auf AUSSTEHEND zurueckgesetzt: 0
+Paketstart	info	Schritt 3: ETL_Fkt_ArbeitslisteFEHLER AUSSTEHEND
+Paketstart	info	Verwaiste Laeufe auf ABGEBROCHEN gesetzt: 0
+Paketstart	info	Schritt 2: Verwaiste Laeufe (LAUFEND) auf ABGEBROCHEN setzen
+Paketstart	info	ETL_Fakt_LaufHistorie: geprueft/angelegt.
+Paketstart	info	Schritt 1: ETL_Fakt_LaufHistorie sicherstellen
+Paketstart	info	Fakten Laden - Paketstart
