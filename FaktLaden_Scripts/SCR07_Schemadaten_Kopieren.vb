@@ -216,14 +216,15 @@ SELECT DISTINCT
              THEN ' COLLATE Latin1_General_100_CI_AS_SC_UTF8)'
              ELSE ''
         END,
-        CASE WHEN ddl.IS_NULLABLE = 0 AND ddl.TYPNAME LIKE '%char%'
-                THEN ', '''')'
-             WHEN ddl.IS_NULLABLE = 0 AND (ddl.TYPNAME LIKE 'float%'
-                  OR ddl.TYPNAME IN ('numeric','decimal')
-                  OR ddl.TYPNAME LIKE '%int%')
-                THEN ', 0)'
-             WHEN ddl.IS_NULLABLE = 0 AND ddl.TYPNAME LIKE '%date%'
-                THEN ', ''1900-01-01'')'
+        -- Bei NOT NULL muss das oben geoeffnete ISNULL( IMMER geschlossen werden.
+        -- Typname kann Praezision/Laenge enthalten (z.B. 'decimal(38)'), daher
+        -- per LIKE pruefen; jeder sonstige Typ faellt auf den numerischen
+        -- Default ', 0)' zurueck, damit nie ein offenes ISNULL( uebrig bleibt.
+        CASE WHEN ddl.IS_NULLABLE = 0 THEN
+                CASE WHEN ddl.TYPNAME LIKE '%char%' THEN ', '''')'
+                     WHEN ddl.TYPNAME LIKE '%date%' THEN ', ''1900-01-01'')'
+                     ELSE ', 0)'
+                END
              ELSE ''
         END
     ),
