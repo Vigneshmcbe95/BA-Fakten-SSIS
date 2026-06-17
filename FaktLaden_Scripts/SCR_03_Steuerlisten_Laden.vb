@@ -66,7 +66,9 @@ Partial Public Class ScriptMain
 
             If Not _stlOrdner.EndsWith("\") Then _stlOrdner &= "\"
 
-            _auditTabelle = _steuerlistenTabelle & "_audit"
+            ' Zentrale Insert-Only-Audit-Tabelle fuer FAKTEN und DIMENSIONEN
+            ' (beide STL-Loader schreiben hier hinein; nur INSERT, kein DELETE/UPDATE).
+            _auditTabelle = "tm_steuerliste_audit"
             Log("Arbeitstabelle : dbo." & _steuerlistenTabelle)
             Log("Audit-Tabelle  : dbo." & _auditTabelle)
 
@@ -166,6 +168,7 @@ BEGIN
     (
         stlid          INT IDENTITY(1,1) NOT NULL
             CONSTRAINT PK_" & a & " PRIMARY KEY,
+        bereich        NVARCHAR(10)   NULL,
         tabelle        NVARCHAR(255)  NULL,
         FILE_NAME      NVARCHAR(255)  NULL,
         tabellentyp    NVARCHAR(255)  NULL,
@@ -243,9 +246,9 @@ END;"
                 ' 1. Audit-Tabelle: tabelle = parsed name, tabname_filter = raw line
                 SqlMitParameternAusfuehren(connStr,
                     "INSERT INTO dbo." & _auditTabelle &
-                    " (tabelle, FILE_NAME, tabellentyp, umgebung," &
+                    " (bereich, tabelle, FILE_NAME, tabellentyp, umgebung," &
                     "  load_Date, themengebiet, bearbeiter, tabname_filter)" &
-                    " VALUES (@tab, @f, @typ, @umb, @dat, @thm, @bea, @filter)",
+                    " VALUES ('FAKT', @tab, @f, @typ, @umb, @dat, @thm, @bea, @filter)",
                     "INSERT Audit",
                     New With {
                         .tab = tabellenname,
