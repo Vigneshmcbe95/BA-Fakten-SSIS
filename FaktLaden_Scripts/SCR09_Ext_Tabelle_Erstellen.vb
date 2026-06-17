@@ -68,7 +68,7 @@ Partial Public Class ScriptMain
                     ExtTabelleErstellen(connStr, v)
                     StatusSetzen(connStr, v.ID, "EXT_TABELLE_ERSTELLT")
                     LogSchreiben(connStr, v.Verfahren, "SCHRITT_2",
-                        "Externe Tabelle erstellt: " & _extSchema & "." & v.Faktentabelle.ToLower())
+                        "Externe Tabelle erstellt: " & _extSchema & "." & v.Verfahren.ToLower())
                     cntOK += 1
                     Log("  Externe Tabelle erstellt OK")
                 Catch ex As Exception
