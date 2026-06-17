@@ -454,6 +454,49 @@ Partial Public Class ScriptMain
                         Log("  Leere obere Grenzpartition entfernt: " & maxWert.ToString())
                     End If
                 End If
+                If liste.Count > 0 Then Return liste
+                ' Keine Partitionsmetadaten in v_partition_info - typisch fuer eine
+                ' VIEW-Quelle (vf_*): Views haben keine Eintraege in
+                ' dba_tab_partitions. Fallback: tatsaechliche Partitionswerte direkt
+                ' aus der ext-Quelle lesen (DISTINCT). Diese Werte sind echte
+                ' Datenwerte -> keine Umrechnung. Hinweis: dieser Pfad scannt die Quelle.
+                Log("  Keine Partitionsmetadaten in v_partition_info fuer [" & v.Verfahren & "] (z.B. View-Quelle) -> Fallback: DISTINCT " & v.PartitionsSpalte & " aus ext.[" & v.Verfahren.ToLower() & "]")
+                Return OracleDistinctWerteLaden(connStr, v)
+            Catch ex As Exception
+                If versuch < MAX_VERSUCHE Then System.Threading.Thread.Sleep(WARTE_SEK * 1000) Else Throw
+            End Try
+        End While
+        Return liste
+    End Function
+
+    ' -----------------------------------------------------------------------
+    ' OracleDistinctWerteLaden - Fallback fuer Quellen ohne Partitionsmetadaten
+    ' (z.B. Views vf_*): liest die tatsaechlich vorhandenen Partitionswerte
+    ' direkt aus der ext-Quelle (SELECT DISTINCT <partcol>). Liefert echte
+    ' Datenwerte (keine HIGH_VALUE-Umrechnung noetig). Scannt die Quelle.
+    ' -----------------------------------------------------------------------
+    Private Function OracleDistinctWerteLaden(connStr As String, v As VerfahrenInfo) As List(Of Integer)
+        Dim liste As New List(Of Integer)()
+        Dim sql As String = "SELECT DISTINCT [" & v.PartitionsSpalte & "] FROM ext.[" & v.Verfahren.ToLower() &
+                            "] WHERE [" & v.PartitionsSpalte & "] IS NOT NULL"
+        Dim versuch As Integer = 0
+        While versuch < MAX_VERSUCHE
+            versuch += 1
+            Try
+                Using conn As New SqlConnection(connStr)
+                    conn.Open()
+                    Using cmd As New SqlCommand(sql, conn)
+                        cmd.CommandTimeout = 0
+                        Using rdr As SqlDataReader = cmd.ExecuteReader()
+                            While rdr.Read()
+                                If Not rdr.IsDBNull(0) Then
+                                    Dim intWert As Integer
+                                    If Integer.TryParse(rdr(0).ToString().Trim(), intWert) Then liste.Add(intWert)
+                                End If
+                            End While
+                        End Using
+                    End Using
+                End Using
                 Return liste
             Catch ex As Exception
                 If versuch < MAX_VERSUCHE Then System.Threading.Thread.Sleep(WARTE_SEK * 1000) Else Throw
