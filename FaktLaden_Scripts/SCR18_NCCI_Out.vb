@@ -127,9 +127,9 @@ Partial Public Class ScriptMain
 "SELECT a.ID, a.Verfahren, a.LetzterSchritt, pf.Wert AS Faktentabelle,
         UPPER(ISNULL(pn.Wert,'FALSE')) AS NcciFlag, UPPER(pi.Wert) AS IndexType
  FROM   dbo.ETL_Fkt_Arbeitsliste a
- JOIN   " & _parameterDB & ".dbo." & _parametertab & " pf ON pf.Verfahren=a.Verfahren AND pf.Parameter='Faktentabelle'
- LEFT JOIN " & _parameterDB & ".dbo." & _parametertab & " pn ON pn.Verfahren=a.Verfahren AND pn.Parameter='FaktenNccIndex'
- JOIN   " & _parameterDB & ".dbo." & _parametertab & " pi ON pi.Verfahren=a.Verfahren AND pi.Parameter='FaktenClusteredIndex'
+ JOIN   " & _parameterDB & ".dbo." & _parametertab & " pf ON pf.Verfahren=dbo.fn_ParamVerfahren(a.Verfahren) AND pf.Parameter='Faktentabelle'
+ LEFT JOIN " & _parameterDB & ".dbo." & _parametertab & " pn ON pn.Verfahren=dbo.fn_ParamVerfahren(a.Verfahren) AND pn.Parameter='FaktenNccIndex'
+ JOIN   " & _parameterDB & ".dbo." & _parametertab & " pi ON pi.Verfahren=dbo.fn_ParamVerfahren(a.Verfahren) AND pi.Parameter='FaktenClusteredIndex'
  WHERE  a.Status IN ('KOMPRIMIERUNG_ERSTELLT','NCCI_OUT') AND a.RunID=" & _runID & " ORDER BY a.Verfahren"
         Dim versuch As Integer = 0
         While versuch < MAX_VERSUCHE

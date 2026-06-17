@@ -190,7 +190,7 @@ WHERE schema_id = SCHEMA_ID('" & _extSchema & "')
         pf.Wert AS Faktentabelle
  FROM   dbo.ETL_Fkt_Arbeitsliste a
  JOIN   " & _parameterDB & ".dbo." & _parametertab & " pf 
-        ON pf.Verfahren = a.Verfahren 
+        ON pf.Verfahren = dbo.fn_ParamVerfahren(a.Verfahren) 
         AND pf.Parameter = 'Faktentabelle'
  WHERE  a.Status IN ('TEMPLATE_ERSTELLT','EXT_TABELLE_ERSTELLEN')
  AND    a.RunID = " & _runID.ToString() & "

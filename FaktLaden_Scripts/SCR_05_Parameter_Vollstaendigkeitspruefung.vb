@@ -347,7 +347,7 @@ Partial Public Class ScriptMain
         Dim sql As String =
             "SELECT COUNT(1) " &
             "FROM   " & _parameterDB & ".dbo." & _parametertabelle & " " &
-            "WHERE  LOWER(LTRIM(RTRIM(Verfahren))) = @v"
+            "WHERE  LOWER(LTRIM(RTRIM(Verfahren))) = LOWER(dbo.fn_ParamVerfahren(@v))"
 
         Dim versuch As Integer = 0
         Dim letzterFehler As Exception = Nothing
@@ -392,7 +392,7 @@ Partial Public Class ScriptMain
             "  ELSE 'OK' " &
             "END " &
             "FROM " & _parameterDB & ".dbo." & _parametertabelle & " " &
-            "WHERE LOWER(LTRIM(RTRIM(Verfahren)))  = @v " &
+            "WHERE LOWER(LTRIM(RTRIM(Verfahren)))  = LOWER(dbo.fn_ParamVerfahren(@v)) " &
             "AND   LOWER(LTRIM(RTRIM(Parameter)))  = @p"
 
         Dim versuch As Integer = 0

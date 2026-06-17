@@ -158,8 +158,8 @@ Partial Public Class ScriptMain
 "SELECT a.ID, a.Verfahren, a.Themengebiet, a.LetzterSchritt,
         pf.Wert AS Faktentabelle, pp.Wert AS PartitionsSpalte
  FROM   dbo.ETL_Fkt_Arbeitsliste a
- JOIN   " & _parameterDB & ".dbo." & _parametertab & " pf ON pf.Verfahren=a.Verfahren AND pf.Parameter='Faktentabelle'
- JOIN   " & _parameterDB & ".dbo." & _parametertab & " pp ON pp.Verfahren=a.Verfahren AND pp.Parameter='Faktenpartitionsspalte'
+ JOIN   " & _parameterDB & ".dbo." & _parametertab & " pf ON pf.Verfahren=dbo.fn_ParamVerfahren(a.Verfahren) AND pf.Parameter='Faktentabelle'
+ JOIN   " & _parameterDB & ".dbo." & _parametertab & " pp ON pp.Verfahren=dbo.fn_ParamVerfahren(a.Verfahren) AND pp.Parameter='Faktenpartitionsspalte'
  WHERE  a.Status IN ('PARTITIONSGRENZEN_ERSTELLT','STAGING_ERSTELLEN')
  AND    a.RunID = " & _runID.ToString() & " ORDER BY a.Verfahren"
         Dim versuch As Integer = 0

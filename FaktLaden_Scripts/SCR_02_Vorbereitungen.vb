@@ -67,6 +67,15 @@ Partial Public Class ScriptMain
             Log("Schritt 1: ETL_Fkt_Arbeitsliste sicherstellen")
             ArbeitslisteSicherstellen(connStr)
 
+            ' -- Schritt 1b: Mapping-Funktion vf_ -> tf_ sicherstellen ----------
+            ' Zentrale Regel: Steuerliste kann den Oracle-Objektnamen 'vf_...'
+            ' (View) enthalten, die Parametertabelle ist auf die Zieltabelle
+            ' 'tf_...' geschluesselt. Diese Funktion bildet vf_ -> tf_ ab und
+            ' wird in allen Parameter-Lookups verwendet, damit STL und
+            ' Parametertabelle zusammenpassen.
+            Log("Schritt 1b: Mapping-Funktion dbo.fn_ParamVerfahren sicherstellen")
+            ParamVerfahrenFunktionSicherstellen(connStr)
+
             ' -- Schritt 2: ETL_Fkt_FehlerHistorie sicherstellen -----------------
             Log("Schritt 2: ETL_Fkt_FehlerHistorie sicherstellen")
             FehlerHistorieSicherstellen(connStr)
@@ -203,6 +212,27 @@ Partial Public Class ScriptMain
         Return True
 
     End Function
+
+    ' -----------------------------------------------------------------------
+    ' ParamVerfahrenFunktionSicherstellen - Legt die zentrale Mapping-Funktion
+    ' dbo.fn_ParamVerfahren an (vf_ -> tf_). Wird in allen Parameter-Lookups
+    ' verwendet: in der Steuerliste kann der Oracle-View-Name 'vf_...' stehen,
+    ' die Parametertabelle ist aber auf die Zieltabelle 'tf_...' geschluesselt.
+    ' Andere Namen bleiben unveraendert.
+    ' -----------------------------------------------------------------------
+    Private Sub ParamVerfahrenFunktionSicherstellen(connStr As String)
+        Dim sql As String =
+"CREATE OR ALTER FUNCTION dbo.fn_ParamVerfahren(@v sysname)
+RETURNS sysname
+AS
+BEGIN
+    RETURN CASE WHEN LOWER(LEFT(@v, 3)) = 'vf_'
+                THEN 'tf_' + SUBSTRING(@v, 4, 4000)
+                ELSE @v END
+END"
+        SqlAusfuehren(connStr, sql, "fn_ParamVerfahren sicherstellen")
+        Log("Mapping-Funktion dbo.fn_ParamVerfahren: geprueft/angelegt ")
+    End Sub
 
     ' -----------------------------------------------------------------------
     ' ArbeitslisteSicherstellen - Stellt sicher, dass

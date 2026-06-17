@@ -158,7 +158,7 @@ Partial Public Class ScriptMain
         pf.Wert AS Faktentabelle
  FROM   dbo.ETL_Fkt_Arbeitsliste a
  JOIN   " & _parameterDB & ".dbo." & _parametertab & " pf
-        ON pf.Verfahren = a.Verfahren
+        ON pf.Verfahren = dbo.fn_ParamVerfahren(a.Verfahren)
         AND pf.Parameter = 'Faktentabelle'
  WHERE  a.Status IN ('SCHEMADATEN_KOPIERT','TEMPLATE_ERSTELLEN')
  AND    a.RunID = " & _runID.ToString() & "

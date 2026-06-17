@@ -170,7 +170,7 @@ Partial Public Class ScriptMain
             ' Parameter nur zum Abgleich / Warnung (Spaltentyp ist massgeblich)
             Dim paramTyp As String = Convert.ToString(SqlSkalar(connStr,
                 "SELECT TOP 1 Wert FROM " & _parameterDB & ".dbo." & _parametertab &
-                " WHERE Verfahren='" & v.Verfahren & "' AND Parameter='Faktenpartitionsdatentyp'", "Parameter-Datentyp"))
+                " WHERE Verfahren=dbo.fn_ParamVerfahren('" & v.Verfahren & "') AND Parameter='Faktenpartitionsdatentyp'", "Parameter-Datentyp"))
             If paramTyp IsNot Nothing AndAlso paramTyp.Trim() <> "" AndAlso paramTyp.Trim().ToUpper() <> pfTyp Then
                 Log("  WARNUNG: Faktenpartitionsdatentyp=" & paramTyp.Trim() &
                     " weicht vom tatsaechlichen Spaltentyp '" & pfTyp & "' ab -> verwende Spaltentyp")
@@ -276,11 +276,11 @@ Partial Public Class ScriptMain
 "       pi.Wert  AS IndexType," &
 "       UPPER(ISNULL(pn.Wert,'FALSE')) AS NcciFlag" &
 " FROM  dbo.ETL_Fkt_Arbeitsliste a" &
-" JOIN  " & _parameterDB & ".dbo." & _parametertab & " pf ON pf.Verfahren=a.Verfahren AND pf.Parameter='Faktentabelle'" &
-" JOIN  " & _parameterDB & ".dbo." & _parametertab & " pp ON pp.Verfahren=a.Verfahren AND pp.Parameter='Faktenpartitionsspalte'" &
-" LEFT JOIN " & _parameterDB & ".dbo." & _parametertab & " pc ON pc.Verfahren=a.Verfahren AND pc.Parameter='Faktenkomprimierung'" &
-" JOIN  " & _parameterDB & ".dbo." & _parametertab & " pi ON pi.Verfahren=a.Verfahren AND pi.Parameter='FaktenClusteredIndex'" &
-" LEFT JOIN " & _parameterDB & ".dbo." & _parametertab & " pn ON pn.Verfahren=a.Verfahren AND pn.Parameter='FaktenNccIndex'" &
+" JOIN  " & _parameterDB & ".dbo." & _parametertab & " pf ON pf.Verfahren=dbo.fn_ParamVerfahren(a.Verfahren) AND pf.Parameter='Faktentabelle'" &
+" JOIN  " & _parameterDB & ".dbo." & _parametertab & " pp ON pp.Verfahren=dbo.fn_ParamVerfahren(a.Verfahren) AND pp.Parameter='Faktenpartitionsspalte'" &
+" LEFT JOIN " & _parameterDB & ".dbo." & _parametertab & " pc ON pc.Verfahren=dbo.fn_ParamVerfahren(a.Verfahren) AND pc.Parameter='Faktenkomprimierung'" &
+" JOIN  " & _parameterDB & ".dbo." & _parametertab & " pi ON pi.Verfahren=dbo.fn_ParamVerfahren(a.Verfahren) AND pi.Parameter='FaktenClusteredIndex'" &
+" LEFT JOIN " & _parameterDB & ".dbo." & _parametertab & " pn ON pn.Verfahren=dbo.fn_ParamVerfahren(a.Verfahren) AND pn.Parameter='FaktenNccIndex'" &
 " WHERE a.Status IN ('EXT_TABELLE_ERSTELLT','FAKTENTABELLE_ERSTELLEN')" &
 " AND   a.RunID = " & _runID &
 " ORDER BY a.Verfahren"

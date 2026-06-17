@@ -224,10 +224,10 @@ Partial Public Class ScriptMain
 "       ISNULL(pci.Wert, 'FALSE') AS ClusteredIndex," &
 "       ISNULL(pk.Wert, 'PAGE') AS Komprimierung" &
 " FROM  dbo.ETL_Fkt_Arbeitsliste a" &
-" JOIN  " & _parameterDB & ".dbo." & _parametertab & " pf ON pf.Verfahren=a.Verfahren AND pf.Parameter='Faktentabelle'" &
-" JOIN  " & _parameterDB & ".dbo." & _parametertab & " pp ON pp.Verfahren=a.Verfahren AND pp.Parameter='Faktenpartitionsspalte'" &
-" LEFT JOIN " & _parameterDB & ".dbo." & _parametertab & " pci ON pci.Verfahren=a.Verfahren AND pci.Parameter='FaktenClusteredIndex'" &
-" LEFT JOIN " & _parameterDB & ".dbo." & _parametertab & " pk ON pk.Verfahren=a.Verfahren AND pk.Parameter='Faktenkomprimierung'" &
+" JOIN  " & _parameterDB & ".dbo." & _parametertab & " pf ON pf.Verfahren=dbo.fn_ParamVerfahren(a.Verfahren) AND pf.Parameter='Faktentabelle'" &
+" JOIN  " & _parameterDB & ".dbo." & _parametertab & " pp ON pp.Verfahren=dbo.fn_ParamVerfahren(a.Verfahren) AND pp.Parameter='Faktenpartitionsspalte'" &
+" LEFT JOIN " & _parameterDB & ".dbo." & _parametertab & " pci ON pci.Verfahren=dbo.fn_ParamVerfahren(a.Verfahren) AND pci.Parameter='FaktenClusteredIndex'" &
+" LEFT JOIN " & _parameterDB & ".dbo." & _parametertab & " pk ON pk.Verfahren=dbo.fn_ParamVerfahren(a.Verfahren) AND pk.Parameter='Faktenkomprimierung'" &
 " WHERE a.Status IN ('" & STATUS_START & "','" & STATUS_RUN & "')" &
 " AND   a.RunID = " & _runID &
 " ORDER BY a.Verfahren"

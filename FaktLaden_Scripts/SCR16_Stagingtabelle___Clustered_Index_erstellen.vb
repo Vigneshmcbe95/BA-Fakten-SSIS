@@ -147,9 +147,9 @@ Partial Public Class ScriptMain
         UPPER(pi.Wert) AS IndexType,
         pp.Wert AS PartitionColumn
  FROM   dbo.ETL_Fkt_Arbeitsliste a
- JOIN   " & _parameterDB & ".dbo." & _parametertab & " pf ON pf.Verfahren=a.Verfahren AND pf.Parameter='Faktentabelle'
- JOIN   " & _parameterDB & ".dbo." & _parametertab & " pi ON pi.Verfahren=a.Verfahren AND pi.Parameter='FaktenClusteredIndex'
- JOIN   " & _parameterDB & ".dbo." & _parametertab & " pp ON pp.Verfahren=a.Verfahren AND pp.Parameter='Faktenpartitionsspalte'
+ JOIN   " & _parameterDB & ".dbo." & _parametertab & " pf ON pf.Verfahren=dbo.fn_ParamVerfahren(a.Verfahren) AND pf.Parameter='Faktentabelle'
+ JOIN   " & _parameterDB & ".dbo." & _parametertab & " pi ON pi.Verfahren=dbo.fn_ParamVerfahren(a.Verfahren) AND pi.Parameter='FaktenClusteredIndex'
+ JOIN   " & _parameterDB & ".dbo." & _parametertab & " pp ON pp.Verfahren=dbo.fn_ParamVerfahren(a.Verfahren) AND pp.Parameter='Faktenpartitionsspalte'
  WHERE  a.Status IN ('STAGE_DML_ERFOLG','INDEX_IN_OUT') AND a.RunID=" & _runID & " ORDER BY a.Verfahren"
         Dim versuch As Integer = 0
         While versuch < MAX_VERSUCHE

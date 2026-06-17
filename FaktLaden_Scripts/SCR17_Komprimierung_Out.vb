@@ -121,9 +121,9 @@ Partial Public Class ScriptMain
 "SELECT a.ID, a.Verfahren, a.LetzterSchritt, pf.Wert AS Faktentabelle,
         UPPER(ISNULL(pc.Wert,'NONE')) AS Compression, UPPER(pi.Wert) AS IndexType
  FROM   dbo.ETL_Fkt_Arbeitsliste a
- JOIN   " & _parameterDB & ".dbo." & _parametertab & " pf ON pf.Verfahren=a.Verfahren AND pf.Parameter='Faktentabelle'
- LEFT JOIN " & _parameterDB & ".dbo." & _parametertab & " pc ON pc.Verfahren=a.Verfahren AND pc.Parameter='Faktenkomprimierung'
- JOIN   " & _parameterDB & ".dbo." & _parametertab & " pi ON pi.Verfahren=a.Verfahren AND pi.Parameter='FaktenClusteredIndex'
+ JOIN   " & _parameterDB & ".dbo." & _parametertab & " pf ON pf.Verfahren=dbo.fn_ParamVerfahren(a.Verfahren) AND pf.Parameter='Faktentabelle'
+ LEFT JOIN " & _parameterDB & ".dbo." & _parametertab & " pc ON pc.Verfahren=dbo.fn_ParamVerfahren(a.Verfahren) AND pc.Parameter='Faktenkomprimierung'
+ JOIN   " & _parameterDB & ".dbo." & _parametertab & " pi ON pi.Verfahren=dbo.fn_ParamVerfahren(a.Verfahren) AND pi.Parameter='FaktenClusteredIndex'
  WHERE  a.Status IN ('INDEX_IN_OUT_ERSTELLT','KOMPRIMIERUNG') AND a.RunID=" & _runID & " ORDER BY a.Verfahren"
         Dim versuch As Integer = 0
         While versuch < MAX_VERSUCHE

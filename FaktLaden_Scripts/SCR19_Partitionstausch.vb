@@ -173,8 +173,8 @@ Partial Public Class ScriptMain
         Dim sql As String =
 "SELECT a.ID, a.Verfahren, a.LetzterSchritt, pf.Wert AS Faktentabelle, pp.Wert AS PartitionColumn
  FROM   dbo.ETL_Fkt_Arbeitsliste a
- JOIN   " & _parameterDB & ".dbo." & _parametertab & " pf ON pf.Verfahren=a.Verfahren AND pf.Parameter='Faktentabelle'
- JOIN   " & _parameterDB & ".dbo." & _parametertab & " pp ON pp.Verfahren=a.Verfahren AND pp.Parameter='Faktenpartitionsspalte'
+ JOIN   " & _parameterDB & ".dbo." & _parametertab & " pf ON pf.Verfahren=dbo.fn_ParamVerfahren(a.Verfahren) AND pf.Parameter='Faktentabelle'
+ JOIN   " & _parameterDB & ".dbo." & _parametertab & " pp ON pp.Verfahren=dbo.fn_ParamVerfahren(a.Verfahren) AND pp.Parameter='Faktenpartitionsspalte'
  WHERE  a.Status IN ('NCCI_OUT_ERSTELLT','PARTITIONSTAUSCH') AND a.RunID=" & _runID & " ORDER BY a.Verfahren"
         Dim versuch As Integer = 0
         While versuch < MAX_VERSUCHE
