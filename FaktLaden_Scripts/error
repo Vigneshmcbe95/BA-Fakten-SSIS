@@ -1,96 +1,70 @@
 Paket	Task	Meldungstyp	Meldung
-Package	SCR08_Template_Erstellen	Fehler	The script returned a failure result.
-Package	SCR08_Template_Erstellen	info	Erfolgreich: 0 | Fehler: 1
-Package	SCR08_Template_Erstellen	Fehler	FEHLER Verfahren 'vf_ast_stea': [Template erstellen/pruefen] fehlgeschlagen: Keine columns_dbo/columns_ext Metadaten gefunden
-Package	SCR08_Template_Erstellen	Fehler	[FEHLER_SCR08] vf_ast_stea: [Template erstellen/pruefen] fehlgeschlagen: Keine columns_dbo/columns_ext Metadaten gefunden
-Package	SCR08_Template_Erstellen	info	WARNUNG [Template erstellen/pruefen] Versuch 3/3: Keine columns_dbo/columns_ext Metadaten gefunden
-Package	SCR08_Template_Erstellen	info	WARNUNG [Template erstellen/pruefen] Versuch 2/3: Keine columns_dbo/columns_ext Metadaten gefunden
-Package	SCR08_Template_Erstellen	info	SQL Statement [Template erstellen/pruefen]: DECLARE @t  nvarchar(128) = N'tf_stea';
-DECLARE @s  nvarchar(128) = N'xro_dm_stat_ast_av_stea';
-DECLARE @db nvarchar(128) = N'msi_dm_ast';
-DECLARE @cols nvarchar(max), @colsExt nvarchar(max), @sql nvarchar(max), @tmpl nvarchar(300), @tmplObj int, @diff nvarchar(max);
-
--- Soll-Spalten (columns_dbo) und ext-Struktur (columns_ext) aus tm_polybase_struktur laden
-SELECT @cols    = STRING_AGG(CAST(columns_dbo AS nvarchar(max)), CONCAT(N',', CHAR(13), CHAR(10)))
-                    WITHIN GROUP (ORDER BY colno),
-       @colsExt = STRING_AGG(CAST(columns_ext AS nvarchar(max)), CONCAT(N',', CHAR(13), CHAR(10)))
-                    WITHIN GROUP (ORDER BY colno)
-FROM dbo.tm_polybase_struktur
-WHERE tabname = LOWER(@t) AND themengebiet = @s;
-
-IF @cols IS NULL OR @colsExt IS NULL
-    THROW 50001, 'Keine columns_dbo/columns_ext Metadaten gefunden', 1;
-
-SET @tmpl    = CONCAT('[', @db, '].dbo.[', @t, '_template]');
-SET @tmplObj = OBJECT_ID(@tmpl);
-
-IF @tmplObj IS NULL
-BEGIN
-    -- Template existiert nicht -> aus columns_dbo erstellen (nur Struktur)
-    -- ext.<t> existiert erst ab SCR09 -> Struktur lokal als #ext_struct nachbilden
-    SET @sql = N'CREATE TABLE #ext_struct (' + @colsExt + N');' +
-               N'SELECT TOP 0 ' + @cols + N' INTO ' + @tmpl + N' FROM #ext_struct;';
-    EXEC sp_executesql @sql;
-END
-ELSE
-BEGIN
-    -- Template existiert -> Struktur (Spaltenname/Typ/Laenge/Nullable) gegen Soll pruefen
-    SET @sql =
-        N'CREATE TABLE #ext_struct (' + @colsExt + N');' +
-        N'SELECT TOP 0 ' + @cols + N' INTO #soll FROM #ext_struct;' +
-        N';WITH soll AS (SELECT c.name COLLATE DATABASE_DEFAULT AS nm, ty.name COLLATE DATABASE_DEFAULT AS typ, c.max_length AS ml, c.precision AS pr, c.scale AS sc, c.is_nullable AS nu' +
-          N' FROM tempdb.sys.columns c JOIN tempdb.sys.types ty ON ty.user_type_id=c.user_type_id WHERE c.object_id=OBJECT_ID(N''tempdb..#soll'')),' +
-          N' ist AS (SELECT c.name COLLATE DATABASE_DEFAULT AS nm, ty.name COLLATE DATABASE_DEFAULT AS typ, c.max_length AS ml, c.precision AS pr, c.scale AS sc, c.is_nullable AS nu' +
-          N' FROM ' + QUOTENAME(@db) + N'.sys.columns c JOIN ' + QUOTENAME(@db) + N'.sys.types ty ON ty.user_type_id=c.user_type_id WHERE c.object_id=@po)' +
-          N' SELECT @diff = STRING_AGG(z, CHAR(13)+CHAR(10)) FROM (' +
-          N'   SELECT CONCAT(COALESCE(s.nm,i.nm), '': '',' +
-          N'     CASE WHEN s.nm IS NULL THEN ''FEHLT in Oracle (nur im Template vorhanden)''' +
-          N'          WHEN i.nm IS NULL THEN ''FEHLT im Template (nur in Oracle vorhanden)''' +
-          N'          ELSE CONCAT(''Oracle='', s.typ, '' len='', s.ml, '' pr='', s.pr, '' sc='', s.sc, '' null='', s.nu, '' <> Template='', i.typ, '' len='', i.ml, '' pr='', i.pr, '' sc='', i.sc, '' null='', i.nu) END) AS z' +
-          N'   FROM soll s FULL OUTER JOIN ist i ON s.nm=i.nm' +
-          N'   WHERE s.nm IS NULL OR i.nm IS NULL OR s.typ<>i.typ OR s.ml<>i.ml OR s.pr<>i.pr OR s.sc<>i.sc OR s.nu<>i.nu) d;';
-    EXEC sp_executesql @sql, N'@po int, @diff nvarchar(max) OUTPUT', @po=@tmplObj, @diff=@diff OUTPUT;
-    IF @diff IS NOT NULL
-    BEGIN
-        DECLARE @msg nvarchar(2048) = LEFT(CONCAT('Template ', @tmpl, ': Struktur weicht von columns_dbo (Soll) ab. Nicht uebereinstimmende Spalten (Spalte | SOLL=Oracle | IST=Template):', CHAR(13), CHAR(10), @diff), 2048);
-        THROW 50010, @msg, 1;
-    END
-END
-Package	SCR08_Template_Erstellen	info	WARNUNG [Template erstellen/pruefen] Versuch 1/3: Keine columns_dbo/columns_ext Metadaten gefunden
+Package	SCR11_Partitionsgrenzen	Fehler	The script returned a failure result.
+Package	SCR11_Partitionsgrenzen	info	Erfolgreich: 0 | Fehler: 1
+Package	SCR11_Partitionsgrenzen	info	BA::objPartitionValues: leer (Nothing)
+Package	SCR11_Partitionsgrenzen	Fehler	FEHLER 'vf_ast_stea': Keine Partitionen in Oracle gefunden (View v_partition_info)
+Package	SCR11_Partitionsgrenzen	Fehler	[FEHLER_SCR09] vf_ast_stea: Keine Partitionen in Oracle gefunden (View v_partition_info)
+Package	SCR11_Partitionsgrenzen	Fehler	[FEHLER_SCR11] vf_ast_stea: Keine Partitionen in Oracle gefunden (View v_partition_info)
+Package	SCR11_Partitionsgrenzen	Fehler	  FEHLER: Keine Partitionen in Oracle gefunden (View v_partition_info)
+Package	SCR11_Partitionsgrenzen	info	  Oracle Werte gesamt: 0
+Package	SCR11_Partitionsgrenzen	info	  MODE: AUTOMATIC (partition_wert aus Oracle)
+Package	SCR11_Partitionsgrenzen	info	Verfahren: vf_ast_stea | Tabelle: tf_stea | Spalte: mon_id
+Package	SCR11_Partitionsgrenzen	info	Verfahren: 1
+Package	SCR11_Partitionsgrenzen	info	SCR11_Partitionsgrenzen - Start
+Package	SCR10_Faktentabelle_Erstellen	info	Erfolgreich: 1 | Fehler: 0
+Package	SCR10_Faktentabelle_Erstellen	info	  -> Schritt 3 abgeschlossen
+Package	SCR10_Faktentabelle_Erstellen	info	[SCHRITT_3] vf_ast_stea: Faktentabelle existiert bereits (Struktur OK): dbo.tf_stea -> uebersprungen
+Package	SCR10_Faktentabelle_Erstellen	info	  Faktentabelle dbo.tf_stea existiert bereits (Struktur OK) -> uebersprungen
+Package	SCR10_Faktentabelle_Erstellen	info	Partitionsspalte: mon_id | IndexTyp: CCI | Komprimierung: NONE
+Package	SCR10_Faktentabelle_Erstellen	info	Verfahren: vf_ast_stea | Faktentabelle: tf_stea
+Package	SCR10_Faktentabelle_Erstellen	info	Verfahren: 1
+Package	SCR10_Faktentabelle_Erstellen	info	SCR10_Faktentabelle_Erstellen - Start
+Package	SCR09_Ext_Tabelle_Erstellen	info	Erfolgreich: 1 | Fehler: 0
+Package	SCR09_Ext_Tabelle_Erstellen	info	  Externe Tabelle erstellt OK
+Package	SCR09_Ext_Tabelle_Erstellen	info	[SCHRITT_2] vf_ast_stea: Externe Tabelle erstellt: ext.vf_ast_stea
+Package	SCR09_Ext_Tabelle_Erstellen	info	  OK Externe Tabelle erfolgreich: ext.[vf_ast_stea]
+Package	SCR09_Ext_Tabelle_Erstellen	info	  Oracle Location: ISTAT.XRO_DM_STAT_AST_AV_STEA.VF_AST_STEA
+Package	SCR09_Ext_Tabelle_Erstellen	info	  Erstelle externe Tabelle: ext.[vf_ast_stea]
+Package	SCR09_Ext_Tabelle_Erstellen	info	Verfahren: vf_ast_stea | Themengebiet: xro_dm_stat_ast_av_stea
+Package	SCR09_Ext_Tabelle_Erstellen	info	Verfahren zur Verarbeitung: 1
+Package	SCR09_Ext_Tabelle_Erstellen	info	SCR09_Ext_Tabelle_Erstellen - Start
+Package	SCR08_Template_Erstellen	info	Erfolgreich: 1 | Fehler: 0
+Package	SCR08_Template_Erstellen	info	  Template erstellt OK
+Package	SCR08_Template_Erstellen	info	[SCHRITT_1] vf_ast_stea: Template erstellt/geprueft: msi_dm_ast.dbo.tf_stea_template
+Package	SCR08_Template_Erstellen	info	  Template erstellt bzw. Struktur geprueft OK
 Package	SCR08_Template_Erstellen	info	  Template fuer: tf_stea
 Package	SCR08_Template_Erstellen	info	Verfahren: vf_ast_stea | Themengebiet: xro_dm_stat_ast_av_stea
 Package	SCR08_Template_Erstellen	info	Verfahren zur Verarbeitung: 1
 Package	SCR08_Template_Erstellen	info	SCR08_Template_Erstellen - Start
 Package	SCR07_Schemadaten_Kopieren	info	Erfolgreich: 1 | Fehler: 0
 Package	SCR07_Schemadaten_Kopieren	info	Staging-Tabelle dbo.ddl_staging bleibt fuer Debugging erhalten
-Package	SCR07_Schemadaten_Kopieren	info	  59 Spalten kopiert OK
 Package	SCR07_Schemadaten_Kopieren	info	[SCHRITT_5] vf_ast_stea: Schemadaten kopiert: 59 Spalten
+Package	SCR07_Schemadaten_Kopieren	info	  59 Spalten kopiert OK
 Package	SCR07_Schemadaten_Kopieren	info	Verfahren: vf_ast_stea | Themengebiet: xro_dm_stat_ast_av_stea
-Package	SCR07_Schemadaten_Kopieren	info	Staging abgeschlossen: 1019129 Zeilen geladen.
-Package	SCR07_Schemadaten_Kopieren	info	Oracle-Abfrage laeuft (kann 20-60 Sekunden dauern)...
+Package	SCR07_Schemadaten_Kopieren	info	Staging-Tabelle existiert bereits mit 1019129 Zeilen - wird wiederverwendet
 Package	SCR07_Schemadaten_Kopieren	info	Quelle: [msi_dm_ast].[ext].[vm_ddl_sql_server]
 Package	SCR07_Schemadaten_Kopieren	info	Oracle-Daten werden in Staging-Tabelle geladen...
 Package	SCR07_Schemadaten_Kopieren	info	Verfahren zur Verarbeitung: 1
 Package	SCR07_Schemadaten_Kopieren	info	Ziel-Tabelle tm_polybase_struktur geprueft/erstellt.
 Package	SCR07_Schemadaten_Kopieren	info	SCR07_Schemadaten_Kopieren - Start
 Package	SCR06 Arbeitsliste Aufbauen	info	SCR_Arbeitsliste_Aufbauen_Fakten erfolgreich abgeschlossen OK
-Package	SCR06 Arbeitsliste Aufbauen	info	Neue Verfahren : 1
+Package	SCR06 Arbeitsliste Aufbauen	info	Neue Verfahren : 0
 Package	SCR06 Arbeitsliste Aufbauen	info	ZUSAMMENFASSUNG
-Package	SCR06 Arbeitsliste Aufbauen	info	Kein Reset nötig (nur AUSSTEHEND oder keine Daten)
+Package	SCR06 Arbeitsliste Aufbauen	info	FEHLER vorhanden → Nur FEHLER zu AUSSTEHEND (Erfolge bleiben) → 1 Zeilen zurückgesetzt
 Package	SCR06 Arbeitsliste Aufbauen	info	  - ANDERE   : 0
-Package	SCR06 Arbeitsliste Aufbauen	info	  - FEHLER   : 0
+Package	SCR06 Arbeitsliste Aufbauen	info	  - FEHLER   : 11
 Package	SCR06 Arbeitsliste Aufbauen	info	  - ERFOLG   : 0
 Package	SCR06 Arbeitsliste Aufbauen	info	  - Total    : 11
 Package	SCR06 Arbeitsliste Aufbauen	info	Status-Analyse (alle Verfahren aus Steuerliste):
 Package	SCR06 Arbeitsliste Aufbauen	info	Schritt 2: Status analysieren und zuruecksetzen
-Package	SCR06 Arbeitsliste Aufbauen	info	Neue Verfahren eingetragen: 1
+Package	SCR06 Arbeitsliste Aufbauen	info	Neue Verfahren eingetragen: 0
 Package	SCR06 Arbeitsliste Aufbauen	info	Schritt 1: Neue Verfahren aus Steuerliste eintragen
 Package	SCR06 Arbeitsliste Aufbauen	info	Aktueller Lauf: Datei [v.istat.xro_dm_stat_ast_av_stea.urladung_perm.csv] | Tabellen in Steuerliste (1): vf_ast_stea
 Package	SCR06 Arbeitsliste Aufbauen	info	Pflichtfelder-Pruefung: alle Variablen vorhanden OK
 Package	SCR06 Arbeitsliste Aufbauen	info	SCR_06_Arbeitsliste_Aufbauen_Fakten - Start
 Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	ERGEBNIS: BESTANDEN - Alle Parameter vollstaendig und befuellt OK
-Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	Mit Fehlern              : 0
 Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	Vollstaendig (OK)         : 1
+Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	Mit Fehlern              : 0
 Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	Verfahren geprueft        : 1
 Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	ZUSAMMENFASSUNG SCR_05_Parameter_Vollstaendigkeitspruefung
 Package	SCR05 Parameter_Vollstaendigkeitspruefung	info	  OK Alle Pflichtparameter fuer 'vf_ast_stea' vorhanden und befuellt.
@@ -121,8 +95,8 @@ Package	SC04 Whereclasuse	info	Referenzdatum: 01.03.2026 00:00:00
 Package	SC04 Whereclasuse	info	SC04_Whereclause - Start
 Package	SCR03 Stuerliste Laden	info	SCR_03_Steuerlisten_Laden erfolgreich abgeschlossen OK
 Package	SCR03 Stuerliste Laden	info	Datei endet auf _perm.csv -> bleibt im Quellordner
-Package	SCR03 Stuerliste Laden	info	Geladene Tabellen aus [v.istat.xro_dm_stat_ast_av_stea.urladung_perm.csv] (1): vf_ast_stea
 Package	SCR03 Stuerliste Laden	info	Datei erfolgreich verarbeitet: v.istat.xro_dm_stat_ast_av_stea.urladung_perm.csv OK
+Package	SCR03 Stuerliste Laden	info	Geladene Tabellen aus [v.istat.xro_dm_stat_ast_av_stea.urladung_perm.csv] (1): vf_ast_stea
 Package	SCR03 Stuerliste Laden	info	  Zeilen gesamt: 1 | INSERT: 1 | Uebersprungen: 0
 Package	SCR03 Stuerliste Laden	info	  Arbeitstabelle: vollstaendig geleert
 Package	SCR03 Stuerliste Laden	info	  Themengebiet : xro_dm_stat_ast_av_stea
@@ -169,8 +143,8 @@ Package	SCR01 Parameter einlesen	info	[OK]       PARAM_PROTOKOLL_TABELLE        
 Package	SCR01 Parameter einlesen	info	[OK]       PARAM_PROTOKOLL_SP                       = usp_SSIS_Protokoll
 Package	SCR01 Parameter einlesen	info	[OK]       PARAM_PROTOKOLL_DB                       = msi_dm_ast
 Package	SCR01 Parameter einlesen	info	Protokollierung
-Package	SCR01 Parameter einlesen	info	Verarbeitung
 Package	SCR01 Parameter einlesen	info	[OK]       PARAM_MAXPARALLEL                        = 8
+Package	SCR01 Parameter einlesen	info	Verarbeitung
 Package	SCR01 Parameter einlesen	info	[OK]       PARAM_EXT_TABLE_NAME                     = vm_ddl_sql_server
 Package	SCR01 Parameter einlesen	info	[OK]       PARAM_EXT_TABLE_SCHEMA                   = ext
 Package	SCR01 Parameter einlesen	info	[OK]       PARAM_EXT_TABLE_LOCATION                 = istat.STATRT.VM_DDL_SQL_SERVER
