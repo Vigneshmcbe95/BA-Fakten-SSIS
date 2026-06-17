@@ -1,4 +1,51 @@
-USE [msi_dm_bst_v3]
+Task	Meldungstyp	Meldung
+SCR08_Template_Erstellen	info	SQL Statement [Template erstellen/pruefen]: DECLARE @t  nvarchar(128) = N'tf_bsbm_betrieb';
+DECLARE @s  nvarchar(128) = N'xro_dm_stat_bsbm';
+DECLARE @db nvarchar(128) = N'msi_dm_bsbm';
+DECLARE @cols nvarchar(max), @colsExt nvarchar(max), @sql nvarchar(max), @tmpl nvarchar(300), @tmplObj int, @d int;
+
+-- Soll-Spalten (columns_dbo) und ext-Struktur (columns_ext) aus tm_polybase_struktur laden
+SELECT @cols    = STRING_AGG(CAST(columns_dbo AS nvarchar(max)), CONCAT(N',', CHAR(13), CHAR(10)))
+                    WITHIN GROUP (ORDER BY colno),
+       @colsExt = STRING_AGG(CAST(columns_ext AS nvarchar(max)), CONCAT(N',', CHAR(13), CHAR(10)))
+                    WITHIN GROUP (ORDER BY colno)
+FROM dbo.tm_polybase_struktur
+WHERE tabname = LOWER(@t) AND themengebiet = @s;
+
+IF @cols IS NULL OR @colsExt IS NULL
+    THROW 50001, 'Keine columns_dbo/columns_ext Metadaten gefunden', 1;
+
+SET @tmpl    = CONCAT('[', @db, '].dbo.[', @t, '_template]');
+SET @tmplObj = OBJECT_ID(@tmpl);
+
+IF @tmplObj IS NULL
+BEGIN
+    -- Template existiert nicht -> aus columns_dbo erstellen (nur Struktur)
+    -- ext.<t> existiert erst ab SCR09 -> Struktur lokal als #ext_struct nachbilden
+    SET @sql = N'CREATE TABLE #ext_struct (' + @colsExt + N');' +
+               N'SELECT TOP 0 ' + @cols + N' INTO ' + @tmpl + N' FROM #ext_struct;';
+    EXEC sp_executesql @sql;
+END
+ELSE
+BEGIN
+    -- Template existiert -> Struktur (Spaltenname/Typ/Laenge/Nullable) gegen Soll pruefen
+    SET @sql =
+        N'CREATE TABLE #ext_struct (' + @colsExt + N');' +
+        N'SELECT TOP 0 ' + @cols + N' INTO #soll FROM #ext_struct;' +
+        N';WITH soll AS (SELECT c.name COLLATE DATABASE_DEFAULT AS nm, ty.name COLLATE DATABASE_DEFAULT AS typ, c.max_length AS ml, c.precision AS pr, c.scale AS sc, c.is_nullable AS nu' +
+          N' FROM tempdb.sys.columns c JOIN tempdb.sys.types ty ON ty.user_type_id=c.user_type_id WHERE c.object_id=OBJECT_ID(N''tempdb..#soll'')),' +
+          N' ist AS (SELECT c.name COLLATE DATABASE_DEFAULT AS nm, ty.name COLLATE DATABASE_DEFAULT AS typ, c.max_length AS ml, c.precision AS pr, c.scale AS sc, c.is_nullable AS nu' +
+          N' FROM ' + QUOTENAME(@db) + N'.sys.columns c JOIN ' + QUOTENAME(@db) + N'.sys.types ty ON ty.user_type_id=c.user_type_id WHERE c.object_id=@po)' +
+          N' SELECT @cnt = COUNT(*) FROM ((SELECT * FROM soll EXCEPT SELECT * FROM ist) UNION ALL (SELECT * FROM ist EXCEPT SELECT * FROM soll)) x;';
+    EXEC sp_executesql @sql, N'@po int, @cnt int OUTPUT', @po=@tmplObj, @cnt=@d OUTPUT;
+    IF @d > 0
+    BEGIN
+        DECLARE @msg nvarchar(400) = CONCAT('Template ', @tmpl, ': Struktur weicht von columns_dbo (Soll) ab - Lauf wird abgebrochen. Template manuell pruefen/loeschen.');
+        THROW 50010, @msg, 1;
+    END
+END
+SCR08_Template_Erstellen	info	WARNUNG [Template erstellen/pruefen] Versuch 1/3: Incorrect syntax near '='.
+SCR08_Template_Erstellen	info	  Template fuer: tf_bsbm_betriebUSE [msi_dm_bst_v3]
 GO
 
 /****** Object:  Table [dbo].[tf_bst_btg_v2_template]    Script Date: 17.06.2026 12:25:42 ******/
