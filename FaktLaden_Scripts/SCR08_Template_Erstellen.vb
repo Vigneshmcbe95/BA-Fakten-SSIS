@@ -134,9 +134,10 @@ Partial Public Class ScriptMain
             "          N' ist AS (SELECT c.name COLLATE DATABASE_DEFAULT AS nm, ty.name COLLATE DATABASE_DEFAULT AS typ, c.max_length AS ml, c.precision AS pr, c.scale AS sc, c.is_nullable AS nu' +" & vbCrLf &
             "          N' FROM ' + QUOTENAME(@db) + N'.sys.columns c JOIN ' + QUOTENAME(@db) + N'.sys.types ty ON ty.user_type_id=c.user_type_id WHERE c.object_id=@po)' +" & vbCrLf &
             "          N' SELECT @diff = STRING_AGG(z, CHAR(13)+CHAR(10)) FROM (' +" & vbCrLf &
-            "          N'   SELECT CONCAT(COALESCE(s.nm,i.nm),' +" & vbCrLf &
-            "          N'     '' | SOLL(Oracle): '', CASE WHEN s.nm IS NULL THEN ''(fehlt)'' ELSE CONCAT(s.typ,'' len='',s.ml,'' pr='',s.pr,'' sc='',s.sc,'' null='',s.nu) END,' +" & vbCrLf &
-            "          N'     '' | IST(Template): '', CASE WHEN i.nm IS NULL THEN ''(fehlt)'' ELSE CONCAT(i.typ,'' len='',i.ml,'' pr='',i.pr,'' sc='',i.sc,'' null='',i.nu) END) AS z' +" & vbCrLf &
+            "          N'   SELECT CONCAT(COALESCE(s.nm,i.nm), '': '',' +" & vbCrLf &
+            "          N'     CASE WHEN s.nm IS NULL THEN ''FEHLT in Oracle (nur im Template vorhanden)''' +" & vbCrLf &
+            "          N'          WHEN i.nm IS NULL THEN ''FEHLT im Template (nur in Oracle vorhanden)''' +" & vbCrLf &
+            "          N'          ELSE CONCAT(''Oracle='', s.typ, '' len='', s.ml, '' pr='', s.pr, '' sc='', s.sc, '' null='', s.nu, '' <> Template='', i.typ, '' len='', i.ml, '' pr='', i.pr, '' sc='', i.sc, '' null='', i.nu) END) AS z' +" & vbCrLf &
             "          N'   FROM soll s FULL OUTER JOIN ist i ON s.nm=i.nm' +" & vbCrLf &
             "          N'   WHERE s.nm IS NULL OR i.nm IS NULL OR s.typ<>i.typ OR s.ml<>i.ml OR s.pr<>i.pr OR s.sc<>i.sc OR s.nu<>i.nu) d;';" & vbCrLf &
             "    EXEC sp_executesql @sql, N'@po int, @diff nvarchar(max) OUTPUT', @po=@tmplObj, @diff=@diff OUTPUT;" & vbCrLf &
