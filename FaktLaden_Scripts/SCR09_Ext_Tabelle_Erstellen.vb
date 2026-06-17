@@ -94,7 +94,10 @@ Partial Public Class ScriptMain
     ' columns_ext-Metadaten.
     ' -----------------------------------------------------------------------
     Private Sub ExtTabelleErstellen(connStr As String, v As VerfahrenInfo)
-        Dim extName As String = v.Faktentabelle.ToLower()
+        ' Oracle-Quelle = Verfahrensname aus der Steuerliste (Name des Objektes
+        ' auf Oracle, z.B. View vf_stea). Die Zieltabelle (Faktentabelle) kann
+        ' davon abweichen und wird hier NICHT verwendet.
+        Dim extName As String = v.Verfahren.ToLower()
         Dim extFullName As String = _extSchema & ".[" & extName & "]"
 
         Log("  Erstelle externe Tabelle: " & extFullName)
@@ -103,8 +106,9 @@ Partial Public Class ScriptMain
         ' Example: "ISTAT.STATRT.VM_DDL_SQL_SERVER" → "ISTAT"
         Dim oracleEnvironment As String = _extTableLocation.Split("."c)(0).ToUpper()
 
-        ' Oracle LOCATION: <ENVIRONMENT>.<THEMENGEBIET>.<FAKTENTABELLE> (all UPPER)
-        Dim location As String = oracleEnvironment & "." & v.Themengebiet.ToUpper() & "." & v.Faktentabelle.ToUpper()
+        ' Oracle LOCATION: <ENVIRONMENT>.<THEMENGEBIET>.<VERFAHREN> (all UPPER)
+        ' Verfahren = Oracle-Objektname aus der Steuerliste (nicht Faktentabelle).
+        Dim location As String = oracleEnvironment & "." & v.Themengebiet.ToUpper() & "." & v.Verfahren.ToUpper()
 
         Log("  Oracle Location: " & location)
 

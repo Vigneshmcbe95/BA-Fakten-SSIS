@@ -388,7 +388,7 @@ Partial Public Class ScriptMain
         Dim liste As New List(Of Integer)()
         Dim sql As String =
             "SELECT DISTINCT HIGH_VALUE FROM ext.[v_partition_info] " &
-            "WHERE TABLE_NAME = UPPER('" & v.Faktentabelle & "') " &
+            "WHERE TABLE_NAME = UPPER('" & v.Verfahren & "') " &
             "  AND OWNER      = UPPER('" & v.Themengebiet & "') " &
             "  AND HIGH_VALUE IS NOT NULL"
 
@@ -846,9 +846,10 @@ Partial Public Class ScriptMain
     ' (kein Full Scan). True = Daten vorhanden, False = leere Partition.
     ' -----------------------------------------------------------------------
     Private Function PartitionHatDaten(connStr As String, v As VerfahrenInfo, wert As Integer) As Boolean
-        Dim sql As String = "SELECT TOP 1 1 FROM ext.[" & v.Faktentabelle.ToLower() &
+        ' ext-Tabelle = Verfahrensname (Oracle-Objektname aus der Steuerliste)
+        Dim sql As String = "SELECT TOP 1 1 FROM ext.[" & v.Verfahren.ToLower() &
                             "] WHERE [" & v.PartitionsSpalte & "] = " & wert.ToString()
-        Dim obj As Object = SqlSkalar(connStr, sql, "Pruefe Daten " & v.Faktentabelle.ToLower() & "=" & wert.ToString())
+        Dim obj As Object = SqlSkalar(connStr, sql, "Pruefe Daten " & v.Verfahren.ToLower() & "=" & wert.ToString())
         Return obj IsNot Nothing AndAlso obj IsNot DBNull.Value
     End Function
 

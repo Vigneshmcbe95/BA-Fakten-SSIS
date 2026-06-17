@@ -233,7 +233,9 @@ Partial Public Class ScriptMain
             "DROP _in_ leer " & pv)
 
         ' ─── Ext-Tabelle pruefen ───
-        Dim extTable As String = v.Faktentabelle.ToLower()
+        ' Oracle-Quelle = Verfahrensname aus der Steuerliste (Oracle-Objektname,
+        ' z.B. View vf_stea). Geladen wird in die Zieltabelle (_in_<Faktentabelle>).
+        Dim extTable As String = v.Verfahren.ToLower()
         Dim extExists As Boolean = Convert.ToInt32(SqlSkalar(connStr,
             "SELECT COUNT(*) FROM sys.external_tables WHERE schema_id=SCHEMA_ID('ext') AND name='" & extTable & "'",
             "ext pruefen")) > 0
@@ -293,7 +295,7 @@ Partial Public Class ScriptMain
         Dim sqlCols As String =
             "SELECT STRING_AGG(CAST(columns_dbo AS nvarchar(max)), ',' + CHAR(13) + CHAR(10)) WITHIN GROUP (ORDER BY colno) " &
             "FROM dbo.tm_polybase_struktur " &
-            "WHERE tabname = '" & v.Faktentabelle.ToLower().Replace("'", "''") & "' " &
+            "WHERE tabname = '" & v.Verfahren.ToLower().Replace("'", "''") & "' " &
             "AND themengebiet = '" & v.Themengebiet.Trim().ToLower().Replace("'", "''") & "'"
 
         Dim versuch As Integer = 0
