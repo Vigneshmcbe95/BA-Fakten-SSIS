@@ -62,7 +62,7 @@ SELECT
     @AnzahlKomprimierung     = SUM(CASE WHEN Status = 'KOMPRIMIERUNG_OUT'          THEN 1 ELSE 0 END),
     @AnzahlNcciOut           = SUM(CASE WHEN Status = 'NCCI_OUT'                   THEN 1 ELSE 0 END),
     @AnzahlPartitionstausch  = SUM(CASE WHEN Status = 'PARTITIONSTAUSCH'           THEN 1 ELSE 0 END)
-FROM dbo.ETL_Fkt_Arbeitsliste
+FROM dbo.ETL_Fakt_Arbeitsliste
 WHERE RunID = @ID;
 
 UPDATE dbo.ETL_Fakt_LaufHistorie
@@ -100,7 +100,7 @@ FROM sys.tables t
 WHERE t.schema_id = SCHEMA_ID('dbo')
   AND EXISTS (
       SELECT 1
-      FROM dbo.ETL_Fkt_Arbeitsliste a
+      FROM dbo.ETL_Fakt_Arbeitsliste a
       JOIN " & parameterDB & ".dbo." & parametertab & " pf
            ON pf.Verfahren = a.Verfahren AND pf.Parameter = 'Faktentabelle'
       WHERE a.RunID = @ID
@@ -115,7 +115,7 @@ FROM sys.tables t
 WHERE t.schema_id = SCHEMA_ID('dbo')
   AND EXISTS (
       SELECT 1
-      FROM dbo.ETL_Fkt_Arbeitsliste a
+      FROM dbo.ETL_Fakt_Arbeitsliste a
       JOIN " & parameterDB & ".dbo." & parametertab & " pf
            ON pf.Verfahren = a.Verfahren AND pf.Parameter = 'Faktentabelle'
       WHERE a.RunID = @ID
@@ -131,7 +131,7 @@ FROM sys.external_tables t
 WHERE t.schema_id = SCHEMA_ID('ext')
   AND EXISTS (
       SELECT 1
-      FROM dbo.ETL_Fkt_Arbeitsliste a
+      FROM dbo.ETL_Fakt_Arbeitsliste a
       JOIN " & parameterDB & ".dbo." & parametertab & " pf
            ON pf.Verfahren = a.Verfahren AND pf.Parameter = 'Faktentabelle'
       WHERE a.RunID = @ID

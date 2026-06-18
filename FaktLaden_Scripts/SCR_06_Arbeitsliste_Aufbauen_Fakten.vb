@@ -165,7 +165,7 @@ Partial Public Class ScriptMain
     Private Function NeueVerfahrenEintragen() As Integer
 
         Dim sql As String = "
-INSERT INTO dbo.ETL_Fkt_Arbeitsliste
+INSERT INTO dbo.ETL_Fakt_Arbeitsliste
        (RunID, Verfahren, Themengebiet, Status, LetzterSchritt, Versuche, AktualisiertAm)
 SELECT DISTINCT
     @runID,
@@ -180,7 +180,7 @@ INNER JOIN dbo." & _steuerlistenTabelle & " f
     ON dbo.fn_ParamVerfahren(LOWER(LTRIM(RTRIM(f.tabelle)))) = LOWER(LTRIM(RTRIM(p.Verfahren)))" & DateiFilter() & "
 WHERE p.Verfahren IS NOT NULL
   AND NOT EXISTS (
-      SELECT 1 FROM dbo.ETL_Fkt_Arbeitsliste a
+      SELECT 1 FROM dbo.ETL_Fakt_Arbeitsliste a
       WHERE dbo.fn_ParamVerfahren(a.Verfahren) = LOWER(p.Verfahren)
         AND LOWER(LTRIM(RTRIM(a.Themengebiet))) = LOWER(LTRIM(RTRIM(f.themengebiet)))
   );"
@@ -218,7 +218,7 @@ SELECT
 FROM " & _parameterDB & ".dbo." & _parametertabelle & " p
 INNER JOIN dbo." & _steuerlistenTabelle & " f
     ON dbo.fn_ParamVerfahren(LOWER(LTRIM(RTRIM(f.tabelle)))) = LOWER(LTRIM(RTRIM(p.Verfahren)))" & DateiFilter() & "
-LEFT JOIN dbo.ETL_Fkt_Arbeitsliste a
+LEFT JOIN dbo.ETL_Fakt_Arbeitsliste a
     ON dbo.fn_ParamVerfahren(a.Verfahren) = LOWER(p.Verfahren)
     AND LOWER(LTRIM(RTRIM(a.Themengebiet))) = LOWER(LTRIM(RTRIM(f.themengebiet)))
 WHERE p.Verfahren IS NOT NULL;"
@@ -278,7 +278,7 @@ SET a.Status = 'AUSSTEHEND',
     a.Fehlermeldung = NULL,
     a.Versuche = 0,
     a.AktualisiertAm = GETDATE()
-FROM dbo.ETL_Fkt_Arbeitsliste a
+FROM dbo.ETL_Fakt_Arbeitsliste a
 INNER JOIN " & _parameterDB & ".dbo." & _parametertabelle & " p ON LOWER(p.Verfahren) = dbo.fn_ParamVerfahren(a.Verfahren)
 INNER JOIN dbo." & _steuerlistenTabelle & " f ON dbo.fn_ParamVerfahren(LOWER(LTRIM(RTRIM(f.tabelle)))) = LOWER(LTRIM(RTRIM(p.Verfahren)))
     AND LOWER(LTRIM(RTRIM(f.themengebiet))) = LOWER(LTRIM(RTRIM(a.Themengebiet)))" & DateiFilter() & "
@@ -295,7 +295,7 @@ SET a.Status = 'AUSSTEHEND',
     a.Fehlermeldung = NULL,
     a.Versuche = 0,
     a.AktualisiertAm = GETDATE()
-FROM dbo.ETL_Fkt_Arbeitsliste a
+FROM dbo.ETL_Fakt_Arbeitsliste a
 INNER JOIN " & _parameterDB & ".dbo." & _parametertabelle & " p ON LOWER(p.Verfahren) = dbo.fn_ParamVerfahren(a.Verfahren)
 INNER JOIN dbo." & _steuerlistenTabelle & " f ON dbo.fn_ParamVerfahren(LOWER(LTRIM(RTRIM(f.tabelle)))) = LOWER(LTRIM(RTRIM(p.Verfahren)))
     AND LOWER(LTRIM(RTRIM(f.themengebiet))) = LOWER(LTRIM(RTRIM(a.Themengebiet)))" & DateiFilter() & "
@@ -312,7 +312,7 @@ SET a.Status = 'AUSSTEHEND',
     a.Fehlermeldung = NULL,
     a.Versuche = 0,
     a.AktualisiertAm = GETDATE()
-FROM dbo.ETL_Fkt_Arbeitsliste a
+FROM dbo.ETL_Fakt_Arbeitsliste a
 INNER JOIN " & _parameterDB & ".dbo." & _parametertabelle & " p ON LOWER(p.Verfahren) = dbo.fn_ParamVerfahren(a.Verfahren)
 INNER JOIN dbo." & _steuerlistenTabelle & " f ON dbo.fn_ParamVerfahren(LOWER(LTRIM(RTRIM(f.tabelle)))) = LOWER(LTRIM(RTRIM(p.Verfahren)))
     AND LOWER(LTRIM(RTRIM(f.themengebiet))) = LOWER(LTRIM(RTRIM(a.Themengebiet)))" & DateiFilter() & "
@@ -352,7 +352,7 @@ WHERE a.Status NOT IN ('ERFOLG', 'AUSSTEHEND')
 UPDATE a
 SET a.RunID = @runID,
     a.AktualisiertAm = GETDATE()
-FROM dbo.ETL_Fkt_Arbeitsliste a
+FROM dbo.ETL_Fakt_Arbeitsliste a
 INNER JOIN " & _parameterDB & ".dbo." & _parametertabelle & " p ON LOWER(p.Verfahren) = dbo.fn_ParamVerfahren(a.Verfahren)
 INNER JOIN dbo." & _steuerlistenTabelle & " f ON dbo.fn_ParamVerfahren(LOWER(LTRIM(RTRIM(f.tabelle)))) = LOWER(LTRIM(RTRIM(p.Verfahren)))
     AND LOWER(LTRIM(RTRIM(f.themengebiet))) = LOWER(LTRIM(RTRIM(a.Themengebiet)))" & DateiFilter() & "

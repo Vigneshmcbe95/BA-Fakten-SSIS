@@ -89,7 +89,7 @@ Partial Public Class ScriptMain
 
             Dim connStr As String = HoleVerbindungszeichenfolge()
 
-            ' Verfahren aus ETL_Fkt_Arbeitslisteladen
+            ' Verfahren aus ETL_Fakt_Arbeitslisteladen
             Dim verfahren As List(Of VerfahrenInfo) = VerfahrenLaden(connStr)
             Log("Verfahren mit Status '" & STATUS_START & "': " & verfahren.Count.ToString())
 
@@ -187,7 +187,7 @@ Partial Public Class ScriptMain
         Dim liste As New List(Of VerfahrenInfo)()
         Dim sql As String =
 "SELECT a.ID, a.Verfahren, a.Themengebiet, a.LetzterSchritt" &
-" FROM  dbo.ETL_Fkt_Arbeitsliste a" &
+" FROM  dbo.ETL_Fakt_Arbeitsliste a" &
 " WHERE a.Status IN ('" & STATUS_START & "','" & STATUS_RUN & "')" &
 " AND   a.RunID = " & _runID &
 " ORDER BY a.Verfahren"
@@ -238,7 +238,7 @@ Partial Public Class ScriptMain
     ' Arbeitslisten-Zeile.
     ' -----------------------------------------------------------------------
     Private Sub StatusSetzen(connStr As String, id As Integer, status As String)
-        SqlAusfuehren(connStr, "UPDATE dbo.ETL_Fkt_Arbeitsliste SET Status='" & status & "',LetzterSchritt='" & status & "',AktualisiertAm=GETDATE() WHERE ID=" & id, "Status")
+        SqlAusfuehren(connStr, "UPDATE dbo.ETL_Fakt_Arbeitsliste SET Status='" & status & "',LetzterSchritt='" & status & "',AktualisiertAm=GETDATE() WHERE ID=" & id, "Status")
     End Sub
 
     ' -----------------------------------------------------------------------
@@ -249,7 +249,7 @@ Partial Public Class ScriptMain
         Try
             Using conn As New SqlConnection(connStr)
                 conn.Open()
-                Using cmd As New SqlCommand("UPDATE dbo.ETL_Fkt_Arbeitsliste SET Status='FEHLER',Fehlermeldung=@m,AktualisiertAm=GETDATE() WHERE ID=@id", conn)
+                Using cmd As New SqlCommand("UPDATE dbo.ETL_Fakt_Arbeitsliste SET Status='FEHLER',Fehlermeldung=@m,AktualisiertAm=GETDATE() WHERE ID=@id", conn)
                     cmd.Parameters.AddWithValue("@m", If(meldung.Length > 3900, meldung.Substring(0, 3900), meldung))
                     cmd.Parameters.AddWithValue("@id", id)
                     cmd.ExecuteNonQuery()

@@ -172,7 +172,7 @@ Partial Public Class ScriptMain
         Dim liste As New List(Of VerfahrenInfo)()
         Dim sql As String =
 "SELECT a.ID, a.Verfahren, a.LetzterSchritt, pf.Wert AS Faktentabelle, pp.Wert AS PartitionColumn
- FROM   dbo.ETL_Fkt_Arbeitsliste a
+ FROM   dbo.ETL_Fakt_Arbeitsliste a
  JOIN   " & _parameterDB & ".dbo." & _parametertab & " pf ON pf.Verfahren=dbo.fn_ParamVerfahren(a.Verfahren) AND pf.Parameter='Faktentabelle'
  JOIN   " & _parameterDB & ".dbo." & _parametertab & " pp ON pp.Verfahren=dbo.fn_ParamVerfahren(a.Verfahren) AND pp.Parameter='Faktenpartitionsspalte'
  WHERE  a.Status IN ('NCCI_OUT_ERSTELLT','PARTITIONSTAUSCH') AND a.RunID=" & _runID & " ORDER BY a.Verfahren"
@@ -209,7 +209,7 @@ Partial Public Class ScriptMain
     ' Arbeitslisten-Zeile.
     ' -----------------------------------------------------------------------
     Private Sub StatusSetzen(connStr As String, id As Integer, status As String)
-        SqlAusfuehren(connStr, "UPDATE dbo.ETL_Fkt_Arbeitsliste SET Status='" & status & "',LetzterSchritt='" & status & "',AktualisiertAm=GETDATE() WHERE ID=" & id, "Status")
+        SqlAusfuehren(connStr, "UPDATE dbo.ETL_Fakt_Arbeitsliste SET Status='" & status & "',LetzterSchritt='" & status & "',AktualisiertAm=GETDATE() WHERE ID=" & id, "Status")
     End Sub
 
     ' -----------------------------------------------------------------------
@@ -217,7 +217,7 @@ Partial Public Class ScriptMain
     ' Arbeitslisten-Zeile.
     ' -----------------------------------------------------------------------
     Private Sub StatusSetzenErfolg(connStr As String, id As Integer)
-        SqlAusfuehren(connStr, "UPDATE dbo.ETL_Fkt_Arbeitsliste SET Status='ERFOLG',LetzterSchritt='ERFOLG',AktualisiertAm=GETDATE() WHERE ID=" & id, "ERFOLG")
+        SqlAusfuehren(connStr, "UPDATE dbo.ETL_Fakt_Arbeitsliste SET Status='ERFOLG',LetzterSchritt='ERFOLG',AktualisiertAm=GETDATE() WHERE ID=" & id, "ERFOLG")
     End Sub
 
     ' -----------------------------------------------------------------------
@@ -228,7 +228,7 @@ Partial Public Class ScriptMain
         Try
             Using conn As New SqlConnection(connStr)
                 conn.Open()
-                Using cmd As New SqlCommand("UPDATE dbo.ETL_Fkt_Arbeitsliste SET Status='FEHLER',Fehlermeldung=@m,AktualisiertAm=GETDATE() WHERE ID=@id", conn)
+                Using cmd As New SqlCommand("UPDATE dbo.ETL_Fakt_Arbeitsliste SET Status='FEHLER',Fehlermeldung=@m,AktualisiertAm=GETDATE() WHERE ID=@id", conn)
                     cmd.Parameters.AddWithValue("@m", If(msg.Length > 3900, msg.Substring(0, 3900), msg))
                     cmd.Parameters.AddWithValue("@id", id)
                     cmd.ExecuteNonQuery()

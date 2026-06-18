@@ -96,18 +96,27 @@ Partial Public Class ScriptMain
 
             For Each verfahren As String In verfahrenListe
 
-                Log("Pruefe Verfahren: " & verfahren)
+                ' Steuerlisten-Tabellenname (v) -> tatsaechlicher Verfahrensname
+                ' der Parametertabelle (t) per dbo.fn_ParamVerfahren - dieselbe
+                ' Aufloesung wie bei der eigentlichen Pruefung. Dieser aufgeloeste
+                ' Name (t) wird in den Hinweistexten ausgegeben, damit der Benutzer
+                ' genau diesen Wert in die Parametertabelle eintraegt.
+                Dim paramVerfahren As String = ParamVerfahrenAufloesen(connStr, verfahren)
+
+                Log("Pruefe Verfahren: " & verfahren & " -> Parametertabelle-Verfahren: " & paramVerfahren)
 
                 ' 3a: Existiert das Verfahren überhaupt in der Parametertabelle?
                 If Not VerfahrenExistiertInParametertabelle(connStr, verfahren) Then
                     Dim fehler As String =
                         "FEHLER – Verfahren nicht in Parametertabelle gefunden:" &
                         Environment.NewLine &
-                        "  Verfahren        : " & verfahren &
+                        "  Verfahren (Steuerliste) : " & verfahren &
                         Environment.NewLine &
-                        "  Parametertabelle : " & _parameterDB & ".dbo." & _parametertabelle &
+                        "  Verfahren (Parameter)   : " & paramVerfahren &
                         Environment.NewLine &
-                        "→ Bitte tragen Sie das Verfahren '" & verfahren & "' mit allen " &
+                        "  Parametertabelle        : " & _parameterDB & ".dbo." & _parametertabelle &
+                        Environment.NewLine &
+                        "→ Bitte tragen Sie das Verfahren '" & paramVerfahren & "' mit allen " &
                         "Pflichtparametern in die Parametertabelle [" &
                         _parameterDB & "].[dbo].[" & _parametertabelle & "] ein."
                     LogFehler(fehler)
@@ -132,14 +141,14 @@ Partial Public Class ScriptMain
                             Dim fehler As String =
                                 "FEHLER – Pflichtparameter fehlt in Parametertabelle:" &
                                 Environment.NewLine &
-                                "  Verfahren        : " & verfahren &
+                                "  Verfahren        : " & paramVerfahren & " (Steuerliste: " & verfahren & ")" &
                                 Environment.NewLine &
                                 "  Fehlender Param  : " & param &
                                 Environment.NewLine &
                                 "  Parametertabelle : " & _parameterDB & ".dbo." & _parametertabelle &
                                 Environment.NewLine &
                                 "→ Bitte fügen Sie den Parameter '" & param & "' für das Verfahren '" &
-                                verfahren & "' in die Parametertabelle [" &
+                                paramVerfahren & "' in die Parametertabelle [" &
                                 _parameterDB & "].[dbo].[" & _parametertabelle & "] ein."
                             LogFehler(fehler)
                             Log("  [FEHLEND] " & param & "  <- Zeile in Parametertabelle fehlt komplett")
@@ -150,14 +159,14 @@ Partial Public Class ScriptMain
                             Dim fehler As String =
                                 "FEHLER – Parameterwert ist leer (NULL oder ''):" &
                                 Environment.NewLine &
-                                "  Verfahren        : " & verfahren &
+                                "  Verfahren        : " & paramVerfahren & " (Steuerliste: " & verfahren & ")" &
                                 Environment.NewLine &
                                 "  Parameter        : " & param &
                                 Environment.NewLine &
                                 "  Parametertabelle : " & _parameterDB & ".dbo." & _parametertabelle &
                                 Environment.NewLine &
                                 "→ Bitte tragen Sie einen gültigen Wert für den Parameter '" & param &
-                                "' beim Verfahren '" & verfahren & "' in der Parametertabelle [" &
+                                "' beim Verfahren '" & paramVerfahren & "' in der Parametertabelle [" &
                                 _parameterDB & "].[dbo].[" & _parametertabelle & "] ein."
                             LogFehler(fehler)
                             Log("  [LEER]    " & param & "  <- Wert ist NULL oder leer string")
@@ -426,6 +435,24 @@ Partial Public Class ScriptMain
             "[Parameter prüfen '{0}'] fehlgeschlagen nach {1} Versuchen: {2}",
             parameter, MAX_VERSUCHE,
             If(letzterFehler IsNot Nothing, letzterFehler.Message, "Unbekannt")))
+    End Function
+
+    ' -----------------------------------------------------------------------
+    ' ParamVerfahrenAufloesen - Loest den Steuerlisten-Tabellennamen (v) ueber
+    ' dbo.fn_ParamVerfahren in den tatsaechlichen Verfahrensnamen (t) der
+    ' Parametertabelle auf. Liefert bei NULL/Fehler den Ausgangswert zurueck,
+    ' damit die Pruefung/Protokollierung nie abbricht.
+    ' -----------------------------------------------------------------------
+    Private Function ParamVerfahrenAufloesen(connStr As String, verfahren As String) As String
+        Try
+            Dim sql As String = "SELECT dbo.fn_ParamVerfahren('" & verfahren.Replace("'", "''") & "')"
+            Dim o As Object = SqlSkalar(connStr, sql, "fn_ParamVerfahren aufloesen")
+            If o Is Nothing OrElse o Is DBNull.Value Then Return verfahren
+            Dim t As String = o.ToString().Trim()
+            Return If(t = "", verfahren, t)
+        Catch
+            Return verfahren
+        End Try
     End Function
 
     ' -----------------------------------------------------------------------

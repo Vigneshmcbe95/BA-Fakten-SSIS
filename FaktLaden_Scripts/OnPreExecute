@@ -7,7 +7,7 @@ Imports Microsoft.SqlServer.Dts.Runtime
 '  Skript       : OnPreExecute (Paket-Eventhandler)
 '  Paket        : Fakten Laden (SSIS)
 '  Zweck        : Schreibt je startendem Task eine Zeile mit Startzeit in
-'                 dbo.ETL_Fkt_TaskLaufzeit (Tabelle wird automatisch
+'                 dbo.ETL_Fakt_TaskLaufzeit (Tabelle wird automatisch
 '                 angelegt). OnPostExecute traegt spaeter die Endzeit nach.
 '                 Auswertung: Gesamtlaufzeit = Zeile mit TaskName = Paketname,
 '                 Task-Split = uebrige Zeilen je RunID.
@@ -47,12 +47,12 @@ Partial Public Class ScriptMain
             sqlConn.Open()
 
             Dim sql As String =
-"IF NOT EXISTS (SELECT 1 FROM sys.tables WHERE name = 'ETL_Fkt_TaskLaufzeit' AND schema_id = SCHEMA_ID('dbo'))
+"IF NOT EXISTS (SELECT 1 FROM sys.tables WHERE name = 'ETL_Fakt_TaskLaufzeit' AND schema_id = SCHEMA_ID('dbo'))
 BEGIN
-    CREATE TABLE dbo.ETL_Fkt_TaskLaufzeit
+    CREATE TABLE dbo.ETL_Fakt_TaskLaufzeit
     (
         ID            INT IDENTITY(1,1) NOT NULL
-            CONSTRAINT PK_ETL_Fkt_TaskLaufzeit PRIMARY KEY,
+            CONSTRAINT PK_ETL_Fakt_TaskLaufzeit PRIMARY KEY,
         RunID         INT            NULL,
         PaketName     NVARCHAR(255)  NULL,
         TaskName      NVARCHAR(255)  NULL,
@@ -63,7 +63,7 @@ BEGIN
     );
 END;
 
-INSERT INTO dbo.ETL_Fkt_TaskLaufzeit (RunID, PaketName, TaskName, SourceID, Startzeit)
+INSERT INTO dbo.ETL_Fakt_TaskLaufzeit (RunID, PaketName, TaskName, SourceID, Startzeit)
 VALUES (@RunID, @Paket, @Task, @SourceID, GETDATE());"
 
             Using cmd As New SqlCommand(sql, sqlConn)

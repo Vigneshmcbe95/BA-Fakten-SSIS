@@ -275,7 +275,7 @@ Partial Public Class ScriptMain
 "       pc.Wert  AS Compression," &
 "       pi.Wert  AS IndexType," &
 "       UPPER(ISNULL(pn.Wert,'FALSE')) AS NcciFlag" &
-" FROM  dbo.ETL_Fkt_Arbeitsliste a" &
+" FROM  dbo.ETL_Fakt_Arbeitsliste a" &
 " JOIN  " & _parameterDB & ".dbo." & _parametertab & " pf ON pf.Verfahren=dbo.fn_ParamVerfahren(a.Verfahren) AND pf.Parameter='Faktentabelle'" &
 " JOIN  " & _parameterDB & ".dbo." & _parametertab & " pp ON pp.Verfahren=dbo.fn_ParamVerfahren(a.Verfahren) AND pp.Parameter='Faktenpartitionsspalte'" &
 " LEFT JOIN " & _parameterDB & ".dbo." & _parametertab & " pc ON pc.Verfahren=dbo.fn_ParamVerfahren(a.Verfahren) AND pc.Parameter='Faktenkomprimierung'" &
@@ -323,7 +323,7 @@ Partial Public Class ScriptMain
     ' Arbeitslisten-Zeile.
     ' -----------------------------------------------------------------------
     Private Sub StatusSetzen(connStr As String, id As Integer, status As String)
-        SqlAusfuehren(connStr, "UPDATE dbo.ETL_Fkt_Arbeitsliste SET Status='" & status & "',LetzterSchritt='" & status & "',AktualisiertAm=GETDATE() WHERE ID=" & id, "Status")
+        SqlAusfuehren(connStr, "UPDATE dbo.ETL_Fakt_Arbeitsliste SET Status='" & status & "',LetzterSchritt='" & status & "',AktualisiertAm=GETDATE() WHERE ID=" & id, "Status")
     End Sub
 
     ' -----------------------------------------------------------------------
@@ -334,7 +334,7 @@ Partial Public Class ScriptMain
         Try
             Using conn As New SqlConnection(connStr)
                 conn.Open()
-                Using cmd As New SqlCommand("UPDATE dbo.ETL_Fkt_Arbeitsliste SET Status='FEHLER',Fehlermeldung=@m,AktualisiertAm=GETDATE() WHERE ID=@id", conn)
+                Using cmd As New SqlCommand("UPDATE dbo.ETL_Fakt_Arbeitsliste SET Status='FEHLER',Fehlermeldung=@m,AktualisiertAm=GETDATE() WHERE ID=@id", conn)
                     cmd.Parameters.AddWithValue("@m", If(msg.Length > 3900, msg.Substring(0, 3900), msg))
                     cmd.Parameters.AddWithValue("@id", id)
                     cmd.ExecuteNonQuery()

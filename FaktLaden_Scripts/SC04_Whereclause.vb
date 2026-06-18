@@ -26,7 +26,12 @@ Partial Public Class ScriptMain
     Private Const MAX_VERSUCHE As Integer = 3
     Private Const WARTE_SEK As Integer = 30
 
-    Private ReadOnly _refDatum As DateTime = New Date(2026, 3, 1)
+    ' Referenzdatum = aktueller Systemmonat (1. des laufenden Monats).
+    ' Tag fix auf 1 gesetzt, damit AddMonths/AddYears keine Monatsend-
+    ' Verschiebungen erzeugt (z.B. 31.03 -> 28.02). Relative Filter
+    ' (:LAST_*, :MONID(-n), :YEAR(-n)) werden so vom echten Laufdatum
+    ' aus berechnet, nicht von einem fest verdrahteten Datum.
+    Private ReadOnly _refDatum As DateTime = New Date(Date.Today.Year, Date.Today.Month, 1)
     Private _stlTabelle As String = String.Empty
     Private _parameterDB As String = String.Empty
     Private _parametertab As String = String.Empty

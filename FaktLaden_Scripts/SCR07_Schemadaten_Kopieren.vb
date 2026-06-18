@@ -287,7 +287,7 @@ WHERE themengebiet = @thema
         Dim liste As New List(Of VerfahrenInfo)()
         Dim sql As String =
 "SELECT ID, Verfahren, Themengebiet, LetzterSchritt
-FROM dbo.ETL_Fkt_Arbeitsliste
+FROM dbo.ETL_Fakt_Arbeitsliste
 WHERE Status IN ('AUSSTEHEND','SCHEMADATEN_KOPIEREN')
   AND RunID = " & _runID.ToString() & "
 ORDER BY Verfahren"
@@ -358,7 +358,7 @@ END;"
     ' -----------------------------------------------------------------------
     Private Sub StatusSetzen(connStr As String, id As Integer, status As String)
         SqlAusfuehren(connStr,
-            "UPDATE dbo.ETL_Fkt_Arbeitsliste SET Status='" & status & "', LetzterSchritt='" & status & "', AktualisiertAm=GETDATE() WHERE ID=" & id.ToString(),
+            "UPDATE dbo.ETL_Fakt_Arbeitsliste SET Status='" & status & "', LetzterSchritt='" & status & "', AktualisiertAm=GETDATE() WHERE ID=" & id.ToString(),
             "Status setzen")
     End Sub
 
@@ -371,7 +371,7 @@ END;"
         Try
             Using conn As New SqlConnection(connStr)
                 conn.Open()
-                Using cmd As New SqlCommand("UPDATE dbo.ETL_Fkt_Arbeitsliste SET Status='FEHLER',Fehlermeldung=@m,AktualisiertAm=GETDATE() WHERE ID=@id", conn)
+                Using cmd As New SqlCommand("UPDATE dbo.ETL_Fakt_Arbeitsliste SET Status='FEHLER',Fehlermeldung=@m,AktualisiertAm=GETDATE() WHERE ID=@id", conn)
                     cmd.Parameters.AddWithValue("@m", kurz)
                     cmd.Parameters.AddWithValue("@id", id)
                     cmd.ExecuteNonQuery()

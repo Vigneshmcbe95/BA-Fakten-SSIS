@@ -188,7 +188,7 @@ WHERE schema_id = SCHEMA_ID('" & _extSchema & "')
         Dim sql As String =
 "SELECT a.ID, a.Verfahren, a.Themengebiet, a.LetzterSchritt, 
         pf.Wert AS Faktentabelle
- FROM   dbo.ETL_Fkt_Arbeitsliste a
+ FROM   dbo.ETL_Fakt_Arbeitsliste a
  JOIN   " & _parameterDB & ".dbo." & _parametertab & " pf 
         ON pf.Verfahren = dbo.fn_ParamVerfahren(a.Verfahren) 
         AND pf.Parameter = 'Faktentabelle'
@@ -236,7 +236,7 @@ WHERE schema_id = SCHEMA_ID('" & _extSchema & "')
     ' -----------------------------------------------------------------------
     Private Sub StatusSetzen(connStr As String, id As Integer, status As String)
         SqlAusfuehren(connStr,
-            "UPDATE dbo.ETL_Fkt_Arbeitsliste SET Status='" & status & "',LetzterSchritt='" & status & "',AktualisiertAm=GETDATE() WHERE ID=" & id.ToString(),
+            "UPDATE dbo.ETL_Fakt_Arbeitsliste SET Status='" & status & "',LetzterSchritt='" & status & "',AktualisiertAm=GETDATE() WHERE ID=" & id.ToString(),
             "Status setzen")
     End Sub
 
@@ -250,7 +250,7 @@ WHERE schema_id = SCHEMA_ID('" & _extSchema & "')
             Using conn As New SqlConnection(connStr)
                 conn.Open()
                 Using cmd As New SqlCommand(
-                    "UPDATE dbo.ETL_Fkt_Arbeitsliste SET Status='FEHLER',Fehlermeldung=@m,AktualisiertAm=GETDATE() WHERE ID=@id", conn)
+                    "UPDATE dbo.ETL_Fakt_Arbeitsliste SET Status='FEHLER',Fehlermeldung=@m,AktualisiertAm=GETDATE() WHERE ID=@id", conn)
                     cmd.Parameters.AddWithValue("@m", kurz)
                     cmd.Parameters.AddWithValue("@id", id)
                     cmd.ExecuteNonQuery()

@@ -1,6 +1,7 @@
 Imports System
 Imports System.Data
 Imports System.Data.SqlClient
+Imports System.Collections.Generic
 Imports Microsoft.SqlServer.Dts.Runtime
 
 ' =============================================================================
@@ -33,6 +34,9 @@ Partial Public Class ScriptMain
         Log("PaketEnd - Start")
 
             Dim runID As Integer = CInt(Dts.Variables("BA::RunID").Value)
+            Dim parameterDB As String = Dts.Variables("BA::ParameterDB").Value.ToString().Trim()
+            Dim parametertab As String = Dts.Variables("BA::Parametertabelle").Value.ToString().Trim()
+            Dim stlTabelle As String = Dts.Variables("BA::SteuerlistenTabelle").Value.ToString().Trim()
 
             Dim cm As ConnectionManager = Dts.Connections(ConnectionName)
             Dim builder As New SqlConnectionStringBuilder(cm.ConnectionString)
@@ -48,7 +52,7 @@ SELECT @Start = PaketStartzeit FROM dbo.ETL_Fakt_LaufHistorie WHERE ID = @ID;
 -- Abschluss: Alle Verfahren dieses Laufs, die NICHT auf FEHLER stehen, auf ERFOLG setzen.
 -- Ein Verfahren durchlaeuft alle Skripte (verarbeitet oder uebersprungen); am Paketende
 -- gilt es als erfolgreich, sofern es nirgends einen Fehler gab.
-UPDATE dbo.ETL_Fkt_Arbeitsliste
+UPDATE dbo.ETL_Fakt_Arbeitsliste
 SET    Status = 'ERFOLG', LetzterSchritt = 'ERFOLG', AktualisiertAm = GETDATE()
 WHERE  RunID = @ID AND Status <> 'FEHLER' AND Status <> 'ERFOLG';
 
@@ -81,7 +85,7 @@ SELECT
     @AnzahlKomprimierung     = SUM(CASE WHEN Status = 'KOMPRIMIERUNG_OUT'          THEN 1 ELSE 0 END),
     @AnzahlNcciOut           = SUM(CASE WHEN Status = 'NCCI_OUT'                   THEN 1 ELSE 0 END),
     @AnzahlPartitionstausch  = SUM(CASE WHEN Status = 'PARTITIONSTAUSCH'           THEN 1 ELSE 0 END)
-FROM dbo.ETL_Fkt_Arbeitsliste
+FROM dbo.ETL_Fakt_Arbeitsliste
 WHERE RunID = @ID;
 
 UPDATE dbo.ETL_Fakt_LaufHistorie
@@ -124,6 +128,10 @@ SELECT
                 End Using
             End Using
 
+            ' Per-Tabelle-Zusammenfassung: was der Benutzer uebergeben hat (Filter
+            ' bzw. Volllast) und was tatsaechlich in der Faktentabelle gefuellt ist.
+            ZusammenfassungSchreiben(sqlConn, runID, parameterDB, parametertab, stlTabelle)
+
             Log("PaketEnd abgeschlossen OK")
             Dts.TaskResult = ScriptResults.Success
 
@@ -135,6 +143,127 @@ SELECT
                 sqlConn.Close()
             End If
         End Try
+    End Sub
+
+    ' -----------------------------------------------------------------------
+    ' ZusammenfassungSchreiben - Schreibt je Faktentabelle dieses Laufs eine
+    ' Zusammenfassung in das SSIS-Protokoll:
+    '   - Eingabe (User): partition_wert aus der Steuerliste (Filter) bzw.
+    '     "VOLLLAST", wenn kein partition_wert gesetzt war.
+    '   - Ergebnis: Status sowie Ist-Kennzahlen der Faktentabelle
+    '     (Partitionen = DISTINCT Partitionsspalte, Zeilen, MIN, MAX).
+    ' -----------------------------------------------------------------------
+    Private Sub ZusammenfassungSchreiben(conn As SqlConnection, runID As Integer,
+                                         parameterDB As String, parametertab As String,
+                                         stlTabelle As String)
+
+        Dim de As System.Globalization.CultureInfo = System.Globalization.CultureInfo.GetCultureInfo("de-DE")
+
+        ' Verfahren des Laufs + Faktentabelle/Partitionsspalte (Parametertabelle)
+        ' + vom Benutzer uebergebener partition_wert/Datei (Steuerliste).
+        Dim liste As String =
+            "SELECT a.Verfahren," &
+            "       pf.Wert AS Faktentabelle," &
+            "       pp.Wert AS PartCol," &
+            "       a.Status," &
+            "       MAX(stl.partition_wert) AS PartitionWert," &
+            "       MAX(stl.FILE_NAME)      AS Datei" &
+            " FROM dbo.ETL_Fakt_Arbeitsliste a" &
+            " JOIN " & parameterDB & ".dbo." & parametertab & " pf ON pf.Verfahren=dbo.fn_ParamVerfahren(a.Verfahren) AND pf.Parameter='Faktentabelle'" &
+            " JOIN " & parameterDB & ".dbo." & parametertab & " pp ON pp.Verfahren=dbo.fn_ParamVerfahren(a.Verfahren) AND pp.Parameter='Faktenpartitionsspalte'" &
+            " LEFT JOIN dbo." & stlTabelle & " stl ON LOWER(LTRIM(RTRIM(stl.tabelle)))=LOWER(LTRIM(RTRIM(a.Verfahren)))" &
+            " WHERE a.RunID=" & runID &
+            " GROUP BY a.Verfahren, pf.Wert, pp.Wert, a.Status" &
+            " ORDER BY pf.Wert"
+
+        Dim rows As New List(Of String())()
+        Using cmd As New SqlCommand(liste, conn)
+            cmd.CommandTimeout = 0
+            Using rdr As SqlDataReader = cmd.ExecuteReader()
+                While rdr.Read()
+                    rows.Add(New String() {
+                        rdr(0).ToString().Trim(),
+                        rdr(1).ToString().Trim(),
+                        rdr(2).ToString().Trim(),
+                        rdr(3).ToString().Trim(),
+                        If(rdr.IsDBNull(4), "", rdr(4).ToString().Trim()),
+                        If(rdr.IsDBNull(5), "", rdr(5).ToString().Trim())})
+                End While
+            End Using
+        End Using
+
+        Log("")
+        Log("=== ZUSAMMENFASSUNG (RunID " & runID.ToString() & ") ===")
+
+        Dim cntErfolg As Integer = 0
+        Dim cntFehler As Integer = 0
+
+        For Each r As String() In rows
+            Dim fakt As String = r(1)
+            Dim partCol As String = r(2)
+            If partCol.Contains("|") Then partCol = partCol.Substring(0, partCol.IndexOf("|"))
+            Dim status As String = r(3)
+            Dim pw As String = r(4)
+            Dim datei As String = If(r(5) = "", "-", r(5))
+
+            If status = "ERFOLG" Then cntErfolg += 1
+            If status = "FEHLER" Then cntFehler += 1
+
+            Dim eingabe As String
+            If String.IsNullOrEmpty(pw) Then
+                eingabe = "(kein partition_wert) -> VOLLLAST (alle Partitionen)"
+            Else
+                eingabe = "partition_wert = " & pw & "   -> FILTER"
+            End If
+
+            ' Ist-Kennzahlen der Faktentabelle (was tatsaechlich gefuellt ist)
+            Dim tabExists As Boolean = False
+            Dim zeilen As Long = 0
+            Dim parts As Integer = 0
+            Dim mn As String = "NULL"
+            Dim mx As String = "NULL"
+
+            Dim q As String =
+                "IF OBJECT_ID('dbo.[" & fakt & "]','U') IS NOT NULL" &
+                "  SELECT 1 AS ex, COUNT_BIG(*) AS c, COUNT(DISTINCT [" & partCol & "]) AS p," &
+                "         CONVERT(varchar(20),MIN([" & partCol & "])) AS mn," &
+                "         CONVERT(varchar(20),MAX([" & partCol & "])) AS mx" &
+                "  FROM dbo.[" & fakt & "]" &
+                " ELSE SELECT 0 AS ex, CAST(0 AS bigint) AS c, 0 AS p," &
+                "            CAST(NULL AS varchar(20)) AS mn, CAST(NULL AS varchar(20)) AS mx"
+
+            Try
+                Using cmd As New SqlCommand(q, conn)
+                    cmd.CommandTimeout = 0
+                    Using rdr As SqlDataReader = cmd.ExecuteReader()
+                        If rdr.Read() Then
+                            tabExists = Convert.ToInt32(rdr("ex")) = 1
+                            If Not rdr.IsDBNull(rdr.GetOrdinal("c")) Then zeilen = Convert.ToInt64(rdr("c"))
+                            If Not rdr.IsDBNull(rdr.GetOrdinal("p")) Then parts = Convert.ToInt32(rdr("p"))
+                            If Not rdr.IsDBNull(rdr.GetOrdinal("mn")) Then mn = rdr("mn").ToString()
+                            If Not rdr.IsDBNull(rdr.GetOrdinal("mx")) Then mx = rdr("mx").ToString()
+                        End If
+                    End Using
+                End Using
+            Catch ex As Exception
+                Log("  WARNUNG: Kennzahlen fuer dbo." & fakt & " nicht lesbar: " & ex.Message)
+            End Try
+
+            Log("Tabelle: " & fakt & "   | Datei: " & datei)
+            Log("  Eingabe (User) : " & eingabe)
+            If tabExists Then
+                Log("  Ergebnis       : Status=" & status &
+                    " | Partitionen=" & parts.ToString() &
+                    " | Zeilen=" & zeilen.ToString("#,##0", de) &
+                    " | MIN=" & mn & " MAX=" & mx)
+            Else
+                Log("  Ergebnis       : Status=" & status & " | Faktentabelle nicht vorhanden")
+            End If
+        Next
+
+        Log("")
+        Log("GESAMT: " & rows.Count.ToString() & " Tabellen | ERFOLG=" & cntErfolg.ToString() &
+            " | FEHLER=" & cntFehler.ToString())
     End Sub
 
     ' -----------------------------------------------------------------------

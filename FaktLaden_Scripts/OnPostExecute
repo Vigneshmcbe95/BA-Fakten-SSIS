@@ -8,7 +8,7 @@ Imports Microsoft.SqlServer.Dts.Runtime
 '  Paket        : Fakten Laden (SSIS)
 '  Zweck        : Traegt die Endzeit des beendeten Tasks in der zuletzt
 '                 geoeffneten Zeile (Endzeit IS NULL) von
-'                 dbo.ETL_Fkt_TaskLaufzeit nach. DauerSekunden wird als
+'                 dbo.ETL_Fakt_TaskLaufzeit nach. DauerSekunden wird als
 '                 berechnete Spalte automatisch ermittelt.
 '  Variablen    : ReadOnly: System::SourceID
 '  Protokoll    : Fehler im Handler werden verschluckt (Laufzeitmessung darf
@@ -37,12 +37,12 @@ Partial Public Class ScriptMain
             sqlConn.Open()
 
             Dim sql As String =
-"IF EXISTS (SELECT 1 FROM sys.tables WHERE name = 'ETL_Fkt_TaskLaufzeit' AND schema_id = SCHEMA_ID('dbo'))
+"IF EXISTS (SELECT 1 FROM sys.tables WHERE name = 'ETL_Fakt_TaskLaufzeit' AND schema_id = SCHEMA_ID('dbo'))
 BEGIN
-    UPDATE dbo.ETL_Fkt_TaskLaufzeit
+    UPDATE dbo.ETL_Fakt_TaskLaufzeit
     SET    Endzeit = GETDATE()
     WHERE  ID = (SELECT MAX(ID)
-                 FROM   dbo.ETL_Fkt_TaskLaufzeit
+                 FROM   dbo.ETL_Fakt_TaskLaufzeit
                  WHERE  SourceID = @SourceID
                  AND    Endzeit IS NULL);
 END;"

@@ -353,7 +353,7 @@ Partial Public Class ScriptMain
         Dim sql As String =
             "SELECT a.ID, a.Verfahren, a.Themengebiet, a.LetzterSchritt," &
             "       pf.Wert AS Faktentabelle, pp.Wert AS PartitionColumn" &
-            " FROM   dbo.ETL_Fkt_Arbeitsliste a" &
+            " FROM   dbo.ETL_Fakt_Arbeitsliste a" &
             " JOIN   " & _parameterDB & ".dbo." & _parametertab & " pf ON pf.Verfahren=dbo.fn_ParamVerfahren(a.Verfahren) AND pf.Parameter='Faktentabelle'" &
             " JOIN   " & _parameterDB & ".dbo." & _parametertab & " pp ON pp.Verfahren=dbo.fn_ParamVerfahren(a.Verfahren) AND pp.Parameter='Faktenpartitionsspalte'" &
             " WHERE  a.Status IN ('STAGING_ERSTELLT','DATEN_LADEN')" &
@@ -398,7 +398,7 @@ Partial Public Class ScriptMain
     ' -----------------------------------------------------------------------
     Private Sub StatusSetzen(connStr As String, id As Integer, status As String)
         SqlAusfuehren(connStr,
-            "UPDATE dbo.ETL_Fkt_Arbeitsliste SET Status='" & status &
+            "UPDATE dbo.ETL_Fakt_Arbeitsliste SET Status='" & status &
             "',LetzterSchritt='" & status & "',AktualisiertAm=GETDATE() WHERE ID=" & id,
             "Status")
     End Sub
@@ -412,7 +412,7 @@ Partial Public Class ScriptMain
             Using conn As New SqlConnection(connStr)
                 conn.Open()
                 Using cmd As New SqlCommand(
-                    "UPDATE dbo.ETL_Fkt_Arbeitsliste SET Status='FEHLER',Fehlermeldung=@m,AktualisiertAm=GETDATE() WHERE ID=@id",
+                    "UPDATE dbo.ETL_Fakt_Arbeitsliste SET Status='FEHLER',Fehlermeldung=@m,AktualisiertAm=GETDATE() WHERE ID=@id",
                     conn)
                     cmd.Parameters.AddWithValue("@m", If(msg.Length > 3900, msg.Substring(0, 3900), msg))
                     cmd.Parameters.AddWithValue("@id", id)

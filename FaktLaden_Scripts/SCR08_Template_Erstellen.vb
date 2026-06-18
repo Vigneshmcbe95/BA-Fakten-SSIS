@@ -174,7 +174,7 @@ Partial Public Class ScriptMain
         Dim sql As String =
 "SELECT a.ID, a.Verfahren, a.Themengebiet, a.LetzterSchritt,
         pf.Wert AS Faktentabelle
- FROM   dbo.ETL_Fkt_Arbeitsliste a
+ FROM   dbo.ETL_Fakt_Arbeitsliste a
  JOIN   " & _parameterDB & ".dbo." & _parametertab & " pf
         ON pf.Verfahren = dbo.fn_ParamVerfahren(a.Verfahren)
         AND pf.Parameter = 'Faktentabelle'
@@ -222,7 +222,7 @@ Partial Public Class ScriptMain
     ' -----------------------------------------------------------------------
     Private Sub StatusSetzen(connStr As String, id As Integer, status As String)
         SqlAusfuehren(connStr,
-            "UPDATE dbo.ETL_Fkt_Arbeitsliste SET Status='" & status & "', LetzterSchritt='" & status & "', AktualisiertAm=GETDATE() WHERE ID=" & id.ToString(),
+            "UPDATE dbo.ETL_Fakt_Arbeitsliste SET Status='" & status & "', LetzterSchritt='" & status & "', AktualisiertAm=GETDATE() WHERE ID=" & id.ToString(),
             "Status setzen")
     End Sub
 
@@ -235,7 +235,7 @@ Partial Public Class ScriptMain
         Try
             Using conn As New SqlConnection(connStr)
                 conn.Open()
-                Using cmd As New SqlCommand("UPDATE dbo.ETL_Fkt_Arbeitsliste SET Status='FEHLER',Fehlermeldung=@m,AktualisiertAm=GETDATE() WHERE ID=@id", conn)
+                Using cmd As New SqlCommand("UPDATE dbo.ETL_Fakt_Arbeitsliste SET Status='FEHLER',Fehlermeldung=@m,AktualisiertAm=GETDATE() WHERE ID=@id", conn)
                     cmd.Parameters.AddWithValue("@m", kurz)
                     cmd.Parameters.AddWithValue("@id", id)
                     cmd.ExecuteNonQuery()

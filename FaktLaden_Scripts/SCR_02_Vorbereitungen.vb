@@ -63,8 +63,8 @@ Partial Public Class ScriptMain
 
             Dim connStr As String = HoleVerbindungszeichenfolge()
 
-            ' -- Schritt 1: ETL_Fkt_Arbeitsliste sicherstellen -------------------
-            Log("Schritt 1: ETL_Fkt_Arbeitsliste sicherstellen")
+            ' -- Schritt 1: ETL_Fakt_Arbeitsliste sicherstellen -------------------
+            Log("Schritt 1: ETL_Fakt_Arbeitsliste sicherstellen")
             ArbeitslisteSicherstellen(connStr)
 
             ' -- Schritt 1b: Mapping-Funktion vf_ -> tf_ sicherstellen ----------
@@ -76,8 +76,8 @@ Partial Public Class ScriptMain
             Log("Schritt 1b: Mapping-Funktion dbo.fn_ParamVerfahren sicherstellen")
             ParamVerfahrenFunktionSicherstellen(connStr)
 
-            ' -- Schritt 2: ETL_Fkt_FehlerHistorie sicherstellen -----------------
-            Log("Schritt 2: ETL_Fkt_FehlerHistorie sicherstellen")
+            ' -- Schritt 2: ETL_Fakt_FehlerHistorie sicherstellen -----------------
+            Log("Schritt 2: ETL_Fakt_FehlerHistorie sicherstellen")
             FehlerHistorieSicherstellen(connStr)
 
             ' -- Schritt 3: PolyBase Master Key ------------------------------
@@ -236,18 +236,18 @@ END"
 
     ' -----------------------------------------------------------------------
     ' ArbeitslisteSicherstellen - Stellt sicher, dass
-    ' dbo.ETL_Fkt_Arbeitsliste existiert.
+    ' dbo.ETL_Fakt_Arbeitsliste existiert.
     ' -----------------------------------------------------------------------
     Private Sub ArbeitslisteSicherstellen(connStr As String)
 
         Dim sql As String =
 "IF NOT EXISTS (
     SELECT 1 FROM sys.tables
-    WHERE  name      = 'ETL_Fkt_Arbeitsliste'
+    WHERE  name      = 'ETL_Fakt_Arbeitsliste'
     AND    schema_id = SCHEMA_ID('dbo')
 )
 BEGIN
-    CREATE TABLE dbo.ETL_Fkt_Arbeitsliste
+    CREATE TABLE dbo.ETL_Fakt_Arbeitsliste
     (
         ID             INT           IDENTITY(1,1) PRIMARY KEY,
         RunID          INT           NULL,
@@ -259,43 +259,43 @@ BEGIN
         Fehlermeldung  NVARCHAR(4000) NULL,
         AktualisiertAm DATETIME      NOT NULL DEFAULT GETDATE()
     );
-    PRINT 'ETL_Fkt_Arbeitsliste wurde neu angelegt.';
+    PRINT 'ETL_Fakt_Arbeitsliste wurde neu angelegt.';
 END
 ELSE
-    PRINT 'ETL_Fkt_Arbeitsliste bereits vorhanden.';"
+    PRINT 'ETL_Fakt_Arbeitsliste bereits vorhanden.';"
 
-        SqlAusfuehren(connStr, sql, "ETL_Fkt_Arbeitsliste sicherstellen")
-        Log("ETL_Fkt_Arbeitsliste: geprueft/angelegt ")
+        SqlAusfuehren(connStr, sql, "ETL_Fakt_Arbeitsliste sicherstellen")
+        Log("ETL_Fakt_Arbeitsliste: geprueft/angelegt ")
 
     End Sub
 
     ' -----------------------------------------------------------------------
     ' FehlerHistorieSicherstellen - Stellt sicher, dass
-    ' dbo.ETL_Fkt_FehlerHistorie existiert.
+    ' dbo.ETL_Fakt_FehlerHistorie existiert.
     ' -----------------------------------------------------------------------
     Private Sub FehlerHistorieSicherstellen(connStr As String)
 
         Dim sql As String =
 "IF NOT EXISTS (
     SELECT 1 FROM sys.tables
-    WHERE  name      = 'ETL_Fkt_FehlerHistorie'
+    WHERE  name      = 'ETL_Fakt_FehlerHistorie'
     AND    schema_id = SCHEMA_ID('dbo')
 )
 BEGIN
-    CREATE TABLE dbo.ETL_Fkt_FehlerHistorie
+    CREATE TABLE dbo.ETL_Fakt_FehlerHistorie
     (
         ID                 INT            IDENTITY(1,1) PRIMARY KEY,
         Verfahren          VARCHAR(200)   NULL,
         Fehlerbeschreibung NVARCHAR(4000) NOT NULL,
         Fehlerzeit         DATETIME       NOT NULL DEFAULT GETDATE()
     );
-    PRINT 'ETL_Fkt_FehlerHistorie wurde neu angelegt.';
+    PRINT 'ETL_Fakt_FehlerHistorie wurde neu angelegt.';
 END
 ELSE
-    PRINT 'ETL_Fkt_FehlerHistorie bereits vorhanden.';"
+    PRINT 'ETL_Fakt_FehlerHistorie bereits vorhanden.';"
 
-        SqlAusfuehren(connStr, sql, "ETL_Fkt_FehlerHistorie sicherstellen")
-        Log("ETL_Fkt_FehlerHistorie: geprueft/angelegt ")
+        SqlAusfuehren(connStr, sql, "ETL_Fakt_FehlerHistorie sicherstellen")
+        Log("ETL_Fakt_FehlerHistorie: geprueft/angelegt ")
 
     End Sub
 

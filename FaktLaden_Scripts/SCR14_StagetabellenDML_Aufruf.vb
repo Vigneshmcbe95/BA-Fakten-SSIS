@@ -223,7 +223,7 @@ Partial Public Class ScriptMain
 "       pp.Wert AS PartitionsSpalte," &
 "       ISNULL(pci.Wert, 'FALSE') AS ClusteredIndex," &
 "       ISNULL(pk.Wert, 'PAGE') AS Komprimierung" &
-" FROM  dbo.ETL_Fkt_Arbeitsliste a" &
+" FROM  dbo.ETL_Fakt_Arbeitsliste a" &
 " JOIN  " & _parameterDB & ".dbo." & _parametertab & " pf ON pf.Verfahren=dbo.fn_ParamVerfahren(a.Verfahren) AND pf.Parameter='Faktentabelle'" &
 " JOIN  " & _parameterDB & ".dbo." & _parametertab & " pp ON pp.Verfahren=dbo.fn_ParamVerfahren(a.Verfahren) AND pp.Parameter='Faktenpartitionsspalte'" &
 " LEFT JOIN " & _parameterDB & ".dbo." & _parametertab & " pci ON pci.Verfahren=dbo.fn_ParamVerfahren(a.Verfahren) AND pci.Parameter='FaktenClusteredIndex'" &
@@ -302,7 +302,7 @@ Partial Public Class ScriptMain
     ' -----------------------------------------------------------------------
     Private Sub StatusSetzen(connStr As String, id As Integer, status As String)
         SqlAusfuehren(connStr,
-            "UPDATE dbo.ETL_Fkt_Arbeitsliste SET Status='" & status & "', LetzterSchritt='" & status & "', AktualisiertAm=GETDATE() WHERE ID=" & id,
+            "UPDATE dbo.ETL_Fakt_Arbeitsliste SET Status='" & status & "', LetzterSchritt='" & status & "', AktualisiertAm=GETDATE() WHERE ID=" & id,
             "StatusSetzen")
     End Sub
 
@@ -315,7 +315,7 @@ Partial Public Class ScriptMain
             Using conn As New SqlConnection(connStr)
                 conn.Open()
                 Using cmd As New SqlCommand(
-                    "UPDATE dbo.ETL_Fkt_Arbeitsliste SET Status='FEHLER', Fehlermeldung=@m, AktualisiertAm=GETDATE() WHERE ID=@id", conn)
+                    "UPDATE dbo.ETL_Fakt_Arbeitsliste SET Status='FEHLER', Fehlermeldung=@m, AktualisiertAm=GETDATE() WHERE ID=@id", conn)
                     cmd.Parameters.AddWithValue("@m", If(meldung.Length > 3900, meldung.Substring(0, 3900), meldung))
                     cmd.Parameters.AddWithValue("@id", id)
                     cmd.ExecuteNonQuery()

@@ -46,7 +46,7 @@ Partial Public Class ScriptMain
             VerwaistelaeufeAbschliessen(connStr)
 
             ' -- Schritt 3: Fehlgeschlagene Verfahren zurücksetzen -----------
-            Log("Schritt 3: ETL_Fkt_ArbeitslisteFEHLER AUSSTEHEND")
+            Log("Schritt 3: ETL_Fakt_ArbeitslisteFEHLER AUSSTEHEND")
             FehlerZuruecksetzen(connStr)
 
             ' -- Schritt 4: Neuen Lauf anlegen -------------------------------

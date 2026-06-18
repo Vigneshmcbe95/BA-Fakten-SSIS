@@ -157,7 +157,7 @@ Partial Public Class ScriptMain
         Dim sql As String =
 "SELECT a.ID, a.Verfahren, a.Themengebiet, a.LetzterSchritt,
         pf.Wert AS Faktentabelle, pp.Wert AS PartitionsSpalte
- FROM   dbo.ETL_Fkt_Arbeitsliste a
+ FROM   dbo.ETL_Fakt_Arbeitsliste a
  JOIN   " & _parameterDB & ".dbo." & _parametertab & " pf ON pf.Verfahren=dbo.fn_ParamVerfahren(a.Verfahren) AND pf.Parameter='Faktentabelle'
  JOIN   " & _parameterDB & ".dbo." & _parametertab & " pp ON pp.Verfahren=dbo.fn_ParamVerfahren(a.Verfahren) AND pp.Parameter='Faktenpartitionsspalte'
  WHERE  a.Status IN ('PARTITIONSGRENZEN_ERSTELLT','STAGING_ERSTELLEN')
@@ -197,7 +197,7 @@ Partial Public Class ScriptMain
     ' Arbeitslisten-Zeile.
     ' -----------------------------------------------------------------------
     Private Sub StatusSetzen(connStr As String, id As Integer, status As String)
-        SqlAusfuehren(connStr, "UPDATE dbo.ETL_Fkt_Arbeitsliste SET Status='" & status & "',LetzterSchritt='" & status & "',AktualisiertAm=GETDATE() WHERE ID=" & id.ToString(), "Status")
+        SqlAusfuehren(connStr, "UPDATE dbo.ETL_Fakt_Arbeitsliste SET Status='" & status & "',LetzterSchritt='" & status & "',AktualisiertAm=GETDATE() WHERE ID=" & id.ToString(), "Status")
     End Sub
 
     ' -----------------------------------------------------------------------
@@ -208,7 +208,7 @@ Partial Public Class ScriptMain
         Try
             Using conn As New SqlConnection(connStr)
                 conn.Open()
-                Using cmd As New SqlCommand("UPDATE dbo.ETL_Fkt_Arbeitsliste SET Status='FEHLER',Fehlermeldung=@m,AktualisiertAm=GETDATE() WHERE ID=@id", conn)
+                Using cmd As New SqlCommand("UPDATE dbo.ETL_Fakt_Arbeitsliste SET Status='FEHLER',Fehlermeldung=@m,AktualisiertAm=GETDATE() WHERE ID=@id", conn)
                     cmd.Parameters.AddWithValue("@m", If(meldung.Length > 3900, meldung.Substring(0, 3900), meldung))
                     cmd.Parameters.AddWithValue("@id", id)
                     cmd.ExecuteNonQuery()
