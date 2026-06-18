@@ -168,7 +168,7 @@ BEGIN
     (
         stlid          INT IDENTITY(1,1) NOT NULL
             CONSTRAINT PK_" & a & " PRIMARY KEY,
-        bereich        NVARCHAR(10)   NULL,
+        typ            NVARCHAR(10)   NULL,
         tabelle        NVARCHAR(255)  NULL,
         file_name      NVARCHAR(255)  NULL,
         tabellentyp    NVARCHAR(255)  NULL,
@@ -246,7 +246,7 @@ END;"
                 ' 1. Audit-Tabelle: tabelle = parsed name, tabname_filter = raw line
                 SqlMitParameternAusfuehren(connStr,
                     "INSERT INTO dbo." & _auditTabelle &
-                    " (bereich, tabelle, file_name, tabellentyp, umgebung," &
+                    " (typ, tabelle, file_name, tabellentyp, umgebung," &
                     "  load_Date, themengebiet, bearbeiter, tabname_filter)" &
                     " VALUES ('FAKT', @tab, @f, @typ, @umb, @dat, @thm, @bea, @filter)",
                     "INSERT Audit",
