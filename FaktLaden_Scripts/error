@@ -1,0 +1,112 @@
+Hallo zusammen,
+
+Warum steht da kein NOT NULL auf Oracle? 
+
+Wenn nix dasteht ist NULL der default-Wert?
+
+Grüße
+
+Sebastian
+
+Von: Anyos Werner - extern <Werner.Anyos@arbeitsagentur.de> 
+Gesendet: Donnerstag, 18. Juni 2026 11:02
+An: Schroeder Sebastian <Sebastian.Schroeder3@arbeitsagentur.de>; Völkert Petra <Petra.Voelkert@arbeitsagentur.de>
+Betreff: AW: tf_bst_best_bew_bv - DDL
+
+Hallo Sebastian,
+
+ich hab es von der Oracle gezogen:
+
+CREATE TABLE "XRO_DM_STAT_BST"."TF_BST_BEST_BEW_BV" 
+   (            "MOW_ID" NUMBER(10,0), 
+                "KNG_ID" NUMBER(5,0), 
+                "BZB_ID" NUMBER(5,0), 
+                "AGE_ID" NUMBER(5,0), 
+                "SEX_ID" NUMBER(5,0), 
+                "JAN_ID_RGA" NUMBER(5,0), 
+                "STT_ID" NUMBER(10,0), 
+                "BRO_ID" NUMBER(5,0), 
+                "ASB_ID_KORR" NUMBER(5,0), 
+                "ABI_ID_KORR" NUMBER(5,0), 
+                "SUA_ID_KORR" NUMBER(5,0), 
+                "BRS_ID" NUMBER(5,0), 
+                "KBA_ID" NUMBER(10,0), 
+                "T08_ID" NUMBER(5,0), 
+                "AFN_ID" NUMBER(5,0), 
+                "BFR_ID" NUMBER(5,0), 
+                "JAN_ID_AUEG" NUMBER(5,0), 
+                "RVT_ID" NUMBER(5,0), 
+                "ORT_ID_B" NUMBER(10,0), 
+                "GST_ID_B" NUMBER(10,0), 
+                "STR_ID_B" NUMBER(10,0), 
+                "L93_ID" NUMBER(10,0), 
+                "L03_ID" NUMBER(10,0), 
+                "L08_ID" NUMBER(5,0), 
+                "GLZ_ID" NUMBER(5,0), 
+                "JAN_ID_BEF" NUMBER(5,0), 
+                "DBK_ID" NUMBER(10,0), 
+                "DBD_ID" NUMBER(10,0), 
+                "ISC_ID" NUMBER(5,0), 
+                "ISC_ID_KORR" NUMBER(5,0), 
+                "BED_ID_BV" NUMBER(10,0), 
+                "BST_ANZAHL" NUMBER(10,0), 
+                "VRS_ID" NUMBER(10,0), 
+                "WBV_KNG_DAT" DATE NOT NULL ENABLE, 
+                "XBP_ID" NUMBER(10,0) DEFAULT -1 NOT NULL ENABLE, 
+                "L25_ID" NUMBER(5,0)
+   ) PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255       
+
+Sehe im Innovator fehlt die Spalte XBP_ID 
+
+Viele Grüße,
+Werner
+
+
+
+Von: Schroeder Sebastian <Sebastian.Schroeder3@arbeitsagentur.de> 
+Gesendet: Donnerstag, 18. Juni 2026 10:51
+An: Anyos Werner - extern <Werner.Anyos@arbeitsagentur.de>; Völkert Petra <Petra.Voelkert@arbeitsagentur.de>
+Betreff: tf_bst_best_bew_bv - DDL
+
+Hallo zusammen,
+
+könnt Ihr mir bitte das Oracle DDL schicken?
+
+[FEHLER_SCR08] tf_bst_best_bew_bv: [Template erstellen/pruefen] fehlgeschlagen: Template [msi_dm_bst_v3].dbo.[tf_bst_best_bew_bv_template]: Struktur weicht von columns_dbo (Soll) ab. Nicht uebereinstimmende Spalten (Spalte | SOLL=Oracle | IST=Template):
+mow_id: Oracle=int len=4 pr=10 sc=0 null=1 <> Template=int len=4 pr=10 sc=0 null=0
+kng_id: Oracle=smallint len=2 pr=5 sc=0 null=1 <> Template=smallint len=2 pr=5 sc=0 null=0
+bzb_id: Oracle=smallint len=2 pr=5 sc=0 null=1 <> Template=smallint len=2 pr=5 sc=0 null=0
+age_id: Oracle=smallint len=2 pr=5 sc=0 null=1 <> Template=smallint len=2 pr=5 sc=0 null=0
+sex_id: Oracle=smallint len=2 pr=5 sc=0 null=1 <> Template=smallint len=2 pr=5 sc=0 null=0
+jan_id_rga: Oracle=smallint len=2 pr=5 sc=0 null=1 <> Template=smallint len=2 pr=5 sc=0 null=0
+stt_id: Oracle=int len=4 pr=10 sc=0 null=1 <> Template=int len=4 pr=10 sc=0 null=0
+bro_id: Oracle=smallint len=2 pr=5 sc=0 null=1 <> Template=smallint len=2 pr=5 sc=0 null=0
+asb_id_korr: Oracle=smallint len=2 pr=5 sc=0 null=1 <> Template=smallint len=2 pr=5 sc=0 null=0
+abi_id_korr: Oracle=smallint len=2 pr=5 sc=0 null=1 <> Template=smallint len=2 pr=5 sc=0 null=0
+sua_id_korr: Oracle=smallint len=2 pr=5 sc=0 null=1 <> Template=smallint len=2 pr=5 sc=0 null=0
+brs_id: Oracle=smallint len=2 pr=5 sc=0 null=1 <> Template=smallint len=2 pr=5 sc=0 null=0
+kba_id: Oracle=int len=4 pr=10 sc=0 null=1 <> Template=int len=4 pr=10 sc=0 null=0
+t08_id: Oracle=smallint len=2 pr=5 sc=0 null=1 <> Template=smallint len=2 pr=5 sc=0 null=0
+afn_id: Oracle=smallint len=2 pr=5 sc=0 null=1 <> Template=smallint len=2 pr=5 sc=0 null=0
+bfr_id: Oracle=smallint len=2 pr=5 sc=0 null=1 <> Template=smallint len=2 pr=5 sc=0 null=0
+jan_id_aueg: Oracle=smallint len=2 pr=5 sc=0 null=1 <> Template=smallint len=2 pr=5 sc=0 null=0
+rvt_id: Oracle=smallint len=2 pr=5 sc=0 null=1 <> Template=smallint len=2 pr=5 sc=0 null=0
+ort_id_b: Oracle=int len=4 pr=10 sc=0 null=1 <> Template=int len=4 pr=10 sc=0 null=0
+gst_id_b: Oracle=int len=4 pr=10 sc=0 null=1 <> Template=int len=4 pr=10 sc=0 null=0
+str_id_b: Oracle=int len=4 pr=10 sc=0 nul...
+
+Grüße
+
+Sebastian
+
+   Sebastian Schroeder
+   A3 – Business Intelligence / Künstliche Intelligenz
+   Telefon: 0911 179-6233
+   sebastian.schroeder3@arbeitsagentur.de
+   www.ba-it-systemhaus.de
+
+   IT-Systemhaus
+   der Bundesagentur für Arbeit
+   Regensburger Straße 104
+   90478 Nürnberg
+
