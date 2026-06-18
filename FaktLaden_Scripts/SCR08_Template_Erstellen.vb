@@ -93,66 +93,76 @@ Partial Public Class ScriptMain
     End Sub
 
     ' -----------------------------------------------------------------------
-    ' TemplateErstellen - Erstellt dbo.<fakt>_template per dynamischem SQL:
-    ' SELECT TOP 0 <columns_dbo> INTO Template FROM #ext_struct.
-    ' #ext_struct wird aus columns_ext nachgebildet, da die externe Tabelle
-    ' ext.<fakt> erst in SCR09 angelegt wird.
+    ' TemplateErstellen - Prueft NUR, ob die Template-Tabelle
+    ' dbo.<fakt>_template auf dem SQL Server existiert.
+    ' Die Tabelle wird NICHT mehr automatisch erstellt und ihre Struktur
+    ' wird NICHT mehr gegen die Metadaten (columns_dbo / columns_ext)
+    ' verglichen. Existiert die Tabelle nicht, bricht der Schritt mit einer
+    ' Meldung ab, die zum manuellen Anlegen der Template-Tabelle auffordert.
     ' -----------------------------------------------------------------------
     Private Sub TemplateErstellen(connStr As String, v As VerfahrenInfo)
         Dim sql As String =
-            "DECLARE @t  nvarchar(128) = N'" & v.Faktentabelle.ToLower() & "';" & vbCrLf &
-            "DECLARE @v  nvarchar(128) = N'" & v.Verfahren.ToLower() & "';" & vbCrLf &
-            "DECLARE @s  nvarchar(128) = N'" & v.Themengebiet.Trim().ToLower() & "';" & vbCrLf &
-            "DECLARE @db nvarchar(128) = N'" & _datenbank & "';" & vbCrLf &
-            "DECLARE @cols nvarchar(max), @colsExt nvarchar(max), @sql nvarchar(max), @tmpl nvarchar(300), @tmplObj int, @diff nvarchar(max);" & vbCrLf & vbCrLf &
-            "-- Soll-Spalten (columns_dbo) und ext-Struktur (columns_ext) aus tm_polybase_struktur laden" & vbCrLf &
-            "-- Schluessel = Verfahren/@v (Oracle-Objektname, z.B. vf_stea), NICHT die Zieltabelle @t." & vbCrLf &
-            "SELECT @cols    = STRING_AGG(CAST(columns_dbo AS nvarchar(max)), CONCAT(N',', CHAR(13), CHAR(10)))" & vbCrLf &
-            "                    WITHIN GROUP (ORDER BY colno)," & vbCrLf &
-            "       @colsExt = STRING_AGG(CAST(columns_ext AS nvarchar(max)), CONCAT(N',', CHAR(13), CHAR(10)))" & vbCrLf &
-            "                    WITHIN GROUP (ORDER BY colno)" & vbCrLf &
-            "FROM dbo.tm_polybase_struktur" & vbCrLf &
-            "WHERE tabname = LOWER(@v) AND themengebiet = @s;" & vbCrLf & vbCrLf &
-            "IF @cols IS NULL OR @colsExt IS NULL" & vbCrLf &
-            "    THROW 50001, 'Keine columns_dbo/columns_ext Metadaten gefunden', 1;" & vbCrLf & vbCrLf &
-            "SET @tmpl    = CONCAT('[', @db, '].dbo.[', @t, '_template]');" & vbCrLf &
-            "SET @tmplObj = OBJECT_ID(@tmpl);" & vbCrLf & vbCrLf &
-            "IF @tmplObj IS NULL" & vbCrLf &
+            "DECLARE @t   nvarchar(128) = N'" & v.Faktentabelle.ToLower() & "';" & vbCrLf &
+            "DECLARE @db  nvarchar(128) = N'" & _datenbank & "';" & vbCrLf &
+            "DECLARE @tmpl nvarchar(300), @msg nvarchar(2048);" & vbCrLf & vbCrLf &
+            "SET @tmpl = CONCAT('[', @db, '].dbo.[', @t, '_template]');" & vbCrLf & vbCrLf &
+            "-- Nur Existenzpruefung: kein Erstellen, kein Strukturvergleich." & vbCrLf &
+            "IF OBJECT_ID(@tmpl) IS NULL" & vbCrLf &
             "BEGIN" & vbCrLf &
-            "    -- Template existiert nicht -> aus columns_dbo erstellen (nur Struktur)" & vbCrLf &
-            "    -- ext.<t> existiert erst ab SCR09 -> Struktur lokal als #ext_struct nachbilden" & vbCrLf &
-            "    SET @sql = N'CREATE TABLE #ext_struct (' + @colsExt + N');' +" & vbCrLf &
-            "               N'SELECT TOP 0 ' + @cols + N' INTO ' + @tmpl + N' FROM #ext_struct;';" & vbCrLf &
-            "    EXEC sp_executesql @sql;" & vbCrLf &
-            "END" & vbCrLf &
-            "ELSE" & vbCrLf &
-            "BEGIN" & vbCrLf &
-            "    -- Template existiert -> Struktur (Spaltenname/Typ/Laenge/Nullable) gegen Soll pruefen" & vbCrLf &
-            "    SET @sql =" & vbCrLf &
-            "        N'CREATE TABLE #ext_struct (' + @colsExt + N');' +" & vbCrLf &
-            "        N'SELECT TOP 0 ' + @cols + N' INTO #soll FROM #ext_struct;' +" & vbCrLf &
-            "        N';WITH soll AS (SELECT c.name COLLATE DATABASE_DEFAULT AS nm, ty.name COLLATE DATABASE_DEFAULT AS typ, c.max_length AS ml, c.precision AS pr, c.scale AS sc, c.is_nullable AS nu' +" & vbCrLf &
-            "          N' FROM tempdb.sys.columns c JOIN tempdb.sys.types ty ON ty.user_type_id=c.user_type_id WHERE c.object_id=OBJECT_ID(N''tempdb..#soll'')),' +" & vbCrLf &
-            "          N' ist AS (SELECT c.name COLLATE DATABASE_DEFAULT AS nm, ty.name COLLATE DATABASE_DEFAULT AS typ, c.max_length AS ml, c.precision AS pr, c.scale AS sc, c.is_nullable AS nu' +" & vbCrLf &
-            "          N' FROM ' + QUOTENAME(@db) + N'.sys.columns c JOIN ' + QUOTENAME(@db) + N'.sys.types ty ON ty.user_type_id=c.user_type_id WHERE c.object_id=@po)' +" & vbCrLf &
-            "          N' SELECT @diff = STRING_AGG(z, CHAR(13)+CHAR(10)) FROM (' +" & vbCrLf &
-            "          N'   SELECT CONCAT(COALESCE(s.nm,i.nm), '': '',' +" & vbCrLf &
-            "          N'     CASE WHEN s.nm IS NULL THEN ''FEHLT in Oracle (nur im Template vorhanden)''' +" & vbCrLf &
-            "          N'          WHEN i.nm IS NULL THEN ''FEHLT im Template (nur in Oracle vorhanden)''' +" & vbCrLf &
-            "          N'          ELSE CONCAT(''Oracle='', s.typ, '' len='', s.ml, '' pr='', s.pr, '' sc='', s.sc, '' null='', s.nu, '' <> Template='', i.typ, '' len='', i.ml, '' pr='', i.pr, '' sc='', i.sc, '' null='', i.nu) END) AS z' +" & vbCrLf &
-            "          N'   FROM soll s FULL OUTER JOIN ist i ON s.nm=i.nm' +" & vbCrLf &
-            "          N'   WHERE s.nm IS NULL OR i.nm IS NULL OR s.typ<>i.typ OR s.ml<>i.ml OR s.pr<>i.pr OR s.sc<>i.sc OR s.nu<>i.nu) d;';" & vbCrLf &
-            "    EXEC sp_executesql @sql, N'@po int, @diff nvarchar(max) OUTPUT', @po=@tmplObj, @diff=@diff OUTPUT;" & vbCrLf &
-            "    IF @diff IS NOT NULL" & vbCrLf &
-            "    BEGIN" & vbCrLf &
-            "        DECLARE @msg nvarchar(2048) = LEFT(CONCAT('Template ', @tmpl, ': Struktur weicht von columns_dbo (Soll) ab. Nicht uebereinstimmende Spalten (Spalte | SOLL=Oracle | IST=Template):', CHAR(13), CHAR(10), @diff), 2048);" & vbCrLf &
-            "        THROW 50010, @msg, 1;" & vbCrLf &
-            "    END" & vbCrLf &
+            "    SET @msg = CONCAT('Template-Tabelle ', @tmpl, ' existiert nicht. " &
+            "Bitte die Template-Tabelle auf dem SQL Server anlegen " &
+            "(please create a template table on SQL Server).');" & vbCrLf &
+            "    THROW 50010, @msg, 1;" & vbCrLf &
             "END"
 
-        Log("  Template fuer: " & v.Faktentabelle.ToLower())
-        SqlAusfuehren(connStr, sql, "Template erstellen/pruefen")
-        Log("  Template erstellt bzw. Struktur geprueft OK")
+        Log("  Template-Existenzpruefung fuer: " & v.Faktentabelle.ToLower())
+        SqlAusfuehren(connStr, sql, "Template pruefen")
+        Log("  Template vorhanden OK")
+
+        ' =====================================================================
+        ' DEAKTIVIERT / AUSKOMMENTIERT - frueheres Verhalten dieses Schritts:
+        '
+        '   ZWECK des alten Codes:
+        '   1. Template-Tabelle dbo.<fakt>_template automatisch erstellen,
+        '      falls sie nicht existierte: per dynamischem SQL wurde
+        '      #ext_struct aus columns_ext (Oracle-Struktur) nachgebildet und
+        '      anschliessend "SELECT TOP 0 <columns_dbo> INTO Template
+        '      FROM #ext_struct" ausgefuehrt (nur Struktur, keine Daten).
+        '   2. Falls die Template-Tabelle bereits existierte, wurde ihre
+        '      Struktur (Spaltenname / Typ / Laenge / Praezision / Skala /
+        '      Nullable) per FULL OUTER JOIN gegen die Soll-Spalten
+        '      (columns_dbo) verglichen und bei jeder Abweichung mit
+        '      THROW 50010 abgebrochen.
+        '
+        '   GRUND DER DEAKTIVIERUNG:
+        '   Der Nullable-Vergleich meldete Abweichungen zwischen Oracle
+        '   (Spalten ohne NOT NULL -> nullable) und dem Template (NOT NULL).
+        '   Die Template-Tabelle wird jetzt manuell auf dem SQL Server
+        '   gepflegt; hier wird nur noch ihre Existenz geprueft (siehe oben).
+        '
+        '   Dim sql As String =
+        '       "DECLARE @t  nvarchar(128) = N'" & v.Faktentabelle.ToLower() & "';" & vbCrLf &
+        '       "DECLARE @v  nvarchar(128) = N'" & v.Verfahren.ToLower() & "';" & vbCrLf &
+        '       "DECLARE @s  nvarchar(128) = N'" & v.Themengebiet.Trim().ToLower() & "';" & vbCrLf &
+        '       "DECLARE @db nvarchar(128) = N'" & _datenbank & "';" & vbCrLf &
+        '       "DECLARE @cols nvarchar(max), @colsExt nvarchar(max), @sql nvarchar(max), @tmpl nvarchar(300), @tmplObj int, @diff nvarchar(max);" & vbCrLf & vbCrLf &
+        '       "SELECT @cols    = STRING_AGG(CAST(columns_dbo AS nvarchar(max)), CONCAT(N',', CHAR(13), CHAR(10))) WITHIN GROUP (ORDER BY colno)," & vbCrLf &
+        '       "       @colsExt = STRING_AGG(CAST(columns_ext AS nvarchar(max)), CONCAT(N',', CHAR(13), CHAR(10))) WITHIN GROUP (ORDER BY colno)" & vbCrLf &
+        '       "FROM dbo.tm_polybase_struktur WHERE tabname = LOWER(@v) AND themengebiet = @s;" & vbCrLf &
+        '       "IF @cols IS NULL OR @colsExt IS NULL THROW 50001, 'Keine columns_dbo/columns_ext Metadaten gefunden', 1;" & vbCrLf &
+        '       "SET @tmpl = CONCAT('[', @db, '].dbo.[', @t, '_template]'); SET @tmplObj = OBJECT_ID(@tmpl);" & vbCrLf &
+        '       "IF @tmplObj IS NULL BEGIN" & vbCrLf &
+        '       "    SET @sql = N'CREATE TABLE #ext_struct (' + @colsExt + N');' + N'SELECT TOP 0 ' + @cols + N' INTO ' + @tmpl + N' FROM #ext_struct;';" & vbCrLf &
+        '       "    EXEC sp_executesql @sql; END" & vbCrLf &
+        '       "ELSE BEGIN" & vbCrLf &
+        '       "    -- Struktur (Spaltenname/Typ/Laenge/Nullable) gegen Soll pruefen, bei Abweichung THROW 50010" & vbCrLf &
+        '       "    ... (FULL OUTER JOIN soll/ist auf s.nm=i.nm, WHERE ... OR s.nu<>i.nu) ..." & vbCrLf &
+        '       "END"
+        '
+        '   Log("  Template fuer: " & v.Faktentabelle.ToLower())
+        '   SqlAusfuehren(connStr, sql, "Template erstellen/pruefen")
+        '   Log("  Template erstellt bzw. Struktur geprueft OK")
+        ' =====================================================================
     End Sub
 
     ' -----------------------------------------------------------------------
