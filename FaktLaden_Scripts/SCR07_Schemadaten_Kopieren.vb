@@ -194,6 +194,12 @@ WHERE themengebiet = @thema
         End Using
 
         ' INSERT new data with columns_dbo and columns_ext
+        ' Datentyp-Konvertierung (aktueller Stand, identisch zu Laden_DIM):
+        '   columns_ext : Oracle NUMBER/decimal/numeric ohne/mit Praezision 0 -> float,
+        '                 mit Praezision > 0 -> decimal(p, ISNULL(s,0)); char-Laenge
+        '                 *4 (max 4000) COLLATE ...CS...; varbinary(len); sonst TYPNAME.
+        '   columns_dbo : [spalte] = (ISNULL()CONVERT() je nach Typ/Nullability),
+        '                 NOT-NULL-Default char->'''' / numerisch->0 / date->1900-01-01 / sonst NULL.
         Dim sqlInsert As String =
 "INSERT INTO dbo.tm_polybase_struktur
     (themengebiet, tabname, colname, colno, columns_dbo, columns_ext)
@@ -202,9 +208,9 @@ SELECT DISTINCT
     ddl.TABNAME,
     ddl.COLNAME,
     ddl.COLNO,
-    -- columns_dbo: DBO-Tabellen Definition
+    -- columns_dbo: SELECT-Liste fuer SELECT INTO (dbo-Typen, Nullability/Defaults)
     CONCAT(
-        CHAR(9), LOWER(ddl.COLNAME), ' = ',
+        CHAR(9), '[', LOWER(ddl.COLNAME), '] = ',
         CASE WHEN ddl.IS_NULLABLE = 0 THEN 'ISNULL(' ELSE '' END,
         CASE WHEN ddl.TYPNAME IN ('nvarchar','varchar','nchar','char')
              THEN CONCAT('CONVERT(', ddl.TYPNAME COLLATE Latin1_General_100_CI_AS_SC_UTF8,
@@ -216,22 +222,26 @@ SELECT DISTINCT
              THEN ' COLLATE Latin1_General_100_CI_AS_SC_UTF8)'
              ELSE ''
         END,
-        -- Bei NOT NULL muss das oben geoeffnete ISNULL( IMMER geschlossen werden.
-        -- TYPNAME kann Praezision/Laenge enthalten (z.B. 'decimal(38)'), daher
-        -- per LIKE pruefen; jeder sonstige Typ faellt auf den numerischen
-        -- Default ', 0)' zurueck, damit nie ein offenes ISNULL( uebrig bleibt
-        -- (sonst 'Incorrect syntax near =' in SCR08).
-        CASE WHEN ddl.IS_NULLABLE = 0 THEN
-                CASE WHEN ddl.TYPNAME LIKE '%char%' THEN ', '''')'
-                     WHEN ddl.TYPNAME LIKE '%date%' THEN ', ''1900-01-01'')'
-                     ELSE ', 0)'
-                END
+        CASE WHEN ddl.IS_NULLABLE = 0 AND ddl.TYPNAME LIKE '%char%' THEN ', '''')'
+             WHEN ddl.IS_NULLABLE = 0 AND (ddl.TYPNAME LIKE 'float%'
+                  OR ddl.TYPNAME LIKE 'number%'
+                  OR ddl.TYPNAME LIKE 'decimal%'
+                  OR ddl.TYPNAME LIKE 'numeric%'
+                  OR ddl.TYPNAME LIKE '%int%') THEN ', 0)'
+             WHEN ddl.IS_NULLABLE = 0 AND ddl.TYPNAME LIKE '%date%' THEN ', ''1900-01-01'')'
+             WHEN ddl.IS_NULLABLE = 0 THEN ', NULL)'
              ELSE ''
         END
     ),
-    -- columns_ext: EXT-Tabellen Definition
+    -- columns_ext: EXT-Tabellen Spaltendefinition (Oracle NUMBER -> float/decimal)
     CONCAT(
-        CHAR(9), UPPER(ddl.COLNAME), ' ', ddl.TYPNAME,
+        CHAR(9), UPPER(ddl.COLNAME), ' ',
+        CASE WHEN (ddl.TYPNAME LIKE 'number%' OR ddl.TYPNAME LIKE 'decimal%' OR ddl.TYPNAME LIKE 'numeric%')
+                  AND (ddl.PRECISION IS NULL OR ddl.PRECISION = 0) THEN 'float'
+             WHEN (ddl.TYPNAME LIKE 'number%' OR ddl.TYPNAME LIKE 'decimal%' OR ddl.TYPNAME LIKE 'numeric%')
+                  AND ddl.PRECISION > 0 THEN CONCAT('decimal(', ddl.PRECISION, ',', ISNULL(CAST(ddl.SCALE AS VARCHAR(10)), '0'), ')')
+             ELSE ddl.TYPNAME
+        END,
         CASE WHEN ddl.TYPNAME IN ('nvarchar','varchar','nchar','char')
              THEN CONCAT('(',
                     CASE WHEN ddl.COLLENGTH * 4 > 4000
@@ -241,8 +251,6 @@ SELECT DISTINCT
                     ') COLLATE Latin1_General_100_CS_AS_SC_UTF8')
              WHEN ddl.TYPNAME = 'varbinary'
                 THEN CONCAT('(', ddl.COLLENGTH, ')')
-             WHEN ddl.TYPNAME IN ('decimal','numeric')
-                THEN CONCAT('(', ddl.PRECISION, ',', ddl.SCALE, ')')
              ELSE ''
         END,
         ' NULL'
