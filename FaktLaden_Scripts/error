@@ -1,2327 +1,1027 @@
-[22.06.2026 16:14:14,10] =============================================== 
-[22.06.2026 16:14:14,10] SSIS Faktenladen - Zentrales Ladeskript        
-[22.06.2026 16:14:14,10] Verfahren   : BST               
-[22.06.2026 16:14:14,12] Datenbank   : msi_dm_bsbm           
-[22.06.2026 16:14:14,12] Logdatei    : Laden_FAKTEN_msi_dm_bsbm_20260622_161413.log                   
-[22.06.2026 16:14:14,12] =============================================== 
-[22.06.2026 16:14:14,12] Archiv-Ordner (Windows-Pfad): F:\STL\Archiv 
-[22.06.2026 16:14:14,12] [OK]       Archiv-Ordner existiert bereits. 
-[22.06.2026 16:14:14,13] =============================================== 
-[22.06.2026 16:14:14,13] VORABPRUEFUNG DER PARAMETER GESTARTET         
-[22.06.2026 16:14:14,13] =============================================== 
-[22.06.2026 16:14:14,13] [OK]       ATOMIC_ORACLE_USERNAME ist gesetzt 
-[22.06.2026 16:14:14,15] [OK]       ATOMIC_ORACLE_PASSWORD ist gesetzt via POLYBASEAUTH [Wert verborgen] 
-[22.06.2026 16:14:14,15] [OK]       ATOMIC_INSTANCE          = Abnahme21 
-[22.06.2026 16:14:14,15] [OK]       PARAM_SERVER             = Q0003713 (Computername) 
-[22.06.2026 16:14:14,15] [OK]       PARAM_CONNECTION_SERVER  = Q0003713\Abnahme21 
-[22.06.2026 16:14:14,15] [OK]       PARAM_STL_ORDNER         = F:\STL 
-[22.06.2026 16:14:14,15] [OK]       PARAM_ORDNER_ARCHIV      = F:\STL\Archiv 
-[22.06.2026 16:14:14,16] [OK]       PARAM_STL_DATEINAME      = f.istat.xro_dm_stat_bsbm.stva_m03_perm.csv 
-[22.06.2026 16:14:14,16] [OK]       ATOMIC_ENVIRONMENT       = istat_ia 
-[22.06.2026 16:14:14,16] [OK]       PARAM_EXT_TABLE_LOCATION = istat_ia.STATRT.VM_DDL_SQL_SERVER 
-[22.06.2026 16:14:14,16] [OK]       PARAM_EXT_SOURCE_NAME    = Oracle-istat_ia (aus Umgebung abgeleitet) 
-[22.06.2026 16:14:14,16] [OK]       ATOMIC_ORACLE_HOSTPORT   = l9800022db.dst.baintern.de:57575 
-[22.06.2026 16:14:14,16] [OK]       PARAM_EXT_SOURCE_LOCATION= oracle://l9800022db.dst.baintern.de:57575 
-[22.06.2026 16:14:14,18] [OK]       ATOMIC_ORACLE_HOSTPORT_SECONDARY = l9801022db.dst.baintern.de:57575 
-[22.06.2026 16:14:14,18] [INFO]     PARAM_EXT_CONNECTION_OPTIONS (nur Logging, nicht ans Paket) = AlternateServers=(HostName=l9801022db.dst.baintern.de:PortNumber=57575:ServiceName=istat_ia)%3BFailoverMode=0%3BLoadBalancing=0 
-[22.06.2026 16:14:14,18] [OK]       ATOMIC_VERFAHREN         = BST 
-[22.06.2026 16:14:14,18] [OK]       PARAM_VERFAHREN          = BST 
-[22.06.2026 16:14:14,18] [OK]       ATOMIC_DATENBANKNAME     = msi_dm_bsbm 
-[22.06.2026 16:14:14,18] [OK]       PARAM_DATENBANK          = msi_dm_bsbm 
-[22.06.2026 16:14:14,18] [OK]       PARAM_DATAMART           = msi_dm_bsbm 
-[22.06.2026 16:14:14,18] [OK]       PARAM_PROTOKOLL_DB       = msi_dm_bsbm 
-[22.06.2026 16:14:14,18] [OK]       PARAM_PARAMETER_DB       = msi_dm_bsbm 
-[22.06.2026 16:14:14,18] [OK]       PARAM_PARAMETERTABELLE   = tm_msi_dm_bsbm_param (abgeleitet aus Datenbankname) 
-[22.06.2026 16:14:14,19] [OK]       DTEXEC_PATH              = C:\Program Files\Microsoft SQL Server\160\DTS\Binn\DTExec.exe 
-[22.06.2026 16:14:14,19] [OK]       SSIS_PACKAGE             = E:\BDATA\Batches\Ladepakete\Fakten\Laden_FAKTEN.dtsx 
-[22.06.2026 16:14:14,21] [OK]       PARAM_PROTOKOLL_SP       = usp_SSIS_Protokoll 
-[22.06.2026 16:14:14,21] [OK]       PARAM_PROTOKOLL_TABELLE  = tm_msi_dm_bsbm_prot 
-[22.06.2026 16:14:14,21] [OK]       PARAM_MAXPARALLEL        = 8 
-[22.06.2026 16:14:14,21] [OK]       PARAM_EXT_SOURCE_NAME    = Oracle-istat_ia 
-[22.06.2026 16:14:14,21] [OK]       PARAM_EXT_TABLE_SCHEMA   = ext 
-[22.06.2026 16:14:14,23] [OK]       PARAM_EXT_TABLE_NAME     = vm_ddl_sql_server 
-[22.06.2026 16:14:14,23] [OK]       PARAM_PARTITION_SCHEMA   = BI_DM_EXPORT 
-[22.06.2026 16:14:14,23] [OK]       PARAM_STEUERLISTEN_TABELLE= tm_steuerlistenfile_Fakten 
-[22.06.2026 16:14:14,23] =============================================== 
-[22.06.2026 16:14:14,23] VALIDATION_FAILED = 0        
-[22.06.2026 16:14:14,23] =============================================== 
-[22.06.2026 16:14:14,24] VORABPRUEFUNG BESTANDEN - Ausfuehrung startet. 
-[22.06.2026 16:14:14,24] =============================================== 
-[22.06.2026 16:14:14,24] SSIS-Ausfuehrung gestartet       
-[22.06.2026 16:14:14,24] Verfahren       : BST    
-[22.06.2026 16:14:14,25] Datenbankname   : msi_dm_bsbm 
-[22.06.2026 16:14:14,26] STL Ordner      : F:\STL    
-[22.06.2026 16:14:14,26] STL Dateiname   : f.istat.xro_dm_stat_bsbm.stva_m03_perm.csv 
-[22.06.2026 16:14:14,26] Archiv Ordner   : F:\STL\Archiv 
-[22.06.2026 16:14:14,26] Umgebung        : istat_ia  
-[22.06.2026 16:14:14,26] Oracle Host:Port (primaer)   : l9800022db.dst.baintern.de:57575 
-[22.06.2026 16:14:14,26] Oracle Host:Port (sekundaer) : l9801022db.dst.baintern.de:57575 
-[22.06.2026 16:14:14,27] EXT Source Name : Oracle-istat_ia 
-[22.06.2026 16:14:14,27] EXT Source Loc  : oracle://l9800022db.dst.baintern.de:57575 
-[22.06.2026 16:14:14,27] EXT Table Loc   : istat_ia.STATRT.VM_DDL_SQL_SERVER 
-[22.06.2026 16:14:14,27] Parameter DB    : msi_dm_bsbm 
-[22.06.2026 16:14:14,29] Parametertabelle: tm_msi_dm_bsbm_param 
+[22.06.2026 16:39:59,53] =============================================== 
+[22.06.2026 16:39:59,53] SSIS Faktenladen - Zentrales Ladeskript        
+[22.06.2026 16:39:59,53] Verfahren   : LST               
+[22.06.2026 16:39:59,53] Datenbank   : msi_dm_lst_sgbiii           
+[22.06.2026 16:39:59,54] Logdatei    : Laden_FAKTEN_msi_dm_lst_sgbiii_20260622_163959.log                   
+[22.06.2026 16:39:59,54] =============================================== 
+[22.06.2026 16:39:59,54] Archiv-Ordner (Windows-Pfad): F:\STL\Archiv 
+[22.06.2026 16:39:59,54] [OK]       Archiv-Ordner existiert bereits. 
+[22.06.2026 16:39:59,54] =============================================== 
+[22.06.2026 16:39:59,56] VORABPRUEFUNG DER PARAMETER GESTARTET         
+[22.06.2026 16:39:59,56] =============================================== 
+[22.06.2026 16:39:59,56] [OK]       ATOMIC_ORACLE_USERNAME ist gesetzt 
+[22.06.2026 16:39:59,56] [OK]       ATOMIC_ORACLE_PASSWORD ist gesetzt via POLYBASEAUTH [Wert verborgen] 
+[22.06.2026 16:39:59,56] [OK]       ATOMIC_INSTANCE          = Abnahme21 
+[22.06.2026 16:39:59,56] [OK]       PARAM_SERVER             = Q0003713 (Computername) 
+[22.06.2026 16:39:59,56] [OK]       PARAM_CONNECTION_SERVER  = Q0003713\Abnahme21 
+[22.06.2026 16:39:59,57] [OK]       PARAM_STL_ORDNER         = F:\STL 
+[22.06.2026 16:39:59,57] [OK]       PARAM_ORDNER_ARCHIV      = F:\STL\Archiv 
+[22.06.2026 16:39:59,57] [OK]       PARAM_STL_DATEINAME      = f.istat.thm_dm_stat_lst_sgbiii.202606.csv 
+[22.06.2026 16:39:59,57] [OK]       ATOMIC_ENVIRONMENT       = istat 
+[22.06.2026 16:39:59,57] [OK]       PARAM_EXT_TABLE_LOCATION = istat.STATRT.VM_DDL_SQL_SERVER 
+[22.06.2026 16:39:59,57] [OK]       PARAM_EXT_SOURCE_NAME    = Oracle-istat (aus Umgebung abgeleitet) 
+[22.06.2026 16:39:59,57] [OK]       ATOMIC_ORACLE_HOSTPORT   = l9800022db.dst.baintern.de:57575 
+[22.06.2026 16:39:59,57] [OK]       PARAM_EXT_SOURCE_LOCATION= oracle://l9800022db.dst.baintern.de:57575 
+[22.06.2026 16:39:59,59] [OK]       ATOMIC_ORACLE_HOSTPORT_SECONDARY = l9801022db.dst.baintern.de:57575 
+[22.06.2026 16:39:59,59] [INFO]     PARAM_EXT_CONNECTION_OPTIONS (nur Logging, nicht ans Paket) = AlternateServers=(HostName=l9801022db.dst.baintern.de:PortNumber=57575:ServiceName=istat)%3BFailoverMode=0%3BLoadBalancing=0 
+[22.06.2026 16:39:59,59] [OK]       ATOMIC_VERFAHREN         = LST 
+[22.06.2026 16:39:59,59] [OK]       PARAM_VERFAHREN          = LST 
+[22.06.2026 16:39:59,59] [OK]       ATOMIC_DATENBANKNAME     = msi_dm_lst_sgbiii 
+[22.06.2026 16:39:59,59] [OK]       PARAM_DATENBANK          = msi_dm_lst_sgbiii 
+[22.06.2026 16:39:59,59] [OK]       PARAM_DATAMART           = msi_dm_lst_sgbiii 
+[22.06.2026 16:39:59,59] [OK]       PARAM_PROTOKOLL_DB       = msi_dm_lst_sgbiii 
+[22.06.2026 16:39:59,59] [OK]       PARAM_PARAMETER_DB       = msi_dm_lst_sgbiii 
+[22.06.2026 16:39:59,59] [OK]       PARAM_PARAMETERTABELLE   = tm_msi_dm_lst_sgbiii_param (abgeleitet aus Datenbankname) 
+[22.06.2026 16:39:59,60] [OK]       DTEXEC_PATH              = C:\Program Files\Microsoft SQL Server\160\DTS\Binn\DTExec.exe 
+[22.06.2026 16:39:59,60] [OK]       SSIS_PACKAGE             = E:\BDATA\Batches\Ladepakete\Fakten\Laden_FAKTEN.dtsx 
+[22.06.2026 16:39:59,60] [OK]       PARAM_PROTOKOLL_SP       = usp_SSIS_Protokoll 
+[22.06.2026 16:39:59,62] [OK]       PARAM_PROTOKOLL_TABELLE  = tm_msi_dm_lst_sgbiii_prot 
+[22.06.2026 16:39:59,62] [OK]       PARAM_MAXPARALLEL        = 8 
+[22.06.2026 16:39:59,62] [OK]       PARAM_EXT_SOURCE_NAME    = Oracle-istat 
+[22.06.2026 16:39:59,62] [OK]       PARAM_EXT_TABLE_SCHEMA   = ext 
+[22.06.2026 16:39:59,62] [OK]       PARAM_EXT_TABLE_NAME     = vm_ddl_sql_server 
+[22.06.2026 16:39:59,62] [OK]       PARAM_PARTITION_SCHEMA   = BI_DM_EXPORT 
+[22.06.2026 16:39:59,62] [OK]       PARAM_STEUERLISTEN_TABELLE= tm_steuerlistenfile_Fakten 
+[22.06.2026 16:39:59,62] =============================================== 
+[22.06.2026 16:39:59,64] VALIDATION_FAILED = 0        
+[22.06.2026 16:39:59,64] =============================================== 
+[22.06.2026 16:39:59,64] VORABPRUEFUNG BESTANDEN - Ausfuehrung startet. 
+[22.06.2026 16:39:59,64] =============================================== 
+[22.06.2026 16:39:59,64] SSIS-Ausfuehrung gestartet       
+[22.06.2026 16:39:59,65] Verfahren       : LST    
+[22.06.2026 16:39:59,65] Datenbankname   : msi_dm_lst_sgbiii 
+[22.06.2026 16:39:59,65] STL Ordner      : F:\STL    
+[22.06.2026 16:39:59,65] STL Dateiname   : f.istat.thm_dm_stat_lst_sgbiii.202606.csv 
+[22.06.2026 16:39:59,65] Archiv Ordner   : F:\STL\Archiv 
+[22.06.2026 16:39:59,65] Umgebung        : istat  
+[22.06.2026 16:39:59,65] Oracle Host:Port (primaer)   : l9800022db.dst.baintern.de:57575 
+[22.06.2026 16:39:59,67] Oracle Host:Port (sekundaer) : l9801022db.dst.baintern.de:57575 
+[22.06.2026 16:39:59,67] EXT Source Name : Oracle-istat 
+[22.06.2026 16:39:59,67] EXT Source Loc  : oracle://l9800022db.dst.baintern.de:57575 
+[22.06.2026 16:39:59,67] EXT Table Loc   : istat.STATRT.VM_DDL_SQL_SERVER 
+[22.06.2026 16:39:59,67] Parameter DB    : msi_dm_lst_sgbiii 
+[22.06.2026 16:39:59,67] Parametertabelle: tm_msi_dm_lst_sgbiii_param 
 ----------------------------------------------- 
 Microsoft (R) SQL Server Execute Package Utility
 Version 16.0.4225.2 for 64-bit
 Copyright (C) 2022 Microsoft. All rights reserved.
 
-Started:  16:14:14
-Info: 2026-06-22 16:14:14.91
+Started:  16:39:59
+Info: 2026-06-22 16:40:00.26
    Code: 0x00000000
    Source: Paketstart SCR_PaketStart
    Description: Fakten Laden - Paketstart
 End Info
-Info: 2026-06-22 16:14:14.92
+Info: 2026-06-22 16:40:00.26
    Code: 0x00000000
    Source: Paketstart SCR_PaketStart
    Description: Schritt 1: ETL_Fakt_LaufHistorie sicherstellen
 End Info
-Info: 2026-06-22 16:14:14.95
+Info: 2026-06-22 16:40:00.28
    Code: 0x00000000
    Source: Paketstart SCR_PaketStart
    Description: ETL_Fakt_LaufHistorie: geprueft/angelegt.
 End Info
-Info: 2026-06-22 16:14:14.95
+Info: 2026-06-22 16:40:00.28
    Code: 0x00000000
    Source: Paketstart SCR_PaketStart
    Description: Schritt 2: Verwaiste Laeufe (LAUFEND) auf ABGEBROCHEN setzen
 End Info
-Info: 2026-06-22 16:14:14.95
+Info: 2026-06-22 16:40:00.28
    Code: 0x00000000
    Source: Paketstart SCR_PaketStart
    Description: Verwaiste Laeufe auf ABGEBROCHEN gesetzt: 0
 End Info
-Info: 2026-06-22 16:14:14.95
+Info: 2026-06-22 16:40:00.28
    Code: 0x00000000
    Source: Paketstart SCR_PaketStart
    Description: Schritt 3: ETL_Fakt_ArbeitslisteFEHLER AUSSTEHEND
 End Info
-Info: 2026-06-22 16:14:14.98
+Info: 2026-06-22 16:40:00.28
    Code: 0x00000000
    Source: Paketstart SCR_PaketStart
    Description: Verfahren auf AUSSTEHEND zurueckgesetzt: -1
 End Info
-Info: 2026-06-22 16:14:14.98
+Info: 2026-06-22 16:40:00.28
    Code: 0x00000000
    Source: Paketstart SCR_PaketStart
    Description: Schritt 4: Neuen Lauf anlegen
 End Info
-Info: 2026-06-22 16:14:14.98
+Info: 2026-06-22 16:40:00.29
    Code: 0x00000000
    Source: Paketstart SCR_PaketStart
    Description: Paketstart erfolgreich abgeschlossen.
 End Info
-Info: 2026-06-22 16:14:14.98
+Info: 2026-06-22 16:40:00.29
    Code: 0x00000000
    Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
    Description: SCR01_Parameter_Einlesen - Start
 End Info
-Info: 2026-06-22 16:14:15.00
+Info: 2026-06-22 16:40:00.29
    Code: 0x00000000
    Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
    Description: Verbindung / Server
 End Info
-Info: 2026-06-22 16:14:15.00
+Info: 2026-06-22 16:40:00.31
    Code: 0x00000000
    Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
    Description: [OK]       PARAM_SERVER                             = Q0003713
 End Info
-Info: 2026-06-22 16:14:15.00
+Info: 2026-06-22 16:40:00.31
    Code: 0x00000000
    Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
    Description: [OK]       PARAM_CONNECTION_SERVER                  = Q0003713\Abnahme21
 End Info
-Info: 2026-06-22 16:14:15.01
+Info: 2026-06-22 16:40:00.31
    Code: 0x00000000
    Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
-   Description: [OK]       PARAM_DATENBANK                          = msi_dm_bsbm
+   Description: [OK]       PARAM_DATENBANK                          = msi_dm_lst_sgbiii
 End Info
-Info: 2026-06-22 16:14:15.01
+Info: 2026-06-22 16:40:00.31
    Code: 0x00000000
    Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
-   Description: [OK]       PARAM_VERFAHREN                          = BST
+   Description: [OK]       PARAM_VERFAHREN                          = LST
 End Info
-Info: 2026-06-22 16:14:15.01
+Info: 2026-06-22 16:40:00.31
    Code: 0x00000000
    Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
-   Description: [OK]       PARAM_DATAMART                           = msi_dm_bsbm
+   Description: [OK]       PARAM_DATAMART                           = msi_dm_lst_sgbiii
 End Info
-Info: 2026-06-22 16:14:15.01
+Info: 2026-06-22 16:40:00.31
    Code: 0x00000000
    Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
    Description: Oracle Credentials
 End Info
-Info: 2026-06-22 16:14:15.01
+Info: 2026-06-22 16:40:00.32
    Code: 0x00000000
    Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
    Description: [OK]       ATOMIC_ORACLE_USERNAME                   = BI_DM_EXPORT
 End Info
-Info: 2026-06-22 16:14:15.01
+Info: 2026-06-22 16:40:00.32
    Code: 0x00000000
    Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
    Description: [OK]       ATOMIC_ORACLE_PASSWORD                   = [Wert verborgen]
 End Info
-Info: 2026-06-22 16:14:15.03
+Info: 2026-06-22 16:40:00.32
    Code: 0x00000000
    Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
    Description: Steuerlisten
 End Info
-Info: 2026-06-22 16:14:15.03
+Info: 2026-06-22 16:40:00.32
    Code: 0x00000000
    Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
    Description: [OK]       PARAM_STL_ORDNER                         = F:\STL
 End Info
-Info: 2026-06-22 16:14:15.03
+Info: 2026-06-22 16:40:00.32
    Code: 0x00000000
    Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
    Description: [OK]       PARAM_STEUERLISTEN_TABELLE               = tm_steuerlistenfile_Fakten
 End Info
-Info: 2026-06-22 16:14:15.04
+Info: 2026-06-22 16:40:00.32
    Code: 0x00000000
    Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
    Description: Parametertabelle
 End Info
-Info: 2026-06-22 16:14:15.04
+Info: 2026-06-22 16:40:00.34
    Code: 0x00000000
    Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
-   Description: [OK]       PARAM_PARAMETER_DB                       = msi_dm_bsbm
+   Description: [OK]       PARAM_PARAMETER_DB                       = msi_dm_lst_sgbiii
 End Info
-Info: 2026-06-22 16:14:15.04
+Info: 2026-06-22 16:40:00.34
    Code: 0x00000000
    Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
-   Description: [OK]       PARAM_PARAMETERTABELLE                   = tm_msi_dm_bsbm_param
+   Description: [OK]       PARAM_PARAMETERTABELLE                   = tm_msi_dm_lst_sgbiii_param
 End Info
-Info: 2026-06-22 16:14:15.04
+Info: 2026-06-22 16:40:00.34
    Code: 0x00000000
    Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
    Description: PolyBase / External Source
 End Info
-Info: 2026-06-22 16:14:15.04
+Info: 2026-06-22 16:40:00.34
    Code: 0x00000000
    Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
-   Description: [OK]       PARAM_EXT_SOURCE_NAME                    = Oracle-istat_ia
+   Description: [OK]       PARAM_EXT_SOURCE_NAME                    = Oracle-istat
 End Info
-Info: 2026-06-22 16:14:15.04
+Info: 2026-06-22 16:40:00.34
    Code: 0x00000000
    Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
    Description: [OK]       PARAM_EXT_SOURCE_LOCATION                = oracle://l9800022db.dst.baintern.de:57575
 End Info
-Info: 2026-06-22 16:14:15.04
+Info: 2026-06-22 16:40:00.34
    Code: 0x00000000
    Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
-   Description: [OK]       PARAM_EXT_TABLE_LOCATION                 = istat_ia.STATRT.VM_DDL_SQL_SERVER
+   Description: [OK]       PARAM_EXT_TABLE_LOCATION                 = istat.STATRT.VM_DDL_SQL_SERVER
 End Info
-Info: 2026-06-22 16:14:15.04
+Info: 2026-06-22 16:40:00.35
    Code: 0x00000000
    Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
    Description: [OK]       PARAM_EXT_TABLE_SCHEMA                   = ext
 End Info
-Info: 2026-06-22 16:14:15.04
+Info: 2026-06-22 16:40:00.35
    Code: 0x00000000
    Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
    Description: [OK]       PARAM_EXT_TABLE_NAME                     = vm_ddl_sql_server
 End Info
-Info: 2026-06-22 16:14:15.04
+Info: 2026-06-22 16:40:00.35
    Code: 0x00000000
    Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
    Description: Verarbeitung
 End Info
-Info: 2026-06-22 16:14:15.06
+Info: 2026-06-22 16:40:00.35
    Code: 0x00000000
    Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
    Description: [OK]       PARAM_MAXPARALLEL                        = 8
 End Info
-Info: 2026-06-22 16:14:15.06
+Info: 2026-06-22 16:40:00.35
    Code: 0x00000000
    Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
    Description: Protokollierung
 End Info
-Info: 2026-06-22 16:14:15.07
+Info: 2026-06-22 16:40:00.37
    Code: 0x00000000
    Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
-   Description: [OK]       PARAM_PROTOKOLL_DB                       = msi_dm_bsbm
+   Description: [OK]       PARAM_PROTOKOLL_DB                       = msi_dm_lst_sgbiii
 End Info
-Info: 2026-06-22 16:14:15.07
+Info: 2026-06-22 16:40:00.37
    Code: 0x00000000
    Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
    Description: [OK]       PARAM_PROTOKOLL_SP                       = usp_SSIS_Protokoll
 End Info
-Info: 2026-06-22 16:14:15.07
+Info: 2026-06-22 16:40:00.37
    Code: 0x00000000
    Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
-   Description: [OK]       PARAM_PROTOKOLL_TABELLE                  = tm_msi_dm_bsbm_prot
+   Description: [OK]       PARAM_PROTOKOLL_TABELLE                  = tm_msi_dm_lst_sgbiii_prot
 End Info
-Info: 2026-06-22 16:14:15.08
+Info: 2026-06-22 16:40:00.37
    Code: 0x00000000
    Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
    Description: VALIDATION_FAILED = 0
 End Info
-Info: 2026-06-22 16:14:15.08
+Info: 2026-06-22 16:40:00.37
    Code: 0x00000000
    Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
    Description: VORABPRUEFUNG BESTANDEN Paket wird fortgesetzt.
 End Info
-Info: 2026-06-22 16:14:15.08
+Info: 2026-06-22 16:40:00.39
    Code: 0x00000000
    Source: SCR02 Vorbereitungen SCR_02_Vorbereitungen
    Description: SCR_02_Vorbereitungen - Start
 End Info
-Info: 2026-06-22 16:14:15.08
+Info: 2026-06-22 16:40:00.39
    Code: 0x00000000
    Source: SCR02 Vorbereitungen SCR_02_Vorbereitungen
    Description: Steuerlisten-Tabelle: dbo.tm_steuerlistenfile_Fakten
 End Info
-Info: 2026-06-22 16:14:15.08
+Info: 2026-06-22 16:40:00.39
    Code: 0x00000000
    Source: SCR02 Vorbereitungen SCR_02_Vorbereitungen
    Description: Pflichtfelder-Pruefung: alle Variablen vorhanden 
 End Info
-Info: 2026-06-22 16:14:15.09
+Info: 2026-06-22 16:40:00.39
    Code: 0x00000000
    Source: SCR02 Vorbereitungen SCR_02_Vorbereitungen
    Description: Schritt 1: ETL_Fakt_Arbeitsliste sicherstellen
 End Info
-Info: 2026-06-22 16:14:15.11
+Info: 2026-06-22 16:40:00.39
    Code: 0x00000000
    Source: SCR02 Vorbereitungen SCR_02_Vorbereitungen
    Description: ETL_Fakt_Arbeitsliste: geprueft/angelegt 
 End Info
-Info: 2026-06-22 16:14:15.11
+Info: 2026-06-22 16:40:00.40
    Code: 0x00000000
    Source: SCR02 Vorbereitungen SCR_02_Vorbereitungen
    Description: Schritt 1b: Mapping-Funktion dbo.fn_ParamVerfahren sicherstellen
 End Info
-Info: 2026-06-22 16:14:15.12
+Info: 2026-06-22 16:40:00.40
    Code: 0x00000000
    Source: SCR02 Vorbereitungen SCR_02_Vorbereitungen
    Description: Mapping-Funktion dbo.fn_ParamVerfahren: geprueft/angelegt 
 End Info
-Info: 2026-06-22 16:14:15.12
+Info: 2026-06-22 16:40:00.40
    Code: 0x00000000
    Source: SCR02 Vorbereitungen SCR_02_Vorbereitungen
    Description: Schritt 2: ETL_Fakt_FehlerHistorie sicherstellen
 End Info
-Info: 2026-06-22 16:14:15.14
+Info: 2026-06-22 16:40:00.40
    Code: 0x00000000
    Source: SCR02 Vorbereitungen SCR_02_Vorbereitungen
    Description: ETL_Fakt_FehlerHistorie: geprueft/angelegt 
 End Info
-Info: 2026-06-22 16:14:15.14
+Info: 2026-06-22 16:40:00.42
    Code: 0x00000000
    Source: SCR02 Vorbereitungen SCR_02_Vorbereitungen
    Description: Schritt 3: PolyBase Master Key pruefen
 End Info
-Info: 2026-06-22 16:14:15.14
+Info: 2026-06-22 16:40:00.42
    Code: 0x00000000
    Source: SCR02 Vorbereitungen SCR_02_Vorbereitungen
    Description: Master Key: bereits vorhanden uebersprungen 
 End Info
-Info: 2026-06-22 16:14:15.16
+Info: 2026-06-22 16:40:00.42
    Code: 0x00000000
    Source: SCR02 Vorbereitungen SCR_02_Vorbereitungen
    Description: Schritt 4: PolyBase Credential pruefen
 End Info
-Info: 2026-06-22 16:14:15.16
+Info: 2026-06-22 16:40:00.42
    Code: 0x00000000
    Source: SCR02 Vorbereitungen SCR_02_Vorbereitungen
    Description: Credential [Q0003713_BI_DM_EXPORT]: bereits vorhanden uebersprungen 
 End Info
-Info: 2026-06-22 16:14:15.16
+Info: 2026-06-22 16:40:00.42
    Code: 0x00000000
    Source: SCR02 Vorbereitungen SCR_02_Vorbereitungen
    Description: Schritt 5: External Data Source pruefen
 End Info
-Info: 2026-06-22 16:14:15.17
+Info: 2026-06-22 16:40:00.43
    Code: 0x00000000
    Source: SCR02 Vorbereitungen SCR_02_Vorbereitungen
-   Description: External Data Source [Oracle-istat_ia]: nicht vorhanden wird angelegt
+   Description: External Data Source [Oracle-istat]: bereits vorhanden uebersprungen 
 End Info
-Info: 2026-06-22 16:14:15.19
-   Code: 0x00000000
-   Source: SCR02 Vorbereitungen SCR_02_Vorbereitungen
-   Description: External Data Source [Oracle-istat_ia]: erfolgreich angelegt 
-End Info
-Info: 2026-06-22 16:14:15.19
+Info: 2026-06-22 16:40:00.43
    Code: 0x00000000
    Source: SCR02 Vorbereitungen SCR_02_Vorbereitungen
    Description: Schritt 6: Schema [ext] pruefen
 End Info
-Info: 2026-06-22 16:14:15.19
+Info: 2026-06-22 16:40:00.43
    Code: 0x00000000
    Source: SCR02 Vorbereitungen SCR_02_Vorbereitungen
    Description: Schema [ext]: bereits vorhanden uebersprungen 
 End Info
-Info: 2026-06-22 16:14:15.20
+Info: 2026-06-22 16:40:00.43
    Code: 0x00000000
    Source: SCR02 Vorbereitungen SCR_02_Vorbereitungen
    Description: Schritt 7: Externe DDL-Tabelle [ext.vm_ddl_sql_server] pruefen
 End Info
-Info: 2026-06-22 16:14:15.20
+Info: 2026-06-22 16:40:00.43
    Code: 0x00000000
    Source: SCR02 Vorbereitungen SCR_02_Vorbereitungen
    Description: Externe DDL-Tabelle [ext.vm_ddl_sql_server]: bereits vorhanden uebersprungen 
 End Info
-Info: 2026-06-22 16:14:15.22
+Info: 2026-06-22 16:40:00.45
    Code: 0x00000000
    Source: SCR02 Vorbereitungen SCR_02_Vorbereitungen
    Description: Schritt 7a: Externe Partitionssicht [ext.v_partition_info] pruefen
 End Info
-Info: 2026-06-22 16:14:15.22
+Info: 2026-06-22 16:40:00.45
    Code: 0x00000000
    Source: SCR02 Vorbereitungen SCR_02_Vorbereitungen
    Description: Externe Partitionssicht [ext.[v_partition_info]]: geloescht (falls vorhanden) wird neu angelegt
 End Info
-Info: 2026-06-22 16:14:15.23
+Info: 2026-06-22 16:40:00.45
    Code: 0x00000000
    Source: SCR02 Vorbereitungen SCR_02_Vorbereitungen
-   Description:   Oracle Location: ISTAT_IA.BI_DM_EXPORT.V_PARTITION_INFO
+   Description:   Oracle Location: ISTAT.BI_DM_EXPORT.V_PARTITION_INFO
 End Info
-Info: 2026-06-22 16:14:15.99
+Info: 2026-06-22 16:40:01.09
    Code: 0x00000000
    Source: SCR02 Vorbereitungen SCR_02_Vorbereitungen
    Description: Externe Partitionssicht [ext.[v_partition_info]]: erfolgreich angelegt 
 End Info
-Info: 2026-06-22 16:14:16.00
+Info: 2026-06-22 16:40:01.09
    Code: 0x00000000
    Source: SCR02 Vorbereitungen SCR_02_Vorbereitungen
    Description: Schritt 8: Lokale dbo-Kopie [dbo.vm_ddl_sql_server] erstellen
 End Info
-Info: 2026-06-22 16:14:16.02
+Info: 2026-06-22 16:40:01.10
    Code: 0x00000000
    Source: SCR02 Vorbereitungen SCR_02_Vorbereitungen
    Description:   Alte dbo-Kopie geloescht (falls vorhanden)
 End Info
-Info: 2026-06-22 16:14:31.05
+Info: 2026-06-22 16:40:16.09
    Code: 0x00000000
    Source: SCR02 Vorbereitungen SCR_02_Vorbereitungen
    Description:   dbo-Kopie erstellt: dbo.vm_ddl_sql_server | Zeilen: 1017831
 End Info
-Info: 2026-06-22 16:14:31.93
+Info: 2026-06-22 16:40:17.03
    Code: 0x00000000
    Source: SCR02 Vorbereitungen SCR_02_Vorbereitungen
    Description:   Index erstellt: IX_vm_ddl_sql_server_TABNAME_COLNAME (TABNAME, COLNAME)
 End Info
-Info: 2026-06-22 16:14:31.93
+Info: 2026-06-22 16:40:17.03
    Code: 0x00000000
    Source: SCR02 Vorbereitungen SCR_02_Vorbereitungen
    Description: SCR_01_Vorbereitungen erfolgreich abgeschlossen.
 End Info
-Info: 2026-06-22 16:14:31.94
+Info: 2026-06-22 16:40:17.04
    Code: 0x00000000
    Source: SCR03 Stuerliste Laden SCR_03_Steuerlisten_Laden
    Description: SCR_03_Steuerlisten_Laden - Start
 End Info
-Info: 2026-06-22 16:14:31.94
+Info: 2026-06-22 16:40:17.04
    Code: 0x00000000
    Source: SCR03 Stuerliste Laden SCR_03_Steuerlisten_Laden
    Description: Pflichtfelder-Pruefung: alle Variablen vorhanden OK
 End Info
-Info: 2026-06-22 16:14:31.94
+Info: 2026-06-22 16:40:17.04
    Code: 0x00000000
    Source: SCR03 Stuerliste Laden SCR_03_Steuerlisten_Laden
    Description: Arbeitstabelle : dbo.tm_steuerlistenfile_Fakten
 End Info
-Info: 2026-06-22 16:14:31.94
+Info: 2026-06-22 16:40:17.04
    Code: 0x00000000
    Source: SCR03 Stuerliste Laden SCR_03_Steuerlisten_Laden
    Description: Audit-Tabelle  : dbo.tm_steuerlisten_audit
 End Info
-Info: 2026-06-22 16:14:31.97
+Info: 2026-06-22 16:40:17.06
    Code: 0x00000000
    Source: SCR03 Stuerliste Laden SCR_03_Steuerlisten_Laden
    Description: Arbeitstabelle und Audit-Tabelle geprueft/angelegt OK
 End Info
-Info: 2026-06-22 16:14:31.97
+Info: 2026-06-22 16:40:17.06
    Code: 0x00000000
    Source: SCR03 Stuerliste Laden SCR_03_Steuerlisten_Laden
-   Description: Vollstaendiger Pfad : F:\STL\f.istat.xro_dm_stat_bsbm.stva_m03_perm.csv
+   Description: Vollstaendiger Pfad : F:\STL\f.istat.thm_dm_stat_lst_sgbiii.202606.csv
 End Info
-Info: 2026-06-22 16:14:31.97
+Info: 2026-06-22 16:40:17.06
    Code: 0x00000000
    Source: SCR03 Stuerliste Laden SCR_03_Steuerlisten_Laden
-   Description: Verarbeite Datei: f.istat.xro_dm_stat_bsbm.stva_m03_perm.csv
+   Description: Verarbeite Datei: f.istat.thm_dm_stat_lst_sgbiii.202606.csv
 End Info
-Info: 2026-06-22 16:14:31.99
+Info: 2026-06-22 16:40:17.08
    Code: 0x00000000
    Source: SCR03 Stuerliste Laden SCR_03_Steuerlisten_Laden
    Description:   Tabellentyp  : f
 End Info
-Info: 2026-06-22 16:14:31.99
+Info: 2026-06-22 16:40:17.08
    Code: 0x00000000
    Source: SCR03 Stuerliste Laden SCR_03_Steuerlisten_Laden
    Description:   Umgebung     : istat
 End Info
-Info: 2026-06-22 16:14:31.99
+Info: 2026-06-22 16:40:17.08
    Code: 0x00000000
    Source: SCR03 Stuerliste Laden SCR_03_Steuerlisten_Laden
-   Description:   Themengebiet : xro_dm_stat_bsbm
+   Description:   Themengebiet : thm_dm_stat_lst_sgbiii
 End Info
-Info: 2026-06-22 16:14:31.99
+Info: 2026-06-22 16:40:17.08
    Code: 0x00000000
    Source: SCR03 Stuerliste Laden SCR_03_Steuerlisten_Laden
    Description:   Arbeitstabelle: vollstaendig geleert
 End Info
-Info: 2026-06-22 16:14:32.02
+Info: 2026-06-22 16:40:17.09
    Code: 0x00000000
    Source: SCR03 Stuerliste Laden SCR_03_Steuerlisten_Laden
-   Description:   Zeilen gesamt: 3 | INSERT: 3 | Uebersprungen: 0
+   Description:   Zeilen gesamt: 2 | INSERT: 2 | Uebersprungen: 0
 End Info
-Info: 2026-06-22 16:14:32.02
+Info: 2026-06-22 16:40:17.11
    Code: 0x00000000
    Source: SCR03 Stuerliste Laden SCR_03_Steuerlisten_Laden
-   Description: Datei erfolgreich verarbeitet: f.istat.xro_dm_stat_bsbm.stva_m03_perm.csv OK
+   Description: Datei erfolgreich verarbeitet: f.istat.thm_dm_stat_lst_sgbiii.202606.csv OK
 End Info
-Info: 2026-06-22 16:14:32.02
+Info: 2026-06-22 16:40:17.11
    Code: 0x00000000
    Source: SCR03 Stuerliste Laden SCR_03_Steuerlisten_Laden
-   Description: Geladene Tabellen aus [f.istat.xro_dm_stat_bsbm.stva_m03_perm.csv] (3): tf_bsbm_arbnehm, tf_bsbm_betrieb, tf_bsbm_betrieb_all
+   Description: Geladene Tabellen aus [f.istat.thm_dm_stat_lst_sgbiii.202606.csv] (2): tf_lst_best_alg, tf_lst_bew_alg
 End Info
-Info: 2026-06-22 16:14:32.02
+Info: 2026-06-22 16:40:17.11
    Code: 0x00000000
    Source: SCR03 Stuerliste Laden SCR_03_Steuerlisten_Laden
-   Description: Datei endet auf _perm.csv -> bleibt im Quellordner
+   Description: Datei verschoben nach: F:\STL\Done\f.istat.thm_dm_stat_lst_sgbiii.202606.csv
 End Info
-Info: 2026-06-22 16:14:32.04
+Info: 2026-06-22 16:40:17.12
    Code: 0x00000000
    Source: SCR03 Stuerliste Laden SCR_03_Steuerlisten_Laden
    Description: SCR_03_Steuerlisten_Laden erfolgreich abgeschlossen OK
 End Info
-Info: 2026-06-22 16:14:32.04
+Info: 2026-06-22 16:40:17.12
    Code: 0x00000000
    Source: SC04 Whereclasuse SC04_Whereclause
    Description: SC04_Whereclause - Start
 End Info
-Info: 2026-06-22 16:14:32.04
+Info: 2026-06-22 16:40:17.12
    Code: 0x00000000
    Source: SC04 Whereclasuse SC04_Whereclause
    Description: Referenzdatum: 01.06.2026 00:00:00
 End Info
-Info: 2026-06-22 16:14:32.04
+Info: 2026-06-22 16:40:17.12
    Code: 0x00000000
    Source: SC04 Whereclasuse SC04_Whereclause
    Description: Steuerlisten-Tabelle : dbo.tm_steuerlistenfile_Fakten
 End Info
-Info: 2026-06-22 16:14:32.05
+Info: 2026-06-22 16:40:17.14
    Code: 0x00000000
    Source: SC04 Whereclasuse SC04_Whereclause
    Description: Spalten geprueft/angelegt OK
 End Info
-Info: 2026-06-22 16:14:32.07
+Info: 2026-06-22 16:40:17.14
    Code: 0x00000000
    Source: SC04 Whereclasuse SC04_Whereclause
-   Description: Steuerlisten-Zeilen : 3
+   Description: Steuerlisten-Zeilen : 2
 End Info
-Info: 2026-06-22 16:14:32.07
+Info: 2026-06-22 16:40:17.14
    Code: 0x00000000
    Source: SC04 Whereclasuse SC04_Whereclause
-   Description:   tf_bsbm_arbnehm_:YEAR(-2)15                        -> wert=202415
+   Description:   TF_LST_BEST_ALG                                    -> wert=NULL
 End Info
-Info: 2026-06-22 16:14:32.08
+Info: 2026-06-22 16:40:17.15
    Code: 0x00000000
    Source: SC04 Whereclasuse SC04_Whereclause
-   Description:   tf_bsbm_betrieb_:YEAR(-2)15                        -> wert=202415
+   Description:   TF_LST_BEW_ALG                                     -> wert=NULL
 End Info
-Info: 2026-06-22 16:14:32.08
+Info: 2026-06-22 16:40:17.15
    Code: 0x00000000
    Source: SC04 Whereclasuse SC04_Whereclause
-   Description:   tf_bsbm_betrieb_all_:YEAR(-2)15                    -> wert=202415
+   Description: partition_wert gefuellt: 0
 End Info
-Info: 2026-06-22 16:14:32.08
+Info: 2026-06-22 16:40:17.15
    Code: 0x00000000
    Source: SC04 Whereclasuse SC04_Whereclause
-   Description: partition_wert gefuellt: 3
+   Description: partition_wert NULL    : 2
 End Info
-Info: 2026-06-22 16:14:32.10
-   Code: 0x00000000
-   Source: SC04 Whereclasuse SC04_Whereclause
-   Description: partition_wert NULL    : 0
-End Info
-Info: 2026-06-22 16:14:32.10
+Info: 2026-06-22 16:40:17.17
    Code: 0x00000000
    Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
    Description: SCR_05_Parameter_Vollstaendigkeitspruefung - Start
 End Info
-Info: 2026-06-22 16:14:32.10
+Info: 2026-06-22 16:40:17.17
    Code: 0x00000000
    Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
    Description: Pflichtparameter     : FaktentabelleTemplate, Faktentabelle, Faktenpartitionsspalte, Faktenkomprimierung, FaktenClusteredIndex, DateFormat, Anzahl_ParallelTasks
 End Info
-Info: 2026-06-22 16:14:32.12
+Info: 2026-06-22 16:40:17.17
    Code: 0x00000000
    Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
    Description: SSIS-Variablen-Pruefung: alle vorhanden OK
 End Info
-Info: 2026-06-22 16:14:32.12
+Info: 2026-06-22 16:40:17.18
    Code: 0x00000000
    Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
    Description: Schritt 1: Steuerlisten-Tabelle pruefen
 End Info
-Info: 2026-06-22 16:14:32.13
+Info: 2026-06-22 16:40:17.18
    Code: 0x00000000
    Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
    Description: Steuerlisten-Tabelle [dbo.tm_steuerlistenfile_Fakten] vorhanden OK
 End Info
-Info: 2026-06-22 16:14:32.38
+Info: 2026-06-22 16:40:17.18
    Code: 0x00000000
    Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
-   Description: Steuerlisten-Tabelle enthaelt 3 Zeile(n) OK
+   Description: Steuerlisten-Tabelle enthaelt 2 Zeile(n) OK
 End Info
-Info: 2026-06-22 16:14:32.38
+Info: 2026-06-22 16:40:17.18
    Code: 0x00000000
    Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
    Description: Schritt 2: Verfahren aus Steuerliste laden
 End Info
-Info: 2026-06-22 16:14:32.40
+Info: 2026-06-22 16:40:17.20
    Code: 0x00000000
    Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
-   Description: Verfahren in Steuerliste gefunden: 3
+   Description: Verfahren in Steuerliste gefunden: 2
 End Info
-Info: 2026-06-22 16:14:32.40
+Info: 2026-06-22 16:40:17.20
    Code: 0x00000000
    Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
    Description: Schritt 3: Parametertabelle vollstaendig pruefen
 End Info
-Info: 2026-06-22 16:14:32.40
+Info: 2026-06-22 16:40:17.20
    Code: 0x00000000
    Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
-   Description: Pruefe Verfahren: tf_bsbm_arbnehm -> Parametertabelle-Verfahren: tf_bsbm_arbnehm
+   Description: Pruefe Verfahren: tf_lst_best_alg -> Parametertabelle-Verfahren: tf_lst_best_alg
 End Info
-Info: 2026-06-22 16:14:32.41
-   Code: 0x00000000
-   Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
-   Description:   [OK]      FaktentabelleTemplate
-End Info
-Info: 2026-06-22 16:14:32.41
-   Code: 0x00000000
-   Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
-   Description:   [OK]      Faktentabelle
-End Info
-Info: 2026-06-22 16:14:32.41
-   Code: 0x00000000
-   Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
-   Description:   [OK]      Faktenpartitionsspalte
-End Info
-Info: 2026-06-22 16:14:32.43
-   Code: 0x00000000
-   Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
-   Description:   [OK]      Faktenkomprimierung
-End Info
-Info: 2026-06-22 16:14:32.43
-   Code: 0x00000000
-   Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
-   Description:   [OK]      FaktenClusteredIndex
-End Info
-Info: 2026-06-22 16:14:32.43
-   Code: 0x00000000
-   Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
-   Description:   [OK]      DateFormat
-End Info
-Info: 2026-06-22 16:14:32.43
-   Code: 0x00000000
-   Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
-   Description:   [OK]      Anzahl_ParallelTasks
-End Info
-Info: 2026-06-22 16:14:32.43
-   Code: 0x00000000
-   Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
-   Description:   OK Alle Pflichtparameter fuer 'tf_bsbm_arbnehm' vorhanden und befuellt.
-End Info
-Info: 2026-06-22 16:14:32.44
-   Code: 0x00000000
-   Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
-   Description: Pruefe Verfahren: tf_bsbm_betrieb -> Parametertabelle-Verfahren: tf_bsbm_betrieb
-End Info
-Info: 2026-06-22 16:14:32.44
+Info: 2026-06-22 16:40:17.22
    Code: 0x00000000
    Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
    Description:   [OK]      FaktentabelleTemplate
 End Info
-Info: 2026-06-22 16:14:32.44
+Info: 2026-06-22 16:40:17.22
    Code: 0x00000000
    Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
    Description:   [OK]      Faktentabelle
 End Info
-Info: 2026-06-22 16:14:32.44
+Info: 2026-06-22 16:40:17.23
    Code: 0x00000000
    Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
    Description:   [OK]      Faktenpartitionsspalte
 End Info
-Info: 2026-06-22 16:14:32.44
+Info: 2026-06-22 16:40:17.23
    Code: 0x00000000
    Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
    Description:   [OK]      Faktenkomprimierung
 End Info
-Info: 2026-06-22 16:14:32.46
+Info: 2026-06-22 16:40:17.23
    Code: 0x00000000
    Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
    Description:   [OK]      FaktenClusteredIndex
 End Info
-Info: 2026-06-22 16:14:32.46
+Info: 2026-06-22 16:40:17.25
    Code: 0x00000000
    Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
    Description:   [OK]      DateFormat
 End Info
-Info: 2026-06-22 16:14:32.46
+Info: 2026-06-22 16:40:17.25
    Code: 0x00000000
    Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
    Description:   [OK]      Anzahl_ParallelTasks
 End Info
-Info: 2026-06-22 16:14:32.46
+Info: 2026-06-22 16:40:17.25
    Code: 0x00000000
    Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
-   Description:   OK Alle Pflichtparameter fuer 'tf_bsbm_betrieb' vorhanden und befuellt.
+   Description:   OK Alle Pflichtparameter fuer 'tf_lst_best_alg' vorhanden und befuellt.
 End Info
-Info: 2026-06-22 16:14:32.46
+Info: 2026-06-22 16:40:17.25
    Code: 0x00000000
    Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
-   Description: Pruefe Verfahren: tf_bsbm_betrieb_all -> Parametertabelle-Verfahren: tf_bsbm_betrieb_all
+   Description: Pruefe Verfahren: tf_lst_bew_alg -> Parametertabelle-Verfahren: tf_lst_bew_alg
 End Info
-Info: 2026-06-22 16:14:32.47
+Info: 2026-06-22 16:40:17.26
    Code: 0x00000000
    Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
    Description:   [OK]      FaktentabelleTemplate
 End Info
-Info: 2026-06-22 16:14:32.47
+Info: 2026-06-22 16:40:17.26
    Code: 0x00000000
    Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
    Description:   [OK]      Faktentabelle
 End Info
-Info: 2026-06-22 16:14:32.47
+Info: 2026-06-22 16:40:17.28
    Code: 0x00000000
    Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
    Description:   [OK]      Faktenpartitionsspalte
 End Info
-Info: 2026-06-22 16:14:32.49
+Info: 2026-06-22 16:40:17.28
    Code: 0x00000000
    Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
    Description:   [OK]      Faktenkomprimierung
 End Info
-Info: 2026-06-22 16:14:32.49
+Info: 2026-06-22 16:40:17.28
    Code: 0x00000000
    Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
    Description:   [OK]      FaktenClusteredIndex
 End Info
-Info: 2026-06-22 16:14:32.49
+Info: 2026-06-22 16:40:17.29
    Code: 0x00000000
    Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
    Description:   [OK]      DateFormat
 End Info
-Info: 2026-06-22 16:14:32.49
+Info: 2026-06-22 16:40:17.29
    Code: 0x00000000
    Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
    Description:   [OK]      Anzahl_ParallelTasks
 End Info
-Info: 2026-06-22 16:14:32.51
+Info: 2026-06-22 16:40:17.29
    Code: 0x00000000
    Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
-   Description:   OK Alle Pflichtparameter fuer 'tf_bsbm_betrieb_all' vorhanden und befuellt.
+   Description:   OK Alle Pflichtparameter fuer 'tf_lst_bew_alg' vorhanden und befuellt.
 End Info
-Info: 2026-06-22 16:14:32.51
+Info: 2026-06-22 16:40:17.29
    Code: 0x00000000
    Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
    Description: ZUSAMMENFASSUNG SCR_05_Parameter_Vollstaendigkeitspruefung
 End Info
-Info: 2026-06-22 16:14:32.51
+Info: 2026-06-22 16:40:17.29
    Code: 0x00000000
    Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
-   Description: Verfahren geprueft        : 3
+   Description: Verfahren geprueft        : 2
 End Info
-Info: 2026-06-22 16:14:32.51
+Info: 2026-06-22 16:40:17.31
    Code: 0x00000000
    Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
-   Description: Vollstaendig (OK)         : 3
+   Description: Vollstaendig (OK)         : 2
 End Info
-Info: 2026-06-22 16:14:32.51
+Info: 2026-06-22 16:40:17.31
    Code: 0x00000000
    Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
    Description: Mit Fehlern              : 0
 End Info
-Info: 2026-06-22 16:14:32.51
+Info: 2026-06-22 16:40:17.31
    Code: 0x00000000
    Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
    Description: ERGEBNIS: BESTANDEN - Alle Parameter vollstaendig und befuellt OK
 End Info
-Info: 2026-06-22 16:14:32.52
+Info: 2026-06-22 16:40:17.31
    Code: 0x00000000
    Source: SCR06 Arbeitsliste Aufbauen SCR_06_Arbeitsliste_Aufbauen_Fakten
    Description: SCR_06_Arbeitsliste_Aufbauen_Fakten - Start
 End Info
-Info: 2026-06-22 16:14:32.52
+Info: 2026-06-22 16:40:17.33
    Code: 0x00000000
    Source: SCR06 Arbeitsliste Aufbauen SCR_06_Arbeitsliste_Aufbauen_Fakten
    Description: Pflichtfelder-Pruefung: alle Variablen vorhanden OK
 End Info
-Info: 2026-06-22 16:14:32.52
+Info: 2026-06-22 16:40:17.33
    Code: 0x00000000
    Source: SCR06 Arbeitsliste Aufbauen SCR_06_Arbeitsliste_Aufbauen_Fakten
-   Description: Aktueller Lauf: Datei [f.istat.xro_dm_stat_bsbm.stva_m03_perm.csv] | Tabellen in Steuerliste (3): tf_bsbm_arbnehm, tf_bsbm_betrieb, tf_bsbm_betrieb_all
+   Description: Aktueller Lauf: Datei [f.istat.thm_dm_stat_lst_sgbiii.202606.csv] | Tabellen in Steuerliste (2): tf_lst_best_alg, tf_lst_bew_alg
 End Info
-Info: 2026-06-22 16:14:32.52
+Info: 2026-06-22 16:40:17.33
    Code: 0x00000000
    Source: SCR06 Arbeitsliste Aufbauen SCR_06_Arbeitsliste_Aufbauen_Fakten
    Description: Schritt 1: Neue Verfahren aus Steuerliste eintragen
 End Info
-Info: 2026-06-22 16:14:32.55
+Info: 2026-06-22 16:40:17.34
    Code: 0x00000000
    Source: SCR06 Arbeitsliste Aufbauen SCR_06_Arbeitsliste_Aufbauen_Fakten
-   Description: Neue Verfahren eingetragen: 3
+   Description: Neue Verfahren eingetragen: 2
 End Info
-Info: 2026-06-22 16:14:32.55
+Info: 2026-06-22 16:40:17.34
    Code: 0x00000000
    Source: SCR06 Arbeitsliste Aufbauen SCR_06_Arbeitsliste_Aufbauen_Fakten
    Description: Schritt 2: Status analysieren und zuruecksetzen
 End Info
-Info: 2026-06-22 16:14:32.57
+Info: 2026-06-22 16:40:17.36
    Code: 0x00000000
    Source: SCR06 Arbeitsliste Aufbauen SCR_06_Arbeitsliste_Aufbauen_Fakten
    Description: Status-Analyse (alle Verfahren aus Steuerliste):
 End Info
-Info: 2026-06-22 16:14:32.57
+Info: 2026-06-22 16:40:17.36
    Code: 0x00000000
    Source: SCR06 Arbeitsliste Aufbauen SCR_06_Arbeitsliste_Aufbauen_Fakten
-   Description:   - Total    : 36
+   Description:   - Total    : 24
 End Info
-Info: 2026-06-22 16:14:32.57
+Info: 2026-06-22 16:40:17.36
    Code: 0x00000000
    Source: SCR06 Arbeitsliste Aufbauen SCR_06_Arbeitsliste_Aufbauen_Fakten
    Description:   - ERFOLG   : 0
 End Info
-Info: 2026-06-22 16:14:32.57
+Info: 2026-06-22 16:40:17.37
    Code: 0x00000000
    Source: SCR06 Arbeitsliste Aufbauen SCR_06_Arbeitsliste_Aufbauen_Fakten
    Description:   - FEHLER   : 0
 End Info
-Info: 2026-06-22 16:14:32.58
+Info: 2026-06-22 16:40:17.37
    Code: 0x00000000
    Source: SCR06 Arbeitsliste Aufbauen SCR_06_Arbeitsliste_Aufbauen_Fakten
    Description:   - ANDERE   : 0
 End Info
-Info: 2026-06-22 16:14:32.58
+Info: 2026-06-22 16:40:17.37
    Code: 0x00000000
    Source: SCR06 Arbeitsliste Aufbauen SCR_06_Arbeitsliste_Aufbauen_Fakten
    Description: Kein Reset n”tig (nur AUSSTEHEND oder keine Daten)
 End Info
-Info: 2026-06-22 16:14:32.58
+Info: 2026-06-22 16:40:17.39
    Code: 0x00000000
    Source: SCR06 Arbeitsliste Aufbauen SCR_06_Arbeitsliste_Aufbauen_Fakten
    Description: ZUSAMMENFASSUNG
 End Info
-Info: 2026-06-22 16:14:32.60
+Info: 2026-06-22 16:40:17.39
    Code: 0x00000000
    Source: SCR06 Arbeitsliste Aufbauen SCR_06_Arbeitsliste_Aufbauen_Fakten
-   Description: Neue Verfahren : 3
+   Description: Neue Verfahren : 2
 End Info
-Info: 2026-06-22 16:14:32.60
+Info: 2026-06-22 16:40:17.39
    Code: 0x00000000
    Source: SCR06 Arbeitsliste Aufbauen SCR_06_Arbeitsliste_Aufbauen_Fakten
    Description: SCR_Arbeitsliste_Aufbauen_Fakten erfolgreich abgeschlossen OK
 End Info
-Info: 2026-06-22 16:14:32.60
+Info: 2026-06-22 16:40:17.40
    Code: 0x00000000
    Source: SCR07_Schemadaten_Kopieren SCR07_Schemadaten_Kopieren
    Description: SCR07_Schemadaten_Kopieren - Start
 End Info
-Info: 2026-06-22 16:14:32.62
+Info: 2026-06-22 16:40:17.40
    Code: 0x00000000
    Source: SCR07_Schemadaten_Kopieren SCR07_Schemadaten_Kopieren
    Description: Ziel-Tabelle tm_polybase_struktur geprueft/erstellt.
 End Info
-Info: 2026-06-22 16:14:32.63
+Info: 2026-06-22 16:40:17.40
    Code: 0x00000000
    Source: SCR07_Schemadaten_Kopieren SCR07_Schemadaten_Kopieren
-   Description: Verfahren zur Verarbeitung: 3
+   Description: Verfahren zur Verarbeitung: 2
 End Info
-Info: 2026-06-22 16:14:32.63
+Info: 2026-06-22 16:40:17.42
    Code: 0x00000000
    Source: SCR07_Schemadaten_Kopieren SCR07_Schemadaten_Kopieren
    Description: Oracle-Daten werden in Staging-Tabelle geladen...
 End Info
-Info: 2026-06-22 16:14:32.63
+Info: 2026-06-22 16:40:17.42
    Code: 0x00000000
    Source: SCR07_Schemadaten_Kopieren SCR07_Schemadaten_Kopieren
-   Description: Quelle: [msi_dm_bsbm].[ext].[vm_ddl_sql_server]
+   Description: Quelle: [msi_dm_lst_sgbiii].[ext].[vm_ddl_sql_server]
 End Info
-Info: 2026-06-22 16:14:32.69
+Info: 2026-06-22 16:40:17.43
    Code: 0x00000000
    Source: SCR07_Schemadaten_Kopieren SCR07_Schemadaten_Kopieren
-   Description: Staging-Tabelle existiert bereits mit 1016733 Zeilen - wird wiederverwendet
+   Description: Staging-Tabelle existiert bereits mit 1017756 Zeilen - wird wiederverwendet
 End Info
-Info: 2026-06-22 16:14:32.69
+Info: 2026-06-22 16:40:17.43
    Code: 0x00000000
    Source: SCR07_Schemadaten_Kopieren SCR07_Schemadaten_Kopieren
-   Description: Verfahren: tf_bsbm_arbnehm | Themengebiet: xro_dm_stat_bsbm
+   Description: Verfahren: tf_lst_best_alg | Themengebiet: thm_dm_stat_lst_sgbiii
 End Info
-Info: 2026-06-22 16:14:32.72
+Info: 2026-06-22 16:40:17.45
    Code: 0x00000000
    Source: SCR07_Schemadaten_Kopieren SCR07_Schemadaten_Kopieren
-   Description: [SCHRITT_5] tf_bsbm_arbnehm: Schemadaten kopiert: 18 Spalten
+   Description: [SCHRITT_5] tf_lst_best_alg: Schemadaten kopiert: 64 Spalten
 End Info
-Info: 2026-06-22 16:14:32.72
+Info: 2026-06-22 16:40:17.47
    Code: 0x00000000
    Source: SCR07_Schemadaten_Kopieren SCR07_Schemadaten_Kopieren
-   Description:   18 Spalten kopiert OK
+   Description:   64 Spalten kopiert OK
 End Info
-Info: 2026-06-22 16:14:32.72
+Info: 2026-06-22 16:40:17.47
    Code: 0x00000000
    Source: SCR07_Schemadaten_Kopieren SCR07_Schemadaten_Kopieren
-   Description: Verfahren: tf_bsbm_betrieb | Themengebiet: xro_dm_stat_bsbm
+   Description: Verfahren: tf_lst_bew_alg | Themengebiet: thm_dm_stat_lst_sgbiii
 End Info
-Info: 2026-06-22 16:14:32.74
+Info: 2026-06-22 16:40:17.48
    Code: 0x00000000
    Source: SCR07_Schemadaten_Kopieren SCR07_Schemadaten_Kopieren
-   Description: [SCHRITT_5] tf_bsbm_betrieb: Schemadaten kopiert: 39 Spalten
+   Description: [SCHRITT_5] tf_lst_bew_alg: Schemadaten kopiert: 74 Spalten
 End Info
-Info: 2026-06-22 16:14:32.74
+Info: 2026-06-22 16:40:17.48
    Code: 0x00000000
    Source: SCR07_Schemadaten_Kopieren SCR07_Schemadaten_Kopieren
-   Description:   39 Spalten kopiert OK
+   Description:   74 Spalten kopiert OK
 End Info
-Info: 2026-06-22 16:14:32.74
-   Code: 0x00000000
-   Source: SCR07_Schemadaten_Kopieren SCR07_Schemadaten_Kopieren
-   Description: Verfahren: tf_bsbm_betrieb_all | Themengebiet: xro_dm_stat_bsbm
-End Info
-Info: 2026-06-22 16:14:32.77
-   Code: 0x00000000
-   Source: SCR07_Schemadaten_Kopieren SCR07_Schemadaten_Kopieren
-   Description: [SCHRITT_5] tf_bsbm_betrieb_all: Schemadaten kopiert: 17 Spalten
-End Info
-Info: 2026-06-22 16:14:32.77
-   Code: 0x00000000
-   Source: SCR07_Schemadaten_Kopieren SCR07_Schemadaten_Kopieren
-   Description:   17 Spalten kopiert OK
-End Info
-Info: 2026-06-22 16:14:32.77
+Info: 2026-06-22 16:40:17.50
    Code: 0x00000000
    Source: SCR07_Schemadaten_Kopieren SCR07_Schemadaten_Kopieren
    Description: Staging-Tabelle dbo.ddl_staging bleibt fuer Debugging erhalten
 End Info
-Info: 2026-06-22 16:14:32.77
+Info: 2026-06-22 16:40:17.50
    Code: 0x00000000
    Source: SCR07_Schemadaten_Kopieren SCR07_Schemadaten_Kopieren
-   Description: Erfolgreich: 3 | Fehler: 0
+   Description: Erfolgreich: 2 | Fehler: 0
 End Info
-Info: 2026-06-22 16:14:32.79
+Info: 2026-06-22 16:40:17.50
    Code: 0x00000000
    Source: SCR08_Template_Erstellen SCR08_Template_Erstellen
    Description: SCR08_Template_Erstellen - Start
 End Info
-Info: 2026-06-22 16:14:32.79
+Info: 2026-06-22 16:40:17.51
    Code: 0x00000000
    Source: SCR08_Template_Erstellen SCR08_Template_Erstellen
-   Description: Verfahren zur Verarbeitung: 3
+   Description: Verfahren zur Verarbeitung: 2
 End Info
-Info: 2026-06-22 16:14:32.79
+Info: 2026-06-22 16:40:17.51
    Code: 0x00000000
    Source: SCR08_Template_Erstellen SCR08_Template_Erstellen
-   Description: Verfahren: tf_bsbm_arbnehm | Themengebiet: xro_dm_stat_bsbm
+   Description: Verfahren: tf_lst_best_alg | Themengebiet: thm_dm_stat_lst_sgbiii
 End Info
-Info: 2026-06-22 16:14:32.80
+Info: 2026-06-22 16:40:17.51
    Code: 0x00000000
    Source: SCR08_Template_Erstellen SCR08_Template_Erstellen
-   Description:   Template-Existenzpruefung fuer: tf_bsbm_arbnehm
+   Description:   Template-Existenzpruefung fuer: tf_lst_best_alg
 End Info
-Info: 2026-06-22 16:14:32.80
-   Code: 0x00000000
-   Source: SCR08_Template_Erstellen SCR08_Template_Erstellen
-   Description:   Template vorhanden OK
-End Info
-Info: 2026-06-22 16:14:32.80
-   Code: 0x00000000
-   Source: SCR08_Template_Erstellen SCR08_Template_Erstellen
-   Description: [SCHRITT_1] tf_bsbm_arbnehm: Template erstellt/geprueft: msi_dm_bsbm.dbo.tf_bsbm_arbnehm_template
-End Info
-Info: 2026-06-22 16:14:32.80
-   Code: 0x00000000
-   Source: SCR08_Template_Erstellen SCR08_Template_Erstellen
-   Description:   Template erstellt OK
-End Info
-Info: 2026-06-22 16:14:32.80
-   Code: 0x00000000
-   Source: SCR08_Template_Erstellen SCR08_Template_Erstellen
-   Description: Verfahren: tf_bsbm_betrieb | Themengebiet: xro_dm_stat_bsbm
-End Info
-Info: 2026-06-22 16:14:32.82
-   Code: 0x00000000
-   Source: SCR08_Template_Erstellen SCR08_Template_Erstellen
-   Description:   Template-Existenzpruefung fuer: tf_bsbm_betrieb
-End Info
-Info: 2026-06-22 16:14:32.82
+Info: 2026-06-22 16:40:17.51
    Code: 0x00000000
    Source: SCR08_Template_Erstellen SCR08_Template_Erstellen
    Description:   Template vorhanden OK
 End Info
-Info: 2026-06-22 16:14:32.82
+Info: 2026-06-22 16:40:17.53
    Code: 0x00000000
    Source: SCR08_Template_Erstellen SCR08_Template_Erstellen
-   Description: [SCHRITT_1] tf_bsbm_betrieb: Template erstellt/geprueft: msi_dm_bsbm.dbo.tf_bsbm_betrieb_template
+   Description: [SCHRITT_1] tf_lst_best_alg: Template erstellt/geprueft: msi_dm_lst_sgbiii.dbo.tf_lst_best_alg_template
 End Info
-Info: 2026-06-22 16:14:32.82
+Info: 2026-06-22 16:40:17.53
    Code: 0x00000000
    Source: SCR08_Template_Erstellen SCR08_Template_Erstellen
    Description:   Template erstellt OK
 End Info
-Info: 2026-06-22 16:14:32.82
+Info: 2026-06-22 16:40:17.53
    Code: 0x00000000
    Source: SCR08_Template_Erstellen SCR08_Template_Erstellen
-   Description: Verfahren: tf_bsbm_betrieb_all | Themengebiet: xro_dm_stat_bsbm
+   Description: Verfahren: tf_lst_bew_alg | Themengebiet: thm_dm_stat_lst_sgbiii
 End Info
-Info: 2026-06-22 16:14:32.83
+Info: 2026-06-22 16:40:17.54
    Code: 0x00000000
    Source: SCR08_Template_Erstellen SCR08_Template_Erstellen
-   Description:   Template-Existenzpruefung fuer: tf_bsbm_betrieb_all
+   Description:   Template-Existenzpruefung fuer: tf_lst_bew_alg
 End Info
-Info: 2026-06-22 16:14:32.83
+Info: 2026-06-22 16:40:17.54
    Code: 0x00000000
    Source: SCR08_Template_Erstellen SCR08_Template_Erstellen
    Description:   Template vorhanden OK
 End Info
-Info: 2026-06-22 16:14:32.83
+Info: 2026-06-22 16:40:17.54
    Code: 0x00000000
    Source: SCR08_Template_Erstellen SCR08_Template_Erstellen
-   Description: [SCHRITT_1] tf_bsbm_betrieb_all: Template erstellt/geprueft: msi_dm_bsbm.dbo.tf_bsbm_betrieb_all_template
+   Description: [SCHRITT_1] tf_lst_bew_alg: Template erstellt/geprueft: msi_dm_lst_sgbiii.dbo.tf_lst_bew_alg_template
 End Info
-Info: 2026-06-22 16:14:32.83
+Info: 2026-06-22 16:40:17.54
    Code: 0x00000000
    Source: SCR08_Template_Erstellen SCR08_Template_Erstellen
    Description:   Template erstellt OK
 End Info
-Info: 2026-06-22 16:14:32.83
+Info: 2026-06-22 16:40:17.54
    Code: 0x00000000
    Source: SCR08_Template_Erstellen SCR08_Template_Erstellen
-   Description: Erfolgreich: 3 | Fehler: 0
+   Description: Erfolgreich: 2 | Fehler: 0
 End Info
-Info: 2026-06-22 16:14:32.85
+Info: 2026-06-22 16:40:17.56
    Code: 0x00000000
    Source: SCR09_Ext_Tabelle_Erstellen SCR09_Ext_Tabelle_Erstellen
    Description: SCR09_Ext_Tabelle_Erstellen - Start
 End Info
-Info: 2026-06-22 16:14:32.85
+Info: 2026-06-22 16:40:17.56
    Code: 0x00000000
    Source: SCR09_Ext_Tabelle_Erstellen SCR09_Ext_Tabelle_Erstellen
-   Description: Verfahren zur Verarbeitung: 3
+   Description: Verfahren zur Verarbeitung: 2
 End Info
-Info: 2026-06-22 16:14:32.85
+Info: 2026-06-22 16:40:17.58
    Code: 0x00000000
    Source: SCR09_Ext_Tabelle_Erstellen SCR09_Ext_Tabelle_Erstellen
-   Description: Verfahren: tf_bsbm_arbnehm | Themengebiet: xro_dm_stat_bsbm
+   Description: Verfahren: tf_lst_best_alg | Themengebiet: thm_dm_stat_lst_sgbiii
 End Info
-Info: 2026-06-22 16:14:32.87
+Info: 2026-06-22 16:40:17.58
    Code: 0x00000000
    Source: SCR09_Ext_Tabelle_Erstellen SCR09_Ext_Tabelle_Erstellen
-   Description:   Erstelle externe Tabelle: ext.[tf_bsbm_arbnehm]
+   Description:   Erstelle externe Tabelle: ext.[tf_lst_best_alg]
 End Info
-Info: 2026-06-22 16:14:32.87
+Info: 2026-06-22 16:40:17.58
    Code: 0x00000000
    Source: SCR09_Ext_Tabelle_Erstellen SCR09_Ext_Tabelle_Erstellen
-   Description:   Oracle Location: ISTAT_IA.XRO_DM_STAT_BSBM.TF_BSBM_ARBNEHM
+   Description:   Oracle Location: ISTAT.THM_DM_STAT_LST_SGBIII.TF_LST_BEST_ALG
 End Info
-Info: 2026-06-22 16:14:35.18
+Info: 2026-06-22 16:40:17.59
    Code: 0x00000000
    Source: SCR09_Ext_Tabelle_Erstellen SCR09_Ext_Tabelle_Erstellen
-   Description:   OK Externe Tabelle erfolgreich: ext.[tf_bsbm_arbnehm]
+   Description: WARNUNG [Ext Tabelle erstellen] Versuch 1/3: Incorrect syntax near 'SYS_C00015_25122313:'.
+Incorrect syntax near the keyword 'with'. If this statement is a common table expression, an xmlnamespaces clause or a change tracking context clause, the previous statement must be terminated with a semicolon.
 End Info
-Info: 2026-06-22 16:14:35.19
+Info: 2026-06-22 16:40:47.61
    Code: 0x00000000
    Source: SCR09_Ext_Tabelle_Erstellen SCR09_Ext_Tabelle_Erstellen
-   Description: [SCHRITT_2] tf_bsbm_arbnehm: Externe Tabelle erstellt: ext.tf_bsbm_arbnehm
+   Description: WARNUNG [Ext Tabelle erstellen] Versuch 2/3: Incorrect syntax near 'SYS_C00015_25122313:'.
+Incorrect syntax near the keyword 'with'. If this statement is a common table expression, an xmlnamespaces clause or a change tracking context clause, the previous statement must be terminated with a semicolon.
 End Info
-Info: 2026-06-22 16:14:35.19
+Info: 2026-06-22 16:41:17.62
    Code: 0x00000000
    Source: SCR09_Ext_Tabelle_Erstellen SCR09_Ext_Tabelle_Erstellen
-   Description:   Externe Tabelle erstellt OK
+   Description: WARNUNG [Ext Tabelle erstellen] Versuch 3/3: Incorrect syntax near 'SYS_C00015_25122313:'.
+Incorrect syntax near the keyword 'with'. If this statement is a common table expression, an xmlnamespaces clause or a change tracking context clause, the previous statement must be terminated with a semicolon.
 End Info
-Info: 2026-06-22 16:14:35.19
+Error: 2026-06-22 16:41:17.64
    Code: 0x00000000
    Source: SCR09_Ext_Tabelle_Erstellen SCR09_Ext_Tabelle_Erstellen
-   Description: Verfahren: tf_bsbm_betrieb | Themengebiet: xro_dm_stat_bsbm
-End Info
-Info: 2026-06-22 16:14:35.19
-   Code: 0x00000000
-   Source: SCR09_Ext_Tabelle_Erstellen SCR09_Ext_Tabelle_Erstellen
-   Description:   Erstelle externe Tabelle: ext.[tf_bsbm_betrieb]
-End Info
-Info: 2026-06-22 16:14:35.21
-   Code: 0x00000000
-   Source: SCR09_Ext_Tabelle_Erstellen SCR09_Ext_Tabelle_Erstellen
-   Description:   Oracle Location: ISTAT_IA.XRO_DM_STAT_BSBM.TF_BSBM_BETRIEB
-End Info
-Info: 2026-06-22 16:14:36.99
-   Code: 0x00000000
-   Source: SCR09_Ext_Tabelle_Erstellen SCR09_Ext_Tabelle_Erstellen
-   Description:   OK Externe Tabelle erfolgreich: ext.[tf_bsbm_betrieb]
-End Info
-Info: 2026-06-22 16:14:36.99
-   Code: 0x00000000
-   Source: SCR09_Ext_Tabelle_Erstellen SCR09_Ext_Tabelle_Erstellen
-   Description: [SCHRITT_2] tf_bsbm_betrieb: Externe Tabelle erstellt: ext.tf_bsbm_betrieb
-End Info
-Info: 2026-06-22 16:14:36.99
-   Code: 0x00000000
-   Source: SCR09_Ext_Tabelle_Erstellen SCR09_Ext_Tabelle_Erstellen
-   Description:   Externe Tabelle erstellt OK
-End Info
-Info: 2026-06-22 16:14:37.01
-   Code: 0x00000000
-   Source: SCR09_Ext_Tabelle_Erstellen SCR09_Ext_Tabelle_Erstellen
-   Description: Verfahren: tf_bsbm_betrieb_all | Themengebiet: xro_dm_stat_bsbm
-End Info
-Info: 2026-06-22 16:14:37.01
-   Code: 0x00000000
-   Source: SCR09_Ext_Tabelle_Erstellen SCR09_Ext_Tabelle_Erstellen
-   Description:   Erstelle externe Tabelle: ext.[tf_bsbm_betrieb_all]
-End Info
-Info: 2026-06-22 16:14:37.01
-   Code: 0x00000000
-   Source: SCR09_Ext_Tabelle_Erstellen SCR09_Ext_Tabelle_Erstellen
-   Description:   Oracle Location: ISTAT_IA.XRO_DM_STAT_BSBM.TF_BSBM_BETRIEB_ALL
-End Info
-Info: 2026-06-22 16:14:38.72
-   Code: 0x00000000
-   Source: SCR09_Ext_Tabelle_Erstellen SCR09_Ext_Tabelle_Erstellen
-   Description:   OK Externe Tabelle erfolgreich: ext.[tf_bsbm_betrieb_all]
-End Info
-Info: 2026-06-22 16:14:38.72
-   Code: 0x00000000
-   Source: SCR09_Ext_Tabelle_Erstellen SCR09_Ext_Tabelle_Erstellen
-   Description: [SCHRITT_2] tf_bsbm_betrieb_all: Externe Tabelle erstellt: ext.tf_bsbm_betrieb_all
-End Info
-Info: 2026-06-22 16:14:38.72
-   Code: 0x00000000
-   Source: SCR09_Ext_Tabelle_Erstellen SCR09_Ext_Tabelle_Erstellen
-   Description:   Externe Tabelle erstellt OK
-End Info
-Info: 2026-06-22 16:14:38.72
-   Code: 0x00000000
-   Source: SCR09_Ext_Tabelle_Erstellen SCR09_Ext_Tabelle_Erstellen
-   Description: Erfolgreich: 3 | Fehler: 0
-End Info
-Info: 2026-06-22 16:14:38.74
-   Code: 0x00000000
-   Source: SCR10_Faktentabelle_Erstellen SCR10_Faktentabelle_Erstellen
-   Description: SCR10_Faktentabelle_Erstellen - Start
-End Info
-Info: 2026-06-22 16:14:38.76
-   Code: 0x00000000
-   Source: SCR10_Faktentabelle_Erstellen SCR10_Faktentabelle_Erstellen
-   Description: Verfahren: 3
-End Info
-Info: 2026-06-22 16:14:38.76
-   Code: 0x00000000
-   Source: SCR10_Faktentabelle_Erstellen SCR10_Faktentabelle_Erstellen
-   Description: Verfahren: tf_bsbm_arbnehm | Faktentabelle: tf_bsbm_arbnehm
-End Info
-Info: 2026-06-22 16:14:38.76
-   Code: 0x00000000
-   Source: SCR10_Faktentabelle_Erstellen SCR10_Faktentabelle_Erstellen
-   Description: Partitionsspalte: jhw_id | IndexTyp: CCI | Komprimierung: NONE
-End Info
-Info: 2026-06-22 16:14:38.77
-   Code: 0x00000000
-   Source: SCR10_Faktentabelle_Erstellen SCR10_Faktentabelle_Erstellen
-   Description:   Faktentabelle dbo.tf_bsbm_arbnehm existiert bereits (Struktur OK) -> uebersprungen
-End Info
-Info: 2026-06-22 16:14:38.77
-   Code: 0x00000000
-   Source: SCR10_Faktentabelle_Erstellen SCR10_Faktentabelle_Erstellen
-   Description: [SCHRITT_3] tf_bsbm_arbnehm: Faktentabelle existiert bereits (Struktur OK): dbo.tf_bsbm_arbnehm -> uebersprungen
-End Info
-Info: 2026-06-22 16:14:38.79
-   Code: 0x00000000
-   Source: SCR10_Faktentabelle_Erstellen SCR10_Faktentabelle_Erstellen
-   Description:   -> Schritt 3 abgeschlossen
-End Info
-Info: 2026-06-22 16:14:38.79
-   Code: 0x00000000
-   Source: SCR10_Faktentabelle_Erstellen SCR10_Faktentabelle_Erstellen
-   Description: Verfahren: tf_bsbm_betrieb | Faktentabelle: tf_bsbm_betrieb
-End Info
-Info: 2026-06-22 16:14:38.79
-   Code: 0x00000000
-   Source: SCR10_Faktentabelle_Erstellen SCR10_Faktentabelle_Erstellen
-   Description: Partitionsspalte: jhw_id | IndexTyp: CCI | Komprimierung: NONE
-End Info
-Info: 2026-06-22 16:14:38.80
-   Code: 0x00000000
-   Source: SCR10_Faktentabelle_Erstellen SCR10_Faktentabelle_Erstellen
-   Description:   Faktentabelle dbo.tf_bsbm_betrieb existiert bereits (Struktur OK) -> uebersprungen
-End Info
-Info: 2026-06-22 16:14:38.80
-   Code: 0x00000000
-   Source: SCR10_Faktentabelle_Erstellen SCR10_Faktentabelle_Erstellen
-   Description: [SCHRITT_3] tf_bsbm_betrieb: Faktentabelle existiert bereits (Struktur OK): dbo.tf_bsbm_betrieb -> uebersprungen
-End Info
-Info: 2026-06-22 16:14:38.80
-   Code: 0x00000000
-   Source: SCR10_Faktentabelle_Erstellen SCR10_Faktentabelle_Erstellen
-   Description:   -> Schritt 3 abgeschlossen
-End Info
-Info: 2026-06-22 16:14:38.82
-   Code: 0x00000000
-   Source: SCR10_Faktentabelle_Erstellen SCR10_Faktentabelle_Erstellen
-   Description: Verfahren: tf_bsbm_betrieb_all | Faktentabelle: tf_bsbm_betrieb_all
-End Info
-Info: 2026-06-22 16:14:38.82
-   Code: 0x00000000
-   Source: SCR10_Faktentabelle_Erstellen SCR10_Faktentabelle_Erstellen
-   Description: Partitionsspalte: jhw_id | IndexTyp: CCI | Komprimierung: NONE
-End Info
-Info: 2026-06-22 16:14:38.83
-   Code: 0x00000000
-   Source: SCR10_Faktentabelle_Erstellen SCR10_Faktentabelle_Erstellen
-   Description:   Faktentabelle dbo.tf_bsbm_betrieb_all existiert bereits (Struktur OK) -> uebersprungen
-End Info
-Info: 2026-06-22 16:14:38.83
-   Code: 0x00000000
-   Source: SCR10_Faktentabelle_Erstellen SCR10_Faktentabelle_Erstellen
-   Description: [SCHRITT_3] tf_bsbm_betrieb_all: Faktentabelle existiert bereits (Struktur OK): dbo.tf_bsbm_betrieb_all -> uebersprungen
-End Info
-Info: 2026-06-22 16:14:38.83
-   Code: 0x00000000
-   Source: SCR10_Faktentabelle_Erstellen SCR10_Faktentabelle_Erstellen
-   Description:   -> Schritt 3 abgeschlossen
-End Info
-Info: 2026-06-22 16:14:38.83
-   Code: 0x00000000
-   Source: SCR10_Faktentabelle_Erstellen SCR10_Faktentabelle_Erstellen
-   Description: Erfolgreich: 3 | Fehler: 0
-End Info
-Info: 2026-06-22 16:14:38.87
-   Code: 0x00000000
-   Source: SCR11_Partitionsgrenzen SCR11_Partitionsgrenzen
-   Description: SCR11_Partitionsgrenzen - Start
-End Info
-Info: 2026-06-22 16:14:38.87
-   Code: 0x00000000
-   Source: SCR11_Partitionsgrenzen SCR11_Partitionsgrenzen
-   Description: Verfahren: 3
-End Info
-Info: 2026-06-22 16:14:38.87
-   Code: 0x00000000
-   Source: SCR11_Partitionsgrenzen SCR11_Partitionsgrenzen
-   Description: Verfahren: tf_bsbm_arbnehm | Tabelle: tf_bsbm_arbnehm | Spalte: jhw_id
-End Info
-Info: 2026-06-22 16:14:38.88
-   Code: 0x00000000
-   Source: SCR11_Partitionsgrenzen SCR11_Partitionsgrenzen
-   Description:   MODE: MANUAL (partition_wert gesetzt - Oracle-Pruefung uebersprungen)
-End Info
-Info: 2026-06-22 16:14:38.88
-   Code: 0x00000000
-   Source: SCR11_Partitionsgrenzen SCR11_Partitionsgrenzen
-   Description:   Benutzer partition_wert: 1 Werte
-End Info
-Info: 2026-06-22 16:14:38.88
-   Code: 0x00000000
-   Source: SCR11_Partitionsgrenzen SCR11_Partitionsgrenzen
-   Description:   MIN: 202415 | MAX: 202415
-End Info
-Info: 2026-06-22 16:14:39.65
-   Code: 0x00000000
-   Source: SCR11_Partitionsgrenzen SCR11_Partitionsgrenzen
-   Description:   MSSQL Werte gesamt: 39
-End Info
-Info: 2026-06-22 16:14:39.65
-   Code: 0x00000000
-   Source: SCR11_Partitionsgrenzen SCR11_Partitionsgrenzen
-   Description:   Klassifizierung: AKTUALISIERUNG=1 | NEU=0
-End Info
-Info: 2026-06-22 16:14:39.65
-   Code: 0x00000000
-   Source: SCR11_Partitionsgrenzen SCR11_Partitionsgrenzen
-   Description:   ZUSAMMENFASSUNG: tf_bsbm_arbnehm
-End Info
-Info: 2026-06-22 16:14:39.65
-   Code: 0x00000000
-   Source: SCR11_Partitionsgrenzen SCR11_Partitionsgrenzen
-   Description:   Modus: MANUAL
-End Info
-Info: 2026-06-22 16:14:39.65
-   Code: 0x00000000
-   Source: SCR11_Partitionsgrenzen SCR11_Partitionsgrenzen
-   Description:   Gesamt zu verarbeiten: 1
-End Info
-Info: 2026-06-22 16:14:39.66
-   Code: 0x00000000
-   Source: SCR11_Partitionsgrenzen SCR11_Partitionsgrenzen
-   Description:   AKTUALISIERUNG: 1
-End Info
-Info: 2026-06-22 16:14:39.66
-   Code: 0x00000000
-   Source: SCR11_Partitionsgrenzen SCR11_Partitionsgrenzen
-   Description:   NEU: 0
-End Info
-Info: 2026-06-22 16:14:39.66
-   Code: 0x00000000
-   Source: SCR11_Partitionsgrenzen SCR11_Partitionsgrenzen
-   Description:   Werte-Bereich: 202415 bis 202415 (1 Partitionen)
-End Info
-Info: 2026-06-22 16:14:39.66
-   Code: 0x00000000
-   Source: SCR11_Partitionsgrenzen SCR11_Partitionsgrenzen
-   Description:   SPLIT ausgefuehrt: 0 | Uebersprungen: 1
-End Info
-Info: 2026-06-22 16:14:39.68
-   Code: 0x00000000
-   Source: SCR11_Partitionsgrenzen SCR11_Partitionsgrenzen
-   Description: [SCHRITT_4] tf_bsbm_arbnehm: Partitionsgrenzen erstellt. Modus=MANUAL | Gesamt=1 | AKTUALISIERUNG=1 | NEU=0 | Bereich=202415-202415
-End Info
-Info: 2026-06-22 16:14:39.68
-   Code: 0x00000000
-   Source: SCR11_Partitionsgrenzen SCR11_Partitionsgrenzen
-   Description:   Schritt 4 abgeschlossen OK
-End Info
-Info: 2026-06-22 16:14:39.68
-   Code: 0x00000000
-   Source: SCR11_Partitionsgrenzen SCR11_Partitionsgrenzen
-   Description: Verfahren: tf_bsbm_betrieb | Tabelle: tf_bsbm_betrieb | Spalte: jhw_id
-End Info
-Info: 2026-06-22 16:14:39.68
-   Code: 0x00000000
-   Source: SCR11_Partitionsgrenzen SCR11_Partitionsgrenzen
-   Description:   MODE: MANUAL (partition_wert gesetzt - Oracle-Pruefung uebersprungen)
-End Info
-Info: 2026-06-22 16:14:39.68
-   Code: 0x00000000
-   Source: SCR11_Partitionsgrenzen SCR11_Partitionsgrenzen
-   Description:   Benutzer partition_wert: 1 Werte
-End Info
-Info: 2026-06-22 16:14:39.69
-   Code: 0x00000000
-   Source: SCR11_Partitionsgrenzen SCR11_Partitionsgrenzen
-   Description:   MIN: 202415 | MAX: 202415
-End Info
-Info: 2026-06-22 16:14:39.76
-   Code: 0x00000000
-   Source: SCR11_Partitionsgrenzen SCR11_Partitionsgrenzen
-   Description:   MSSQL Werte gesamt: 38
-End Info
-Info: 2026-06-22 16:14:39.76
-   Code: 0x00000000
-   Source: SCR11_Partitionsgrenzen SCR11_Partitionsgrenzen
-   Description:   Klassifizierung: AKTUALISIERUNG=0 | NEU=1
-End Info
-Info: 2026-06-22 16:14:39.76
-   Code: 0x00000000
-   Source: SCR11_Partitionsgrenzen SCR11_Partitionsgrenzen
-   Description:   ZUSAMMENFASSUNG: tf_bsbm_betrieb
-End Info
-Info: 2026-06-22 16:14:39.76
-   Code: 0x00000000
-   Source: SCR11_Partitionsgrenzen SCR11_Partitionsgrenzen
-   Description:   Modus: MANUAL
-End Info
-Info: 2026-06-22 16:14:39.77
-   Code: 0x00000000
-   Source: SCR11_Partitionsgrenzen SCR11_Partitionsgrenzen
-   Description:   Gesamt zu verarbeiten: 1
-End Info
-Info: 2026-06-22 16:14:39.77
-   Code: 0x00000000
-   Source: SCR11_Partitionsgrenzen SCR11_Partitionsgrenzen
-   Description:   AKTUALISIERUNG: 0
-End Info
-Info: 2026-06-22 16:14:39.77
-   Code: 0x00000000
-   Source: SCR11_Partitionsgrenzen SCR11_Partitionsgrenzen
-   Description:   NEU: 1
-End Info
-Info: 2026-06-22 16:14:39.77
-   Code: 0x00000000
-   Source: SCR11_Partitionsgrenzen SCR11_Partitionsgrenzen
-   Description:   Werte-Bereich: 202415 bis 202415 (1 Partitionen)
-End Info
-Info: 2026-06-22 16:14:39.79
-   Code: 0x00000000
-   Source: SCR11_Partitionsgrenzen SCR11_Partitionsgrenzen
-   Description:     Boundary 202415 bereits vorhanden uebersprungen
-End Info
-Info: 2026-06-22 16:14:39.79
-   Code: 0x00000000
-   Source: SCR11_Partitionsgrenzen SCR11_Partitionsgrenzen
-   Description:   SPLIT ausgefuehrt: 1 | Uebersprungen: 0
-End Info
-Info: 2026-06-22 16:14:39.79
-   Code: 0x00000000
-   Source: SCR11_Partitionsgrenzen SCR11_Partitionsgrenzen
-   Description: [SCHRITT_4] tf_bsbm_betrieb: Partitionsgrenzen erstellt. Modus=MANUAL | Gesamt=1 | AKTUALISIERUNG=0 | NEU=1 | Bereich=202415-202415
-End Info
-Info: 2026-06-22 16:14:39.79
-   Code: 0x00000000
-   Source: SCR11_Partitionsgrenzen SCR11_Partitionsgrenzen
-   Description:   Schritt 4 abgeschlossen OK
-End Info
-Info: 2026-06-22 16:14:39.80
-   Code: 0x00000000
-   Source: SCR11_Partitionsgrenzen SCR11_Partitionsgrenzen
-   Description: Verfahren: tf_bsbm_betrieb_all | Tabelle: tf_bsbm_betrieb_all | Spalte: jhw_id
-End Info
-Info: 2026-06-22 16:14:39.80
-   Code: 0x00000000
-   Source: SCR11_Partitionsgrenzen SCR11_Partitionsgrenzen
-   Description:   MODE: MANUAL (partition_wert gesetzt - Oracle-Pruefung uebersprungen)
-End Info
-Info: 2026-06-22 16:14:39.80
-   Code: 0x00000000
-   Source: SCR11_Partitionsgrenzen SCR11_Partitionsgrenzen
-   Description:   Benutzer partition_wert: 1 Werte
-End Info
-Info: 2026-06-22 16:14:39.80
-   Code: 0x00000000
-   Source: SCR11_Partitionsgrenzen SCR11_Partitionsgrenzen
-   Description:   MIN: 202415 | MAX: 202415
-End Info
-Info: 2026-06-22 16:14:39.90
-   Code: 0x00000000
-   Source: SCR11_Partitionsgrenzen SCR11_Partitionsgrenzen
-   Description:   MSSQL Werte gesamt: 39
-End Info
-Info: 2026-06-22 16:14:39.91
-   Code: 0x00000000
-   Source: SCR11_Partitionsgrenzen SCR11_Partitionsgrenzen
-   Description:   Klassifizierung: AKTUALISIERUNG=1 | NEU=0
-End Info
-Info: 2026-06-22 16:14:39.91
-   Code: 0x00000000
-   Source: SCR11_Partitionsgrenzen SCR11_Partitionsgrenzen
-   Description:   ZUSAMMENFASSUNG: tf_bsbm_betrieb_all
-End Info
-Info: 2026-06-22 16:14:39.91
-   Code: 0x00000000
-   Source: SCR11_Partitionsgrenzen SCR11_Partitionsgrenzen
-   Description:   Modus: MANUAL
-End Info
-Info: 2026-06-22 16:14:39.91
-   Code: 0x00000000
-   Source: SCR11_Partitionsgrenzen SCR11_Partitionsgrenzen
-   Description:   Gesamt zu verarbeiten: 1
-End Info
-Info: 2026-06-22 16:14:39.91
-   Code: 0x00000000
-   Source: SCR11_Partitionsgrenzen SCR11_Partitionsgrenzen
-   Description:   AKTUALISIERUNG: 1
-End Info
-Info: 2026-06-22 16:14:39.91
-   Code: 0x00000000
-   Source: SCR11_Partitionsgrenzen SCR11_Partitionsgrenzen
-   Description:   NEU: 0
-End Info
-Info: 2026-06-22 16:14:39.93
-   Code: 0x00000000
-   Source: SCR11_Partitionsgrenzen SCR11_Partitionsgrenzen
-   Description:   Werte-Bereich: 202415 bis 202415 (1 Partitionen)
-End Info
-Info: 2026-06-22 16:14:39.93
-   Code: 0x00000000
-   Source: SCR11_Partitionsgrenzen SCR11_Partitionsgrenzen
-   Description:   SPLIT ausgefuehrt: 0 | Uebersprungen: 1
-End Info
-Info: 2026-06-22 16:14:39.93
-   Code: 0x00000000
-   Source: SCR11_Partitionsgrenzen SCR11_Partitionsgrenzen
-   Description: [SCHRITT_4] tf_bsbm_betrieb_all: Partitionsgrenzen erstellt. Modus=MANUAL | Gesamt=1 | AKTUALISIERUNG=1 | NEU=0 | Bereich=202415-202415
-End Info
-Info: 2026-06-22 16:14:39.93
-   Code: 0x00000000
-   Source: SCR11_Partitionsgrenzen SCR11_Partitionsgrenzen
-   Description:   Schritt 4 abgeschlossen OK
-End Info
-Info: 2026-06-22 16:14:39.93
-   Code: 0x00000000
-   Source: SCR11_Partitionsgrenzen SCR11_Partitionsgrenzen
-   Description: BA::objPartitionValues gesetzt: 3 Eintraege
-End Info
-Info: 2026-06-22 16:14:39.94
-   Code: 0x00000000
-   Source: SCR11_Partitionsgrenzen SCR11_Partitionsgrenzen
-   Description:   tf_bsbm_arbnehm: 1 Partitionen (202415-202415)
-End Info
-Info: 2026-06-22 16:14:39.94
-   Code: 0x00000000
-   Source: SCR11_Partitionsgrenzen SCR11_Partitionsgrenzen
-   Description:   tf_bsbm_betrieb: 1 Partitionen (202415-202415)
-End Info
-Info: 2026-06-22 16:14:39.94
-   Code: 0x00000000
-   Source: SCR11_Partitionsgrenzen SCR11_Partitionsgrenzen
-   Description:   tf_bsbm_betrieb_all: 1 Partitionen (202415-202415)
-End Info
-Info: 2026-06-22 16:14:39.94
-   Code: 0x00000000
-   Source: SCR11_Partitionsgrenzen SCR11_Partitionsgrenzen
-   Description: Erfolgreich: 3 | Fehler: 0
-End Info
-Info: 2026-06-22 16:14:39.96
-   Code: 0x00000000
-   Source: SCR12_Staging_Erstellen SCR12_Staging_Erstellen
-   Description: SCR12_Staging_Erstellen - Start
-End Info
-Info: 2026-06-22 16:14:39.96
-   Code: 0x00000000
-   Source: SCR12_Staging_Erstellen SCR12_Staging_Erstellen
-   Description: Partitionswerte aus SCR09: 3 Eintraege
-End Info
-Info: 2026-06-22 16:14:39.96
-   Code: 0x00000000
-   Source: SCR12_Staging_Erstellen SCR12_Staging_Erstellen
-   Description: Verfahren aus Arbeitsliste: 3
-End Info
-Info: 2026-06-22 16:14:39.97
-   Code: 0x00000000
-   Source: SCR12_Staging_Erstellen SCR12_Staging_Erstellen
-   Description: Verfahren: tf_bsbm_arbnehm
-End Info
-Info: 2026-06-22 16:14:39.97
-   Code: 0x00000000
-   Source: SCR12_Staging_Erstellen SCR12_Staging_Erstellen
-   Description:   _out erstellt: 202415 | Modus: AKTUALISIERUNG
-End Info
-Info: 2026-06-22 16:14:39.99
-   Code: 0x00000000
-   Source: SCR12_Staging_Erstellen SCR12_Staging_Erstellen
-   Description: [SCHRITT_5] tf_bsbm_arbnehm: Staging erstellt: 1 Partition(en) | NEU: 0 | AKTUALISIERUNG: 1
-End Info
-Info: 2026-06-22 16:14:39.99
-   Code: 0x00000000
-   Source: SCR12_Staging_Erstellen SCR12_Staging_Erstellen
-   Description:   Schritt 5 abgeschlossen OK
-End Info
-Info: 2026-06-22 16:14:39.99
-   Code: 0x00000000
-   Source: SCR12_Staging_Erstellen SCR12_Staging_Erstellen
-   Description: Verfahren: tf_bsbm_betrieb
-End Info
-Info: 2026-06-22 16:14:40.02
-   Code: 0x00000000
-   Source: SCR12_Staging_Erstellen SCR12_Staging_Erstellen
-   Description:   _out erstellt: 202415 | Modus: NEU
-End Info
-Info: 2026-06-22 16:14:40.02
-   Code: 0x00000000
-   Source: SCR12_Staging_Erstellen SCR12_Staging_Erstellen
-   Description: [SCHRITT_5] tf_bsbm_betrieb: Staging erstellt: 1 Partition(en) | NEU: 1 | AKTUALISIERUNG: 0
-End Info
-Info: 2026-06-22 16:14:40.02
-   Code: 0x00000000
-   Source: SCR12_Staging_Erstellen SCR12_Staging_Erstellen
-   Description:   Schritt 5 abgeschlossen OK
-End Info
-Info: 2026-06-22 16:14:40.02
-   Code: 0x00000000
-   Source: SCR12_Staging_Erstellen SCR12_Staging_Erstellen
-   Description: Verfahren: tf_bsbm_betrieb_all
-End Info
-Info: 2026-06-22 16:14:40.04
-   Code: 0x00000000
-   Source: SCR12_Staging_Erstellen SCR12_Staging_Erstellen
-   Description:   _out erstellt: 202415 | Modus: AKTUALISIERUNG
-End Info
-Info: 2026-06-22 16:14:40.04
-   Code: 0x00000000
-   Source: SCR12_Staging_Erstellen SCR12_Staging_Erstellen
-   Description: [SCHRITT_5] tf_bsbm_betrieb_all: Staging erstellt: 1 Partition(en) | NEU: 0 | AKTUALISIERUNG: 1
-End Info
-Info: 2026-06-22 16:14:40.04
-   Code: 0x00000000
-   Source: SCR12_Staging_Erstellen SCR12_Staging_Erstellen
-   Description:   Schritt 5 abgeschlossen OK
-End Info
-Info: 2026-06-22 16:14:40.05
-   Code: 0x00000000
-   Source: SCR12_Staging_Erstellen SCR12_Staging_Erstellen
-   Description: Erfolgreich: 3 | Fehler: 0
-End Info
-Info: 2026-06-22 16:14:40.05
-   Code: 0x00000000
-   Source: SCR13_Daten_Laden SCR13_Daten_Laden
-   Description: SCR13_Daten_Laden - Start
-End Info
-Info: 2026-06-22 16:14:40.05
-   Code: 0x00000000
-   Source: SCR13_Daten_Laden SCR13_Daten_Laden
-   Description: Partitionswerte gesamt: 3 Eintraege
-End Info
-Info: 2026-06-22 16:14:40.07
-   Code: 0x00000000
-   Source: SCR13_Daten_Laden SCR13_Daten_Laden
-   Description: Verfahren: 3
-End Info
-Info: 2026-06-22 16:14:40.07
-   Code: 0x00000000
-   Source: SCR13_Daten_Laden SCR13_Daten_Laden
-   Description: Verfahren: tf_bsbm_arbnehm | Spalte: jhw_id
-End Info
-Info: 2026-06-22 16:14:40.07
-   Code: 0x00000000
-   Source: SCR13_Daten_Laden SCR13_Daten_Laden
-   Description:   Partitionswerte: 1
-End Info
-Info: 2026-06-22 16:14:40.08
-   Code: 0x00000000
-   Source: SCR13_Daten_Laden SCR13_Daten_Laden
-   Description: Verfahren: tf_bsbm_betrieb | Spalte: jhw_id
-End Info
-Info: 2026-06-22 16:14:40.08
-   Code: 0x00000000
-   Source: SCR13_Daten_Laden SCR13_Daten_Laden
-   Description:   Partitionswerte: 1
-End Info
-Info: 2026-06-22 16:14:40.08
-   Code: 0x00000000
-   Source: SCR13_Daten_Laden SCR13_Daten_Laden
-   Description: Verfahren: tf_bsbm_betrieb_all | Spalte: jhw_id
-End Info
-Info: 2026-06-22 16:14:40.08
-   Code: 0x00000000
-   Source: SCR13_Daten_Laden SCR13_Daten_Laden
-   Description:   Partitionswerte: 1
-End Info
-Info: 2026-06-22 16:14:40.08
-   Code: 0x00000000
-   Source: SCR13_Daten_Laden SCR13_Daten_Laden
-   Description: Arbeitspakete gesamt (Verfahren x Partition): 3 | Parallelitaet: 8
-End Info
-Info: 2026-06-22 16:14:40.13
-   Code: 0x00000000
-   Source: SCR13_Daten_Laden SCR13_Daten_Laden
-   Description:   tf_bsbm_betrieb_in_202415 bereits gefuellt (180705 Zeilen) uebersprungen OK
-End Info
-Info: 2026-06-22 16:14:40.13
-   Code: 0x00000000
-   Source: SCR13_Daten_Laden SCR13_Daten_Laden
-   Description:   SELECT INTO [tf_bsbm_arbnehm_in_202415_LOADING] WHERE jhw_id = 202415 (wird zu _in_ umbenannt)
-End Info
-Info: 2026-06-22 16:14:40.15
-   Code: 0x00000000
-   Source: SCR13_Daten_Laden SCR13_Daten_Laden
-   Description:   SELECT INTO [tf_bsbm_betrieb_all_in_202415_LOADING] WHERE jhw_id = 202415 (wird zu _in_ umbenannt)
-End Info
-Info: 2026-06-22 16:14:42.12
-   Code: 0x00000000
-   Source: SCR13_Daten_Laden SCR13_Daten_Laden
-   Description:   Zeilen geladen (tf_bsbm_betrieb_all_in_202415): 192357
-End Info
-Info: 2026-06-22 16:14:42.12
-   Code: 0x00000000
-   Source: SCR13_Daten_Laden SCR13_Daten_Laden
-   Description: [LOAD_202415] tf_bsbm_betrieb_all: SELECT INTO dbo.tf_bsbm_betrieb_all_in_202415 | Zeilen: 192357
-End Info
-Info: 2026-06-22 16:15:15.22
-   Code: 0x00000000
-   Source: SCR13_Daten_Laden SCR13_Daten_Laden
-   Description:   Zeilen geladen (tf_bsbm_arbnehm_in_202415): 13687585
-End Info
-Info: 2026-06-22 16:15:15.22
-   Code: 0x00000000
-   Source: SCR13_Daten_Laden SCR13_Daten_Laden
-   Description: [LOAD_202415] tf_bsbm_arbnehm: SELECT INTO dbo.tf_bsbm_arbnehm_in_202415 | Zeilen: 13687585
-End Info
-Info: 2026-06-22 16:15:15.22
-   Code: 0x00000000
-   Source: SCR13_Daten_Laden SCR13_Daten_Laden
-   Description: [SCHRITT_6] tf_bsbm_arbnehm: Daten geladen. Zeilen gesamt: 13687585
-End Info
-Info: 2026-06-22 16:15:15.22
-   Code: 0x00000000
-   Source: SCR13_Daten_Laden SCR13_Daten_Laden
-   Description:   Schritt 6 abgeschlossen OK (tf_bsbm_arbnehm)
-End Info
-Info: 2026-06-22 16:15:15.23
-   Code: 0x00000000
-   Source: SCR13_Daten_Laden SCR13_Daten_Laden
-   Description: [SCHRITT_6] tf_bsbm_betrieb: Daten geladen. Zeilen gesamt: 180705
-End Info
-Info: 2026-06-22 16:15:15.23
-   Code: 0x00000000
-   Source: SCR13_Daten_Laden SCR13_Daten_Laden
-   Description:   Schritt 6 abgeschlossen OK (tf_bsbm_betrieb)
-End Info
-Info: 2026-06-22 16:15:15.23
-   Code: 0x00000000
-   Source: SCR13_Daten_Laden SCR13_Daten_Laden
-   Description: [SCHRITT_6] tf_bsbm_betrieb_all: Daten geladen. Zeilen gesamt: 192357
-End Info
-Info: 2026-06-22 16:15:15.23
-   Code: 0x00000000
-   Source: SCR13_Daten_Laden SCR13_Daten_Laden
-   Description:   Schritt 6 abgeschlossen OK (tf_bsbm_betrieb_all)
-End Info
-Info: 2026-06-22 16:15:15.23
-   Code: 0x00000000
-   Source: SCR13_Daten_Laden SCR13_Daten_Laden
-   Description: Erfolgreich: 3 | Fehler: 0
-End Info
-Info: 2026-06-22 16:15:15.25
-   Code: 0x00000000
-   Source: SCR14_usp_Faktenladen_StagetabellenDML SCR14_StagetabellenDML_Aufruf
-   Description: SCR14_StagetabellenDML_Aufruf - Start
-End Info
-Info: 2026-06-22 16:15:15.25
-   Code: 0x00000000
-   Source: SCR14_usp_Faktenladen_StagetabellenDML SCR14_StagetabellenDML_Aufruf
-   Description: Partitionswerte aus SCR09: 3 Eintraege
-End Info
-Info: 2026-06-22 16:15:15.26
-   Code: 0x00000000
-   Source: SCR14_usp_Faktenladen_StagetabellenDML SCR14_StagetabellenDML_Aufruf
-   Description: Verfahren mit Status 'DATEN_GELADEN': 3
-End Info
-Info: 2026-06-22 16:15:15.26
-   Code: 0x00000000
-   Source: SCR14_usp_Faktenladen_StagetabellenDML SCR14_StagetabellenDML_Aufruf
-   Description: Verfahren        : tf_bsbm_arbnehm
-End Info
-Info: 2026-06-22 16:15:15.26
-   Code: 0x00000000
-   Source: SCR14_usp_Faktenladen_StagetabellenDML SCR14_StagetabellenDML_Aufruf
-   Description: Faktentabelle    : tf_bsbm_arbnehm
-End Info
-Info: 2026-06-22 16:15:15.26
-   Code: 0x00000000
-   Source: SCR14_usp_Faktenladen_StagetabellenDML SCR14_StagetabellenDML_Aufruf
-   Description: Partitionsspalte : jhw_id
-End Info
-Info: 2026-06-22 16:15:15.28
-   Code: 0x00000000
-   Source: SCR14_usp_Faktenladen_StagetabellenDML SCR14_StagetabellenDML_Aufruf
-   Description: ClusteredIndex   : CCI
-End Info
-Info: 2026-06-22 16:15:15.28
-   Code: 0x00000000
-   Source: SCR14_usp_Faktenladen_StagetabellenDML SCR14_StagetabellenDML_Aufruf
-   Description: Komprimierung    : NONE
-End Info
-Info: 2026-06-22 16:15:15.28
-   Code: 0x00000000
-   Source: SCR14_usp_Faktenladen_StagetabellenDML SCR14_StagetabellenDML_Aufruf
-   Description:   Prozedur: usp_Faktenladen_StagetabellenDML_tf_bsbm_arbnehm
-End Info
-Info: 2026-06-22 16:15:15.28
-   Code: 0x00000000
-   Source: SCR14_usp_Faktenladen_StagetabellenDML SCR14_StagetabellenDML_Aufruf
-   Description:   Info: Prozedur [usp_Faktenladen_StagetabellenDML_tf_bsbm_arbnehm] existiert nicht -> uebersprungen
-End Info
-Info: 2026-06-22 16:15:15.28
-   Code: 0x00000000
-   Source: SCR14_usp_Faktenladen_StagetabellenDML SCR14_StagetabellenDML_Aufruf
-   Description: [INFO_SCR11b] tf_bsbm_arbnehm: Prozedur usp_Faktenladen_StagetabellenDML_tf_bsbm_arbnehm nicht vorhanden -> uebersprungen
-End Info
-Info: 2026-06-22 16:15:15.29
-   Code: 0x00000000
-   Source: SCR14_usp_Faktenladen_StagetabellenDML SCR14_StagetabellenDML_Aufruf
-   Description: Verfahren        : tf_bsbm_betrieb
-End Info
-Info: 2026-06-22 16:15:15.29
-   Code: 0x00000000
-   Source: SCR14_usp_Faktenladen_StagetabellenDML SCR14_StagetabellenDML_Aufruf
-   Description: Faktentabelle    : tf_bsbm_betrieb
-End Info
-Info: 2026-06-22 16:15:15.29
-   Code: 0x00000000
-   Source: SCR14_usp_Faktenladen_StagetabellenDML SCR14_StagetabellenDML_Aufruf
-   Description: Partitionsspalte : jhw_id
-End Info
-Info: 2026-06-22 16:15:15.29
-   Code: 0x00000000
-   Source: SCR14_usp_Faktenladen_StagetabellenDML SCR14_StagetabellenDML_Aufruf
-   Description: ClusteredIndex   : CCI
-End Info
-Info: 2026-06-22 16:15:15.29
-   Code: 0x00000000
-   Source: SCR14_usp_Faktenladen_StagetabellenDML SCR14_StagetabellenDML_Aufruf
-   Description: Komprimierung    : NONE
-End Info
-Info: 2026-06-22 16:15:15.31
-   Code: 0x00000000
-   Source: SCR14_usp_Faktenladen_StagetabellenDML SCR14_StagetabellenDML_Aufruf
-   Description:   Prozedur: usp_Faktenladen_StagetabellenDML_tf_bsbm_betrieb
-End Info
-Info: 2026-06-22 16:15:15.31
-   Code: 0x00000000
-   Source: SCR14_usp_Faktenladen_StagetabellenDML SCR14_StagetabellenDML_Aufruf
-   Description:   Info: Prozedur [usp_Faktenladen_StagetabellenDML_tf_bsbm_betrieb] existiert nicht -> uebersprungen
-End Info
-Info: 2026-06-22 16:15:15.31
-   Code: 0x00000000
-   Source: SCR14_usp_Faktenladen_StagetabellenDML SCR14_StagetabellenDML_Aufruf
-   Description: [INFO_SCR11b] tf_bsbm_betrieb: Prozedur usp_Faktenladen_StagetabellenDML_tf_bsbm_betrieb nicht vorhanden -> uebersprungen
-End Info
-Info: 2026-06-22 16:15:15.31
-   Code: 0x00000000
-   Source: SCR14_usp_Faktenladen_StagetabellenDML SCR14_StagetabellenDML_Aufruf
-   Description: Verfahren        : tf_bsbm_betrieb_all
-End Info
-Info: 2026-06-22 16:15:15.31
-   Code: 0x00000000
-   Source: SCR14_usp_Faktenladen_StagetabellenDML SCR14_StagetabellenDML_Aufruf
-   Description: Faktentabelle    : tf_bsbm_betrieb_all
-End Info
-Info: 2026-06-22 16:15:15.31
-   Code: 0x00000000
-   Source: SCR14_usp_Faktenladen_StagetabellenDML SCR14_StagetabellenDML_Aufruf
-   Description: Partitionsspalte : jhw_id
-End Info
-Info: 2026-06-22 16:15:15.32
-   Code: 0x00000000
-   Source: SCR14_usp_Faktenladen_StagetabellenDML SCR14_StagetabellenDML_Aufruf
-   Description: ClusteredIndex   : CCI
-End Info
-Info: 2026-06-22 16:15:15.32
-   Code: 0x00000000
-   Source: SCR14_usp_Faktenladen_StagetabellenDML SCR14_StagetabellenDML_Aufruf
-   Description: Komprimierung    : NONE
-End Info
-Info: 2026-06-22 16:15:15.32
-   Code: 0x00000000
-   Source: SCR14_usp_Faktenladen_StagetabellenDML SCR14_StagetabellenDML_Aufruf
-   Description:   Prozedur: usp_Faktenladen_StagetabellenDML_tf_bsbm_betrieb_all
-End Info
-Info: 2026-06-22 16:15:15.32
-   Code: 0x00000000
-   Source: SCR14_usp_Faktenladen_StagetabellenDML SCR14_StagetabellenDML_Aufruf
-   Description:   Info: Prozedur [usp_Faktenladen_StagetabellenDML_tf_bsbm_betrieb_all] existiert nicht -> uebersprungen
-End Info
-Info: 2026-06-22 16:15:15.32
-   Code: 0x00000000
-   Source: SCR14_usp_Faktenladen_StagetabellenDML SCR14_StagetabellenDML_Aufruf
-   Description: [INFO_SCR11b] tf_bsbm_betrieb_all: Prozedur usp_Faktenladen_StagetabellenDML_tf_bsbm_betrieb_all nicht vorhanden -> uebersprungen
-End Info
-Info: 2026-06-22 16:15:15.34
-   Code: 0x00000000
-   Source: SCR14_usp_Faktenladen_StagetabellenDML SCR14_StagetabellenDML_Aufruf
-   Description: ZUSAMMENFASSUNG SCR11b_StagetabellenDML_Aufruf
-End Info
-Info: 2026-06-22 16:15:15.34
-   Code: 0x00000000
-   Source: SCR14_usp_Faktenladen_StagetabellenDML SCR14_StagetabellenDML_Aufruf
-   Description: Erfolgreich: 3
-End Info
-Info: 2026-06-22 16:15:15.34
-   Code: 0x00000000
-   Source: SCR14_usp_Faktenladen_StagetabellenDML SCR14_StagetabellenDML_Aufruf
-   Description: Fehler:      0
-End Info
-Info: 2026-06-22 16:15:15.34
-   Code: 0x00000000
-   Source: SCR14_usp_Faktenladen_StagetabellenDML SCR14_StagetabellenDML_Aufruf
-   Description: SCR11b_StagetabellenDML_Aufruf erfolgreich abgeschlossen
-End Info
-Info: 2026-06-22 16:15:15.36
-   Code: 0x00000000
-   Source: SCR15_usp_Faktenladen_Partitionladen SCR15_Partitionladen_Nachlauf
-   Description: SCR15_Partitionladen_Nachlauf - Start
-End Info
-Info: 2026-06-22 16:15:15.36
-   Code: 0x00000000
-   Source: SCR15_usp_Faktenladen_Partitionladen SCR15_Partitionladen_Nachlauf
-   Description: Partitionswerte: 3 Eintraege
-End Info
-Info: 2026-06-22 16:15:15.37
-   Code: 0x00000000
-   Source: SCR15_usp_Faktenladen_Partitionladen SCR15_Partitionladen_Nachlauf
-   Description: Verfahren mit Status 'ERFOLG': 0
-End Info
-Info: 2026-06-22 16:15:15.37
-   Code: 0x00000000
-   Source: SCR15_usp_Faktenladen_Partitionladen SCR15_Partitionladen_Nachlauf
-   Description: Keine Verfahren zu verarbeiten
-End Info
-Info: 2026-06-22 16:15:15.39
-   Code: 0x00000000
-   Source: SCR16_Stagingtabelle - Clustered Index erstellen SCR16_Stagingtabelle___Clustered_Index_erstellen
-   Description: SCR16_Stagingtabelle___Clustered_Index_erstellen - Start
-End Info
-Info: 2026-06-22 16:15:15.39
-   Code: 0x00000000
-   Source: SCR16_Stagingtabelle - Clustered Index erstellen SCR16_Stagingtabelle___Clustered_Index_erstellen
-   Description: Partitionswerte geladen: 3 Verfahren
-End Info
-Info: 2026-06-22 16:15:15.40
-   Code: 0x00000000
-   Source: SCR16_Stagingtabelle - Clustered Index erstellen SCR16_Stagingtabelle___Clustered_Index_erstellen
-   Description: Verfahren: 3
-End Info
-Info: 2026-06-22 16:15:15.40
-   Code: 0x00000000
-   Source: SCR16_Stagingtabelle - Clustered Index erstellen SCR16_Stagingtabelle___Clustered_Index_erstellen
-   Description: Verfahren: tf_bsbm_arbnehm | IndexTyp: CCI
-End Info
-Info: 2026-06-22 16:15:15.40
-   Code: 0x00000000
-   Source: SCR16_Stagingtabelle - Clustered Index erstellen SCR16_Stagingtabelle___Clustered_Index_erstellen
-   Description: Verfahren: tf_bsbm_betrieb | IndexTyp: CCI
-End Info
-Info: 2026-06-22 16:15:15.42
-   Code: 0x00000000
-   Source: SCR16_Stagingtabelle - Clustered Index erstellen SCR16_Stagingtabelle___Clustered_Index_erstellen
-   Description: Verfahren: tf_bsbm_betrieb_all | IndexTyp: CCI
-End Info
-Info: 2026-06-22 16:15:15.42
-   Code: 0x00000000
-   Source: SCR16_Stagingtabelle - Clustered Index erstellen SCR16_Stagingtabelle___Clustered_Index_erstellen
-   Description: Arbeitspakete (Tabelle x Index): 6 | Parallelitaet: 8 | MAXDOP/Build: 4
-End Info
-Info: 2026-06-22 16:15:15.43
-   Code: 0x00000000
-   Source: SCR16_Stagingtabelle - Clustered Index erstellen SCR16_Stagingtabelle___Clustered_Index_erstellen
-   Description:     CCI bereits vorhanden uebersprungen: tf_bsbm_betrieb_in_202415
-End Info
-Info: 2026-06-22 16:15:15.43
-   Code: 0x00000000
-   Source: SCR16_Stagingtabelle - Clustered Index erstellen SCR16_Stagingtabelle___Clustered_Index_erstellen
-   Description:     CCI angelegt OK: tf_bsbm_arbnehm_out_202415
-End Info
-Info: 2026-06-22 16:15:15.43
-   Code: 0x00000000
-   Source: SCR16_Stagingtabelle - Clustered Index erstellen SCR16_Stagingtabelle___Clustered_Index_erstellen
-   Description:     CCI angelegt OK: tf_bsbm_betrieb_all_out_202415
-End Info
-Info: 2026-06-22 16:15:15.45
-   Code: 0x00000000
-   Source: SCR16_Stagingtabelle - Clustered Index erstellen SCR16_Stagingtabelle___Clustered_Index_erstellen
-   Description:     CCI angelegt OK: tf_bsbm_betrieb_out_202415
-End Info
-Info: 2026-06-22 16:15:16.62
-   Code: 0x00000000
-   Source: SCR16_Stagingtabelle - Clustered Index erstellen SCR16_Stagingtabelle___Clustered_Index_erstellen
-   Description:     CCI angelegt OK: tf_bsbm_betrieb_all_in_202415
-End Info
-Info: 2026-06-22 16:15:47.31
-   Code: 0x00000000
-   Source: SCR16_Stagingtabelle - Clustered Index erstellen SCR16_Stagingtabelle___Clustered_Index_erstellen
-   Description:     CCI angelegt OK: tf_bsbm_arbnehm_in_202415
-End Info
-Info: 2026-06-22 16:15:47.31
-   Code: 0x00000000
-   Source: SCR16_Stagingtabelle - Clustered Index erstellen SCR16_Stagingtabelle___Clustered_Index_erstellen
-   Description: [SCHRITT_7A] tf_bsbm_arbnehm: Index _in/_out erstellt
-End Info
-Info: 2026-06-22 16:15:47.32
-   Code: 0x00000000
-   Source: SCR16_Stagingtabelle - Clustered Index erstellen SCR16_Stagingtabelle___Clustered_Index_erstellen
-   Description:   Schritt 7a abgeschlossen OK (tf_bsbm_arbnehm)
-End Info
-Info: 2026-06-22 16:15:47.32
-   Code: 0x00000000
-   Source: SCR16_Stagingtabelle - Clustered Index erstellen SCR16_Stagingtabelle___Clustered_Index_erstellen
-   Description: [SCHRITT_7A] tf_bsbm_betrieb: Index _in/_out erstellt
-End Info
-Info: 2026-06-22 16:15:47.32
-   Code: 0x00000000
-   Source: SCR16_Stagingtabelle - Clustered Index erstellen SCR16_Stagingtabelle___Clustered_Index_erstellen
-   Description:   Schritt 7a abgeschlossen OK (tf_bsbm_betrieb)
-End Info
-Info: 2026-06-22 16:15:47.32
-   Code: 0x00000000
-   Source: SCR16_Stagingtabelle - Clustered Index erstellen SCR16_Stagingtabelle___Clustered_Index_erstellen
-   Description: [SCHRITT_7A] tf_bsbm_betrieb_all: Index _in/_out erstellt
-End Info
-Info: 2026-06-22 16:15:47.32
-   Code: 0x00000000
-   Source: SCR16_Stagingtabelle - Clustered Index erstellen SCR16_Stagingtabelle___Clustered_Index_erstellen
-   Description:   Schritt 7a abgeschlossen OK (tf_bsbm_betrieb_all)
-End Info
-Info: 2026-06-22 16:15:47.34
-   Code: 0x00000000
-   Source: SCR16_Stagingtabelle - Clustered Index erstellen SCR16_Stagingtabelle___Clustered_Index_erstellen
-   Description: Erfolgreich: 3 | Fehler: 0
-End Info
-Info: 2026-06-22 16:15:47.34
-   Code: 0x00000000
-   Source: SCR17_Stagingtabelle komprimieren SCR17_Komprimierung_Out
-   Description: SCR17_Komprimierung_Out - Start
-End Info
-Info: 2026-06-22 16:15:47.34
-   Code: 0x00000000
-   Source: SCR17_Stagingtabelle komprimieren SCR17_Komprimierung_Out
-   Description: Partitionswerte geladen: 3 Verfahren
-End Info
-Info: 2026-06-22 16:15:47.36
-   Code: 0x00000000
-   Source: SCR17_Stagingtabelle komprimieren SCR17_Komprimierung_Out
-   Description: Verfahren: 3
-End Info
-Info: 2026-06-22 16:15:47.36
-   Code: 0x00000000
-   Source: SCR17_Stagingtabelle komprimieren SCR17_Komprimierung_Out
-   Description: Verfahren: tf_bsbm_arbnehm | Komprimierung: NONE | IndexTyp: CCI
-End Info
-Info: 2026-06-22 16:15:47.36
-   Code: 0x00000000
-   Source: SCR17_Stagingtabelle komprimieren SCR17_Komprimierung_Out
-   Description:   CCI aktiv PAGE/ROW nicht anwendbar uebersprungen
-End Info
-Info: 2026-06-22 16:15:47.37
-   Code: 0x00000000
-   Source: SCR17_Stagingtabelle komprimieren SCR17_Komprimierung_Out
-   Description: [SCHRITT_7B] tf_bsbm_arbnehm: CCI aktiv Komprimierung uebersprungen
-End Info
-Info: 2026-06-22 16:15:47.37
-   Code: 0x00000000
-   Source: SCR17_Stagingtabelle komprimieren SCR17_Komprimierung_Out
-   Description: Verfahren: tf_bsbm_betrieb | Komprimierung: NONE | IndexTyp: CCI
-End Info
-Info: 2026-06-22 16:15:47.37
-   Code: 0x00000000
-   Source: SCR17_Stagingtabelle komprimieren SCR17_Komprimierung_Out
-   Description:   CCI aktiv PAGE/ROW nicht anwendbar uebersprungen
-End Info
-Info: 2026-06-22 16:15:47.37
-   Code: 0x00000000
-   Source: SCR17_Stagingtabelle komprimieren SCR17_Komprimierung_Out
-   Description: [SCHRITT_7B] tf_bsbm_betrieb: CCI aktiv Komprimierung uebersprungen
-End Info
-Info: 2026-06-22 16:15:47.39
-   Code: 0x00000000
-   Source: SCR17_Stagingtabelle komprimieren SCR17_Komprimierung_Out
-   Description: Verfahren: tf_bsbm_betrieb_all | Komprimierung: NONE | IndexTyp: CCI
-End Info
-Info: 2026-06-22 16:15:47.39
-   Code: 0x00000000
-   Source: SCR17_Stagingtabelle komprimieren SCR17_Komprimierung_Out
-   Description:   CCI aktiv PAGE/ROW nicht anwendbar uebersprungen
-End Info
-Info: 2026-06-22 16:15:47.39
-   Code: 0x00000000
-   Source: SCR17_Stagingtabelle komprimieren SCR17_Komprimierung_Out
-   Description: [SCHRITT_7B] tf_bsbm_betrieb_all: CCI aktiv Komprimierung uebersprungen
-End Info
-Info: 2026-06-22 16:15:47.39
-   Code: 0x00000000
-   Source: SCR17_Stagingtabelle komprimieren SCR17_Komprimierung_Out
-   Description: Erfolgreich: 3 | Fehler: 0
-End Info
-Info: 2026-06-22 16:15:47.40
-   Code: 0x00000000
-   Source: SCR18_Stagingtabelle - NCCI erstellen SCR18_NCCI_Out
-   Description: SCR18_NCCI_Out - Start
-End Info
-Info: 2026-06-22 16:15:47.40
-   Code: 0x00000000
-   Source: SCR18_Stagingtabelle - NCCI erstellen SCR18_NCCI_Out
-   Description: Partitionswerte geladen: 3 Verfahren
-End Info
-Info: 2026-06-22 16:15:47.42
-   Code: 0x00000000
-   Source: SCR18_Stagingtabelle - NCCI erstellen SCR18_NCCI_Out
-   Description: Verfahren: 3
-End Info
-Info: 2026-06-22 16:15:47.42
-   Code: 0x00000000
-   Source: SCR18_Stagingtabelle - NCCI erstellen SCR18_NCCI_Out
-   Description: Verfahren: tf_bsbm_arbnehm | NCCI: FALSE | IndexTyp: CCI
-End Info
-Info: 2026-06-22 16:15:47.42
-   Code: 0x00000000
-   Source: SCR18_Stagingtabelle - NCCI erstellen SCR18_NCCI_Out
-   Description:   NCCI nicht anwendbar uebersprungen
-End Info
-Info: 2026-06-22 16:15:47.43
-   Code: 0x00000000
-   Source: SCR18_Stagingtabelle - NCCI erstellen SCR18_NCCI_Out
-   Description: [SCHRITT_7C] tf_bsbm_arbnehm: NCCI nicht anwendbar uebersprungen
-End Info
-Info: 2026-06-22 16:15:47.43
-   Code: 0x00000000
-   Source: SCR18_Stagingtabelle - NCCI erstellen SCR18_NCCI_Out
-   Description: Verfahren: tf_bsbm_betrieb | NCCI: FALSE | IndexTyp: CCI
-End Info
-Info: 2026-06-22 16:15:47.43
-   Code: 0x00000000
-   Source: SCR18_Stagingtabelle - NCCI erstellen SCR18_NCCI_Out
-   Description:   NCCI nicht anwendbar uebersprungen
-End Info
-Info: 2026-06-22 16:15:47.45
-   Code: 0x00000000
-   Source: SCR18_Stagingtabelle - NCCI erstellen SCR18_NCCI_Out
-   Description: [SCHRITT_7C] tf_bsbm_betrieb: NCCI nicht anwendbar uebersprungen
-End Info
-Info: 2026-06-22 16:15:47.45
-   Code: 0x00000000
-   Source: SCR18_Stagingtabelle - NCCI erstellen SCR18_NCCI_Out
-   Description: Verfahren: tf_bsbm_betrieb_all | NCCI: FALSE | IndexTyp: CCI
-End Info
-Info: 2026-06-22 16:15:47.45
-   Code: 0x00000000
-   Source: SCR18_Stagingtabelle - NCCI erstellen SCR18_NCCI_Out
-   Description:   NCCI nicht anwendbar uebersprungen
-End Info
-Info: 2026-06-22 16:15:47.45
-   Code: 0x00000000
-   Source: SCR18_Stagingtabelle - NCCI erstellen SCR18_NCCI_Out
-   Description: [SCHRITT_7C] tf_bsbm_betrieb_all: NCCI nicht anwendbar uebersprungen
-End Info
-Info: 2026-06-22 16:15:47.46
-   Code: 0x00000000
-   Source: SCR18_Stagingtabelle - NCCI erstellen SCR18_NCCI_Out
-   Description: Erfolgreich: 3 | Fehler: 0
-End Info
-Info: 2026-06-22 16:15:47.46
-   Code: 0x00000000
-   Source: SCR19_Partitionstausch SCR19_Partitionstausch
-   Description: SCR19_Partitionstausch - Start
-End Info
-Info: 2026-06-22 16:15:47.46
-   Code: 0x00000000
-   Source: SCR19_Partitionstausch SCR19_Partitionstausch
-   Description: Partitionswerte geladen: 3 Verfahren
-End Info
-Info: 2026-06-22 16:15:47.48
-   Code: 0x00000000
-   Source: SCR19_Partitionstausch SCR19_Partitionstausch
-   Description: Verfahren: 3
-End Info
-Info: 2026-06-22 16:15:47.48
-   Code: 0x00000000
-   Source: SCR19_Partitionstausch SCR19_Partitionstausch
-   Description: Verfahren: tf_bsbm_arbnehm | Tabelle: tf_bsbm_arbnehm
-End Info
-Info: 2026-06-22 16:15:47.50
-   Code: 0x00000000
-   Source: SCR19_Partitionstausch SCR19_Partitionstausch
-   Description:   Partitionen: 1
-End Info
-Info: 2026-06-22 16:15:47.50
-   Code: 0x00000000
-   Source: SCR19_Partitionstausch SCR19_Partitionstausch
-   Description:   Partition: 202415
-End Info
-Info: 2026-06-22 16:15:47.50
-   Code: 0x00000000
-   Source: SCR19_Partitionstausch SCR19_Partitionstausch
-   Description:   Partitionsnummer: 40
-End Info
-Info: 2026-06-22 16:15:47.51
-   Code: 0x00000000
-   Source: SCR19_Partitionstausch SCR19_Partitionstausch
-   Description:   SWITCH OUT tf_bsbm_arbnehm_out_202415 OK
-End Info
-Info: 2026-06-22 16:15:48.14
-   Code: 0x00000000
-   Source: SCR19_Partitionstausch SCR19_Partitionstausch
-   Description:   CHECK Constraint: jhw_id_202415_tf_bsbm_arbnehm_CK (jhw_id IS NOT NULL AND > 202315 AND <= 202415) OK
-End Info
-Info: 2026-06-22 16:15:48.17
-   Code: 0x00000000
-   Source: SCR19_Partitionstausch SCR19_Partitionstausch
-   Description:   SWITCH IN tf_bsbm_arbnehm Partition 40 OK
-End Info
-Info: 2026-06-22 16:15:48.18
-   Code: 0x00000000
-   Source: SCR19_Partitionstausch SCR19_Partitionstausch
-   Description:   _out geloescht OK
-End Info
-Info: 2026-06-22 16:15:48.20
-   Code: 0x00000000
-   Source: SCR19_Partitionstausch SCR19_Partitionstausch
-   Description:   _in geloescht OK
-End Info
-Info: 2026-06-22 16:15:48.20
-   Code: 0x00000000
-   Source: SCR19_Partitionstausch SCR19_Partitionstausch
-   Description: [SWITCH_202415] tf_bsbm_arbnehm: SWITCH IN erfolgreich tf_bsbm_arbnehm Partition 40
-End Info
-Info: 2026-06-22 16:15:48.25
-   Code: 0x00000000
-   Source: SCR19_Partitionstausch SCR19_Partitionstausch
-   Description:   ABSCHLUSSSTATUS: tf_bsbm_arbnehm
-End Info
-Info: 2026-06-22 16:15:48.26
-   Code: 0x00000000
-   Source: SCR19_Partitionstausch SCR19_Partitionstausch
-   Description:   Zeilen: 459632259
-End Info
-Info: 2026-06-22 16:15:48.26
-   Code: 0x00000000
-   Source: SCR19_Partitionstausch SCR19_Partitionstausch
-   Description:   MIN:    200315
-End Info
-Info: 2026-06-22 16:15:48.26
-   Code: 0x00000000
-   Source: SCR19_Partitionstausch SCR19_Partitionstausch
-   Description:   MAX:    202415
-End Info
-Info: 2026-06-22 16:15:48.26
-   Code: 0x00000000
-   Source: SCR19_Partitionstausch SCR19_Partitionstausch
-   Description: [ABSCHLUSS] tf_bsbm_arbnehm: Fertig. Zeilen: 459632259 | MIN: 200315 | MAX: 202415
-End Info
-Info: 2026-06-22 16:15:48.28
-   Code: 0x00000000
-   Source: SCR19_Partitionstausch SCR19_Partitionstausch
-   Description:   Verfahren erfolgreich abgeschlossen OK
-End Info
-Info: 2026-06-22 16:15:48.28
-   Code: 0x00000000
-   Source: SCR19_Partitionstausch SCR19_Partitionstausch
-   Description: Verfahren: tf_bsbm_betrieb | Tabelle: tf_bsbm_betrieb
-End Info
-Info: 2026-06-22 16:15:48.28
-   Code: 0x00000000
-   Source: SCR19_Partitionstausch SCR19_Partitionstausch
-   Description:   Partitionen: 1
-End Info
-Info: 2026-06-22 16:15:48.28
-   Code: 0x00000000
-   Source: SCR19_Partitionstausch SCR19_Partitionstausch
-   Description:   Partition: 202415
-End Info
-Info: 2026-06-22 16:15:48.28
-   Code: 0x00000000
-   Source: SCR19_Partitionstausch SCR19_Partitionstausch
-   Description:   Partitionsnummer: 40
-End Info
-Info: 2026-06-22 16:15:48.29
-   Code: 0x00000000
-   Source: SCR19_Partitionstausch SCR19_Partitionstausch
-   Description:   SWITCH OUT tf_bsbm_betrieb_out_202415 OK
-End Info
-Info: 2026-06-22 16:15:48.32
-   Code: 0x00000000
-   Source: SCR19_Partitionstausch SCR19_Partitionstausch
-   Description:   CHECK Constraint: jhw_id_202415_tf_bsbm_betrieb_CK (jhw_id IS NOT NULL AND > 202315 AND <= 202415) OK
-End Info
-Info: 2026-06-22 16:15:48.32
-   Code: 0x00000000
-   Source: SCR19_Partitionstausch SCR19_Partitionstausch
-   Description: WARNUNG [SWITCH IN] Versuch 1/3: ALTER TABLE SWITCH statement failed because column 'anzarb_ap_mschnitt' has data type decimal(38,0) in source table 'msi_dm_bsbm.dbo.tf_bsbm_betrieb_in_202415' which is different from its type decimal(17,10) in target table 'msi_dm_bsbm.dbo.tf_bsbm_betrieb'.
-End Info
-Info: 2026-06-22 16:15:48.32
-   Code: 0x00000000
-   Source: SCR19_Partitionstausch SCR19_Partitionstausch
-   Description: SQL Statement [SWITCH IN]: ALTER TABLE dbo.[tf_bsbm_betrieb_in_202415] SWITCH TO dbo.[tf_bsbm_betrieb] PARTITION 40;
-End Info
-Info: 2026-06-22 16:16:18.34
-   Code: 0x00000000
-   Source: SCR19_Partitionstausch SCR19_Partitionstausch
-   Description: WARNUNG [SWITCH IN] Versuch 2/3: ALTER TABLE SWITCH statement failed because column 'anzarb_ap_mschnitt' has data type decimal(38,0) in source table 'msi_dm_bsbm.dbo.tf_bsbm_betrieb_in_202415' which is different from its type decimal(17,10) in target table 'msi_dm_bsbm.dbo.tf_bsbm_betrieb'.
-End Info
-Info: 2026-06-22 16:16:48.36
-   Code: 0x00000000
-   Source: SCR19_Partitionstausch SCR19_Partitionstausch
-   Description: WARNUNG [SWITCH IN] Versuch 3/3: ALTER TABLE SWITCH statement failed because column 'anzarb_ap_mschnitt' has data type decimal(38,0) in source table 'msi_dm_bsbm.dbo.tf_bsbm_betrieb_in_202415' which is different from its type decimal(17,10) in target table 'msi_dm_bsbm.dbo.tf_bsbm_betrieb'.
-End Info
-Error: 2026-06-22 16:16:48.38
-   Code: 0x00000000
-   Source: SCR19_Partitionstausch SCR19_Partitionstausch
-   Description: [FEHLER_SCR15] tf_bsbm_betrieb: [SWITCH IN] fehlgeschlagen: ALTER TABLE SWITCH statement failed because column 'anzarb_ap_mschnitt' has data type decimal(38,0) in source table 'msi_dm_bsbm.dbo.tf_bsbm_betrieb_in_202415' which is different from its type decimal(17,10) in target table 'msi_dm_bsbm.dbo.tf_bsbm_betrieb'.
+   Description: [FEHLER_SCR07] tf_lst_best_alg: Incorrect syntax near 'SYS_C00015_25122313:'.
+Incorrect syntax near the keyword 'with'. If this statement is a common table expression, an xmlnamespaces clause or a change tracking context clause, the previous statement must be terminated with a semicolon.
 End Error
-Error: 2026-06-22 16:16:48.38
+Error: 2026-06-22 16:41:17.64
    Code: 0x00000000
-   Source: SCR19_Partitionstausch SCR19_Partitionstausch
-   Description: FEHLER 'tf_bsbm_betrieb': [SWITCH IN] fehlgeschlagen: ALTER TABLE SWITCH statement failed because column 'anzarb_ap_mschnitt' has data type decimal(38,0) in source table 'msi_dm_bsbm.dbo.tf_bsbm_betrieb_in_202415' which is different from its type decimal(17,10) in target table 'msi_dm_bsbm.dbo.tf_bsbm_betrieb'.
+   Source: SCR09_Ext_Tabelle_Erstellen SCR09_Ext_Tabelle_Erstellen
+   Description: FEHLER 'tf_lst_best_alg': Incorrect syntax near 'SYS_C00015_25122313:'.
+Incorrect syntax near the keyword 'with'. If this statement is a common table expression, an xmlnamespaces clause or a change tracking context clause, the previous statement must be terminated with a semicolon.
 End Error
-Info: 2026-06-22 16:16:48.38
+Info: 2026-06-22 16:41:17.64
    Code: 0x00000000
-   Source: SCR19_Partitionstausch SCR19_Partitionstausch
-   Description: Verfahren: tf_bsbm_betrieb_all | Tabelle: tf_bsbm_betrieb_all
+   Source: SCR09_Ext_Tabelle_Erstellen SCR09_Ext_Tabelle_Erstellen
+   Description: Verfahren: tf_lst_bew_alg | Themengebiet: thm_dm_stat_lst_sgbiii
 End Info
-Info: 2026-06-22 16:16:48.38
+Info: 2026-06-22 16:41:17.66
    Code: 0x00000000
-   Source: SCR19_Partitionstausch SCR19_Partitionstausch
-   Description:   Partitionen: 1
+   Source: SCR09_Ext_Tabelle_Erstellen SCR09_Ext_Tabelle_Erstellen
+   Description:   Erstelle externe Tabelle: ext.[tf_lst_bew_alg]
 End Info
-Info: 2026-06-22 16:16:48.38
+Info: 2026-06-22 16:41:17.66
    Code: 0x00000000
-   Source: SCR19_Partitionstausch SCR19_Partitionstausch
-   Description:   Partition: 202415
+   Source: SCR09_Ext_Tabelle_Erstellen SCR09_Ext_Tabelle_Erstellen
+   Description:   Oracle Location: ISTAT.THM_DM_STAT_LST_SGBIII.TF_LST_BEW_ALG
 End Info
-Info: 2026-06-22 16:16:48.39
+Info: 2026-06-22 16:41:17.67
    Code: 0x00000000
-   Source: SCR19_Partitionstausch SCR19_Partitionstausch
-   Description:   Partitionsnummer: 40
+   Source: SCR09_Ext_Tabelle_Erstellen SCR09_Ext_Tabelle_Erstellen
+   Description: WARNUNG [Ext Tabelle erstellen] Versuch 1/3: Incorrect syntax near 'SYS_C00019_25110608:'.
+Incorrect syntax near the keyword 'with'. If this statement is a common table expression, an xmlnamespaces clause or a change tracking context clause, the previous statement must be terminated with a semicolon.
 End Info
-Info: 2026-06-22 16:16:48.39
+Info: 2026-06-22 16:41:47.69
    Code: 0x00000000
-   Source: SCR19_Partitionstausch SCR19_Partitionstausch
-   Description:   SWITCH OUT tf_bsbm_betrieb_all_out_202415 OK
+   Source: SCR09_Ext_Tabelle_Erstellen SCR09_Ext_Tabelle_Erstellen
+   Description: WARNUNG [Ext Tabelle erstellen] Versuch 2/3: Incorrect syntax near 'SYS_C00019_25110608:'.
+Incorrect syntax near the keyword 'with'. If this statement is a common table expression, an xmlnamespaces clause or a change tracking context clause, the previous statement must be terminated with a semicolon.
 End Info
-Info: 2026-06-22 16:16:48.42
+Info: 2026-06-22 16:42:17.71
    Code: 0x00000000
-   Source: SCR19_Partitionstausch SCR19_Partitionstausch
-   Description:   CHECK Constraint: jhw_id_202415_tf_bsbm_betrieb_all_CK (jhw_id IS NOT NULL AND > 202315 AND <= 202415) OK
+   Source: SCR09_Ext_Tabelle_Erstellen SCR09_Ext_Tabelle_Erstellen
+   Description: WARNUNG [Ext Tabelle erstellen] Versuch 3/3: Incorrect syntax near 'SYS_C00019_25110608:'.
+Incorrect syntax near the keyword 'with'. If this statement is a common table expression, an xmlnamespaces clause or a change tracking context clause, the previous statement must be terminated with a semicolon.
 End Info
-Info: 2026-06-22 16:16:48.44
+Error: 2026-06-22 16:42:17.72
    Code: 0x00000000
-   Source: SCR19_Partitionstausch SCR19_Partitionstausch
-   Description:   SWITCH IN tf_bsbm_betrieb_all Partition 40 OK
-End Info
-Info: 2026-06-22 16:16:48.45
+   Source: SCR09_Ext_Tabelle_Erstellen SCR09_Ext_Tabelle_Erstellen
+   Description: [FEHLER_SCR07] tf_lst_bew_alg: Incorrect syntax near 'SYS_C00019_25110608:'.
+Incorrect syntax near the keyword 'with'. If this statement is a common table expression, an xmlnamespaces clause or a change tracking context clause, the previous statement must be terminated with a semicolon.
+End Error
+Error: 2026-06-22 16:42:17.72
    Code: 0x00000000
-   Source: SCR19_Partitionstausch SCR19_Partitionstausch
-   Description:   _out geloescht OK
-End Info
-Info: 2026-06-22 16:16:48.47
+   Source: SCR09_Ext_Tabelle_Erstellen SCR09_Ext_Tabelle_Erstellen
+   Description: FEHLER 'tf_lst_bew_alg': Incorrect syntax near 'SYS_C00019_25110608:'.
+Incorrect syntax near the keyword 'with'. If this statement is a common table expression, an xmlnamespaces clause or a change tracking context clause, the previous statement must be terminated with a semicolon.
+End Error
+Info: 2026-06-22 16:42:17.72
    Code: 0x00000000
-   Source: SCR19_Partitionstausch SCR19_Partitionstausch
-   Description:   _in geloescht OK
+   Source: SCR09_Ext_Tabelle_Erstellen SCR09_Ext_Tabelle_Erstellen
+   Description: Erfolgreich: 0 | Fehler: 2
 End Info
-Info: 2026-06-22 16:16:48.47
-   Code: 0x00000000
-   Source: SCR19_Partitionstausch SCR19_Partitionstausch
-   Description: [SWITCH_202415] tf_bsbm_betrieb_all: SWITCH IN erfolgreich tf_bsbm_betrieb_all Partition 40
-End Info
-Info: 2026-06-22 16:16:48.48
-   Code: 0x00000000
-   Source: SCR19_Partitionstausch SCR19_Partitionstausch
-   Description:   ABSCHLUSSSTATUS: tf_bsbm_betrieb_all
-End Info
-Info: 2026-06-22 16:16:48.48
-   Code: 0x00000000
-   Source: SCR19_Partitionstausch SCR19_Partitionstausch
-   Description:   Zeilen: 6154477
-End Info
-Info: 2026-06-22 16:16:48.48
-   Code: 0x00000000
-   Source: SCR19_Partitionstausch SCR19_Partitionstausch
-   Description:   MIN:    200315
-End Info
-Info: 2026-06-22 16:16:48.48
-   Code: 0x00000000
-   Source: SCR19_Partitionstausch SCR19_Partitionstausch
-   Description:   MAX:    202415
-End Info
-Info: 2026-06-22 16:16:48.50
-   Code: 0x00000000
-   Source: SCR19_Partitionstausch SCR19_Partitionstausch
-   Description: [ABSCHLUSS] tf_bsbm_betrieb_all: Fertig. Zeilen: 6154477 | MIN: 200315 | MAX: 202415
-End Info
-Info: 2026-06-22 16:16:48.50
-   Code: 0x00000000
-   Source: SCR19_Partitionstausch SCR19_Partitionstausch
-   Description:   Verfahren erfolgreich abgeschlossen OK
-End Info
-Info: 2026-06-22 16:16:48.50
-   Code: 0x00000000
-   Source: SCR19_Partitionstausch SCR19_Partitionstausch
-   Description: Erfolgreich: 2 | Fehler: 1
-End Info
-Error: 2026-06-22 16:16:48.50
+Error: 2026-06-22 16:42:17.72
    Code: 0x00000006
-   Source: SCR19_Partitionstausch 
+   Source: SCR09_Ext_Tabelle_Erstellen 
    Description: The script returned a failure result.
 End Error
-Info: 2026-06-22 16:16:48.61
+Info: 2026-06-22 16:42:17.80
    Code: 0x00000000
    Source: OnTaskFailed OnFailed
-   Description: Cleanup (leere _out_/_in_-Tabellen + ext-Tabellen):
-IF NOT EXISTS (SELECT TOP 1 1 FROM dbo.[tf_bsbm_betrieb_out_202415]) DROP TABLE dbo.[tf_bsbm_betrieb_out_202415];
-IF NOT EXISTS (SELECT TOP 1 1 FROM dbo.[tf_bsbm_betrieb_in_202415]) DROP TABLE dbo.[tf_bsbm_betrieb_in_202415];
-DROP EXTERNAL TABLE ext.[tf_bsbm_arbnehm];
-DROP EXTERNAL TABLE ext.[tf_bsbm_betrieb];
-DROP EXTERNAL TABLE ext.[tf_bsbm_betrieb_all];
+   Description: Cleanup: keine leeren _out_/_in_-Tabellen und keine ext-Tabellen gefunden
 End Info
-Warning: 2026-06-22 16:16:48.61
+Warning: 2026-06-22 16:42:17.80
    Code: 0x80019002
    Source: Package 
-   Description: SSIS Warning Code DTS_W_MAXIMUMERRORCOUNTREACHED.  The Execution method succeeded, but the number of errors raised (3) reached the maximum allowed (1); resulting in failure. This occurs when the number of errors reaches the number specified in MaximumErrorCount. Change the MaximumErrorCount or fix the errors.
+   Description: SSIS Warning Code DTS_W_MAXIMUMERRORCOUNTREACHED.  The Execution method succeeded, but the number of errors raised (5) reached the maximum allowed (1); resulting in failure. This occurs when the number of errors reaches the number specified in MaximumErrorCount. Change the MaximumErrorCount or fix the errors.
 End Warning
 DTExec: The package execution returned DTSER_FAILURE (1).
-Started:  16:14:14
-Finished: 16:16:48
-Elapsed:  154.297 seconds
+Started:  16:39:59
+Finished: 16:42:17
+Elapsed:  138.093 seconds
  
-[22.06.2026 16:16:48,67] SSIS-Ausfuehrung abgeschlossen 
-[22.06.2026 16:16:48,67] Exitcode: 1           
+[22.06.2026 16:42:17,96] SSIS-Ausfuehrung abgeschlossen 
+[22.06.2026 16:42:17,96] Exitcode: 1           
 ----------------------------------------------- 
