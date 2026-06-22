@@ -30,11 +30,15 @@ Partial Public Class ScriptMain
     Private Const WARTE_SEK As Integer = 30
     ' MAXDOP je einzelnem Index-Build - begrenzt die CPU pro Build, damit
     ' mehrere parallele Builds (BA::Maxparallel) den Server nicht ueberbuchen.
-    Private Const INDEX_MAXDOP As Integer = 4
+    ' Wert kommt aus der SSIS-Variablen BA::IndexMaxDop; fehlt sie oder ist sie
+    ' ungueltig, gilt der Standardwert. MAXDOP ist unabhaengig von Maxparallel:
+    ' Gesamtlast ~ Maxparallel * IndexMaxDop.
+    Private Const STANDARD_INDEX_MAXDOP As Integer = 4
     Private _runID As Integer = 0
     Private _parameterDB As String = String.Empty
     Private _parametertab As String = String.Empty
     Private _maxparallel As Integer = 0
+    Private _indexMaxDop As Integer = STANDARD_INDEX_MAXDOP
 
     Private ReadOnly _logSperre As New Object()
     Private ReadOnly _fehlerListe As New ConcurrentBag(Of String)
@@ -52,6 +56,18 @@ Partial Public Class ScriptMain
             _parametertab = Dts.Variables("BA::Parametertabelle").Value.ToString().Trim()
             _maxparallel = CInt(Dts.Variables("BA::Maxparallel").Value)
             If _maxparallel < 1 Then _maxparallel = 1
+
+            ' MAXDOP je Build aus BA::IndexMaxDop lesen; fehlt die Variable oder
+            ' ist sie ungueltig (<1), bleibt der Standardwert erhalten.
+            Try
+                Dim mv As Object = Dts.Variables("BA::IndexMaxDop").Value
+                Dim parsed As Integer
+                If mv IsNot Nothing AndAlso Integer.TryParse(mv.ToString().Trim(), parsed) AndAlso parsed >= 1 Then
+                    _indexMaxDop = parsed
+                End If
+            Catch
+                ' Variable nicht im Paket vorhanden -> Standardwert behalten
+            End Try
 
             Dim connStr As String = HoleVerbindungszeichenfolge()
 
@@ -122,7 +138,7 @@ Partial Public Class ScriptMain
             Next
 
             Log("Arbeitspakete (Tabelle x Index): " & arbeit.Count.ToString() &
-                " | Parallelitaet: " & _maxparallel.ToString() & " | MAXDOP/Build: " & INDEX_MAXDOP.ToString())
+                " | Parallelitaet: " & _maxparallel.ToString() & " | MAXDOP/Build: " & _indexMaxDop.ToString())
 
             ' ─────────────────────────────────────────────────────────────────
             ' Phase 2 (parallel): Indizes erstellen - max. _maxparallel gleichzeitig.
@@ -194,7 +210,7 @@ Partial Public Class ScriptMain
             If Not IndexVorhanden(connStr, tbl, "CI_" & tbl) Then
                 SqlAusfuehren(connStr,
                     "CREATE CLUSTERED INDEX [CI_" & tbl & "] ON dbo.[" & tbl & "] (" & a.CiCols &
-                    ") WITH (FILLFACTOR=100, SORT_IN_TEMPDB=ON, MAXDOP=" & INDEX_MAXDOP.ToString() & ");",
+                    ") WITH (FILLFACTOR=100, SORT_IN_TEMPDB=ON, MAXDOP=" & _indexMaxDop.ToString() & ");",
                     "CI " & tbl)
                 Log("    CI angelegt OK: " & tbl)
             Else
@@ -204,7 +220,7 @@ Partial Public Class ScriptMain
             If Not IndexVorhanden(connStr, tbl, "CCI_" & tbl) Then
                 SqlAusfuehren(connStr,
                     "CREATE CLUSTERED COLUMNSTORE INDEX [CCI_" & tbl & "] ON dbo.[" & tbl &
-                    "] WITH (MAXDOP=" & INDEX_MAXDOP.ToString() & ");",
+                    "] WITH (MAXDOP=" & _indexMaxDop.ToString() & ");",
                     "CCI " & tbl)
                 Log("    CCI angelegt OK: " & tbl)
             Else
