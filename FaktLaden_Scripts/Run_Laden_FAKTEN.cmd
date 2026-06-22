@@ -153,6 +153,10 @@ set PARAM_ORDNER_ARCHIV=!ATOMIC_STL_ORDNER!\Archiv
 :: --- Verarbeitung ---
 set PARAM_MAXPARALLEL=8
 
+:: --- Index-Erstellung (SCR16): MAXDOP je einzelnem CI/CCI-Build ---
+:: Unabhaengig von MAXPARALLEL. Gesamtlast ~ MAXPARALLEL * INDEX_MAXDOP.
+set PARAM_INDEX_MAXDOP=4
+
 :: --- Externe Oracle-Quelle ---
 set PARAM_EXT_SOURCE_NAME=Oracle-!ATOMIC_ENVIRONMENT!
 set PARAM_EXT_SOURCE_LOCATION=oracle://!ATOMIC_ORACLE_HOSTPORT!
@@ -433,6 +437,13 @@ if "!PARAM_MAXPARALLEL!"=="" (
     echo [%DATE% %TIME%] [OK]       PARAM_MAXPARALLEL        = !PARAM_MAXPARALLEL! >> "!LOGFILE!"
 )
 
+:: PARAM_INDEX_MAXDOP ist optional - das Paket faellt bei fehlendem Wert auf 4 zurueck.
+if "!PARAM_INDEX_MAXDOP!"=="" (
+    echo [%DATE% %TIME%] [WARNUNG]  PARAM_INDEX_MAXDOP nicht gesetzt - Paket verwendet Standard 4 >> "!LOGFILE!"
+) else (
+    echo [%DATE% %TIME%] [OK]       PARAM_INDEX_MAXDOP       = !PARAM_INDEX_MAXDOP! >> "!LOGFILE!"
+)
+
 if "!PARAM_EXT_SOURCE_NAME!"=="" (
     echo [%DATE% %TIME%] [FEHLEND]  PARAM_EXT_SOURCE_NAME >> "!LOGFILE!"
     set VALIDATION_FAILED=1
@@ -521,6 +532,7 @@ echo ----------------------------------------------- >> "!LOGFILE!"
   /SET \Package.Variables[BA::CredBenutzername].Value;"!ATOMIC_ORACLE_USERNAME!" ^
   /SET \Package.Variables[BA::CredKennwort].Value;"!ATOMIC_ORACLE_PASSWORD!" ^
   /SET \Package.Variables[BA::Maxparallel].Value;"!PARAM_MAXPARALLEL!" ^
+  /SET \Package.Variables[BA::IndexMaxDop].Value;"!PARAM_INDEX_MAXDOP!" ^
   /SET \Package.Variables[BA::ExtSourceName].Value;"!PARAM_EXT_SOURCE_NAME!" ^
   /SET \Package.Variables[BA::ExtSourceLocation].Value;"!PARAM_EXT_SOURCE_LOCATION!" ^
   /SET \Package.Variables[BA::ExtTableLocation].Value;"!PARAM_EXT_TABLE_LOCATION!" ^
