@@ -326,15 +326,21 @@ Partial Public Class ScriptMain
                                 v.Themengebiet & "." & v.Faktentabelle.ToLower())
         End If
 
+        ' Oracle-Lesespalte nach Stellenzahl des Partitionswertes bestimmen
+        ' (8-stellig -> mow_id, 6-stellig -> mon_id). Die SQL-Partitionsspalte
+        ' (v.PartitionColumn aus der Parametertabelle) wird NUR fuer das
+        ' SQL-Ziel / Partitionieren verwendet; die Oracle-Quelle hat beide Spalten.
+        Dim oraSpalte As String = OracleLadeSpalte(partitionValue, v.PartitionColumn)
+
         Dim sql As String =
             "SELECT" & vbCrLf &
             selectList & vbCrLf &
             "INTO dbo.[" & loadingTable & "]" & vbCrLf &
             "FROM ext.[" & extTable & "]" & vbCrLf &
-            "WHERE [" & v.PartitionColumn & "] = " & partitionValue & ";"
+            "WHERE [" & oraSpalte & "] = " & partitionValue & ";"
 
         SyncLock _logSperre
-            Log("  SELECT INTO [" & loadingTable & "] WHERE " & v.PartitionColumn & " = " & partitionValue & " (wird zu _in_ umbenannt)")
+            Log("  SELECT INTO [" & loadingTable & "] WHERE " & oraSpalte & " = " & partitionValue & " (Oracle-Spalte nach Stellenzahl; wird zu _in_ umbenannt)")
         End SyncLock
 
         SqlAusfuehren(connStr, sql, "SELECT INTO " & loadingTable)
@@ -342,6 +348,24 @@ Partial Public Class ScriptMain
         Return Convert.ToInt32(SqlSkalar(connStr,
             "SELECT COUNT(*) FROM dbo.[" & loadingTable & "]",
             "Count " & loadingTable))
+    End Function
+
+    ' -----------------------------------------------------------------------
+    ' OracleLadeSpalte - Bestimmt die Oracle-Quellspalte fuer die Lese-/
+    ' Ladeabfrage nach der Stellenzahl des Partitionswertes:
+    '   8-stellig -> mow_id | 6-stellig -> mon_id.
+    ' Die Oracle-Quelle hat BEIDE Spalten; die SQL-Partitionsspalte
+    ' (Parametertabelle) kann davon abweichen und wird hier NICHT verwendet.
+    ' Greift nur, wenn die Parameter-Spalte selbst mon_id/mow_id ist - andere
+    ' Partitionsspalten bleiben unveraendert (Rueckgabe = paramSpalte).
+    ' -----------------------------------------------------------------------
+    Private Function OracleLadeSpalte(wert As String, paramSpalte As String) As String
+        Dim p As String = paramSpalte.Trim().ToLower()
+        If p <> "mon_id" AndAlso p <> "mow_id" Then Return paramSpalte
+        Dim w As String = wert.Trim()
+        If w.Length = 8 Then Return "mow_id"
+        If w.Length = 6 Then Return "mon_id"
+        Return paramSpalte
     End Function
 
     ' -----------------------------------------------------------------------

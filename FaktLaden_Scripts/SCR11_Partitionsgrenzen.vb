@@ -94,7 +94,10 @@ Partial Public Class ScriptMain
                         End If
 
                         ' MSSQL Status pruefen - NEU vs AKTUALISIERUNG
-                        mssqlWerte = MssqlWerteLaden(connStr, v)
+                        ' Vergleichsspalte nach Stellenzahl der Werte (mon_id/mow_id),
+                        ' damit Oracle- und MSSQL-Werte auf gleicher Stelligkeit verglichen werden.
+                        Dim vglSpalteM As String = OracleLadeSpalte(benutzerWerte(0).ToString(), v.PartitionsSpalte)
+                        mssqlWerte = MssqlWerteLaden(connStr, v, vglSpalteM)
                         Log("  MSSQL Werte gesamt: " & mssqlWerte.Count.ToString())
 
                         Dim cntAktualisierung As Integer = 0
@@ -134,8 +137,10 @@ Partial Public Class ScriptMain
                             Throw New Exception(msg)
                         End If
 
-                        ' MSSQL Status pruefen
-                        mssqlWerte = MssqlWerteLaden(connStr, v)
+                        ' MSSQL Status pruefen - Vergleichsspalte nach Stellenzahl
+                        ' der Oracle-Werte (mon_id/mow_id), siehe OracleLadeSpalte.
+                        Dim vglSpalteA As String = OracleLadeSpalte(oracleAlleWerte(0).ToString(), v.PartitionsSpalte)
+                        mssqlWerte = MssqlWerteLaden(connStr, v, vglSpalteA)
 
                         If mssqlWerte.Count = 0 Then
                             ' ─── FULL LOAD: MSSQL ist leer ───
@@ -509,10 +514,16 @@ Partial Public Class ScriptMain
     ' MssqlWerteLaden - Laedt die bereits vorhandenen Partitionswerte aus
     ' der MSSQL-Faktentabelle.
     ' -----------------------------------------------------------------------
-    Private Function MssqlWerteLaden(connStr As String, v As VerfahrenInfo) As List(Of Integer)
+    Private Function MssqlWerteLaden(connStr As String, v As VerfahrenInfo, vergleichsSpalte As String) As List(Of Integer)
+        ' vergleichsSpalte = Spalte, gegen die die Oracle-Werte verglichen werden
+        ' (mon_id/mow_id je nach Stellenzahl). Die Faktentabelle enthaelt BEIDE
+        ' Spalten (aus columns_dbo), daher kann hier auf gleicher Stelligkeit wie
+        ' die Oracle-Werte gelesen werden - unabhaengig von der SQL-Partitions-
+        ' spalte (v.PartitionsSpalte). Leer -> Fallback auf die Partitionsspalte.
+        Dim spalte As String = If(String.IsNullOrEmpty(vergleichsSpalte), v.PartitionsSpalte, vergleichsSpalte)
         Dim liste As New List(Of Integer)()
-        Dim sql As String = "SELECT DISTINCT [" & v.PartitionsSpalte & "] FROM dbo.[" & v.Faktentabelle &
-            "] WHERE [" & v.PartitionsSpalte & "] IS NOT NULL ORDER BY [" & v.PartitionsSpalte & "]"
+        Dim sql As String = "SELECT DISTINCT [" & spalte & "] FROM dbo.[" & v.Faktentabelle &
+            "] WHERE [" & spalte & "] IS NOT NULL ORDER BY [" & spalte & "]"
 
         Dim versuch As Integer = 0
         While versuch < MAX_VERSUCHE
@@ -883,6 +894,24 @@ Partial Public Class ScriptMain
     End Function
 
     ' -----------------------------------------------------------------------
+    ' OracleLadeSpalte - Bestimmt die Oracle-Quellspalte fuer Lese-/Pruef-
+    ' abfragen nach der Stellenzahl des Partitionswertes:
+    '   8-stellig -> mow_id | 6-stellig -> mon_id.
+    ' Die Oracle-Quelle hat BEIDE Spalten; die SQL-Partitionsspalte
+    ' (Parametertabelle) kann abweichen und wird hier NICHT verwendet.
+    ' Greift nur, wenn die Parameter-Spalte selbst mon_id/mow_id ist - andere
+    ' Partitionsspalten bleiben unveraendert (Rueckgabe = paramSpalte).
+    ' -----------------------------------------------------------------------
+    Private Function OracleLadeSpalte(wert As String, paramSpalte As String) As String
+        Dim p As String = paramSpalte.Trim().ToLower()
+        If p <> "mon_id" AndAlso p <> "mow_id" Then Return paramSpalte
+        Dim w As String = wert.Trim()
+        If w.Length = 8 Then Return "mow_id"
+        If w.Length = 6 Then Return "mon_id"
+        Return paramSpalte
+    End Function
+
+    ' -----------------------------------------------------------------------
     ' PartitionHatDaten - Prueft per Einzel-Partition-Pushdown, ob die
     ' Oracle-Tabelle fuer den Partitionswert mindestens eine Zeile liefert.
     ' WHERE <partcol> = <wert> liest dank Pushdown nur EINE Partition
@@ -890,8 +919,11 @@ Partial Public Class ScriptMain
     ' -----------------------------------------------------------------------
     Private Function PartitionHatDaten(connStr As String, v As VerfahrenInfo, wert As Integer) As Boolean
         ' ext-Tabelle = Verfahrensname (Oracle-Objektname aus der Steuerliste)
+        ' Oracle-Lesespalte nach Stellenzahl des Wertes (8 -> mow_id, 6 -> mon_id);
+        ' die SQL-Partitionsspalte (Parametertabelle) wird hier NICHT verwendet.
+        Dim oraSpalte As String = OracleLadeSpalte(wert.ToString(), v.PartitionsSpalte)
         Dim sql As String = "SELECT TOP 1 1 FROM ext.[" & v.Verfahren.ToLower() &
-                            "] WHERE [" & v.PartitionsSpalte & "] = " & wert.ToString()
+                            "] WHERE [" & oraSpalte & "] = " & wert.ToString()
         Dim obj As Object = SqlSkalar(connStr, sql, "Pruefe Daten " & v.Verfahren.ToLower() & "=" & wert.ToString())
         Return obj IsNot Nothing AndAlso obj IsNot DBNull.Value
     End Function
