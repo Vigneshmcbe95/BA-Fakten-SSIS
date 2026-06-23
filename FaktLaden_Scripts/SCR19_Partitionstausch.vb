@@ -73,82 +73,136 @@ Partial Public Class ScriptMain
                         Continue For
                     End If
                     Log("  Partitionen: " & werteListe.Count.ToString())
+                    ' Je Partition isoliert tauschen: ein Fehler bei einer Partition
+                    ' bricht nicht den ganzen Lauf ab. Bei Fehler wird die _in_-Tabelle
+                    ' entfernt -> der naechste Lauf laedt NUR diese Partition neu.
+                    Dim partOK As Integer = 0
+                    Dim partFehler As Integer = 0
+                    Dim ersterFehler As String = Nothing
+
                     For Each pvStr As String In werteListe
                         Dim inTable  As String = v.Faktentabelle.ToLower() & "_in_"  & pvStr
                         Dim outTable As String = v.Faktentabelle.ToLower() & "_out_" & pvStr
-                        Log("  Partition: " & pvStr)
-                        ' Leere Grenzpartition (keine Oracle-Daten, z.B. 202606): _in_-Tabelle
-                        ' wurde von SCR13 nicht erzeugt -> Tausch ueberspringen statt Fehler.
-                        ' Leere _out_-Huelle aufraeumen, damit kein Waisenobjekt bleibt.
-                        If Convert.ToInt32(SqlSkalar(connStr, "SELECT CASE WHEN OBJECT_ID('dbo.[" & inTable & "]','U') IS NULL THEN 0 ELSE 1 END", "in vorhanden")) = 0 Then
-                            Log("  Keine Daten geladen (leere Partition) -> Tausch uebersprungen: " & pvStr)
-                            LogSchreiben(connStr, v.Verfahren, "LEER_" & pvStr, "Keine Daten in Oracle - Partitionstausch uebersprungen")
-                            If Convert.ToInt32(SqlSkalar(connStr, "SELECT CASE WHEN OBJECT_ID('dbo.[" & outTable & "]','U') IS NOT NULL THEN 1 ELSE 0 END", "out vorhanden")) = 1 Then
-                                SqlAusfuehren(connStr, "DROP TABLE dbo.[" & outTable & "];", "drop leeres _out")
+                        Dim pnrVal As Integer = 0
+                        Dim switchedOut As Boolean = False
+                        Try
+                            Log("  Partition: " & pvStr)
+                            ' Leere Grenzpartition (keine Oracle-Daten, z.B. 202606): _in_-Tabelle
+                            ' wurde von SCR13 nicht erzeugt -> Tausch ueberspringen statt Fehler.
+                            ' Leere _out_-Huelle aufraeumen, damit kein Waisenobjekt bleibt.
+                            If Convert.ToInt32(SqlSkalar(connStr, "SELECT CASE WHEN OBJECT_ID('dbo.[" & inTable & "]','U') IS NULL THEN 0 ELSE 1 END", "in vorhanden")) = 0 Then
+                                Log("  Keine Daten geladen (leere Partition) -> Tausch uebersprungen: " & pvStr)
+                                LogSchreiben(connStr, v.Verfahren, "LEER_" & pvStr, "Keine Daten in Oracle - Partitionstausch uebersprungen")
+                                If Convert.ToInt32(SqlSkalar(connStr, "SELECT CASE WHEN OBJECT_ID('dbo.[" & outTable & "]','U') IS NOT NULL THEN 1 ELSE 0 END", "out vorhanden")) = 1 Then
+                                    SqlAusfuehren(connStr, "DROP TABLE dbo.[" & outTable & "];", "drop leeres _out")
+                                End If
+                                Continue For
                             End If
-                            Continue For
-                        End If
-                        ' Partitionsnummer per $partition-Funktion — gibt direkt die korrekte Nummer zurueck
-                        Dim pnr As Object = SqlSkalar(connStr,
-                            "SELECT $partition.[" & pf & "](" & pvStr & ")",
-                            "Partitionsnummer")
-                        If pnr Is Nothing OrElse pnr Is DBNull.Value OrElse Convert.ToInt32(pnr) = 0 Then
-                            Log("  FEHLER: Partitionsnummer nicht gefunden fuer: " & pvStr)
-                            LogSchreiben(connStr, v.Verfahren, "FEHLER_SWITCH", "Partition nicht gefunden: " & pvStr)
-                            Continue For
-                        End If
-                        Dim pnrVal As Integer = Convert.ToInt32(pnr)
-                        Log("  Partitionsnummer: " & pnrVal.ToString())
-                        ' SWITCH OUT
-                        SqlAusfuehren(connStr, "ALTER TABLE dbo.[" & v.Faktentabelle & "] SWITCH PARTITION " & pnrVal & " TO dbo.[" & outTable & "];", "SWITCH OUT")
-                        Log("  SWITCH OUT " & outTable & " OK")
-                        ' CHECK Constraint auf _in — beide Grenzen explizit (RANGE LEFT benoetigt > untere Grenze)
-                        Dim ckName As String = v.PartitionColumn & "_" & pvStr & "_" & v.Faktentabelle & "_CK"
-                        If Convert.ToInt32(SqlSkalar(connStr, "SELECT COUNT(*) FROM sys.check_constraints WHERE parent_object_id=OBJECT_ID('dbo." & inTable & "') AND name='" & ckName & "'", "CK pruefen")) > 0 Then
-                            SqlAusfuehren(connStr, "ALTER TABLE dbo.[" & inTable & "] DROP CONSTRAINT [" & ckName & "];", "CK loeschen")
-                        End If
-                        ' Untere Partitionsgrenze aus PF lesen (groesster Grenzwert der kleiner ist als pvStr)
-                        Dim lbObj As Object = SqlSkalar(connStr,
-                            "SELECT ISNULL(MAX(CAST(sprv.value AS bigint)), -2147483648) " &
-                            "FROM sys.partition_functions spf " &
-                            "JOIN sys.partition_range_values sprv ON sprv.function_id=spf.function_id " &
-                            "WHERE spf.name='" & pf & "' AND CAST(sprv.value AS bigint) < " & pvStr,
-                            "Untere Grenze")
-                        Dim lowerBound As Long = Convert.ToInt64(lbObj)
-                        SqlAusfuehren(connStr,
-                            "ALTER TABLE dbo.[" & inTable & "] ADD CONSTRAINT [" & ckName & "] " &
-                            "CHECK([" & v.PartitionColumn & "] IS NOT NULL AND [" & v.PartitionColumn & "] > " & lowerBound.ToString() & " AND [" & v.PartitionColumn & "] <= " & pvStr & ");",
-                            "CK setzen")
-                        Log("  CHECK Constraint: " & ckName & " (" & v.PartitionColumn & " IS NOT NULL AND > " & lowerBound.ToString() & " AND <= " & pvStr & ") OK")
-                        ' SWITCH IN
-                        SqlAusfuehren(connStr, "ALTER TABLE dbo.[" & inTable & "] SWITCH TO dbo.[" & v.Faktentabelle & "] PARTITION " & pnrVal & ";", "SWITCH IN")
-                        Log("  SWITCH IN " & v.Faktentabelle & " Partition " & pnrVal.ToString() & " OK")
-                        ' Cleanup
-                        If Convert.ToInt32(SqlSkalar(connStr, "SELECT CASE WHEN OBJECT_ID('dbo." & outTable & "','U') IS NOT NULL THEN 1 ELSE 0 END", "out prÃ¼fen")) = 1 Then
-                            SqlAusfuehren(connStr, "DROP TABLE dbo.[" & outTable & "];", "drop _out")
-                            Log("  _out geloescht OK")
-                        End If
-                        If Convert.ToInt32(SqlSkalar(connStr, "SELECT CASE WHEN OBJECT_ID('dbo." & inTable & "','U') IS NOT NULL THEN 1 ELSE 0 END", "in prÃ¼fen")) = 1 Then
-                            SqlAusfuehren(connStr, "DROP TABLE dbo.[" & inTable & "];", "drop _in")
-                            Log("  _in geloescht OK")
-                        End If
-                        LogSchreiben(connStr, v.Verfahren, "SWITCH_" & pvStr, "SWITCH IN erfolgreich " & v.Faktentabelle & " Partition " & pnrVal.ToString())
+                            ' Partitionsnummer per $partition-Funktion — gibt direkt die korrekte Nummer zurueck
+                            Dim pnr As Object = SqlSkalar(connStr,
+                                "SELECT $partition.[" & pf & "](" & pvStr & ")",
+                                "Partitionsnummer")
+                            If pnr Is Nothing OrElse pnr Is DBNull.Value OrElse Convert.ToInt32(pnr) = 0 Then
+                                Throw New Exception("Partitionsnummer nicht gefunden fuer " & pvStr & " (Boundary fehlt - SCR11 SPLIT pruefen)")
+                            End If
+                            pnrVal = Convert.ToInt32(pnr)
+                            Log("  Partitionsnummer: " & pnrVal.ToString())
+                            ' SWITCH OUT (alte Partitionsdaten -> _out_)
+                            SqlAusfuehren(connStr, "ALTER TABLE dbo.[" & v.Faktentabelle & "] SWITCH PARTITION " & pnrVal & " TO dbo.[" & outTable & "];", "SWITCH OUT")
+                            switchedOut = True
+                            Log("  SWITCH OUT " & outTable & " OK")
+                            ' CHECK Constraint auf _in — beide Grenzen explizit (RANGE LEFT benoetigt > untere Grenze)
+                            Dim ckName As String = v.PartitionColumn & "_" & pvStr & "_" & v.Faktentabelle & "_CK"
+                            If Convert.ToInt32(SqlSkalar(connStr, "SELECT COUNT(*) FROM sys.check_constraints WHERE parent_object_id=OBJECT_ID('dbo." & inTable & "') AND name='" & ckName & "'", "CK pruefen")) > 0 Then
+                                SqlAusfuehren(connStr, "ALTER TABLE dbo.[" & inTable & "] DROP CONSTRAINT [" & ckName & "];", "CK loeschen")
+                            End If
+                            ' Untere Partitionsgrenze aus PF lesen (groesster Grenzwert der kleiner ist als pvStr)
+                            Dim lbObj As Object = SqlSkalar(connStr,
+                                "SELECT ISNULL(MAX(CAST(sprv.value AS bigint)), -2147483648) " &
+                                "FROM sys.partition_functions spf " &
+                                "JOIN sys.partition_range_values sprv ON sprv.function_id=spf.function_id " &
+                                "WHERE spf.name='" & pf & "' AND CAST(sprv.value AS bigint) < " & pvStr,
+                                "Untere Grenze")
+                            Dim lowerBound As Long = Convert.ToInt64(lbObj)
+                            SqlAusfuehren(connStr,
+                                "ALTER TABLE dbo.[" & inTable & "] ADD CONSTRAINT [" & ckName & "] " &
+                                "CHECK([" & v.PartitionColumn & "] IS NOT NULL AND [" & v.PartitionColumn & "] > " & lowerBound.ToString() & " AND [" & v.PartitionColumn & "] <= " & pvStr & ");",
+                                "CK setzen")
+                            Log("  CHECK Constraint: " & ckName & " (" & v.PartitionColumn & " IS NOT NULL AND > " & lowerBound.ToString() & " AND <= " & pvStr & ") OK")
+                            ' SWITCH IN (neue Daten -> Faktenpartition)
+                            SqlAusfuehren(connStr, "ALTER TABLE dbo.[" & inTable & "] SWITCH TO dbo.[" & v.Faktentabelle & "] PARTITION " & pnrVal & ";", "SWITCH IN")
+                            Log("  SWITCH IN " & v.Faktentabelle & " Partition " & pnrVal.ToString() & " OK")
+                            ' Cleanup (Erfolg): _out_ (alte Daten) und _in_ entfernen
+                            If Convert.ToInt32(SqlSkalar(connStr, "SELECT CASE WHEN OBJECT_ID('dbo." & outTable & "','U') IS NOT NULL THEN 1 ELSE 0 END", "out pruefen")) = 1 Then
+                                SqlAusfuehren(connStr, "DROP TABLE dbo.[" & outTable & "];", "drop _out")
+                                Log("  _out geloescht OK")
+                            End If
+                            If Convert.ToInt32(SqlSkalar(connStr, "SELECT CASE WHEN OBJECT_ID('dbo." & inTable & "','U') IS NOT NULL THEN 1 ELSE 0 END", "in pruefen")) = 1 Then
+                                SqlAusfuehren(connStr, "DROP TABLE dbo.[" & inTable & "];", "drop _in")
+                                Log("  _in geloescht OK")
+                            End If
+                            LogSchreiben(connStr, v.Verfahren, "SWITCH_" & pvStr, "SWITCH IN erfolgreich " & v.Faktentabelle & " Partition " & pnrVal.ToString())
+                            partOK += 1
+                        Catch pex As Exception
+                            partFehler += 1
+                            If ersterFehler Is Nothing Then ersterFehler = "pv=" & pvStr & ": " & pex.Message
+                            LogFehler("  FEHLER Partitionstausch pv=" & pvStr & ": " & pex.Message)
+                            LogSchreiben(connStr, v.Verfahren, "FEHLER_SWITCH_" & pvStr, pex.Message)
+                            ' Rollback: wenn schon SWITCH OUT erfolgte, alte Daten zurueck in die
+                            ' (jetzt leere) Faktenpartition schalten -> KEIN Datenverlust.
+                            Dim outGeleert As Boolean = Not switchedOut   ' nie ausgetauscht -> _out_ leer
+                            If switchedOut AndAlso pnrVal > 0 Then
+                                Try
+                                    SqlAusfuehren(connStr, "ALTER TABLE dbo.[" & outTable & "] SWITCH TO dbo.[" & v.Faktentabelle & "] PARTITION " & pnrVal & ";", "ROLLBACK _out zurueck")
+                                    outGeleert = True
+                                    Log("  ROLLBACK: alte Daten aus " & outTable & " zurueck in Partition " & pnrVal.ToString() & " OK")
+                                Catch rbx As Exception
+                                    LogFehler("  WARNUNG: Rollback (_out zurueck) fehlgeschlagen fuer " & pvStr & " - alte Daten verbleiben in " & outTable & ": " & rbx.Message)
+                                End Try
+                            End If
+                            ' _in_ IMMER entfernen -> naechster Lauf laedt NUR diese Partition neu.
+                            Try
+                                SqlAusfuehren(connStr, "IF OBJECT_ID('dbo.[" & inTable & "]','U') IS NOT NULL DROP TABLE dbo.[" & inTable & "];", "drop _in nach Fehler")
+                            Catch
+                            End Try
+                            ' _out_ nur entfernen, wenn leer (sonst einzige Kopie der alten Daten -> behalten).
+                            If outGeleert Then
+                                Try
+                                    SqlAusfuehren(connStr, "IF OBJECT_ID('dbo.[" & outTable & "]','U') IS NOT NULL DROP TABLE dbo.[" & outTable & "];", "drop _out nach Fehler")
+                                Catch
+                                End Try
+                            End If
+                        End Try
                     Next
-                    ' Abschlussstatus MSSQL
+                    ' Abschlussstatus MSSQL (immer protokollieren)
                     Dim finalMin As Object = SqlSkalar(connStr, "SELECT MIN([" & v.PartitionColumn & "]) FROM dbo.[" & v.Faktentabelle & "]", "Final MIN")
                     Dim finalMax As Object = SqlSkalar(connStr, "SELECT MAX([" & v.PartitionColumn & "]) FROM dbo.[" & v.Faktentabelle & "]", "Final MAX")
                     Dim finalCnt As Object = SqlSkalar(connStr, "SELECT COUNT_BIG(*) FROM dbo.[" & v.Faktentabelle & "]", "Final COUNT")
                     Log("  ABSCHLUSSSTATUS: " & v.Faktentabelle)
+                    Log("  Getauscht OK: " & partOK.ToString() & " | Fehler: " & partFehler.ToString())
                     Log("  Zeilen: " & Convert.ToString(finalCnt))
                     Log("  MIN:    " & If(finalMin Is Nothing OrElse finalMin Is DBNull.Value, "NULL", Convert.ToString(finalMin)))
                     Log("  MAX:    " & If(finalMax Is Nothing OrElse finalMax Is DBNull.Value, "NULL", Convert.ToString(finalMax)))
                     LogSchreiben(connStr, v.Verfahren, "ABSCHLUSS",
-                        "Fertig. Zeilen: " & Convert.ToString(finalCnt) &
+                        "Getauscht OK: " & partOK.ToString() & " | Fehler: " & partFehler.ToString() &
+                        " | Zeilen: " & Convert.ToString(finalCnt) &
                         " | MIN: " & If(finalMin Is Nothing OrElse finalMin Is DBNull.Value, "NULL", Convert.ToString(finalMin)) &
                         " | MAX: " & If(finalMax Is Nothing OrElse finalMax Is DBNull.Value, "NULL", Convert.ToString(finalMax)))
-                    StatusSetzenErfolg(connStr, v.ID)
-                    cntOK += 1
-                    Log("  Verfahren erfolgreich abgeschlossen OK")
+
+                    If partFehler > 0 Then
+                        Dim fmsg As String = partFehler.ToString() & " von " & werteListe.Count.ToString() &
+                            " Partition(en) Tausch fehlgeschlagen (erste: " & If(ersterFehler, "?") & "). " &
+                            "Erfolgreich getauscht: " & partOK.ToString() & ". Betroffene _in_-Tabellen entfernt -> " &
+                            "naechster Lauf laedt NUR die fehlgeschlagenen Partitionen neu."
+                        FehlerSetzen(connStr, v.ID, fmsg)
+                        LogSchreiben(connStr, v.Verfahren, "FEHLER_SCR15", fmsg)
+                        LogFehler("  Verfahren '" & v.Verfahren & "': " & fmsg)
+                        cntFehler += 1
+                    Else
+                        StatusSetzenErfolg(connStr, v.ID)
+                        cntOK += 1
+                        Log("  Verfahren erfolgreich abgeschlossen OK")
+                    End If
                 Catch ex As Exception
                     cntFehler += 1
                     FehlerSetzen(connStr, v.ID, ex.Message)

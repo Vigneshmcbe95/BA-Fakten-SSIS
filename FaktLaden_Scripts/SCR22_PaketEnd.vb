@@ -167,7 +167,8 @@ SELECT
             "       pp.Wert AS PartCol," &
             "       a.Status," &
             "       MAX(stl.partition_wert) AS PartitionWert," &
-            "       MAX(stl.FILE_NAME)      AS Datei" &
+            "       MAX(stl.FILE_NAME)      AS Datei," &
+            "       MAX(a.Fehlermeldung)    AS Fehlermeldung" &
             " FROM dbo.ETL_Fakt_Arbeitsliste a" &
             " JOIN " & parameterDB & ".dbo." & parametertab & " pf ON pf.Verfahren=dbo.fn_ParamVerfahren(a.Verfahren) AND pf.Parameter='Faktentabelle'" &
             " JOIN " & parameterDB & ".dbo." & parametertab & " pp ON pp.Verfahren=dbo.fn_ParamVerfahren(a.Verfahren) AND pp.Parameter='Faktenpartitionsspalte'" &
@@ -187,7 +188,8 @@ SELECT
                         rdr(2).ToString().Trim(),
                         rdr(3).ToString().Trim(),
                         If(rdr.IsDBNull(4), "", rdr(4).ToString().Trim()),
-                        If(rdr.IsDBNull(5), "", rdr(5).ToString().Trim())})
+                        If(rdr.IsDBNull(5), "", rdr(5).ToString().Trim()),
+                        If(rdr.IsDBNull(6), "", rdr(6).ToString().Trim())})
                 End While
             End Using
         End Using
@@ -205,6 +207,7 @@ SELECT
             Dim status As String = r(3)
             Dim pw As String = r(4)
             Dim datei As String = If(r(5) = "", "-", r(5))
+            Dim fehlermeldung As String = r(6)
 
             If status = "ERFOLG" Then cntErfolg += 1
             If status = "FEHLER" Then cntFehler += 1
@@ -258,6 +261,11 @@ SELECT
                     " | MIN=" & mn & " MAX=" & mx)
             Else
                 Log("  Ergebnis       : Status=" & status & " | Faktentabelle nicht vorhanden")
+            End If
+            ' Bei Fehler die Ursache mitschreiben (z.B. fehlgeschlagene Partitionen,
+            ' die der naechste Lauf neu laedt).
+            If status = "FEHLER" AndAlso fehlermeldung <> "" Then
+                Log("  Fehler         : " & fehlermeldung)
             End If
         Next
 
