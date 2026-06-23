@@ -286,17 +286,40 @@ Partial Public Class ScriptMain
                                           loadingTable As String, extTable As String,
                                           partitionValue As String) As Integer
 
-        ' SELECT-Liste aus columns_dbo (tm_polybase_struktur): die
-        ' ISNULL/CONVERT-Ausdruecke erzeugen exakt die dbo-Typen und die
-        ' Nullability des Templates / der Faktentabelle. Blosse Spaltennamen
-        ' FROM ext.[] wuerden Typen/Nullability der ext-Tabelle erben
-        ' (alles NULL) -> SWITCH IN scheitert an abweichender Nullability.
+        ' SELECT-Liste direkt aus der FAKTENTABELLE (sys.columns) erzeugen:
+        ' Jede Spalte wird per CONVERT exakt auf den Ziel-Datentyp der
+        ' Faktentabelle gebracht (Typ, Praezision/Skala, Laenge, Collation) und
+        ' bei NOT NULL per ISNULL mit Default geschlossen. Dadurch ist die
+        ' _in_-Staging-Struktur 1:1 identisch zum SWITCH-Ziel - keine
+        ' Typ-/Praezision-/Nullability-/Collation-Abweichung mehr (z.B.
+        ' decimal(38,0) der ext-Quelle vs. decimal(17,10) der Faktentabelle:
+        ' der Wert wird auf decimal(17,10) konvertiert). Die Faktentabelle ist
+        ' die massgebliche Struktur (Template wird manuell gepflegt).
         Dim selectList As String = Nothing
         Dim sqlCols As String =
-            "SELECT STRING_AGG(CAST(columns_dbo AS nvarchar(max)), ',' + CHAR(13) + CHAR(10)) WITHIN GROUP (ORDER BY colno) " &
-            "FROM dbo.tm_polybase_struktur " &
-            "WHERE tabname = '" & v.Verfahren.ToLower().Replace("'", "''") & "' " &
-            "AND themengebiet = '" & v.Themengebiet.Trim().ToLower().Replace("'", "''") & "'"
+"SELECT STRING_AGG(CAST(
+    CASE WHEN c.is_nullable = 0 THEN 'ISNULL(' ELSE '' END
+  + 'CONVERT(' + ty.name
+  + CASE WHEN ty.name IN ('varchar','char') THEN '(' + CASE WHEN c.max_length = -1 THEN 'MAX' ELSE CAST(c.max_length AS varchar(10)) END + ')'
+         WHEN ty.name IN ('nvarchar','nchar') THEN '(' + CASE WHEN c.max_length = -1 THEN 'MAX' ELSE CAST(c.max_length/2 AS varchar(10)) END + ')'
+         WHEN ty.name IN ('decimal','numeric') THEN '(' + CAST(c.precision AS varchar(10)) + ',' + CAST(c.scale AS varchar(10)) + ')'
+         WHEN ty.name IN ('datetime2','time','datetimeoffset') THEN '(' + CAST(c.scale AS varchar(10)) + ')'
+         WHEN ty.name = 'varbinary' THEN '(' + CASE WHEN c.max_length = -1 THEN 'MAX' ELSE CAST(c.max_length AS varchar(10)) END + ')'
+         ELSE '' END
+  + ', [' + c.name + '])'
+  + CASE WHEN ty.name IN ('varchar','char','nvarchar','nchar') AND c.collation_name IS NOT NULL
+         THEN ' COLLATE ' + c.collation_name ELSE '' END
+  + CASE WHEN c.is_nullable = 0 THEN
+            CASE WHEN ty.name LIKE '%char%' THEN ', '''')'
+                 WHEN ty.name LIKE '%date%' OR ty.name IN ('time','datetimeoffset') THEN ', ''1900-01-01'')'
+                 WHEN ty.name IN ('float','real','decimal','numeric','int','bigint','smallint','tinyint','bit','money','smallmoney') THEN ', 0)'
+                 ELSE ', NULL)' END
+        ELSE '' END
+  + ' AS [' + c.name + ']'
+  AS nvarchar(max)), ',' + CHAR(13) + CHAR(10)) WITHIN GROUP (ORDER BY c.column_id)
+FROM sys.columns c
+JOIN sys.types ty ON ty.user_type_id = c.user_type_id
+WHERE c.object_id = OBJECT_ID('dbo.[" & v.Faktentabelle.ToLower().Replace("'", "''") & "]') AND c.is_computed = 0;"
 
         Dim versuch As Integer = 0
         While versuch < MAX_VERSUCHE
@@ -322,8 +345,8 @@ Partial Public Class ScriptMain
         End While
 
         If String.IsNullOrEmpty(selectList) Then
-            Throw New Exception("columns_dbo nicht gefunden in tm_polybase_struktur fuer " &
-                                v.Themengebiet & "." & v.Faktentabelle.ToLower())
+            Throw New Exception("Keine Spalten aus der Faktentabelle dbo." & v.Faktentabelle.ToLower() &
+                                " gelesen (sys.columns leer/Tabelle fehlt) - SELECT-Liste konnte nicht erzeugt werden.")
         End If
 
         Dim sql As String =
