@@ -321,6 +321,33 @@ FROM sys.columns c
 JOIN sys.types ty ON ty.user_type_id = c.user_type_id
 WHERE c.object_id = OBJECT_ID('dbo.[" & v.Faktentabelle.ToLower().Replace("'", "''") & "]') AND c.is_computed = 0;"
 
+        ' =====================================================================
+        ' ALTERNATIVE (DEAKTIVIERT): SELECT-Liste direkt aus columns_dbo der
+        ' Metadatentabelle dbo.tm_polybase_struktur lesen (urspruengliche
+        ' Variante). columns_dbo wird in SCR07 aus den Oracle-DDL-Metadaten
+        ' aufgebaut - ein einzelner Metadaten-Read statt Aufbau aus sys.columns.
+        '
+        '   Dim sqlCols As String =
+        '       "SELECT STRING_AGG(CAST(columns_dbo AS nvarchar(max)), ',' + CHAR(13) + CHAR(10)) WITHIN GROUP (ORDER BY colno) " &
+        '       "FROM dbo.tm_polybase_struktur " &
+        '       "WHERE tabname = '" & v.Verfahren.ToLower().Replace("'", "''") & "' " &
+        '       "AND themengebiet = '" & v.Themengebiet.Trim().ToLower().Replace("'", "''") & "'"
+        '
+        ' WARUM DERZEIT DEAKTIVIERT:
+        '   columns_dbo erbt Typ/Praezision/Skala aus der Oracle-Quelle. Weicht
+        '   diese von der (manuell gepflegten) Faktentabelle ab - z.B. Oracle
+        '   NUMBER(38,0) vs. Faktentabelle decimal(17,10) - dann ist die
+        '   _in_-Staging-Spalte != SWITCH-Ziel und SCR19 (Partitionstausch)
+        '   bricht ab ("different data type / precision"). Die aktive Variante
+        '   oben konvertiert stattdessen exakt auf die Faktentabellen-Typen.
+        '
+        ' WANN WIEDER VERWENDBAR:
+        '   Sobald die Oracle-Seite bereinigt ist und Oracle- und SQL-Server-
+        '   Datentypen (inkl. Praezision/Skala/Laenge) IDENTISCH sind, kann
+        '   wieder columns_dbo verwendet werden (schlanker). Dann diesen Block
+        '   aktivieren und die obige sys.columns-Variante auskommentieren.
+        ' =====================================================================
+
         Dim versuch As Integer = 0
         While versuch < MAX_VERSUCHE
             versuch += 1
