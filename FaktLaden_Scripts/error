@@ -14,3 +14,18 @@ Id	Datamart	Verfahren	Parameter	Wert	Beschreibung	Verwendung
 1830	msi_dm_bb_fakten	tf_bb_bewa_zkt	Faktendatei	tf_bb_bewa_zkt	Faktenquelldatei	RDB
 1840	msi_dm_bb_fakten	tf_bb_bewa_zkt	EndungUnload	.unl	.Endung der Unload-Dateien (z.B.: .unl) oder leer	RDB
 1850	msi_dm_bb_fakten	tf_bb_bewa_zkt	Anzahl_ParallelTasks	0	Überschreibt Package.MaxConcurrentExecutables: Anzahl von Threads per Paket	RDB
+
+index_id	index_name	type_desc	is_unique	is_primary_key	filter_definition	storage	storage_type
+1	cci_tf_bb_bewa_zkt	CLUSTERED COLUMNSTORE	0	0	NULL	PS_MOW_ID_tf_bb_bewa_zkt	PARTITION_SCHEME
+2	nci_bak_zsk_mow	NONCLUSTERED	1	0	NULL	PS_MOW_ID_tf_bb_bewa_zkt	PARTITION_SCHEME
+
+key_ordinal	column_name	is_included_column	is_descending_key
+1	bak_id	0	0
+2	zsk_id	0	0
+3	mow_id	0	0
+
+name	create_date	modify_date
+tf_bb_bewa_zkt	2025-12-09 14:04:42.027	2026-06-24 10:01:48.460
+
+create_index_stmt
+CREATE UNIQUE NONCLUSTERED INDEX [nci_bak_zsk_mow] ON dbo.[tf_bb_bewa_zkt] ([bak_id], [zsk_id], [mow_id]) ON PS_MOW_ID_tf_bb_bewa_zkt;
