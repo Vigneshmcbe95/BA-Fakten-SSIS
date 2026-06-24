@@ -227,6 +227,64 @@ Partial Public Class ScriptMain
                 Log("    CCI bereits vorhanden uebersprungen: " & tbl)
             End If
         End If
+
+        ' Schritt 2: zusaetzliche NONCLUSTERED (Rowstore) Indizes der Faktentabelle,
+        ' die NICHT aus der Parametertabelle stammen (z.B. per separater Prozedur
+        ' angelegt wie nci_bak_zsk_mow), 1:1 auf die Staging-Tabelle nachbauen -
+        ' sonst scheitert der Partitionstausch ("no identical index").
+        NonclusteredReplizieren(connStr, v.Faktentabelle.ToLower(), tbl)
+    End Sub
+
+    ' -----------------------------------------------------------------------
+    ' NonclusteredReplizieren - Liest ALLE NONCLUSTERED (Rowstore) Indizes der
+    ' Faktentabelle (index_id > 1) und baut jeden fehlenden 1:1 auf der Staging-
+    ' Tabelle nach (gleicher Name, UNIQUE-Flag, Schluessel-/INCLUDE-Spalten,
+    ' Filter). Columnstore-Indizes (NCCI) bleiben aussen vor - die werden ueber
+    ' den Parameter FaktenNccIndex / SCR18 behandelt. Die Staging-Tabelle ist
+    ' nicht partitioniert -> kein ON-Partitionsschema; SWITCH gleicht ueber die
+    ' Struktur ab.
+    ' -----------------------------------------------------------------------
+    Private Sub NonclusteredReplizieren(connStr As String, factTable As String, stagingTable As String)
+        Dim sql As String =
+            "SELECT i.name AS idxName," &
+            " 'CREATE ' + CASE WHEN i.is_unique = 1 THEN 'UNIQUE ' ELSE '' END +" &
+            " 'NONCLUSTERED INDEX [' + i.name + '] ON dbo.[" & stagingTable & "] (' +" &
+            " STUFF((SELECT ', [' + c.name + ']' + CASE WHEN ic.is_descending_key = 1 THEN ' DESC' ELSE '' END" &
+            "        FROM sys.index_columns ic JOIN sys.columns c ON c.object_id = ic.object_id AND c.column_id = ic.column_id" &
+            "        WHERE ic.object_id = i.object_id AND ic.index_id = i.index_id AND ic.is_included_column = 0" &
+            "        ORDER BY ic.key_ordinal FOR XML PATH(''), TYPE).value('.','nvarchar(max)'), 1, 2, '') + ')' +" &
+            " ISNULL(' INCLUDE (' + STUFF((SELECT ', [' + c.name + ']'" &
+            "        FROM sys.index_columns ic JOIN sys.columns c ON c.object_id = ic.object_id AND c.column_id = ic.column_id" &
+            "        WHERE ic.object_id = i.object_id AND ic.index_id = i.index_id AND ic.is_included_column = 1" &
+            "        ORDER BY ic.index_column_id FOR XML PATH(''), TYPE).value('.','nvarchar(max)'), 1, 2, '') + ')', '') +" &
+            " ISNULL(' WHERE ' + i.filter_definition, '') + ';' AS createStmt" &
+            " FROM sys.indexes i" &
+            " WHERE i.object_id = OBJECT_ID('dbo.[" & factTable & "]')" &
+            "   AND i.index_id > 1 AND i.type_desc = 'NONCLUSTERED'"
+
+        Dim aufbau As New List(Of String())()
+        Using conn As New SqlConnection(connStr)
+            conn.Open()
+            Using cmd As New SqlCommand(sql, conn)
+                cmd.CommandTimeout = 0
+                Using rdr As SqlDataReader = cmd.ExecuteReader()
+                    While rdr.Read()
+                        aufbau.Add(New String() {rdr(0).ToString().Trim(), rdr(1).ToString()})
+                    End While
+                End Using
+            End Using
+        End Using
+
+        For Each idx As String() In aufbau
+            Dim idxName As String = idx(0)
+            Dim createStmt As String = idx(1)
+            If IndexVorhanden(connStr, stagingTable, idxName) Then
+                Log("    NCI bereits vorhanden uebersprungen: " & idxName & " auf " & stagingTable)
+            Else
+                SqlAusfuehren(connStr, createStmt, "NCI " & idxName & " auf " & stagingTable)
+                Log("    NCI nachgebaut OK: " & idxName & " auf " & stagingTable)
+            End If
+        Next
     End Sub
 
     ' -----------------------------------------------------------------------
