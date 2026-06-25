@@ -160,18 +160,50 @@ END;"
     ' -----------------------------------------------------------------------
     Private Function NeuenLaufAnlegen(connStr As String) As Integer
 
+        ' PackageName aus der SSIS-Variablen System::PackageName lesen.
+        ' NICHT APP_NAME() verwenden: das liefert den von SSIS generierten
+        ' ADO.NET-Anwendungsnamen (z.B. "SSIS-Package-{GUID}HOST\INST.db"),
+        ' nicht den Paketnamen. System::PackageName ist der ObjectName des
+        ' Pakets (im Designer gesetzt, NICHT der Dateiname der .dtsx) und wird
+        ' auch von den Eventhandlern verwendet -> einheitlicher Name.
+        ' WICHTIG: System::PackageName muss in den ReadOnlyVariables dieses
+        ' Script-Tasks eingetragen sein, sonst wirft Dts.Variables(...).
+        Dim paketName As String = CStr(Dts.Variables("System::PackageName").Value).Trim()
+
         Dim sql As String =
 "INSERT INTO dbo.ETL_Fakt_LaufHistorie
        (RunStatus, PaketStartzeit, Hostname, PackageName)
-VALUES ('LAUFEND', GETDATE(), HOST_NAME(), APP_NAME());
+VALUES ('LAUFEND', GETDATE(), HOST_NAME(), @PackageName);
 SELECT SCOPE_IDENTITY();"
 
-        Dim result As Object = SqlSkalarAusfuehren(connStr, sql, "Neuen Lauf anlegen")
-        If result Is Nothing OrElse result Is DBNull.Value Then
-            Throw New Exception("RunID konnte nicht ermittelt werden.")
-        End If
-
-        Return Convert.ToInt32(result)
+        Dim versuch As Integer = 0
+        Dim letzterFehler As Exception = Nothing
+        While versuch < MAX_VERSUCHE
+            versuch += 1
+            Try
+                Using conn As New SqlConnection(connStr)
+                    conn.Open()
+                    Using cmd As New SqlCommand(sql, conn)
+                        cmd.CommandTimeout = 0
+                        cmd.Parameters.Add("@PackageName", SqlDbType.VarChar, 200).Value = paketName
+                        Dim result As Object = cmd.ExecuteScalar()
+                        If result Is Nothing OrElse result Is DBNull.Value Then
+                            Throw New Exception("RunID konnte nicht ermittelt werden.")
+                        End If
+                        Return Convert.ToInt32(result)
+                    End Using
+                End Using
+            Catch ex As Exception
+                letzterFehler = ex
+                Log(String.Format("WARNUNG [Neuen Lauf anlegen] Versuch {0}/{1}: {2}",
+                    versuch, MAX_VERSUCHE, ex.Message))
+                If versuch < MAX_VERSUCHE Then
+                    System.Threading.Thread.Sleep(WARTE_SEK * 1000)
+                End If
+            End Try
+        End While
+        Throw New Exception("Neuen Lauf anlegen fehlgeschlagen: " &
+            If(letzterFehler IsNot Nothing, letzterFehler.Message, "Unbekannt"))
 
     End Function
 
