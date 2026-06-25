@@ -178,6 +178,16 @@ BEGIN
         bearbeiter     NVARCHAR(255)  NULL,
         tabname_filter NVARCHAR(500)  NULL
     );
+END;
+
+-- Selbstheilung: existiert die Audit-Tabelle aus einer aelteren Version OHNE
+-- die Spalte 'typ', wird sie nachgezogen. Sonst schluege das INSERT mit
+-- 'Invalid column name typ' fehl (FAKTEN/DIM teilen sich diese Tabelle).
+IF EXISTS (SELECT 1 FROM sys.tables WHERE name = '" & a & "' AND schema_id = SCHEMA_ID('dbo'))
+   AND NOT EXISTS (SELECT 1 FROM sys.columns
+                   WHERE object_id = OBJECT_ID('dbo." & a & "') AND name = 'typ')
+BEGIN
+    ALTER TABLE dbo." & a & " ADD typ NVARCHAR(10) NULL;
 END;"
 
         SqlAusfuehren(connStr, sql, "Tabellen sicherstellen")
