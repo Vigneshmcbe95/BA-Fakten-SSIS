@@ -155,13 +155,19 @@ Partial Public Class ScriptMain
                             ' testen (WHERE partcol = wert liest dank Pushdown nur EINE
                             ' Partition, kein Full Scan) und bei 0 Zeilen entfernen.
                             Dim vollWerte As List(Of Integer) = oracleAlleWerte.OrderBy(Function(w) w).ToList()
-                            Dim idx As Integer = 0
-                            While idx < vollWerte.Count
-                                If PartitionHatDaten(connStr, v, vollWerte(idx)) Then Exit While
-                                Log("  Leere untere Grenzpartition entfernt: " & vollWerte(idx).ToString())
-                                idx += 1
-                            End While
-                            Dim ladeWerte As List(Of Integer) = vollWerte.Skip(idx).ToList()
+                            ' Jede gewaehlte Partition pruefen: nur Werte behalten, die in
+                            ' Oracle tatsaechlich Daten haben. Entfernt leere Grenz-/Anker-
+                            ' Partitionen (z.B. ...0900-Artefakte aus der HIGH_VALUE-1-
+                            ' Umrechnung, wenn ein Monat - etwa September ...0901 - eine
+                            ' zusaetzliche Grenze hat) an JEDER Position, nicht nur unten.
+                            ' Leere Partitionen werden still uebersprungen (nur Zaehler).
+                            Dim vorFilterVoll As Integer = vollWerte.Count
+                            Dim ladeWerte As List(Of Integer) =
+                                vollWerte.Where(Function(w) PartitionHatDaten(connStr, v, w)).ToList()
+                            If ladeWerte.Count < vorFilterVoll Then
+                                Log("  Leere Partitionen ohne Daten uebersprungen: " &
+                                    (vorFilterVoll - ladeWerte.Count).ToString())
+                            End If
 
                             If ladeWerte.Count = 0 Then
                                 Log("  Keine Daten in Oracle (alle Grenzpartitionen leer) - kein Ladevorgang noetig.")
@@ -194,6 +200,18 @@ Partial Public Class ScriptMain
                             Dim zuLaden As List(Of Integer) =
                                 oracleAlleWerte.Where(Function(w) w >= mMin AndAlso Not mssqlWerte.Contains(w)) _
                                                .OrderBy(Function(w) w).ToList()
+
+                            ' Jede gewaehlte Partition pruefen: nur Werte behalten, die in
+                            ' Oracle tatsaechlich Daten haben. So gelangen leere Grenz-/Anker-
+                            ' Partitionen (z.B. ...0900-Artefakte aus der HIGH_VALUE-1-
+                            ' Umrechnung) nicht in BA::objPartitionValues und loesen in SCR13
+                            ' keinen "0 Zeilen"-Fehler aus. Leere werden still uebersprungen.
+                            Dim vorFilterAppend As Integer = zuLaden.Count
+                            zuLaden = zuLaden.Where(Function(w) PartitionHatDaten(connStr, v, w)).ToList()
+                            If zuLaden.Count < vorFilterAppend Then
+                                Log("  Leere Partitionen ohne Daten uebersprungen: " &
+                                    (vorFilterAppend - zuLaden.Count).ToString())
+                            End If
 
                             ' Oracle-MIN nach Bereinigung (leere Grenzpartitionen < mMin ausgeblendet)
                             Dim oMinEff As Integer = oracleAlleWerte.Where(Function(w) w >= mMin).DefaultIfEmpty(mMin).Min()
