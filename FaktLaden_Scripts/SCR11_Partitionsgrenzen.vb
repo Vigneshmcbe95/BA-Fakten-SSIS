@@ -82,30 +82,55 @@ Partial Public Class ScriptMain
 
                     If benutzerWerte.Count > 0 Then
                         ' ═════════════════════════════════════════════════════
-                        ' MODE 1: MANUAL (partition_wert gesetzt)
-                        ' Oracle-Pruefung wird uebersprungen - partition_wert
-                        ' direkt aus Steuerliste verwenden
+                        ' MODE 1: MANUAL / CUT-OFF (partition_wert gesetzt)
+                        ' Der aus der Steuerliste (SC04, datums-/regexbasiert)
+                        ' berechnete Wert wird NICHT als Einzelpartition geladen,
+                        ' sondern als OBERE GRENZE (Cut-Off) interpretiert:
+                        ' Es werden ALLE Oracle-Partitionen mit echten Daten und
+                        ' Wert <= Cut-Off geladen (Full Load bis Cut-Off, inklusive
+                        ' Cut-Off). Bereits vorhandene Partitionen werden neu geladen
+                        ' (AKTUALISIERUNG), fehlende neu angelegt (NEU).
                         ' ═════════════════════════════════════════════════════
                         modus = "MANUAL"
-                        Log("  MODE: MANUAL (partition_wert gesetzt - Oracle-Pruefung uebersprungen)")
-                        Log("  Benutzer partition_wert: " & benutzerWerte.Count.ToString() & " Werte")
-                        If benutzerWerte.Count > 0 Then
-                            Log("  MIN: " & benutzerWerte.Min().ToString() & " | MAX: " & benutzerWerte.Max().ToString())
+                        Dim cutOff As Integer = benutzerWerte.Max()
+                        Log("  MODE: MANUAL/CUT-OFF (Full Load bis Cut-Off <= " & cutOff.ToString() & ")")
+
+                        ' Echte Oracle-Werte laden (inkl. HIGH_VALUE-Umrechnung)
+                        oracleAlleWerte = OracleAlleWerteLaden(connStr, v)
+                        Log("  Oracle Werte gesamt: " & oracleAlleWerte.Count.ToString())
+                        If oracleAlleWerte.Count = 0 Then
+                            Dim msg As String = "Keine Partitionen in Oracle gefunden (View v_partition_info)"
+                            LogFehler("  FEHLER: " & msg)
+                            ProtokollSchreiben(connStr, v.Verfahren, "FEHLER_SCR11", msg)
+                            FehlerSetzen(connStr, v.ID, msg)
+                            Throw New Exception(msg)
                         End If
 
                         ' MSSQL Status pruefen - NEU vs AKTUALISIERUNG
                         mssqlWerte = MssqlWerteLaden(connStr, v)
                         Log("  MSSQL Werte gesamt: " & mssqlWerte.Count.ToString())
 
-                        ' Stelligkeit von Eingabe- und MSSQL-Werten muss zusammenpassen,
+                        ' Stelligkeit von Oracle- und MSSQL-Werten muss zusammenpassen,
                         ' sonst ist die Partitionsspalte nicht stimmig -> Abbruch mit Meldung.
-                        StelligkeitPruefen(benutzerWerte, mssqlWerte, v)
+                        StelligkeitPruefen(oracleAlleWerte, mssqlWerte, v)
+
+                        ' <= Cut-Off und nur Partitionen mit echten Daten (leere
+                        ' Grenz-/Anker-Partitionen still ueberspringen).
+                        Dim kandidaten As List(Of Integer) =
+                            oracleAlleWerte.Where(Function(w) w <= cutOff).OrderBy(Function(w) w).ToList()
+                        Dim vorFilterCut As Integer = kandidaten.Count
+                        kandidaten = kandidaten.Where(Function(w) PartitionHatDaten(connStr, v, w)).ToList()
+                        If kandidaten.Count < vorFilterCut Then
+                            Log("  Leere Partitionen ohne Daten uebersprungen: " &
+                                (vorFilterCut - kandidaten.Count).ToString())
+                        End If
 
                         Dim cntAktualisierung As Integer = 0
                         Dim cntNeu As Integer = 0
 
-                        For Each bw As Integer In benutzerWerte
+                        For Each bw As Integer In kandidaten
                             If mssqlWerte.Contains(bw) Then
+                                ' Full Reload: bereits vorhandene Partition erneut laden
                                 zuVerarbeiten.Add(New PartitionsEintrag With {.Wert = bw, .Modus = "AKTUALISIERUNG"})
                                 cntAktualisierung += 1
                             Else
@@ -114,7 +139,8 @@ Partial Public Class ScriptMain
                             End If
                         Next
 
-                        Log("  Klassifizierung: AKTUALISIERUNG=" & cntAktualisierung.ToString() & " | NEU=" & cntNeu.ToString())
+                        Log("  Cut-Off " & cutOff.ToString() & " | Geladen: " & kandidaten.Count.ToString() &
+                            " | AKTUALISIERUNG=" & cntAktualisierung.ToString() & " | NEU=" & cntNeu.ToString())
 
                     Else
                         ' ═════════════════════════════════════════════════════
