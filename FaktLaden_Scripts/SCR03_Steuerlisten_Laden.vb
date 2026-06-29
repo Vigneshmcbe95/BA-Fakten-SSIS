@@ -337,12 +337,16 @@ END;"
     ' -----------------------------------------------------------------------
     ' TabellennameBestimmen - Ermittelt den reinen Tabellen-/Verfahrensnamen
     ' aus einer STL-Zeile und validiert das Format.
-    ' Unterstuetzte Schreibweisen:
-    '   tabelle                 - einfacher Name
-    '   tabelle_*               - Wildcard: alle Partitionen (AUTOMATIC)
-    '   tabelle_<JJJJMM[..]>    - fester Datums-Suffix
-    '   tabelle:<JJJJMM[..]>    - fester Datumswert nach Doppelpunkt
-    '   tabelle:<TOKEN>(...)    - Token (:YYYYMM(), :LAST_MM(), :MONID..., :YEAR)
+    ' Unterstuetzte Schreibweisen (Partitionsteil nach '_' oder ':'):
+    '   tabelle                     - einfacher Name (alle Oracle-Partitionen)
+    '   tabelle_*                   - Wildcard alle: jede Partition
+    '   tabelle_202* / _2026*       - Wildcard-Praefix (* ? +): Mengen-Treffer
+    '   tabelle_[12] / _20260[1-6]  - Klammer-/Bereichsmuster: Mengen-Treffer
+    '   tabelle_<JJJJMM[TT]>        - fester Datums-Suffix (in SCR11 Cut-Off)
+    '   tabelle:<JJJJMM[TT]>        - fester Datumswert nach Doppelpunkt (Cut-Off)
+    '   tabelle:<TOKEN>(...)        - Token: :YYYYMM(), :YYYY(), :LAST_MM(),
+    '                                 :LAST_YYYYMM(), :LAST_YYYY(), :MONID(),
+    '                                 :MONID6(), :MONID4(), :YEAR()
     ' Bleibt nach dem Parsen ein Sonderzeichen uebrig (unbekanntes Format),
     ' wird mit einer Hinweismeldung abgebrochen.
     ' -----------------------------------------------------------------------
@@ -356,9 +360,11 @@ END;"
         If basis = "" OrElse Not Regex.IsMatch(basis, "^[a-z0-9_]+$") Then
             Throw New Exception(
                 "Tabellenname '" & zeile & "' hat ein unbekanntes Format. " &
-                "Erlaubte Schreibweisen: 'tabelle', 'tabelle_*', " &
-                "'tabelle_<JJJJMM>' oder 'tabelle:<TOKEN>(...)' " &
-                "(z.B. :YYYYMM(), :LAST_MM(), :MONID6(), :YEAR()). " &
+                "Erlaubte Schreibweisen: 'tabelle', 'tabelle_*', 'tabelle_202*', " &
+                "'tabelle_[12]', 'tabelle_20260[1-6]', 'tabelle_<JJJJMM[TT]>', " &
+                "'tabelle:<JJJJMM[TT]>' oder 'tabelle:<TOKEN>(...)' " &
+                "(z.B. :YYYYMM(), :YYYY(), :LAST_MM(), :LAST_YYYYMM(), " &
+                ":MONID(), :MONID6(), :MONID4(), :YEAR()). " &
                 "Bitte den Tabellennamen in der STL-Datei entsprechend angeben.")
         End If
 
@@ -394,6 +400,14 @@ END;"
 
         ' :YEAR token (with or without leading underscore)
         t = Regex.Match(zeile, "_?:YEAR", RegexOptions.IgnoreCase)
+        If t.Success Then Return zeile.Substring(0, t.Index)
+
+        ' Partitions-Muster nach '_' oder ':' mit Wildcards/Klammern, z.B.
+        ' tf_table_202*, tf_table_*, tf_table_[12], tf_table_20260[1-6],
+        ' tf_table:202* ... (reine Ziffern-Suffixe sind oben schon behandelt).
+        ' Lookahead stellt sicher, dass mind. ein Metazeichen (* ? + [ ] -)
+        ' enthalten ist, damit normale Namensteile nicht abgeschnitten werden.
+        t = Regex.Match(zeile, "[_:](?=[0-9\*\?\+\[\]\-]*[\*\?\+\[\]\-])[0-9\*\?\+\[\]\-]+$")
         If t.Success Then Return zeile.Substring(0, t.Index)
 
         ' Wildcard-Suffix: tf_table_*  -> alle Partitionen (AUTOMATIC)
