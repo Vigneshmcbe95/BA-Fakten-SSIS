@@ -5,6 +5,7 @@ Imports System
 Imports System.Data.SqlClient
 Imports System.Collections.Generic
 Imports System.Linq
+Imports System.Text.RegularExpressions
 Imports Microsoft.SqlServer.Dts.Runtime
 
 ' =============================================================================
@@ -74,26 +75,28 @@ Partial Public Class ScriptMain
                     '  partition_wert; where_klausel wird nicht mehr genutzt)
                     ' ═════════════════════════════════════════════════════════
                     Dim benutzerWerte As List(Of Integer) = PartitionWerteLaden(connStr, v.Verfahren)
+                    Dim musterListe As List(Of String) = PartitionMusterLaden(connStr, v.Verfahren)
 
                     Dim zuVerarbeiten As New List(Of PartitionsEintrag)()
                     Dim modus As String = String.Empty
                     Dim oracleAlleWerte As List(Of Integer) = Nothing
                     Dim mssqlWerte As List(Of Integer) = Nothing
 
-                    If benutzerWerte.Count > 0 Then
+                    If benutzerWerte.Count > 0 OrElse musterListe.Count > 0 Then
                         ' ═════════════════════════════════════════════════════
-                        ' MODE 1: MANUAL / CUT-OFF (partition_wert gesetzt)
-                        ' Der aus der Steuerliste (SC04, datums-/regexbasiert)
-                        ' berechnete Wert wird NICHT als Einzelpartition geladen,
-                        ' sondern als OBERE GRENZE (Cut-Off) interpretiert:
-                        ' Es werden ALLE Oracle-Partitionen mit echten Daten und
-                        ' Wert <= Cut-Off geladen (Full Load bis Cut-Off, inklusive
-                        ' Cut-Off). Bereits vorhandene Partitionen werden neu geladen
-                        ' (AKTUALISIERUNG), fehlende neu angelegt (NEU).
+                        ' MODE 1: MANUAL (Steuerliste, SC04)
+                        ' Zwei Selektoren moeglich (auch kombiniert):
+                        '   (a) partition_wert  -> CUT-OFF: alle Werte <= MAX(wert)
+                        '   (b) where_klausel    -> REGEX : alle Werte, deren String
+                        '                           auf ein Muster passt (Wildcards,
+                        '                           Klammern, IN-Listen, LAST_-Fenster)
+                        ' Beide selektieren aus den REALEN Oracle-Partitionswerten.
+                        ' Treffer werden voll neu geladen (vorhandene = AKTUALISIERUNG,
+                        ' fehlende = NEU). Leere Partitionen werden uebersprungen.
                         ' ═════════════════════════════════════════════════════
                         modus = "MANUAL"
-                        Dim cutOff As Integer = benutzerWerte.Max()
-                        Log("  MODE: MANUAL/CUT-OFF (Full Load bis Cut-Off <= " & cutOff.ToString() & ")")
+                        Log("  MODE: MANUAL | Cut-Off-Werte=" & benutzerWerte.Count.ToString() &
+                            " | Regex-Muster=" & musterListe.Count.ToString())
 
                         ' Echte Oracle-Werte laden (inkl. HIGH_VALUE-Umrechnung)
                         oracleAlleWerte = OracleAlleWerteLaden(connStr, v)
@@ -114,15 +117,45 @@ Partial Public Class ScriptMain
                         ' sonst ist die Partitionsspalte nicht stimmig -> Abbruch mit Meldung.
                         StelligkeitPruefen(oracleAlleWerte, mssqlWerte, v)
 
-                        ' <= Cut-Off und nur Partitionen mit echten Daten (leere
-                        ' Grenz-/Anker-Partitionen still ueberspringen).
-                        Dim kandidaten As List(Of Integer) =
-                            oracleAlleWerte.Where(Function(w) w <= cutOff).OrderBy(Function(w) w).ToList()
-                        Dim vorFilterCut As Integer = kandidaten.Count
+                        ' Treffermenge bestimmen (Vereinigung aus Cut-Off und Regex).
+                        Dim treffer As New HashSet(Of Integer)()
+
+                        ' (a) Cut-Off: alle Werte <= MAX(partition_wert)
+                        If benutzerWerte.Count > 0 Then
+                            Dim cutOff As Integer = benutzerWerte.Max()
+                            Log("  Cut-Off <= " & cutOff.ToString())
+                            For Each w As Integer In oracleAlleWerte
+                                If w <= cutOff Then treffer.Add(w)
+                            Next
+                        End If
+
+                        ' (b) Regex: alle Werte, deren String auf ein Muster passt
+                        For Each muster As String In musterListe
+                            Dim rgx As Regex = Nothing
+                            Try
+                                rgx = New Regex(muster)
+                            Catch
+                                LogFehler("  Ungueltiges Regex-Muster uebersprungen: " & muster)
+                            End Try
+                            If rgx IsNot Nothing Then
+                                Dim cntTreffer As Integer = 0
+                                For Each w As Integer In oracleAlleWerte
+                                    If rgx.IsMatch(w.ToString()) Then
+                                        treffer.Add(w)
+                                        cntTreffer += 1
+                                    End If
+                                Next
+                                Log("  Muster '" & muster & "' -> " & cntTreffer.ToString() & " Treffer")
+                            End If
+                        Next
+
+                        ' Nur Partitionen mit echten Daten (leere still ueberspringen)
+                        Dim kandidaten As List(Of Integer) = treffer.OrderBy(Function(w) w).ToList()
+                        Dim vorFilter As Integer = kandidaten.Count
                         kandidaten = kandidaten.Where(Function(w) PartitionHatDaten(connStr, v, w)).ToList()
-                        If kandidaten.Count < vorFilterCut Then
+                        If kandidaten.Count < vorFilter Then
                             Log("  Leere Partitionen ohne Daten uebersprungen: " &
-                                (vorFilterCut - kandidaten.Count).ToString())
+                                (vorFilter - kandidaten.Count).ToString())
                         End If
 
                         Dim cntAktualisierung As Integer = 0
@@ -139,7 +172,7 @@ Partial Public Class ScriptMain
                             End If
                         Next
 
-                        Log("  Cut-Off " & cutOff.ToString() & " | Geladen: " & kandidaten.Count.ToString() &
+                        Log("  Geladen: " & kandidaten.Count.ToString() &
                             " | AKTUALISIERUNG=" & cntAktualisierung.ToString() & " | NEU=" & cntNeu.ToString())
 
                     Else
@@ -428,6 +461,44 @@ Partial Public Class ScriptMain
             End Try
         End While
         Return alleWerte.OrderBy(Function(w) w).ToList()
+    End Function
+
+    ' -----------------------------------------------------------------------
+    ' PartitionMusterLaden - Laedt die von SC04 erzeugten Regex-Muster
+    ' (Spalte where_klausel) fuer ein Verfahren. Jedes Muster wird in SCR11
+    ' gegen die realen Oracle-Partitionswerte gematcht (Wildcards/Klammern/
+    ' IN-Listen/LAST_-Fenster).
+    ' -----------------------------------------------------------------------
+    Private Function PartitionMusterLaden(connStr As String, verfahren As String) As List(Of String)
+        Dim liste As New List(Of String)()
+        Dim sql As String =
+            "SELECT DISTINCT where_klausel FROM dbo." & _stlTabelle &
+            " WHERE LOWER(LTRIM(RTRIM(tabelle))) = @verf" &
+            " AND where_klausel IS NOT NULL AND LTRIM(RTRIM(where_klausel)) <> ''"
+
+        Dim versuch As Integer = 0
+        While versuch < MAX_VERSUCHE
+            versuch += 1
+            Try
+                Using conn As New SqlConnection(connStr)
+                    conn.Open()
+                    Using cmd As New SqlCommand(sql, conn)
+                        cmd.CommandTimeout = 0
+                        cmd.Parameters.AddWithValue("@verf", verfahren.ToLower().Trim())
+                        Using rdr As SqlDataReader = cmd.ExecuteReader()
+                            While rdr.Read()
+                                Dim s As String = rdr(0).ToString().Trim()
+                                If s.Length > 0 AndAlso Not liste.Contains(s) Then liste.Add(s)
+                            End While
+                        End Using
+                    End Using
+                End Using
+                Return liste
+            Catch ex As Exception
+                If versuch < MAX_VERSUCHE Then System.Threading.Thread.Sleep(WARTE_SEK * 1000) Else Throw
+            End Try
+        End While
+        Return liste
     End Function
 
     ' -----------------------------------------------------------------------

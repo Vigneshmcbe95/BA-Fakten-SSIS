@@ -61,28 +61,37 @@ Partial Public Class ScriptMain
             Dim zeilen As List(Of Zeile) = ZeilenLaden(connStr)
             Log("Steuerlisten-Zeilen : " & zeilen.Count.ToString())
 
-            Dim cntMit As Integer = 0
+            Dim cntWert As Integer = 0
+            Dim cntMuster As Integer = 0
             Dim cntOhne As Integer = 0
 
             For Each z As Zeile In zeilen
 
-                Dim wert As String = WertExtrahieren(z.TabnameFilter)
+                ' Ergebnis: ENTWEDER ein Einzelwert (partition_wert -> Cut-Off in SCR11)
+                ' ODER ein Regex-Muster (where_klausel -> Mengen-Treffer in SCR11).
+                Dim wert As String = Nothing
+                Dim muster As String = Nothing
+                FilterAnalysieren(z.TabnameFilter, wert, muster)
 
-                If wert IsNot Nothing Then
-                    cntMit += 1
+                If muster IsNot Nothing Then
+                    cntMuster += 1
+                ElseIf wert IsNot Nothing Then
+                    cntWert += 1
                 Else
                     cntOhne += 1
                 End If
 
-                Log(String.Format("  {0,-50} -> wert={1}",
+                Log(String.Format("  {0,-50} -> wert={1} | muster={2}",
                     z.TabnameFilter,
-                    If(wert IsNot Nothing, wert, "NULL")))
+                    If(wert IsNot Nothing, wert, "NULL"),
+                    If(muster IsNot Nothing, muster, "NULL")))
 
-                ZurueckSchreiben(connStr, z.TabnameFilter, z.FileName, Nothing, wert)
+                ZurueckSchreiben(connStr, z.TabnameFilter, z.FileName, muster, wert)
             Next
 
-            Log("partition_wert gefuellt: " & cntMit.ToString())
-            Log("partition_wert NULL    : " & cntOhne.ToString())
+            Log("partition_wert (Cut-Off) gefuellt: " & cntWert.ToString())
+            Log("where_klausel  (Regex-Muster)    : " & cntMuster.ToString())
+            Log("ohne Treffer                     : " & cntOhne.ToString())
             Dts.TaskResult = ScriptResults.Success
 
         Catch ex As Exception
@@ -93,41 +102,131 @@ Partial Public Class ScriptMain
     End Sub
 
     ' -----------------------------------------------------------------------
-    ' WertExtrahieren - Extrahiert einen Einzelwert aus einem getrennten
-    ' Parameterstring.
+    ' FilterAnalysieren - Wandelt einen Steuerlisten-Filter in GENAU EINES um:
+    '   * partWert : ein einzelner numerischer Wert (Einzelmonat/-jahr, Datums-
+    '                token oder fester Wert) -> in SCR11 als Cut-Off interpretiert
+    '                (Full Load aller Partitionen <= Wert).
+    '   * regexMuster: ein .NET-Regex, der gegen die REALEN Partitionswerte
+    '                  matcht (Wildcards * ? +, Klammern [..], IN-Listen,
+    '                  LAST_*-Fenster) -> in SCR11 als Mengen-Treffer expandiert.
+    ' Spiegelt die Oracle-Logik (MonId/YearId/getKlausel/getPosReg + star2regex).
     ' -----------------------------------------------------------------------
-    Private Function WertExtrahieren(filter As String) As String
+    Private Sub FilterAnalysieren(filter As String, ByRef partWert As String, ByRef regexMuster As String)
 
-        If String.IsNullOrEmpty(filter) Then Return Nothing
+        partWert = Nothing
+        regexMuster = Nothing
+        If String.IsNullOrEmpty(filter) Then Return
 
+        ' Datumstoken (:MONID(n) :MONID6(n) :MONID4(n) :YEAR(n)) zuerst aufloesen
         Dim f As String = TokenAufloesen(filter)
         Dim m As Match
 
-        ' :LAST_MM / :LAST_YYMM / :LAST_YYYYMM(n) → YYYYMM
+        ' :LAST_MM / :LAST_YYMM / :LAST_YYYYMM(n) -> Fenster der letzten n Monate
         m = Regex.Match(f, ":LAST_(?:MM|YYMM|YYYYMM)\((\d+)\)", RegexOptions.IgnoreCase)
-        If m.Success Then Return _refDatum.AddMonths(-CInt(m.Groups(1).Value)).ToString("yyyyMM")
+        If m.Success Then
+            regexMuster = MonatsfensterRegex(CInt(m.Groups(1).Value))
+            Return
+        End If
 
-        ' :LAST_YY / :LAST_YYYY(n) → YYYY
+        ' :LAST_YY / :LAST_YYYY(n) -> Fenster der letzten n Jahre
         m = Regex.Match(f, ":LAST_(?:YY|YYYY)\((\d+)\)", RegexOptions.IgnoreCase)
-        If m.Success Then Return _refDatum.AddYears(-CInt(m.Groups(1).Value)).ToString("yyyy")
+        If m.Success Then
+            regexMuster = JahresfensterRegex(CInt(m.Groups(1).Value))
+            Return
+        End If
 
-        ' :YYYYMM(val,...) → wert direkt
+        ' :YYYYMM(v1,v2,...) -> Praefix-IN-Liste (6-stellig)
         m = Regex.Match(f, ":YYYYMM\(([^)]+)\)", RegexOptions.IgnoreCase)
-        If m.Success Then Return m.Groups(1).Value.Trim()
+        If m.Success Then
+            regexMuster = ListeZuRegex(m.Groups(1).Value)
+            Return
+        End If
 
-        ' :YYYY(val,...)
+        ' :YYYY(v1,v2,...) -> Praefix-IN-Liste (4-stellig)
         m = Regex.Match(f, ":YYYY\(([^)]+)\)", RegexOptions.IgnoreCase)
-        If m.Success Then Return m.Groups(1).Value.Trim()
+        If m.Success Then
+            regexMuster = ListeZuRegex(m.Groups(1).Value)
+            Return
+        End If
 
-        ' Nach Token-Aufloesung: ALLE Ziffern aus dem String extrahieren
-        ' v2: Erfasst alle aufeinanderfolgenden Ziffern nach dem Jahrespraefix
-        ' z.B. tf_lstp_bg_bs_bedarfe:20260400 → 20260400 (alle 8 Ziffern)
-        ' z.B. tf_zkt_bb_20260301              → 20260301 (alle 8 Ziffern)
-        m = Regex.Match(f, "((?:19|20)\d{4}\d*)", RegexOptions.IgnoreCase)
-        If m.Success Then Return m.Groups(1).Value
+        ' Partitionsteil bestimmen: nach letztem ':' (Token) bzw. letztem '_' (Suffix)
+        Dim sel As String = f
+        Dim pc As Integer = sel.LastIndexOf(":"c)
+        If pc >= 0 Then
+            sel = sel.Substring(pc + 1)
+        Else
+            Dim uc As Integer = sel.LastIndexOf("_"c)
+            If uc >= 0 Then sel = sel.Substring(uc + 1)
+        End If
+        sel = sel.Trim()
 
-        Return Nothing
+        ' Enthaelt der Selektor Regex-/Wildcard-Metazeichen? -> Mengen-Muster
+        If Regex.IsMatch(sel, "[\*\?\+\[\]\-]") Then
+            regexMuster = MusterZuRegex(sel)
+            Return
+        End If
 
+        ' Sonst: einzelner fester Wert (Ziffern) -> Cut-Off
+        m = Regex.Match(f, "((?:19|20)\d{4}\d*)")
+        If m.Success Then
+            partWert = m.Groups(1).Value
+            Return
+        End If
+
+        ' Bare 4-stelliges YYMM-Suffix (z.B. _1502)
+        m = Regex.Match(f, "_(\d{4})$")
+        If m.Success Then partWert = m.Groups(1).Value
+
+    End Sub
+
+    ' -----------------------------------------------------------------------
+    ' MusterZuRegex - Wandelt ein Steuerlisten-Wildcardmuster in einen
+    ' verankerten .NET-Regex. '*' -> '.{0,128}' (wie Oracle star2regex);
+    ' '?', '+', '[..]', '-' werden direkt als Regex uebernommen, Ziffern
+    ' bleiben literal.
+    ' -----------------------------------------------------------------------
+    Private Function MusterZuRegex(muster As String) As String
+        Return "^" & muster.Replace("*", ".{0,128}") & "$"
+    End Function
+
+    ' -----------------------------------------------------------------------
+    ' ListeZuRegex - Wandelt eine IN-Liste '(v1,v2,...)' bzw. 'v1,v2,...' in
+    ' eine Praefix-Alternation '^(v1|v2|...)' um (matcht Partitionswerte, die
+    ' mit einem der Werte beginnen - entspricht Oracle substr(col,1,len) IN).
+    ' -----------------------------------------------------------------------
+    Private Function ListeZuRegex(liste As String) As String
+        Dim roh As String = liste.Trim().TrimStart("("c).TrimEnd(")"c)
+        Dim teile As New List(Of String)()
+        For Each t As String In roh.Split(","c)
+            Dim s As String = t.Trim().Trim("'"c).Trim()
+            If s.Length > 0 Then teile.Add(Regex.Escape(s))
+        Next
+        If teile.Count = 0 Then Return Nothing
+        Return "^(" & String.Join("|", teile) & ")"
+    End Function
+
+    ' -----------------------------------------------------------------------
+    ' MonatsfensterRegex - Erzeugt eine Praefix-Alternation der letzten n
+    ' Monate (inkl. Referenzmonat), z.B. ^(202601|202602|...).
+    ' -----------------------------------------------------------------------
+    Private Function MonatsfensterRegex(n As Integer) As String
+        Dim teile As New List(Of String)()
+        For i As Integer = n To 0 Step -1
+            teile.Add(_refDatum.AddMonths(-i).ToString("yyyyMM"))
+        Next
+        Return "^(" & String.Join("|", teile) & ")"
+    End Function
+
+    ' -----------------------------------------------------------------------
+    ' JahresfensterRegex - Erzeugt eine Praefix-Alternation der letzten n
+    ' Jahre (inkl. Referenzjahr), z.B. ^(2024|2025|2026).
+    ' -----------------------------------------------------------------------
+    Private Function JahresfensterRegex(n As Integer) As String
+        Dim teile As New List(Of String)()
+        For i As Integer = n To 0 Step -1
+            teile.Add(_refDatum.AddYears(-i).ToString("yyyy"))
+        Next
+        Return "^(" & String.Join("|", teile) & ")"
     End Function
 
     ' -----------------------------------------------------------------------
@@ -137,6 +236,15 @@ Partial Public Class ScriptMain
         Dim r As String = f
         Dim m As Match
 
+        ' :MONID4(n) -> 2-stelliges Jahr + Monat (YYMM). ZUERST aufloesen, damit
+        ' das :MONID6?-Muster es nicht faelschlich anfasst.
+        m = Regex.Match(r, ":MONID4\((-?\d+)\)", RegexOptions.IgnoreCase)
+        While m.Success
+            r = r.Replace(m.Value, _refDatum.AddMonths(CInt(m.Groups(1).Value)).ToString("yyMM"))
+            m = Regex.Match(r, ":MONID4\((-?\d+)\)", RegexOptions.IgnoreCase)
+        End While
+
+        ' :MONID(n) / :MONID6(n) -> 4-stelliges Jahr + Monat (YYYYMM)
         m = Regex.Match(r, ":MONID6?\((-?\d+)\)", RegexOptions.IgnoreCase)
         While m.Success
             r = r.Replace(m.Value, _refDatum.AddMonths(CInt(m.Groups(1).Value)).ToString("yyyyMM"))
