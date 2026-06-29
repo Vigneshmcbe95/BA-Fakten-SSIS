@@ -180,7 +180,7 @@ Partial Public Class ScriptMain
                         ' MODE 2: AUTOMATIC (kein partition_wert in CSV)
                         ' ═════════════════════════════════════════════════════
                         modus = "AUTOMATIC"
-                        Log("  MODE: AUTOMATIC (partition_wert aus Oracle)")
+                        Log("  MODE: AUTOMATIC (Full Reload aller Oracle-Partitionen, kein Delta)")
 
                         ' Alle Oracle-Werte laden
                         oracleAlleWerte = OracleAlleWerteLaden(connStr, v)
@@ -245,56 +245,43 @@ Partial Public Class ScriptMain
                             Next
 
                         Else
-                            ' ─── APPEND: nur echte neue Werte laden ───
-                            Dim oMax As Integer = oracleAlleWerte.Max()
-                            Dim mMin As Integer = mssqlWerte.Min()
-                            Dim mMax As Integer = mssqlWerte.Max()
-
-                            ' Zu laden = Oracle-Werte, die in MSSQL fehlen UND nicht
-                            ' unterhalb des MSSQL-Minimums liegen. Werte unter mMin sind
-                            ' leere Oracle-Grenzpartitionen (1. Partition ohne Daten -
-                            ' 6- und 8-stelliges Schema) und werden ausgeblendet, daher
-                            ' wird die Oracle-MIN/MAX-Angabe nach dieser Bereinigung
-                            ' ermittelt (kein Fehlalarm).
-                            Dim zuLaden As List(Of Integer) =
-                                oracleAlleWerte.Where(Function(w) w >= mMin AndAlso Not mssqlWerte.Contains(w)) _
-                                               .OrderBy(Function(w) w).ToList()
-
-                            ' Jede gewaehlte Partition pruefen: nur Werte behalten, die in
-                            ' Oracle tatsaechlich Daten haben. So gelangen leere Grenz-/Anker-
-                            ' Partitionen (z.B. ...0900-Artefakte aus der HIGH_VALUE-1-
-                            ' Umrechnung) nicht in BA::objPartitionValues und loesen in SCR13
-                            ' keinen "0 Zeilen"-Fehler aus. Leere werden still uebersprungen.
-                            Dim vorFilterAppend As Integer = zuLaden.Count
-                            zuLaden = zuLaden.Where(Function(w) PartitionHatDaten(connStr, v, w)).ToList()
-                            If zuLaden.Count < vorFilterAppend Then
+                            ' ─── FULL RELOAD (KEIN Delta): alle Oracle-Werte mit Daten ───
+                            ' Es wird NICHT mehr Oracle-minus-MSSQL gerechnet. Es werden
+                            ' ALLE Oracle-Partitionen mit echten Daten geladen; bereits
+                            ' vorhandene = AKTUALISIERUNG (Neuladen), fehlende = NEU.
+                            ' Leere Grenz-/Anker-Partitionen (...0900-Artefakte) werden
+                            ' still uebersprungen.
+                            Dim vollWerteA As List(Of Integer) = oracleAlleWerte.OrderBy(Function(w) w).ToList()
+                            Dim vorFilterAppend As Integer = vollWerteA.Count
+                            Dim ladeWerteA As List(Of Integer) =
+                                vollWerteA.Where(Function(w) PartitionHatDaten(connStr, v, w)).ToList()
+                            If ladeWerteA.Count < vorFilterAppend Then
                                 Log("  Leere Partitionen ohne Daten uebersprungen: " &
-                                    (vorFilterAppend - zuLaden.Count).ToString())
+                                    (vorFilterAppend - ladeWerteA.Count).ToString())
                             End If
 
-                            ' Oracle-MIN nach Bereinigung (leere Grenzpartitionen < mMin ausgeblendet)
-                            Dim oMinEff As Integer = oracleAlleWerte.Where(Function(w) w >= mMin).DefaultIfEmpty(mMin).Min()
-
-                            Log("  Oracle: MIN=" & oMinEff.ToString() & " MAX=" & oMax.ToString() &
-                                " | MSSQL: MIN=" & mMin.ToString() & " MAX=" & mMax.ToString())
-
-                            If zuLaden.Count = 0 Then
-                                Log("  Alle Daten bereits geladen - kein neuer Ladevorgang noetig.")
+                            If ladeWerteA.Count = 0 Then
+                                Log("  Keine Daten in Oracle (alle Partitionen leer) - kein Ladevorgang noetig.")
                                 ProtokollSchreiben(connStr, v.Verfahren, "SCHRITT_4",
-                                    "Alle Daten bereits geladen - kein neuer Ladevorgang noetig. " &
-                                    "Oracle " & oMinEff.ToString() & "-" & oMax.ToString() &
-                                    " | MSSQL " & mMin.ToString() & "-" & mMax.ToString())
+                                    "Keine Daten in Oracle - alle Partitionen leer.")
                                 StatusSetzen(connStr, v.ID, "PARTITIONSGRENZEN_ERSTELLT")
                                 cntOK += 1
                                 Continue For
                             End If
 
-                            Log("  Zu laden: " & zuLaden.Count.ToString() & " Partition(en) (" &
-                                zuLaden.Min().ToString() & "-" & zuLaden.Max().ToString() & ")")
-
-                            For Each nw As Integer In zuLaden
-                                zuVerarbeiten.Add(New PartitionsEintrag With {.Wert = nw, .Modus = "NEU"})
+                            Dim cntAktA As Integer = 0
+                            Dim cntNeuA As Integer = 0
+                            For Each ow As Integer In ladeWerteA
+                                If mssqlWerte.Contains(ow) Then
+                                    zuVerarbeiten.Add(New PartitionsEintrag With {.Wert = ow, .Modus = "AKTUALISIERUNG"})
+                                    cntAktA += 1
+                                Else
+                                    zuVerarbeiten.Add(New PartitionsEintrag With {.Wert = ow, .Modus = "NEU"})
+                                    cntNeuA += 1
+                                End If
                             Next
+                            Log("  Full Reload (kein Delta) | Geladen: " & ladeWerteA.Count.ToString() &
+                                " | AKTUALISIERUNG=" & cntAktA.ToString() & " | NEU=" & cntNeuA.ToString())
                         End If
                     End If
 
