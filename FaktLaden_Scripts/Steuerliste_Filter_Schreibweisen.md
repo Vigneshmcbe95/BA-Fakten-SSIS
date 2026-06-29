@@ -26,12 +26,12 @@ Verarbeitet durch **SCR03** (Tabellennamen extrahieren), **SCR04** (Filter → W
 | `tabelle:MONID6(0)` | Relativer Monat | `202606` | **Cut-Off:** alle ≤ `202606` |
 | `tabelle_:MONID4(-1)` | Rel. Monat, 2-stell. Jahr | `2605` (JJMM) | **Cut-Off** (Suffix-Form) |
 | `tabelle:YEAR(-1)` | Relatives Jahr | `2025` | **Cut-Off:** alle ≤ `2025` |
-| `tabelle:YYYYMM(202601,202604)` | IN-Liste Monate | Regex `^(202601|202604)` | Genau diese Monate |
-| `tabelle:YYYY(2025,2026)` | IN-Liste Jahre | Regex `^(2025|2026)` | Alle Partitionen aus 2025 **und** 2026 |
-| `tabelle:LAST_MM(3)` | Letzte n Monate | Regex `^(202604|202605|202606)` | Letzte 3 Monate (inkl. aktuellem) |
-| `tabelle:LAST_YYYYMM(6)` | Letzte n Monate | Regex `^(202601|…|202606)` | Letzte 6 Monate (inkl. aktuellem) |
-| `tabelle:LAST_YY(1)` | Letzte n Jahre | Regex `^(2025|2026)` | Letztes + aktuelles Jahr |
-| `tabelle:LAST_YYYY(2)` | Letzte n Jahre | Regex `^(2024|2025|2026)` | Letzte 2 Jahre (inkl. aktuellem) |
+| `tabelle:YYYYMM(202601,202604)` | IN-Liste Monate | Regex `^(202601\|202604)` | Genau diese Monate |
+| `tabelle:YYYY(2025,2026)` | IN-Liste Jahre | Regex `^(2025\|2026)` | Alle Partitionen aus 2025 **und** 2026 |
+| `tabelle:LAST_MM(3)` | Letzte n Monate | Regex `^(202604\|202605\|202606)` | Letzte 3 Monate (inkl. aktuellem) |
+| `tabelle:LAST_YYYYMM(6)` | Letzte n Monate | Regex `^(202601\|…\|202606)` | Letzte 6 Monate (inkl. aktuellem) |
+| `tabelle:LAST_YY(1)` | Letzte n Jahre | Regex `^(2025\|2026)` | Letztes + aktuelles Jahr |
+| `tabelle:LAST_YYYY(2)` | Letzte n Jahre | Regex `^(2024\|2025\|2026)` | Letzte 2 Jahre (inkl. aktuellem) |
 
 ## Hinweise
 
