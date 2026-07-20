@@ -30,6 +30,15 @@ Partial Public Class ScriptMain
     Private Const MAX_VERSUCHE As Integer = 3
     Private Const WARTE_SEK As Integer = 30
 
+    ' SQL-Fehler 1105 = "Filegroup is full". Tritt auf, wenn mehrere parallele
+    ' SELECT INTO gleichzeitig neue Seiten brauchen, waehrend die Datendatei
+    ' noch nicht gross genug ist (SQL Server erlaubt nur EIN Autogrowth-
+    ' Ereignis je Datei gleichzeitig - die uebrigen Sessions verlieren das
+    ' Rennen und bekommen 1105, statt zu warten).
+    Private Const SQL_FEHLER_FILEGROUP_VOLL As Integer = 1105
+    Private Const DATEIWACHSTUM_SCHRITT_MB As Integer = 10240 ' 10 GB je Wachstumsschritt
+    Private ReadOnly _wachstumsSperre As New Object()
+
     Private _runID As Integer = 0
     Private _parameterDB As String = String.Empty
     Private _parametertab As String = String.Empty
@@ -507,16 +516,58 @@ WHERE c.object_id = OBJECT_ID('dbo.[" & v.Faktentabelle.ToLower().Replace("'", "
                 End Using
             Catch ex As Exception
                 letzterFehler = ex
+                Dim istFilegroupVoll As Boolean =
+                    (TypeOf ex Is SqlException) AndAlso CType(ex, SqlException).Number = SQL_FEHLER_FILEGROUP_VOLL
                 SyncLock _logSperre
                     Log(String.Format("WARNUNG [{0}] Versuch {1}/{2}: {3}", beschreibung, versuch, MAX_VERSUCHE, ex.Message))
                 If versuch = 1 Then Log("SQL Statement [" & beschreibung & "]: " & sql)
                 End SyncLock
-                If versuch < MAX_VERSUCHE Then Thread.Sleep(WARTE_SEK * 1000)
+                If istFilegroupVoll Then
+                    DateiWachstumErzwingen(connStr)
+                ElseIf versuch < MAX_VERSUCHE Then
+                    Thread.Sleep(WARTE_SEK * 1000)
+                End If
             End Try
         End While
         Throw New Exception(String.Format("[{0}] fehlgeschlagen: {1}", beschreibung,
             If(letzterFehler IsNot Nothing, letzterFehler.Message, "Unbekannt")))
     End Function
+
+    ' -----------------------------------------------------------------------
+    ' DateiWachstumErzwingen - Reagiert auf SQL-Fehler 1105 ("Filegroup is
+    ' full"): vergroessert alle Datendateien (type_desc='ROWS') der aktuellen
+    ' Datenbank um einen festen Schritt. Per SyncLock serialisiert, damit bei
+    ' mehreren gleichzeitig fehlschlagenden Partitionen nur EIN Thread
+    ' tatsaechlich vergroessert - die anderen warten kurz und versuchen es
+    ' danach einfach erneut (kein Groessen-Vorausberechnen noetig).
+    ' -----------------------------------------------------------------------
+    Private Sub DateiWachstumErzwingen(connStr As String)
+        SyncLock _wachstumsSperre
+            Try
+                Dim sql As String =
+"DECLARE @sql nvarchar(max) = N'';
+SELECT @sql = @sql + N'ALTER DATABASE ' + QUOTENAME(DB_NAME()) + N' MODIFY FILE (NAME = ' + QUOTENAME(name) +
+              N', SIZE = ' + CAST(CEILING(size / 128.0) + " & DATEIWACHSTUM_SCHRITT_MB & " AS varchar(20)) + N'MB); '
+FROM sys.database_files
+WHERE type_desc = 'ROWS';
+EXEC sp_executesql @sql;"
+                Using conn As New SqlConnection(connStr)
+                    conn.Open()
+                    Using cmd As New SqlCommand(sql, conn)
+                        cmd.CommandTimeout = 0
+                        cmd.ExecuteNonQuery()
+                    End Using
+                End Using
+                SyncLock _logSperre
+                    Log("  Dateiwachstum ausgefuehrt (+" & DATEIWACHSTUM_SCHRITT_MB.ToString() & " MB je Datendatei) nach Fehler 1105")
+                End SyncLock
+            Catch ex As Exception
+                SyncLock _logSperre
+                    Log("WARNUNG [Dateiwachstum]: " & ex.Message)
+                End SyncLock
+            End Try
+        End SyncLock
+    End Sub
 
     ' -----------------------------------------------------------------------
     ' SqlSkalar - Fuehrt eine skalare SQL-Abfrage mit Wiederholung aus;
