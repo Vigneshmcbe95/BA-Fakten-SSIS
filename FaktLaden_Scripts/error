@@ -1,449 +1,333 @@
-
------------------------------------------------ 
-mow_id
-20140200
-20140100
-20191000
-20260100
-20251000
-20130700
-20100100
-20120200
-20211000
-20240100
-20150700
-20141100
-20170500
-20201200
-20081000
-20121100
-20160700
-20100600
-20140700
-20191200
-20180901
-20180500
-20091000
-20200200
-20131000
-20260200
-20170800
-20110700
-20220200
-20150800
-20090700
-20230600
-20210400
-20170600
-20110300
-20181200
-20121000
-20210200
-20160800
-20100700
-20190300
-20130100
-20230200
-20221000
-20140800
-20100500
-20240700
-20220700
-20160400
-20100200
-20180400
-20171200
-20140500
-20180600
-20240600
-20190700
-20250800
-20231100
-20090600
-20230500
-20230901
-20161200
-20250400
-20090901
-20130901
-20101100
-20210600
-20210500
-20120800
-20201000
-20250100
-20130200
-20230100
-20250901
-20220901
-20220500
-20131100
-20220600
-20120901
-20111100
-20200700
-20120600
-20120500
-20240500
-20151200
-20251100
-20240200
-20171000
-20151000
-20180100
-20211100
-20081100
-20090300
-20141200
-20130600
-20190600
-20130300
-20210901
-20150901
-20101000
-20110400
-20230400
-20110901
-20180800
-20150200
-20141000
-20250200
-20170100
-20161000
-20110100
-20150100
-20120700
-20100901
-20131200
-20240400
-20111000
-20200901
-20140600
-20200600
-20140901
-20091100
-20151100
-20190800
-20240300
-20210800
-20120100
-20150300
-20110500
-20230700
-20130500
-20170400
-20090500
-20150500
-20090200
-20241200
-20250300
-20200800
-20181000
-20241100
-20140300
-20220400
-20111200
-20260500
-20200400
-20130800
-20220100
-20160100
-20090800
-20201100
-20081200
-20170901
-20250500
-20121200
-20221100
-20190200
-20160901
-20191100
-20120300
-20180300
-20200300
-20110600
-20230800
-20090400
-20130400
-20250600
-20190400
-20190901
-20190500
-20150600
-20210300
-20240800
-20100800
-20220800
-20190100
-20170200
-20090100
-20241000
-20210100
-20160500
-20251200
-20160600
-20171100
-20200500
-20231200
-20260400
-20211200
-20200100
-20110800
-20170700
-20240901
-20160200
-20220300
-20180200
-20231000
-20260300
-20150400
-20250700
-20101200
-20161100
-20221200
-20210700
-20170300
-20181100
-20110200
-20230300
-20180700
-20100300
-20100400
-20160300
-20120400
-20140400
-20091200
-highvalue
-20260601
-20260501
-20260401
-20260301
-20260201
-20260101
-20251201
-20251101
-20251001
-20250902
-20250901
-20250801
-20250701
-20250601
-20250501
-20250401
-20250301
-20250201
-20250101
-20241201
-20241101
-20241001
-20240902
-20240901
-20240801
-20240701
-20240601
-20240501
-20240401
-20240301
-20240201
-20240101
-20231201
-20231101
-20231001
-20230902
-20230901
-20230801
-20230701
-20230601
-20230501
-20230401
-20230301
-20230201
-20230101
-20221201
-20221101
-20221001
-20220902
-20220901
-20220801
-20220701
-20220601
-20220501
-20220401
-20220301
-20220201
-20220101
-20211201
-20211101
-20211001
-20210902
-20210901
-20210801
-20210701
-20210601
-20210501
-20210401
-20210301
-20210201
-20210101
-20201201
-20201101
-20201001
-20200902
-20200901
-20200801
-20200701
-20200601
-20200501
-20200401
-20200301
-20200201
-20200101
-20191201
-20191101
-20191001
-20190902
-20190901
-20190801
-20190701
-20190601
-20190501
-20190401
-20190301
-20190201
-20190101
-20181201
-20181101
-20181001
-20180902
-20180901
-20180801
-20180701
-20180601
-20180501
-20180401
-20180301
-20180201
-20180101
-20171201
-20171101
-20171001
-20170902
-20170901
-20170801
-20170701
-20170601
-20170501
-20170401
-20170301
-20170201
-20170101
-20161201
-20161101
-20161001
-20160902
-20160901
-20160801
-20160701
-20160601
-20160501
-20160401
-20160301
-20160201
-20160101
-20151201
-20151101
-20151001
-20150902
-20150901
-20150801
-20150701
-20150601
-20150501
-20150401
-20150301
-20150201
-20150101
-20141201
-20141101
-20141001
-20140902
-20140901
-20140801
-20140701
-20140601
-20140501
-20140401
-20140301
-20140201
-20140101
-20131201
-20131101
-20131001
-20130902
-20130901
-20130801
-20130701
-20130601
-20130501
-20130401
-20130301
-20130201
-20130101
-20121201
-20121101
-20121001
-20120902
-20120901
-20120801
-20120701
-20120601
-20120501
-20120401
-20120301
-20120201
-20120101
-20111201
-20111101
-20111001
-20110902
-20110901
-20110801
-20110701
-20110601
-20110501
-20110401
-20110301
-20110201
-20110101
-20101201
-20101101
-20101001
-20100902
-20100901
-20100801
-20100701
-20100601
-20100501
-20100401
-20100301
-20100201
-20100101
-20091201
-20091101
-20091001
-20090902
-20090901
-20090801
-20090701
-20090601
-20090501
-20090401
-20090301
-20090201
-20090101
-20081201
-20081101
-20081001
-20080902
-20080901
-20080900
+Paket	Task	Meldungstyp	Meldung
+Laden_Fakten	SCR13_Daten_Laden	info	WARNUNG [SELECT INTO tf_bst_sv_in_20150803_LOADING] Versuch 1/3: Could not allocate a new page for database 'msi_dm_bst_v3' because the 'PRIMARY' filegroup is full due to lack of storage space or database files reaching the maximum allowed size. Note that UNLIMITED files are still limited to 16TB. Create the necessary space by dropping objects in the filegroup, adding additional files to the filegroup, or setting autogrowth on for existing files in the filegroup.
+Laden_Fakten	SCR13_Daten_Laden	info	SQL Statement [SELECT INTO tf_bst_sv_in_20110406_LOADING]: SELECT
+ISNULL(CONVERT(int, [vrs_id]), 0) AS [vrs_id],
+ISNULL(CONVERT(int, [btr_id]), 0) AS [btr_id],
+ISNULL(CONVERT(int, [bvs_id]), 0) AS [bvs_id],
+ISNULL(CONVERT(smallint, [bsx_id_svoa]), 0) AS [bsx_id_svoa],
+ISNULL(CONVERT(smallint, [bsx_id_aszb]), 0) AS [bsx_id_aszb],
+ISNULL(CONVERT(smallint, [bsx_id_geb]), 0) AS [bsx_id_geb],
+ISNULL(CONVERT(smallint, [bsx_id_kfb]), 0) AS [bsx_id_kfb],
+ISNULL(CONVERT(smallint, [bzb_id]), 0) AS [bzb_id],
+ISNULL(CONVERT(smallint, [age_id]), 0) AS [age_id],
+ISNULL(CONVERT(smallint, [jan_id_rga]), 0) AS [jan_id_rga],
+ISNULL(CONVERT(smallint, [pgr_id]), 0) AS [pgr_id],
+ISNULL(CONVERT(smallint, [bro_id]), 0) AS [bro_id],
+ISNULL(CONVERT(smallint, [asb_id]), 0) AS [asb_id],
+ISNULL(CONVERT(smallint, [asb_id_korr]), 0) AS [asb_id_korr],
+ISNULL(CONVERT(smallint, [sua_id]), 0) AS [sua_id],
+ISNULL(CONVERT(smallint, [sua_id_korr]), 0) AS [sua_id_korr],
+ISNULL(CONVERT(smallint, [abi_id]), 0) AS [abi_id],
+ISNULL(CONVERT(smallint, [abi_id_korr]), 0) AS [abi_id_korr],
+ISNULL(CONVERT(int, [mow_id]), 0) AS [mow_id],
+ISNULL(CONVERT(smallint, [gda_id]), 0) AS [gda_id],
+ISNULL(CONVERT(smallint, [btg_id]), 0) AS [btg_id],
+ISNULL(CONVERT(smallint, [sex_id]), 0) AS [sex_id],
+ISNULL(CONVERT(smallint, [rvt_id]), 0) AS [rvt_id],
+ISNULL(CONVERT(smallint, [brs_id]), 0) AS [brs_id],
+ISNULL(CONVERT(int, [kba_id]), 0) AS [kba_id],
+ISNULL(CONVERT(smallint, [t08_id]), 0) AS [t08_id],
+ISNULL(CONVERT(smallint, [afn_id]), 0) AS [afn_id],
+ISNULL(CONVERT(smallint, [bfr_id_orig]), 0) AS [bfr_id_orig],
+ISNULL(CONVERT(smallint, [bfr_id]), 0) AS [bfr_id],
+ISNULL(CONVERT(smallint, [jan_id_aueg]), 0) AS [jan_id_aueg],
+ISNULL(CONVERT(int, [stt_id]), 0) AS [stt_id],
+ISNULL(CONVERT(smallint, [owk_id_rk]), 0) AS [owk_id_rk],
+ISNULL(CONVERT(int, [tag_id_w]), 0) AS [tag_id_w],
+ISNULL(CONVERT(int, [ort_id_w]), 0) AS [ort_id_w],
+ISNULL(CONVERT(int, [gst_id_w]), 0) AS [gst_id_w],
+ISNULL(CONVERT(int, [str_id_w]), 0) AS [str_id_w],
+ISNULL(CONVERT(int, [ort_id_b]), 0) AS [ort_id_b],
+ISNULL(CONVERT(int, [gst_id_b]), 0) AS [gst_id_b],
+ISNULL(CONVERT(int, [str_id_b]), 0) AS [str_id_b],
+ISNULL(CONVERT(int, [l93_id]), 0) AS [l93_id],
+ISNULL(CONVERT(int, [l03_id]), 0) AS [l03_id],
+ISNULL(CONVERT(smallint, [l08_id]), 0) AS [l08_id],
+ISNULL(CONVERT(smallint, [glz_id]), 0) AS [glz_id],
+ISNULL(CONVERT(int, [sav_id_klr]), 0) AS [sav_id_klr],
+ISNULL(CONVERT(int, [azw_id]), 0) AS [azw_id],
+ISNULL(CONVERT(smallint, [ezs_id]), 0) AS [ezs_id],
+ISNULL(CONVERT(smallint, [std_id]), 0) AS [std_id],
+ISNULL(CONVERT(int, [arbstd_uv]), 0) AS [arbstd_uv],
+ISNULL(CONVERT(smallint, [jan_id_fkt]), 0) AS [jan_id_fkt],
+ISNULL(CONVERT(int, [bed_id_ll_bv]), 0) AS [bed_id_ll_bv],
+ISNULL(CONVERT(int, [bed_id_ll_sv]), 0) AS [bed_id_ll_sv],
+ISNULL(CONVERT(smallint, [jan_id_ega]), 0) AS [jan_id_ega],
+ISNULL(CONVERT(smallint, [jan_id_bef]), 0) AS [jan_id_bef],
+ISNULL(CONVERT(smallint, [isc_id]), 0) AS [isc_id],
+ISNULL(CONVERT(smallint, [isc_id_korr]), 0) AS [isc_id_korr],
+ISNULL(CONVERT(smallint, [spb_anzahl]), 0) AS [spb_anzahl],
+CONVERT(int, [bed_id_insg]) AS [bed_id_insg],
+CONVERT(int, [bed_id_insg_sv]) AS [bed_id_insg_sv],
+CONVERT(int, [bed_id_insg_gb]) AS [bed_id_insg_gb],
+CONVERT(int, [bed_id_ubr]) AS [bed_id_ubr],
+CONVERT(int, [bed_id_sebv]) AS [bed_id_sebv],
+CONVERT(int, [bed_id_ll_bvmu]) AS [bed_id_ll_bvmu],
+CONVERT(int, [bed_id_ll_svmu]) AS [bed_id_ll_svmu],
+CONVERT(smallint, [bws_id]) AS [bws_id],
+ISNULL(CONVERT(smallint, [gee_id_w]), 0) AS [gee_id_w],
+ISNULL(CONVERT(int, [git_id_laea_100m_w]), 0) AS [git_id_laea_100m_w],
+ISNULL(CONVERT(int, [git_id_utm32_100m_w]), 0) AS [git_id_utm32_100m_w],
+ISNULL(CONVERT(int, [dtm_id]), 0) AS [dtm_id],
+ISNULL(CONVERT(int, [xbp_id]), 0) AS [xbp_id],
+ISNULL(CONVERT(int, [egt_nmt]), 0) AS [egt_nmt],
+ISNULL(CONVERT(smallint, [jan_id_saison_arb]), 0) AS [jan_id_saison_arb],
+ISNULL(CONVERT(smallint, [l25_id]), 0) AS [l25_id]
+INTO dbo.[tf_bst_sv_in_20110406_LOADING]
+FROM ext.[vf_bst_sv]
+WHERE [mow_id] = 20110406;
+Laden_Fakten	SCR13_Daten_Laden	info	WARNUNG [SELECT INTO tf_bst_sv_in_20110406_LOADING] Versuch 1/3: Could not allocate a new page for database 'msi_dm_bst_v3' because the 'PRIMARY' filegroup is full due to lack of storage space or database files reaching the maximum allowed size. Note that UNLIMITED files are still limited to 16TB. Create the necessary space by dropping objects in the filegroup, adding additional files to the filegroup, or setting autogrowth on for existing files in the filegroup.
+Laden_Fakten	SCR13_Daten_Laden	info	SQL Statement [SELECT INTO tf_bst_sv_in_20190706_LOADING]: SELECT
+ISNULL(CONVERT(int, [vrs_id]), 0) AS [vrs_id],
+ISNULL(CONVERT(int, [btr_id]), 0) AS [btr_id],
+ISNULL(CONVERT(int, [bvs_id]), 0) AS [bvs_id],
+ISNULL(CONVERT(smallint, [bsx_id_svoa]), 0) AS [bsx_id_svoa],
+ISNULL(CONVERT(smallint, [bsx_id_aszb]), 0) AS [bsx_id_aszb],
+ISNULL(CONVERT(smallint, [bsx_id_geb]), 0) AS [bsx_id_geb],
+ISNULL(CONVERT(smallint, [bsx_id_kfb]), 0) AS [bsx_id_kfb],
+ISNULL(CONVERT(smallint, [bzb_id]), 0) AS [bzb_id],
+ISNULL(CONVERT(smallint, [age_id]), 0) AS [age_id],
+ISNULL(CONVERT(smallint, [jan_id_rga]), 0) AS [jan_id_rga],
+ISNULL(CONVERT(smallint, [pgr_id]), 0) AS [pgr_id],
+ISNULL(CONVERT(smallint, [bro_id]), 0) AS [bro_id],
+ISNULL(CONVERT(smallint, [asb_id]), 0) AS [asb_id],
+ISNULL(CONVERT(smallint, [asb_id_korr]), 0) AS [asb_id_korr],
+ISNULL(CONVERT(smallint, [sua_id]), 0) AS [sua_id],
+ISNULL(CONVERT(smallint, [sua_id_korr]), 0) AS [sua_id_korr],
+ISNULL(CONVERT(smallint, [abi_id]), 0) AS [abi_id],
+ISNULL(CONVERT(smallint, [abi_id_korr]), 0) AS [abi_id_korr],
+ISNULL(CONVERT(int, [mow_id]), 0) AS [mow_id],
+ISNULL(CONVERT(smallint, [gda_id]), 0) AS [gda_id],
+ISNULL(CONVERT(smallint, [btg_id]), 0) AS [btg_id],
+ISNULL(CONVERT(smallint, [sex_id]), 0) AS [sex_id],
+ISNULL(CONVERT(smallint, [rvt_id]), 0) AS [rvt_id],
+ISNULL(CONVERT(smallint, [brs_id]), 0) AS [brs_id],
+ISNULL(CONVERT(int, [kba_id]), 0) AS [kba_id],
+ISNULL(CONVERT(smallint, [t08_id]), 0) AS [t08_id],
+ISNULL(CONVERT(smallint, [afn_id]), 0) AS [afn_id],
+ISNULL(CONVERT(smallint, [bfr_id_orig]), 0) AS [bfr_id_orig],
+ISNULL(CONVERT(smallint, [bfr_id]), 0) AS [bfr_id],
+ISNULL(CONVERT(smallint, [jan_id_aueg]), 0) AS [jan_id_aueg],
+ISNULL(CONVERT(int, [stt_id]), 0) AS [stt_id],
+ISNULL(CONVERT(smallint, [owk_id_rk]), 0) AS [owk_id_rk],
+ISNULL(CONVERT(int, [tag_id_w]), 0) AS [tag_id_w],
+ISNULL(CONVERT(int, [ort_id_w]), 0) AS [ort_id_w],
+ISNULL(CONVERT(int, [gst_id_w]), 0) AS [gst_id_w],
+ISNULL(CONVERT(int, [str_id_w]), 0) AS [str_id_w],
+ISNULL(CONVERT(int, [ort_id_b]), 0) AS [ort_id_b],
+ISNULL(CONVERT(int, [gst_id_b]), 0) AS [gst_id_b],
+ISNULL(CONVERT(int, [str_id_b]), 0) AS [str_id_b],
+ISNULL(CONVERT(int, [l93_id]), 0) AS [l93_id],
+ISNULL(CONVERT(int, [l03_id]), 0) AS [l03_id],
+ISNULL(CONVERT(smallint, [l08_id]), 0) AS [l08_id],
+ISNULL(CONVERT(smallint, [glz_id]), 0) AS [glz_id],
+ISNULL(CONVERT(int, [sav_id_klr]), 0) AS [sav_id_klr],
+ISNULL(CONVERT(int, [azw_id]), 0) AS [azw_id],
+ISNULL(CONVERT(smallint, [ezs_id]), 0) AS [ezs_id],
+ISNULL(CONVERT(smallint, [std_id]), 0) AS [std_id],
+ISNULL(CONVERT(int, [arbstd_uv]), 0) AS [arbstd_uv],
+ISNULL(CONVERT(smallint, [jan_id_fkt]), 0) AS [jan_id_fkt],
+ISNULL(CONVERT(int, [bed_id_ll_bv]), 0) AS [bed_id_ll_bv],
+ISNULL(CONVERT(int, [bed_id_ll_sv]), 0) AS [bed_id_ll_sv],
+ISNULL(CONVERT(smallint, [jan_id_ega]), 0) AS [jan_id_ega],
+ISNULL(CONVERT(smallint, [jan_id_bef]), 0) AS [jan_id_bef],
+ISNULL(CONVERT(smallint, [isc_id]), 0) AS [isc_id],
+ISNULL(CONVERT(smallint, [isc_id_korr]), 0) AS [isc_id_korr],
+ISNULL(CONVERT(smallint, [spb_anzahl]), 0) AS [spb_anzahl],
+CONVERT(int, [bed_id_insg]) AS [bed_id_insg],
+CONVERT(int, [bed_id_insg_sv]) AS [bed_id_insg_sv],
+CONVERT(int, [bed_id_insg_gb]) AS [bed_id_insg_gb],
+CONVERT(int, [bed_id_ubr]) AS [bed_id_ubr],
+CONVERT(int, [bed_id_sebv]) AS [bed_id_sebv],
+CONVERT(int, [bed_id_ll_bvmu]) AS [bed_id_ll_bvmu],
+CONVERT(int, [bed_id_ll_svmu]) AS [bed_id_ll_svmu],
+CONVERT(smallint, [bws_id]) AS [bws_id],
+ISNULL(CONVERT(smallint, [gee_id_w]), 0) AS [gee_id_w],
+ISNULL(CONVERT(int, [git_id_laea_100m_w]), 0) AS [git_id_laea_100m_w],
+ISNULL(CONVERT(int, [git_id_utm32_100m_w]), 0) AS [git_id_utm32_100m_w],
+ISNULL(CONVERT(int, [dtm_id]), 0) AS [dtm_id],
+ISNULL(CONVERT(int, [xbp_id]), 0) AS [xbp_id],
+ISNULL(CONVERT(int, [egt_nmt]), 0) AS [egt_nmt],
+ISNULL(CONVERT(smallint, [jan_id_saison_arb]), 0) AS [jan_id_saison_arb],
+ISNULL(CONVERT(smallint, [l25_id]), 0) AS [l25_id]
+INTO dbo.[tf_bst_sv_in_20190706_LOADING]
+FROM ext.[vf_bst_sv]
+WHERE [mow_id] = 20190706;
+Laden_Fakten	SCR13_Daten_Laden	info	WARNUNG [SELECT INTO tf_bst_sv_in_20190706_LOADING] Versuch 1/3: Could not allocate a new page for database 'msi_dm_bst_v3' because the 'PRIMARY' filegroup is full due to lack of storage space or database files reaching the maximum allowed size. Note that UNLIMITED files are still limited to 16TB. Create the necessary space by dropping objects in the filegroup, adding additional files to the filegroup, or setting autogrowth on for existing files in the filegroup.
+Laden_Fakten	SCR13_Daten_Laden	info	SQL Statement [SELECT INTO tf_bst_sv_in_20050206_LOADING]: SELECT
+ISNULL(CONVERT(int, [vrs_id]), 0) AS [vrs_id],
+ISNULL(CONVERT(int, [btr_id]), 0) AS [btr_id],
+ISNULL(CONVERT(int, [bvs_id]), 0) AS [bvs_id],
+ISNULL(CONVERT(smallint, [bsx_id_svoa]), 0) AS [bsx_id_svoa],
+ISNULL(CONVERT(smallint, [bsx_id_aszb]), 0) AS [bsx_id_aszb],
+ISNULL(CONVERT(smallint, [bsx_id_geb]), 0) AS [bsx_id_geb],
+ISNULL(CONVERT(smallint, [bsx_id_kfb]), 0) AS [bsx_id_kfb],
+ISNULL(CONVERT(smallint, [bzb_id]), 0) AS [bzb_id],
+ISNULL(CONVERT(smallint, [age_id]), 0) AS [age_id],
+ISNULL(CONVERT(smallint, [jan_id_rga]), 0) AS [jan_id_rga],
+ISNULL(CONVERT(smallint, [pgr_id]), 0) AS [pgr_id],
+ISNULL(CONVERT(smallint, [bro_id]), 0) AS [bro_id],
+ISNULL(CONVERT(smallint, [asb_id]), 0) AS [asb_id],
+ISNULL(CONVERT(smallint, [asb_id_korr]), 0) AS [asb_id_korr],
+ISNULL(CONVERT(smallint, [sua_id]), 0) AS [sua_id],
+ISNULL(CONVERT(smallint, [sua_id_korr]), 0) AS [sua_id_korr],
+ISNULL(CONVERT(smallint, [abi_id]), 0) AS [abi_id],
+ISNULL(CONVERT(smallint, [abi_id_korr]), 0) AS [abi_id_korr],
+ISNULL(CONVERT(int, [mow_id]), 0) AS [mow_id],
+ISNULL(CONVERT(smallint, [gda_id]), 0) AS [gda_id],
+ISNULL(CONVERT(smallint, [btg_id]), 0) AS [btg_id],
+ISNULL(CONVERT(smallint, [sex_id]), 0) AS [sex_id],
+ISNULL(CONVERT(smallint, [rvt_id]), 0) AS [rvt_id],
+ISNULL(CONVERT(smallint, [brs_id]), 0) AS [brs_id],
+ISNULL(CONVERT(int, [kba_id]), 0) AS [kba_id],
+ISNULL(CONVERT(smallint, [t08_id]), 0) AS [t08_id],
+ISNULL(CONVERT(smallint, [afn_id]), 0) AS [afn_id],
+ISNULL(CONVERT(smallint, [bfr_id_orig]), 0) AS [bfr_id_orig],
+ISNULL(CONVERT(smallint, [bfr_id]), 0) AS [bfr_id],
+ISNULL(CONVERT(smallint, [jan_id_aueg]), 0) AS [jan_id_aueg],
+ISNULL(CONVERT(int, [stt_id]), 0) AS [stt_id],
+ISNULL(CONVERT(smallint, [owk_id_rk]), 0) AS [owk_id_rk],
+ISNULL(CONVERT(int, [tag_id_w]), 0) AS [tag_id_w],
+ISNULL(CONVERT(int, [ort_id_w]), 0) AS [ort_id_w],
+ISNULL(CONVERT(int, [gst_id_w]), 0) AS [gst_id_w],
+ISNULL(CONVERT(int, [str_id_w]), 0) AS [str_id_w],
+ISNULL(CONVERT(int, [ort_id_b]), 0) AS [ort_id_b],
+ISNULL(CONVERT(int, [gst_id_b]), 0) AS [gst_id_b],
+ISNULL(CONVERT(int, [str_id_b]), 0) AS [str_id_b],
+ISNULL(CONVERT(int, [l93_id]), 0) AS [l93_id],
+ISNULL(CONVERT(int, [l03_id]), 0) AS [l03_id],
+ISNULL(CONVERT(smallint, [l08_id]), 0) AS [l08_id],
+ISNULL(CONVERT(smallint, [glz_id]), 0) AS [glz_id],
+ISNULL(CONVERT(int, [sav_id_klr]), 0) AS [sav_id_klr],
+ISNULL(CONVERT(int, [azw_id]), 0) AS [azw_id],
+ISNULL(CONVERT(smallint, [ezs_id]), 0) AS [ezs_id],
+ISNULL(CONVERT(smallint, [std_id]), 0) AS [std_id],
+ISNULL(CONVERT(int, [arbstd_uv]), 0) AS [arbstd_uv],
+ISNULL(CONVERT(smallint, [jan_id_fkt]), 0) AS [jan_id_fkt],
+ISNULL(CONVERT(int, [bed_id_ll_bv]), 0) AS [bed_id_ll_bv],
+ISNULL(CONVERT(int, [bed_id_ll_sv]), 0) AS [bed_id_ll_sv],
+ISNULL(CONVERT(smallint, [jan_id_ega]), 0) AS [jan_id_ega],
+ISNULL(CONVERT(smallint, [jan_id_bef]), 0) AS [jan_id_bef],
+ISNULL(CONVERT(smallint, [isc_id]), 0) AS [isc_id],
+ISNULL(CONVERT(smallint, [isc_id_korr]), 0) AS [isc_id_korr],
+ISNULL(CONVERT(smallint, [spb_anzahl]), 0) AS [spb_anzahl],
+CONVERT(int, [bed_id_insg]) AS [bed_id_insg],
+CONVERT(int, [bed_id_insg_sv]) AS [bed_id_insg_sv],
+CONVERT(int, [bed_id_insg_gb]) AS [bed_id_insg_gb],
+CONVERT(int, [bed_id_ubr]) AS [bed_id_ubr],
+CONVERT(int, [bed_id_sebv]) AS [bed_id_sebv],
+CONVERT(int, [bed_id_ll_bvmu]) AS [bed_id_ll_bvmu],
+CONVERT(int, [bed_id_ll_svmu]) AS [bed_id_ll_svmu],
+CONVERT(smallint, [bws_id]) AS [bws_id],
+ISNULL(CONVERT(smallint, [gee_id_w]), 0) AS [gee_id_w],
+ISNULL(CONVERT(int, [git_id_laea_100m_w]), 0) AS [git_id_laea_100m_w],
+ISNULL(CONVERT(int, [git_id_utm32_100m_w]), 0) AS [git_id_utm32_100m_w],
+ISNULL(CONVERT(int, [dtm_id]), 0) AS [dtm_id],
+ISNULL(CONVERT(int, [xbp_id]), 0) AS [xbp_id],
+ISNULL(CONVERT(int, [egt_nmt]), 0) AS [egt_nmt],
+ISNULL(CONVERT(smallint, [jan_id_saison_arb]), 0) AS [jan_id_saison_arb],
+ISNULL(CONVERT(smallint, [l25_id]), 0) AS [l25_id]
+INTO dbo.[tf_bst_sv_in_20050206_LOADING]
+FROM ext.[vf_bst_sv]
+WHERE [mow_id] = 20050206;
+Laden_Fakten	SCR13_Daten_Laden	info	WARNUNG [SELECT INTO tf_bst_sv_in_20050206_LOADING] Versuch 1/3: Could not allocate a new page for database 'msi_dm_bst_v3' because the 'PRIMARY' filegroup is full due to lack of storage space or database files reaching the maximum allowed size. Note that UNLIMITED files are still limited to 16TB. Create the necessary space by dropping objects in the filegroup, adding additional files to the filegroup, or setting autogrowth on for existing files in the filegroup.
+Laden_Fakten	SCR13_Daten_Laden	info	SQL Statement [SELECT INTO tf_bst_sv_in_20170802_LOADING]: SELECT
+ISNULL(CONVERT(int, [vrs_id]), 0) AS [vrs_id],
+ISNULL(CONVERT(int, [btr_id]), 0) AS [btr_id],
+ISNULL(CONVERT(int, [bvs_id]), 0) AS [bvs_id],
+ISNULL(CONVERT(smallint, [bsx_id_svoa]), 0) AS [bsx_id_svoa],
+ISNULL(CONVERT(smallint, [bsx_id_aszb]), 0) AS [bsx_id_aszb],
+ISNULL(CONVERT(smallint, [bsx_id_geb]), 0) AS [bsx_id_geb],
+ISNULL(CONVERT(smallint, [bsx_id_kfb]), 0) AS [bsx_id_kfb],
+ISNULL(CONVERT(smallint, [bzb_id]), 0) AS [bzb_id],
+ISNULL(CONVERT(smallint, [age_id]), 0) AS [age_id],
+ISNULL(CONVERT(smallint, [jan_id_rga]), 0) AS [jan_id_rga],
+ISNULL(CONVERT(smallint, [pgr_id]), 0) AS [pgr_id],
+ISNULL(CONVERT(smallint, [bro_id]), 0) AS [bro_id],
+ISNULL(CONVERT(smallint, [asb_id]), 0) AS [asb_id],
+ISNULL(CONVERT(smallint, [asb_id_korr]), 0) AS [asb_id_korr],
+ISNULL(CONVERT(smallint, [sua_id]), 0) AS [sua_id],
+ISNULL(CONVERT(smallint, [sua_id_korr]), 0) AS [sua_id_korr],
+ISNULL(CONVERT(smallint, [abi_id]), 0) AS [abi_id],
+ISNULL(CONVERT(smallint, [abi_id_korr]), 0) AS [abi_id_korr],
+ISNULL(CONVERT(int, [mow_id]), 0) AS [mow_id],
+ISNULL(CONVERT(smallint, [gda_id]), 0) AS [gda_id],
+ISNULL(CONVERT(smallint, [btg_id]), 0) AS [btg_id],
+ISNULL(CONVERT(smallint, [sex_id]), 0) AS [sex_id],
+ISNULL(CONVERT(smallint, [rvt_id]), 0) AS [rvt_id],
+ISNULL(CONVERT(smallint, [brs_id]), 0) AS [brs_id],
+ISNULL(CONVERT(int, [kba_id]), 0) AS [kba_id],
+ISNULL(CONVERT(smallint, [t08_id]), 0) AS [t08_id],
+ISNULL(CONVERT(smallint, [afn_id]), 0) AS [afn_id],
+ISNULL(CONVERT(smallint, [bfr_id_orig]), 0) AS [bfr_id_orig],
+ISNULL(CONVERT(smallint, [bfr_id]), 0) AS [bfr_id],
+ISNULL(CONVERT(smallint, [jan_id_aueg]), 0) AS [jan_id_aueg],
+ISNULL(CONVERT(int, [stt_id]), 0) AS [stt_id],
+ISNULL(CONVERT(smallint, [owk_id_rk]), 0) AS [owk_id_rk],
+ISNULL(CONVERT(int, [tag_id_w]), 0) AS [tag_id_w],
+ISNULL(CONVERT(int, [ort_id_w]), 0) AS [ort_id_w],
+ISNULL(CONVERT(int, [gst_id_w]), 0) AS [gst_id_w],
+ISNULL(CONVERT(int, [str_id_w]), 0) AS [str_id_w],
+ISNULL(CONVERT(int, [ort_id_b]), 0) AS [ort_id_b],
+ISNULL(CONVERT(int, [gst_id_b]), 0) AS [gst_id_b],
+ISNULL(CONVERT(int, [str_id_b]), 0) AS [str_id_b],
+ISNULL(CONVERT(int, [l93_id]), 0) AS [l93_id],
+ISNULL(CONVERT(int, [l03_id]), 0) AS [l03_id],
+ISNULL(CONVERT(smallint, [l08_id]), 0) AS [l08_id],
+ISNULL(CONVERT(smallint, [glz_id]), 0) AS [glz_id],
+ISNULL(CONVERT(int, [sav_id_klr]), 0) AS [sav_id_klr],
+ISNULL(CONVERT(int, [azw_id]), 0) AS [azw_id],
+ISNULL(CONVERT(smallint, [ezs_id]), 0) AS [ezs_id],
+ISNULL(CONVERT(smallint, [std_id]), 0) AS [std_id],
+ISNULL(CONVERT(int, [arbstd_uv]), 0) AS [arbstd_uv],
+ISNULL(CONVERT(smallint, [jan_id_fkt]), 0) AS [jan_id_fkt],
+ISNULL(CONVERT(int, [bed_id_ll_bv]), 0) AS [bed_id_ll_bv],
+ISNULL(CONVERT(int, [bed_id_ll_sv]), 0) AS [bed_id_ll_sv],
+ISNULL(CONVERT(smallint, [jan_id_ega]), 0) AS [jan_id_ega],
+ISNULL(CONVERT(smallint, [jan_id_bef]), 0) AS [jan_id_bef],
+ISNULL(CONVERT(smallint, [isc_id]), 0) AS [isc_id],
+ISNULL(CONVERT(smallint, [isc_id_korr]), 0) AS [isc_id_korr],
+ISNULL(CONVERT(smallint, [spb_anzahl]), 0) AS [spb_anzahl],
+CONVERT(int, [bed_id_insg]) AS [bed_id_insg],
+CONVERT(int, [bed_id_insg_sv]) AS [bed_id_insg_sv],
+CONVERT(int, [bed_id_insg_gb]) AS [bed_id_insg_gb],
+CONVERT(int, [bed_id_ubr]) AS [bed_id_ubr],
+CONVERT(int, [bed_id_sebv]) AS [bed_id_sebv],
+CONVERT(int, [bed_id_ll_bvmu]) AS [bed_id_ll_bvmu],
+CONVERT(int, [bed_id_ll_svmu]) AS [bed_id_ll_svmu],
+CONVERT(smallint, [bws_id]) AS [bws_id],
+ISNULL(CONVERT(smallint, [gee_id_w]), 0) AS [gee_id_w],
+ISNULL(CONVERT(int, [git_id_laea_100m_w]), 0) AS [git_id_laea_100m_w],
+ISNULL(CONVERT(int, [git_id_utm32_100m_w]), 0) AS [git_id_utm32_100m_w],
+ISNULL(CONVERT(int, [dtm_id]), 0) AS [dtm_id],
+ISNULL(CONVERT(int, [xbp_id]), 0) AS [xbp_id],
+ISNULL(CONVERT(int, [egt_nmt]), 0) AS [egt_nmt],
+ISNULL(CONVERT(smallint, [jan_id_saison_arb]), 0) AS [jan_id_saison_arb],
+ISNULL(CONVERT(smallint, [l25_id]), 0) AS [l25_id]
+INTO dbo.[tf_bst_sv_in_20170802_LOADING]
+FROM ext.[vf_bst_sv]
+WHERE [mow_id] = 20170802;
+Laden_Fakten	SCR13_Daten_Laden	info	WARNUNG [SELECT INTO tf_bst_sv_in_20170802_LOADING] Versuch 1/3: Could not allocate a new page for database 'msi_dm_bst_v3' because the 'PRIMARY' filegroup is full due to lack of storage space or database files reaching the maximum allowed size. Note that UNLIMITED files are still limited to 16TB. Create the necessary space by dropping objects in the filegroup, adding additional files to the filegroup, or setting autogrowth on for existing files in the filegroup.
+Laden_Fakten	SCR13_Daten_Laden	info	  SELECT INTO [tf_bst_sv_in_20170802_LOADING] WHERE mow_id = 20170802 (wird zu _in_ umbenannt)
+Laden_Fakten	SCR13_Daten_Laden	info	[LOAD_20170706] vf_bst_sv: SELECT INTO dbo.tf_bst_sv_in_20170706 | Zeilen: 32127912
+Laden_Fakten	SCR13_Daten_Laden	info	  Zeilen geladen (tf_bst_sv_in_20170706): 32127912
+Laden_Fakten	SCR13_Daten_Laden	info	  SELECT INTO [tf_bst_sv_in_20050206_LOADING] WHERE mow_id = 20050206 (wird zu _in_ umbenannt)
+Laden_Fakten	SCR13_Daten_Laden	info	[LOAD_20050106] vf_bst_sv: SELECT INTO dbo.tf_bst_sv_in_20050106 | Zeilen: 26087134
+Laden_Fakten	SCR13_Daten_Laden	info	  Zeilen geladen (tf_bst_sv_in_20050106): 26087134
+Laden_Fakten	SCR13_Daten_Laden	info	  SELECT INTO [tf_bst_sv_in_20190706_LOADING] WHERE mow_id = 20190706 (wird zu _in_ umbenannt)
+Laden_Fakten	SCR13_Daten_Laden	info	[LOAD_20190703] vf_bst_sv: SELECT INTO dbo.tf_bst_sv_in_20190703 | Zeilen: 33336521
+Laden_Fakten	SCR13_Daten_Laden	info	  Zeilen geladen (tf_bst_sv_in_20190703): 33336521
+Laden_Fakten	SCR13_Daten_Laden	info	  SELECT INTO [tf_bst_sv_in_20110406_LOADING] WHERE mow_id = 20110406 (wird zu _in_ umbenannt)
+Laden_Fakten	SCR13_Daten_Laden	info	[LOAD_20110306] vf_bst_sv: SELECT INTO dbo.tf_bst_sv_in_20110306 | Zeilen: 28331314
+Laden_Fakten	SCR13_Daten_Laden	info	  Zeilen geladen (tf_bst_sv_in_20110306): 28331314
+Laden_Fakten	SCR13_Daten_Laden	info	  SELECT INTO [tf_bst_sv_in_20150803_LOADING] WHERE mow_id = 20150803 (wird zu _in_ umbenannt)
+Laden_Fakten	SCR13_Daten_Laden	info	[LOAD_20150802] vf_bst_sv: SELECT INTO dbo.tf_bst_sv_in_20150802 | Zeilen: 30886535
+Laden_Fakten	SCR13_Daten_Laden	info	  Zeilen geladen (tf_bst_sv_in_20150802): 30886535
+Laden_Fakten	SCR13_Daten_Laden	info	  SELECT INTO [tf_bst_sv_in_20210706_LOADING] WHERE mow_id = 20210706 (wird zu _in_ umbenannt)
+Laden_Fakten	SCR13_Daten_Laden	info	[LOAD_20210703] vf_bst_sv: SELECT INTO dbo.tf_bst_sv_in_20210703 | Zeilen: 33707598
+Laden_Fakten	SCR13_Daten_Laden	info	  Zeilen geladen (tf_bst_sv_in_20210703): 33707598
+Laden_Fakten	SCR13_Daten_Laden	info	  SELECT INTO [tf_bst_sv_in_20250806_LOADING] WHERE mow_id = 20250806 (wird zu _in_ umbenannt)
+Laden_Fakten	SCR13_Daten_Laden	info	[LOAD_20250803] vf_bst_sv: SELECT INTO dbo.tf_bst_sv_in_20250803 | Zeilen: 34833305
+Laden_Fakten	SCR13_Daten_Laden	info	  Zeilen geladen (tf_bst_sv_in_20250803): 34833305
+Laden_Fakten	SCR13_Daten_Laden	info	  SELECT INTO [tf_bst_sv_in_20230802_LOADING] WHERE mow_id = 20230802 (wird zu _in_ umbenannt)
+Laden_Fakten	SCR13_Daten_Laden	info	[LOAD_20230706] vf_bst_sv: SELECT INTO dbo.tf_bst_sv_in_20230706 | Zeilen: 34584212
