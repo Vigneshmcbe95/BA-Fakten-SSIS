@@ -353,10 +353,13 @@ Partial Public Class ScriptMain
     ' -----------------------------------------------------------------------
     Private Function VerfahrenExistiertInParametertabelle(connStr As String,
                                                            verfahren As String) As Boolean
+        ' Erst gegen den Rohwert aus der Steuerliste pruefen (@v), dann erst
+        ' gegen die vf_->tf_ Uebersetzung - so passt es egal ob die Parameter-
+        ' tabelle noch mit 'vf_...' oder schon mit 'tf_...' beschriftet ist.
         Dim sql As String =
             "SELECT COUNT(1) " &
             "FROM   " & _parameterDB & ".dbo." & _parametertabelle & " " &
-            "WHERE  LOWER(LTRIM(RTRIM(Verfahren))) = LOWER(dbo.fn_ParamVerfahren(@v))"
+            "WHERE  LOWER(LTRIM(RTRIM(Verfahren))) IN (LOWER(@v), LOWER(dbo.fn_ParamVerfahren(@v)))"
 
         Dim versuch As Integer = 0
         Dim letzterFehler As Exception = Nothing
@@ -401,7 +404,7 @@ Partial Public Class ScriptMain
             "  ELSE 'OK' " &
             "END " &
             "FROM " & _parameterDB & ".dbo." & _parametertabelle & " " &
-            "WHERE LOWER(LTRIM(RTRIM(Verfahren)))  = LOWER(dbo.fn_ParamVerfahren(@v)) " &
+            "WHERE LOWER(LTRIM(RTRIM(Verfahren)))  IN (LOWER(@v), LOWER(dbo.fn_ParamVerfahren(@v))) " &
             "AND   LOWER(LTRIM(RTRIM(Parameter)))  = @p"
 
         Dim versuch As Integer = 0
