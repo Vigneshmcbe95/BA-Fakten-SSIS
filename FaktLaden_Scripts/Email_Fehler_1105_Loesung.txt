@@ -1,0 +1,70 @@
+Betreff: Loesung SQL-Fehler 1105 ("PRIMARY filegroup is full") in Laden_Fakten / SCR13_Daten_Laden
+
+Hallo zusammen,
+
+im Rahmen des Faktenladens (Paket "Laden_Fakten", Skript SCR13_Daten_Laden) sind
+wiederholt Warnungen mit folgender Fehlermeldung aufgetreten:
+
+    "Could not allocate a new page for database 'msi_dm_bst_v3' because the
+    'PRIMARY' filegroup is full due to lack of storage space or database files
+    reaching the maximum allowed size. Note that UNLIMITED files are still
+    limited to 16TB. Create the necessary space by dropping objects in the
+    filegroup, adding additional files to the filegroup, or setting autogrowth
+    on for existing files in the filegroup."
+
+Das ist SQL-Server-Fehler 1105.
+
+1) Was war die Ursache?
+------------------------
+Speicherplatz und PRIMARY-Filegroup selbst waren nicht das Problem (Storage
+wurde geprueft, DBCC CHECKALLOC('msi_dm_bst_v3') meldet 0 Allokations- und
+0 Konsistenzfehler - die Datenbank ist strukturell in Ordnung).
+
+Ursache ist ein Nebenlaeufigkeits-Effekt:
+
+- Tabelle tf_bst_sv hat sehr viele Partitionen (~215 mow_id-Werte).
+- Seit der Umstellung von SCR11 auf vollstaendigen Reload in MODE AUTOMATIC
+  (kein Oracle-minus-MSSQL Delta mehr) wird bei jedem Lauf JEDE Partition mit
+  Daten neu geladen - nicht mehr nur neue/geaenderte.
+- SCR13 laedt bis zu "Maxparallel" (aktuell 8) Partitionen gleichzeitig per
+  SELECT INTO, jede mit 26-35 Mio. Zeilen.
+- SQL Server erlaubt pro Datendatei immer nur EIN Autogrowth-Ereignis
+  gleichzeitig. Wenn mehrere der 8 parallelen SELECT INTO im selben Moment
+  neue Seiten brauchen, verliert der Grossteil dieses "Wettrennen" um das
+  Datei-Wachstum und bekommt Fehler 1105 - obwohl kurz danach, nach
+  erfolgtem Wachstum, wieder genug Platz vorhanden ist. Deshalb hat der
+  bestehende Retry-Mechanismus (3 Versuche, 30s Wartezeit) das Problem im
+  Log auch meistens "von selbst" geloest, aber eben nicht zuverlaessig.
+
+2) Was wurde geaendert?
+------------------------
+Datei: FaktLaden_Scripts/SCR13_Daten_Laden.vb
+Commit: 3c3b954 "SCR13: auto-grow data files on error 1105 instead of just retrying"
+
+SqlAusfuehren() erkennt jetzt gezielt SQL-Fehler 1105 (ueber die SqlException-
+Fehlernummer, nicht ueber Text-Matching). Statt bei diesem Fehler nur zu
+warten, wird sofort eine neue Routine DateiWachstumErzwingen() aufgerufen:
+
+- Vergroessert alle Datendateien (type_desc='ROWS') der aktuellen Datenbank
+  um einen festen Schritt von +10 GB (ALTER DATABASE ... MODIFY FILE).
+- Per SyncLock serialisiert: bei mehreren gleichzeitig fehlschlagenden
+  Partitionen fuehrt nur EIN Thread das Wachstum tatsaechlich aus; die
+  anderen warten kurz auf denselben Lock und versuchen es danach einfach
+  erneut (kein Vorausberechnen der benoetigten Groesse noetig).
+- Alle anderen Fehlerarten verhalten sich unveraendert (30s Wartezeit,
+  3 Versuche).
+
+Maxparallel, die Reload-Logik (voller Reload je Lauf) und die
+Tabellen-Parallelitaet wurden NICHT veraendert - das war ausdruecklich so
+gewuenscht, da jede Partition bei jedem Lauf neu geladen werden soll.
+
+3) Ergebnis
+------------------------
+Der Fehler 1105 fuehrt nicht mehr zu wiederholten Warnungen/Retries, die auf
+ein zufaelliges Zeitfenster angewiesen sind. Sobald er auftritt, wird die
+Datendatei gezielt vergroessert und der Ladevorgang laeuft im naechsten
+Versuch normal weiter.
+
+Bei Fragen gerne melden.
+
+Viele Gruesse
