@@ -1,0 +1,72 @@
+Betreff: AW: Faktenladen vf_bst_gb - SWITCH IN fehlgeschlagen (nci_tf_bst_gb)
+
+Hallo Sebastian,
+
+danke fuer die Meldung und die Details zum zusaetzlichen Nonclustered Index -
+das war der entscheidende Hinweis.
+
+1) Ursache
+------------------------
+Die Fehlermeldung
+
+    Verfahren 'vf_bst_gb': 584 von 595 Partition(en) Tausch fehlgeschlagen
+    (erste: pv=19990106: [SWITCH IN] fehlgeschlagen: ALTER TABLE SWITCH
+    statement failed. There is no identical index in source table
+    'msi_dm_bst_v3.dbo.tf_bst_gb_in_19990106' fuer den Index 'nci_tf_bst_gb'
+    in Zieltabelle 'msi_dm_bst_v3.dbo.tf_bst_gb'.)
+
+kommt daher, dass Ihr zusaetzlicher Index
+
+    CREATE NONCLUSTERED INDEX [nci_tf_bst_gb] ON [dbo].[tf_bst_gb]
+    ([btr_id] ASC, [mow_id] ASC)
+    INCLUDE([vrs_id], ... )
+
+nicht ueber die Parametertabelle konfiguriert ist (dort gibt es nur
+Faktenklusteredindex=CCI und Faktennccindex - beides deckt Ihren Index
+nicht ab). Das Skript SCR16 erkennt so einen manuell angelegten Index zwar
+automatisch und baut ihn normalerweise 1:1 auf die _in_/_out_ Staging-
+Tabellen nach - in diesem Lauf hat das aber nur fuer die ersten 8 von 595
+Partitionen funktioniert. Fuer die restlichen 587 wurde der Index NICHT
+repliziert, ohne dass dabei ein Fehler protokolliert wurde (stille Luecke).
+Deshalb sind 584 der spaeteren SWITCH-IN-Vorgaenge gescheitert: die
+Faktentabelle hat den Index, die jeweilige _in_-Tabelle nicht.
+
+Wir haben zusaetzlich per Default-Trace geprueft, ob waehrend des Laufs
+jemand manuell an der Tabelle etwas geaendert hat - das ist NICHT der Fall.
+Alle Aenderungen an tf_bst_gb im fraglichen Zeitraum stammen ausschliesslich
+vom automatisierten ETL-Konto (DST\UC4USR) und passen exakt zum bekannten,
+selbst wiederholt laufenden Partitionsgrenzen-Aufbau (SCR11) fuer die
+urspruenglich noch unpartitionierte Historie dieser Tabelle - kein manueller
+Eingriff.
+
+2) Was wurde behoben
+------------------------
+- FaktLaden_Scripts/SCR19_Partitionstausch.vb
+  Prueft jetzt UNMITTELBAR vor jedem SWITCH OUT/IN selbst, ob die
+  Faktentabelle zusaetzliche nichtclusterte Indizes hat (wie Ihren
+  nci_tf_bst_gb), und baut einen fehlenden Index direkt dort nach, BEVOR
+  der SWITCH ausgefuehrt wird. Damit kann eine Partition nicht mehr an
+  einem fehlenden Index scheitern, unabhaengig davon, ob SCR16 sie zuvor
+  erreicht hat oder nicht.
+
+- FaktLaden_Scripts/SCR16_Stagingtabelle___Clustered_Index_erstellen.vb
+  Die betroffene Pruefung hatte bisher keine Wiederholung bei einem
+  kurzzeitigen Verbindungsproblem (im Unterschied zu allen anderen
+  SQL-Aufrufen im Skript) und protokollierte bislang NICHTS, wenn sie
+  nichts zu replizieren fand. Beides ist jetzt behoben: 3 Versuche wie
+  ueberall sonst, plus eine klare Logzeile in jedem Fall - damit ein
+  aehnliches Verhalten kuenftig sofort im Log sichtbar waere, statt
+  unbemerkt zu bleiben.
+
+3) Naechster Lauf
+------------------------
+Die 584 fehlgeschlagenen Partitionen wurden vom Skript bereits so behandelt,
+dass nur genau diese beim naechsten Lauf neu geladen werden (die
+zugehoerigen _in_-Tabellen wurden entfernt). Mit der obigen Aenderung sollte
+der naechste Lauf fuer vf_bst_gb durchlaufen, auch wenn SCR16 aus welchem
+Grund auch immer wieder nicht jede Partition erreicht - SCR19 faengt das
+jetzt zuverlaessig ab.
+
+Bei Rueckfragen gerne melden.
+
+Viele Gruesse
