@@ -8,9 +8,12 @@ Imports Microsoft.SqlServer.Dts.Runtime
 ' =============================================================================
 '  Skript       : SCR17_Komprimierung_Out
 '  Paket        : Fakten Laden (SSIS)
-'  Zweck        : Setzt PAGE- / ROW-Komprimierung auf den
-'                 _out_-Staging-Tabellen, sofern konfiguriert (bei CCI nicht
-'                 anwendbar).
+'  Zweck        : Setzt PAGE- / ROW-Komprimierung auf den _out_- UND
+'                 _in_-Staging-Tabellen, sofern konfiguriert (bei CCI nicht
+'                 anwendbar). Beide muessen dieselbe Komprimierung wie die
+'                 Faktentabelle (SCR10) haben, sonst schlaegt SCR19 beim
+'                 SWITCH mit "different values for the DATA_COMPRESSION
+'                 option" fehl.
 '  Ablauf       : INDEX_IN_OUT_ERSTELLT -> KOMPRIMIERUNG_ERSTELLT
 '  Wiederholung : 3 Versuche je SQL-Anweisung, 30 s Wartezeit
 '  Protokoll    : Nur SSIS-Events (FireInformation / FireError)
@@ -87,13 +90,27 @@ Partial Public Class ScriptMain
                         Continue For
                     End If
                     For Each wert As String In werteListe
-                        Dim tbl As String = v.Faktentabelle.ToLower() & "_out_" & wert
-                        SqlAusfuehren(connStr, "ALTER TABLE dbo.[" & tbl & "] REBUILD WITH (DATA_COMPRESSION=" & v.Compression & ");", "Komprimierung " & tbl)
-                        Log("  Komprimierung " & v.Compression & " auf: " & tbl & " OK")
+                        Dim tblOut As String = v.Faktentabelle.ToLower() & "_out_" & wert
+                        SqlAusfuehren(connStr, "ALTER TABLE dbo.[" & tblOut & "] REBUILD WITH (DATA_COMPRESSION=" & v.Compression & ");", "Komprimierung " & tblOut)
+                        Log("  Komprimierung " & v.Compression & " auf: " & tblOut & " OK")
                         cntTbl += 1
+
+                        ' _in_ Tabelle MUSS dieselbe Komprimierung wie die Faktentabelle
+                        ' haben (SCR10 wendet sie dort an), sonst schlaegt SCR19 beim
+                        ' SWITCH IN mit "different values for the DATA_COMPRESSION
+                        ' option" fehl - nur existierende _in_ Tabellen behandeln, eine
+                        ' bereits umbenannte/verarbeitete kann hier fehlen.
+                        Dim tblIn As String = v.Faktentabelle.ToLower() & "_in_" & wert
+                        Dim tblInExists As Boolean = Convert.ToInt32(SqlSkalar(connStr,
+                            "SELECT COUNT(*) FROM sys.tables WHERE schema_id=SCHEMA_ID('dbo') AND name='" & tblIn & "'",
+                            "_in_ pruefen " & tblIn)) > 0
+                        If tblInExists Then
+                            SqlAusfuehren(connStr, "ALTER TABLE dbo.[" & tblIn & "] REBUILD WITH (DATA_COMPRESSION=" & v.Compression & ");", "Komprimierung " & tblIn)
+                            Log("  Komprimierung " & v.Compression & " auf: " & tblIn & " OK")
+                        End If
                     Next
                     StatusSetzen(connStr, v.ID, "KOMPRIMIERUNG_ERSTELLT")
-                    LogSchreiben(connStr, v.Verfahren, "SCHRITT_7B", "Komprimierung " & v.Compression & " auf " & cntTbl.ToString() & " _out Tabellen")
+                    LogSchreiben(connStr, v.Verfahren, "SCHRITT_7B", "Komprimierung " & v.Compression & " auf " & cntTbl.ToString() & " _out/_in Tabellen")
                     cntOK += 1
                     Log("  Schritt 7b abgeschlossen OK")
                 Catch ex As Exception

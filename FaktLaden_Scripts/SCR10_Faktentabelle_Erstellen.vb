@@ -241,6 +241,18 @@ Partial Public Class ScriptMain
         SqlAusfuehren(connStr, "ALTER TABLE dbo.[" & v.Faktentabelle.ToLower() & "] SET (LOCK_ESCALATION=AUTO);", "LOCK_ESCALATION")
         Log("  Faktentabelle erstellt: dbo." & v.Faktentabelle.ToLower())
 
+        ' Faktenkomprimierung (PAGE/ROW) anwenden - fuer CCI nicht anwendbar
+        ' (Columnstore hat eigene Komprimierung). Muss identisch zu SCR17
+        ' (_out_) und SCR16 (_in_) sein, sonst schlaegt SCR19 (Partitions-
+        ' tausch/SWITCH) mit "different values for the DATA_COMPRESSION
+        ' option" fehl.
+        If v.IndexType <> "CCI" AndAlso (v.Compression = "PAGE" OrElse v.Compression = "ROW") Then
+            SqlAusfuehren(connStr,
+                "ALTER TABLE dbo.[" & v.Faktentabelle.ToLower() & "] REBUILD WITH (DATA_COMPRESSION=" & v.Compression & ");",
+                "Faktentabelle komprimieren")
+            Log("  Komprimierung " & v.Compression & " auf Faktentabelle angewandt")
+        End If
+
         ' CCI anlegen - erbt Partition vom Partitionsschema der Tabelle
         If v.IndexType = "CCI" Then
             SqlAusfuehren(connStr,
