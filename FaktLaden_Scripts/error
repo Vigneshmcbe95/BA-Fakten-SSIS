@@ -1,333 +1,2924 @@
-Paket	Task	Meldungstyp	Meldung
-Laden_Fakten	SCR13_Daten_Laden	info	WARNUNG [SELECT INTO tf_bst_sv_in_20150803_LOADING] Versuch 1/3: Could not allocate a new page for database 'msi_dm_bst_v3' because the 'PRIMARY' filegroup is full due to lack of storage space or database files reaching the maximum allowed size. Note that UNLIMITED files are still limited to 16TB. Create the necessary space by dropping objects in the filegroup, adding additional files to the filegroup, or setting autogrowth on for existing files in the filegroup.
-Laden_Fakten	SCR13_Daten_Laden	info	SQL Statement [SELECT INTO tf_bst_sv_in_20110406_LOADING]: SELECT
-ISNULL(CONVERT(int, [vrs_id]), 0) AS [vrs_id],
-ISNULL(CONVERT(int, [btr_id]), 0) AS [btr_id],
-ISNULL(CONVERT(int, [bvs_id]), 0) AS [bvs_id],
-ISNULL(CONVERT(smallint, [bsx_id_svoa]), 0) AS [bsx_id_svoa],
-ISNULL(CONVERT(smallint, [bsx_id_aszb]), 0) AS [bsx_id_aszb],
-ISNULL(CONVERT(smallint, [bsx_id_geb]), 0) AS [bsx_id_geb],
-ISNULL(CONVERT(smallint, [bsx_id_kfb]), 0) AS [bsx_id_kfb],
-ISNULL(CONVERT(smallint, [bzb_id]), 0) AS [bzb_id],
-ISNULL(CONVERT(smallint, [age_id]), 0) AS [age_id],
-ISNULL(CONVERT(smallint, [jan_id_rga]), 0) AS [jan_id_rga],
-ISNULL(CONVERT(smallint, [pgr_id]), 0) AS [pgr_id],
-ISNULL(CONVERT(smallint, [bro_id]), 0) AS [bro_id],
-ISNULL(CONVERT(smallint, [asb_id]), 0) AS [asb_id],
-ISNULL(CONVERT(smallint, [asb_id_korr]), 0) AS [asb_id_korr],
-ISNULL(CONVERT(smallint, [sua_id]), 0) AS [sua_id],
-ISNULL(CONVERT(smallint, [sua_id_korr]), 0) AS [sua_id_korr],
-ISNULL(CONVERT(smallint, [abi_id]), 0) AS [abi_id],
-ISNULL(CONVERT(smallint, [abi_id_korr]), 0) AS [abi_id_korr],
-ISNULL(CONVERT(int, [mow_id]), 0) AS [mow_id],
-ISNULL(CONVERT(smallint, [gda_id]), 0) AS [gda_id],
-ISNULL(CONVERT(smallint, [btg_id]), 0) AS [btg_id],
-ISNULL(CONVERT(smallint, [sex_id]), 0) AS [sex_id],
-ISNULL(CONVERT(smallint, [rvt_id]), 0) AS [rvt_id],
-ISNULL(CONVERT(smallint, [brs_id]), 0) AS [brs_id],
-ISNULL(CONVERT(int, [kba_id]), 0) AS [kba_id],
-ISNULL(CONVERT(smallint, [t08_id]), 0) AS [t08_id],
-ISNULL(CONVERT(smallint, [afn_id]), 0) AS [afn_id],
-ISNULL(CONVERT(smallint, [bfr_id_orig]), 0) AS [bfr_id_orig],
-ISNULL(CONVERT(smallint, [bfr_id]), 0) AS [bfr_id],
-ISNULL(CONVERT(smallint, [jan_id_aueg]), 0) AS [jan_id_aueg],
-ISNULL(CONVERT(int, [stt_id]), 0) AS [stt_id],
-ISNULL(CONVERT(smallint, [owk_id_rk]), 0) AS [owk_id_rk],
-ISNULL(CONVERT(int, [tag_id_w]), 0) AS [tag_id_w],
-ISNULL(CONVERT(int, [ort_id_w]), 0) AS [ort_id_w],
-ISNULL(CONVERT(int, [gst_id_w]), 0) AS [gst_id_w],
-ISNULL(CONVERT(int, [str_id_w]), 0) AS [str_id_w],
-ISNULL(CONVERT(int, [ort_id_b]), 0) AS [ort_id_b],
-ISNULL(CONVERT(int, [gst_id_b]), 0) AS [gst_id_b],
-ISNULL(CONVERT(int, [str_id_b]), 0) AS [str_id_b],
-ISNULL(CONVERT(int, [l93_id]), 0) AS [l93_id],
-ISNULL(CONVERT(int, [l03_id]), 0) AS [l03_id],
-ISNULL(CONVERT(smallint, [l08_id]), 0) AS [l08_id],
-ISNULL(CONVERT(smallint, [glz_id]), 0) AS [glz_id],
-ISNULL(CONVERT(int, [sav_id_klr]), 0) AS [sav_id_klr],
-ISNULL(CONVERT(int, [azw_id]), 0) AS [azw_id],
-ISNULL(CONVERT(smallint, [ezs_id]), 0) AS [ezs_id],
-ISNULL(CONVERT(smallint, [std_id]), 0) AS [std_id],
-ISNULL(CONVERT(int, [arbstd_uv]), 0) AS [arbstd_uv],
-ISNULL(CONVERT(smallint, [jan_id_fkt]), 0) AS [jan_id_fkt],
-ISNULL(CONVERT(int, [bed_id_ll_bv]), 0) AS [bed_id_ll_bv],
-ISNULL(CONVERT(int, [bed_id_ll_sv]), 0) AS [bed_id_ll_sv],
-ISNULL(CONVERT(smallint, [jan_id_ega]), 0) AS [jan_id_ega],
-ISNULL(CONVERT(smallint, [jan_id_bef]), 0) AS [jan_id_bef],
-ISNULL(CONVERT(smallint, [isc_id]), 0) AS [isc_id],
-ISNULL(CONVERT(smallint, [isc_id_korr]), 0) AS [isc_id_korr],
-ISNULL(CONVERT(smallint, [spb_anzahl]), 0) AS [spb_anzahl],
-CONVERT(int, [bed_id_insg]) AS [bed_id_insg],
-CONVERT(int, [bed_id_insg_sv]) AS [bed_id_insg_sv],
-CONVERT(int, [bed_id_insg_gb]) AS [bed_id_insg_gb],
-CONVERT(int, [bed_id_ubr]) AS [bed_id_ubr],
-CONVERT(int, [bed_id_sebv]) AS [bed_id_sebv],
-CONVERT(int, [bed_id_ll_bvmu]) AS [bed_id_ll_bvmu],
-CONVERT(int, [bed_id_ll_svmu]) AS [bed_id_ll_svmu],
-CONVERT(smallint, [bws_id]) AS [bws_id],
-ISNULL(CONVERT(smallint, [gee_id_w]), 0) AS [gee_id_w],
-ISNULL(CONVERT(int, [git_id_laea_100m_w]), 0) AS [git_id_laea_100m_w],
-ISNULL(CONVERT(int, [git_id_utm32_100m_w]), 0) AS [git_id_utm32_100m_w],
-ISNULL(CONVERT(int, [dtm_id]), 0) AS [dtm_id],
-ISNULL(CONVERT(int, [xbp_id]), 0) AS [xbp_id],
-ISNULL(CONVERT(int, [egt_nmt]), 0) AS [egt_nmt],
-ISNULL(CONVERT(smallint, [jan_id_saison_arb]), 0) AS [jan_id_saison_arb],
-ISNULL(CONVERT(smallint, [l25_id]), 0) AS [l25_id]
-INTO dbo.[tf_bst_sv_in_20110406_LOADING]
-FROM ext.[vf_bst_sv]
-WHERE [mow_id] = 20110406;
-Laden_Fakten	SCR13_Daten_Laden	info	WARNUNG [SELECT INTO tf_bst_sv_in_20110406_LOADING] Versuch 1/3: Could not allocate a new page for database 'msi_dm_bst_v3' because the 'PRIMARY' filegroup is full due to lack of storage space or database files reaching the maximum allowed size. Note that UNLIMITED files are still limited to 16TB. Create the necessary space by dropping objects in the filegroup, adding additional files to the filegroup, or setting autogrowth on for existing files in the filegroup.
-Laden_Fakten	SCR13_Daten_Laden	info	SQL Statement [SELECT INTO tf_bst_sv_in_20190706_LOADING]: SELECT
-ISNULL(CONVERT(int, [vrs_id]), 0) AS [vrs_id],
-ISNULL(CONVERT(int, [btr_id]), 0) AS [btr_id],
-ISNULL(CONVERT(int, [bvs_id]), 0) AS [bvs_id],
-ISNULL(CONVERT(smallint, [bsx_id_svoa]), 0) AS [bsx_id_svoa],
-ISNULL(CONVERT(smallint, [bsx_id_aszb]), 0) AS [bsx_id_aszb],
-ISNULL(CONVERT(smallint, [bsx_id_geb]), 0) AS [bsx_id_geb],
-ISNULL(CONVERT(smallint, [bsx_id_kfb]), 0) AS [bsx_id_kfb],
-ISNULL(CONVERT(smallint, [bzb_id]), 0) AS [bzb_id],
-ISNULL(CONVERT(smallint, [age_id]), 0) AS [age_id],
-ISNULL(CONVERT(smallint, [jan_id_rga]), 0) AS [jan_id_rga],
-ISNULL(CONVERT(smallint, [pgr_id]), 0) AS [pgr_id],
-ISNULL(CONVERT(smallint, [bro_id]), 0) AS [bro_id],
-ISNULL(CONVERT(smallint, [asb_id]), 0) AS [asb_id],
-ISNULL(CONVERT(smallint, [asb_id_korr]), 0) AS [asb_id_korr],
-ISNULL(CONVERT(smallint, [sua_id]), 0) AS [sua_id],
-ISNULL(CONVERT(smallint, [sua_id_korr]), 0) AS [sua_id_korr],
-ISNULL(CONVERT(smallint, [abi_id]), 0) AS [abi_id],
-ISNULL(CONVERT(smallint, [abi_id_korr]), 0) AS [abi_id_korr],
-ISNULL(CONVERT(int, [mow_id]), 0) AS [mow_id],
-ISNULL(CONVERT(smallint, [gda_id]), 0) AS [gda_id],
-ISNULL(CONVERT(smallint, [btg_id]), 0) AS [btg_id],
-ISNULL(CONVERT(smallint, [sex_id]), 0) AS [sex_id],
-ISNULL(CONVERT(smallint, [rvt_id]), 0) AS [rvt_id],
-ISNULL(CONVERT(smallint, [brs_id]), 0) AS [brs_id],
-ISNULL(CONVERT(int, [kba_id]), 0) AS [kba_id],
-ISNULL(CONVERT(smallint, [t08_id]), 0) AS [t08_id],
-ISNULL(CONVERT(smallint, [afn_id]), 0) AS [afn_id],
-ISNULL(CONVERT(smallint, [bfr_id_orig]), 0) AS [bfr_id_orig],
-ISNULL(CONVERT(smallint, [bfr_id]), 0) AS [bfr_id],
-ISNULL(CONVERT(smallint, [jan_id_aueg]), 0) AS [jan_id_aueg],
-ISNULL(CONVERT(int, [stt_id]), 0) AS [stt_id],
-ISNULL(CONVERT(smallint, [owk_id_rk]), 0) AS [owk_id_rk],
-ISNULL(CONVERT(int, [tag_id_w]), 0) AS [tag_id_w],
-ISNULL(CONVERT(int, [ort_id_w]), 0) AS [ort_id_w],
-ISNULL(CONVERT(int, [gst_id_w]), 0) AS [gst_id_w],
-ISNULL(CONVERT(int, [str_id_w]), 0) AS [str_id_w],
-ISNULL(CONVERT(int, [ort_id_b]), 0) AS [ort_id_b],
-ISNULL(CONVERT(int, [gst_id_b]), 0) AS [gst_id_b],
-ISNULL(CONVERT(int, [str_id_b]), 0) AS [str_id_b],
-ISNULL(CONVERT(int, [l93_id]), 0) AS [l93_id],
-ISNULL(CONVERT(int, [l03_id]), 0) AS [l03_id],
-ISNULL(CONVERT(smallint, [l08_id]), 0) AS [l08_id],
-ISNULL(CONVERT(smallint, [glz_id]), 0) AS [glz_id],
-ISNULL(CONVERT(int, [sav_id_klr]), 0) AS [sav_id_klr],
-ISNULL(CONVERT(int, [azw_id]), 0) AS [azw_id],
-ISNULL(CONVERT(smallint, [ezs_id]), 0) AS [ezs_id],
-ISNULL(CONVERT(smallint, [std_id]), 0) AS [std_id],
-ISNULL(CONVERT(int, [arbstd_uv]), 0) AS [arbstd_uv],
-ISNULL(CONVERT(smallint, [jan_id_fkt]), 0) AS [jan_id_fkt],
-ISNULL(CONVERT(int, [bed_id_ll_bv]), 0) AS [bed_id_ll_bv],
-ISNULL(CONVERT(int, [bed_id_ll_sv]), 0) AS [bed_id_ll_sv],
-ISNULL(CONVERT(smallint, [jan_id_ega]), 0) AS [jan_id_ega],
-ISNULL(CONVERT(smallint, [jan_id_bef]), 0) AS [jan_id_bef],
-ISNULL(CONVERT(smallint, [isc_id]), 0) AS [isc_id],
-ISNULL(CONVERT(smallint, [isc_id_korr]), 0) AS [isc_id_korr],
-ISNULL(CONVERT(smallint, [spb_anzahl]), 0) AS [spb_anzahl],
-CONVERT(int, [bed_id_insg]) AS [bed_id_insg],
-CONVERT(int, [bed_id_insg_sv]) AS [bed_id_insg_sv],
-CONVERT(int, [bed_id_insg_gb]) AS [bed_id_insg_gb],
-CONVERT(int, [bed_id_ubr]) AS [bed_id_ubr],
-CONVERT(int, [bed_id_sebv]) AS [bed_id_sebv],
-CONVERT(int, [bed_id_ll_bvmu]) AS [bed_id_ll_bvmu],
-CONVERT(int, [bed_id_ll_svmu]) AS [bed_id_ll_svmu],
-CONVERT(smallint, [bws_id]) AS [bws_id],
-ISNULL(CONVERT(smallint, [gee_id_w]), 0) AS [gee_id_w],
-ISNULL(CONVERT(int, [git_id_laea_100m_w]), 0) AS [git_id_laea_100m_w],
-ISNULL(CONVERT(int, [git_id_utm32_100m_w]), 0) AS [git_id_utm32_100m_w],
-ISNULL(CONVERT(int, [dtm_id]), 0) AS [dtm_id],
-ISNULL(CONVERT(int, [xbp_id]), 0) AS [xbp_id],
-ISNULL(CONVERT(int, [egt_nmt]), 0) AS [egt_nmt],
-ISNULL(CONVERT(smallint, [jan_id_saison_arb]), 0) AS [jan_id_saison_arb],
-ISNULL(CONVERT(smallint, [l25_id]), 0) AS [l25_id]
-INTO dbo.[tf_bst_sv_in_20190706_LOADING]
-FROM ext.[vf_bst_sv]
-WHERE [mow_id] = 20190706;
-Laden_Fakten	SCR13_Daten_Laden	info	WARNUNG [SELECT INTO tf_bst_sv_in_20190706_LOADING] Versuch 1/3: Could not allocate a new page for database 'msi_dm_bst_v3' because the 'PRIMARY' filegroup is full due to lack of storage space or database files reaching the maximum allowed size. Note that UNLIMITED files are still limited to 16TB. Create the necessary space by dropping objects in the filegroup, adding additional files to the filegroup, or setting autogrowth on for existing files in the filegroup.
-Laden_Fakten	SCR13_Daten_Laden	info	SQL Statement [SELECT INTO tf_bst_sv_in_20050206_LOADING]: SELECT
-ISNULL(CONVERT(int, [vrs_id]), 0) AS [vrs_id],
-ISNULL(CONVERT(int, [btr_id]), 0) AS [btr_id],
-ISNULL(CONVERT(int, [bvs_id]), 0) AS [bvs_id],
-ISNULL(CONVERT(smallint, [bsx_id_svoa]), 0) AS [bsx_id_svoa],
-ISNULL(CONVERT(smallint, [bsx_id_aszb]), 0) AS [bsx_id_aszb],
-ISNULL(CONVERT(smallint, [bsx_id_geb]), 0) AS [bsx_id_geb],
-ISNULL(CONVERT(smallint, [bsx_id_kfb]), 0) AS [bsx_id_kfb],
-ISNULL(CONVERT(smallint, [bzb_id]), 0) AS [bzb_id],
-ISNULL(CONVERT(smallint, [age_id]), 0) AS [age_id],
-ISNULL(CONVERT(smallint, [jan_id_rga]), 0) AS [jan_id_rga],
-ISNULL(CONVERT(smallint, [pgr_id]), 0) AS [pgr_id],
-ISNULL(CONVERT(smallint, [bro_id]), 0) AS [bro_id],
-ISNULL(CONVERT(smallint, [asb_id]), 0) AS [asb_id],
-ISNULL(CONVERT(smallint, [asb_id_korr]), 0) AS [asb_id_korr],
-ISNULL(CONVERT(smallint, [sua_id]), 0) AS [sua_id],
-ISNULL(CONVERT(smallint, [sua_id_korr]), 0) AS [sua_id_korr],
-ISNULL(CONVERT(smallint, [abi_id]), 0) AS [abi_id],
-ISNULL(CONVERT(smallint, [abi_id_korr]), 0) AS [abi_id_korr],
-ISNULL(CONVERT(int, [mow_id]), 0) AS [mow_id],
-ISNULL(CONVERT(smallint, [gda_id]), 0) AS [gda_id],
-ISNULL(CONVERT(smallint, [btg_id]), 0) AS [btg_id],
-ISNULL(CONVERT(smallint, [sex_id]), 0) AS [sex_id],
-ISNULL(CONVERT(smallint, [rvt_id]), 0) AS [rvt_id],
-ISNULL(CONVERT(smallint, [brs_id]), 0) AS [brs_id],
-ISNULL(CONVERT(int, [kba_id]), 0) AS [kba_id],
-ISNULL(CONVERT(smallint, [t08_id]), 0) AS [t08_id],
-ISNULL(CONVERT(smallint, [afn_id]), 0) AS [afn_id],
-ISNULL(CONVERT(smallint, [bfr_id_orig]), 0) AS [bfr_id_orig],
-ISNULL(CONVERT(smallint, [bfr_id]), 0) AS [bfr_id],
-ISNULL(CONVERT(smallint, [jan_id_aueg]), 0) AS [jan_id_aueg],
-ISNULL(CONVERT(int, [stt_id]), 0) AS [stt_id],
-ISNULL(CONVERT(smallint, [owk_id_rk]), 0) AS [owk_id_rk],
-ISNULL(CONVERT(int, [tag_id_w]), 0) AS [tag_id_w],
-ISNULL(CONVERT(int, [ort_id_w]), 0) AS [ort_id_w],
-ISNULL(CONVERT(int, [gst_id_w]), 0) AS [gst_id_w],
-ISNULL(CONVERT(int, [str_id_w]), 0) AS [str_id_w],
-ISNULL(CONVERT(int, [ort_id_b]), 0) AS [ort_id_b],
-ISNULL(CONVERT(int, [gst_id_b]), 0) AS [gst_id_b],
-ISNULL(CONVERT(int, [str_id_b]), 0) AS [str_id_b],
-ISNULL(CONVERT(int, [l93_id]), 0) AS [l93_id],
-ISNULL(CONVERT(int, [l03_id]), 0) AS [l03_id],
-ISNULL(CONVERT(smallint, [l08_id]), 0) AS [l08_id],
-ISNULL(CONVERT(smallint, [glz_id]), 0) AS [glz_id],
-ISNULL(CONVERT(int, [sav_id_klr]), 0) AS [sav_id_klr],
-ISNULL(CONVERT(int, [azw_id]), 0) AS [azw_id],
-ISNULL(CONVERT(smallint, [ezs_id]), 0) AS [ezs_id],
-ISNULL(CONVERT(smallint, [std_id]), 0) AS [std_id],
-ISNULL(CONVERT(int, [arbstd_uv]), 0) AS [arbstd_uv],
-ISNULL(CONVERT(smallint, [jan_id_fkt]), 0) AS [jan_id_fkt],
-ISNULL(CONVERT(int, [bed_id_ll_bv]), 0) AS [bed_id_ll_bv],
-ISNULL(CONVERT(int, [bed_id_ll_sv]), 0) AS [bed_id_ll_sv],
-ISNULL(CONVERT(smallint, [jan_id_ega]), 0) AS [jan_id_ega],
-ISNULL(CONVERT(smallint, [jan_id_bef]), 0) AS [jan_id_bef],
-ISNULL(CONVERT(smallint, [isc_id]), 0) AS [isc_id],
-ISNULL(CONVERT(smallint, [isc_id_korr]), 0) AS [isc_id_korr],
-ISNULL(CONVERT(smallint, [spb_anzahl]), 0) AS [spb_anzahl],
-CONVERT(int, [bed_id_insg]) AS [bed_id_insg],
-CONVERT(int, [bed_id_insg_sv]) AS [bed_id_insg_sv],
-CONVERT(int, [bed_id_insg_gb]) AS [bed_id_insg_gb],
-CONVERT(int, [bed_id_ubr]) AS [bed_id_ubr],
-CONVERT(int, [bed_id_sebv]) AS [bed_id_sebv],
-CONVERT(int, [bed_id_ll_bvmu]) AS [bed_id_ll_bvmu],
-CONVERT(int, [bed_id_ll_svmu]) AS [bed_id_ll_svmu],
-CONVERT(smallint, [bws_id]) AS [bws_id],
-ISNULL(CONVERT(smallint, [gee_id_w]), 0) AS [gee_id_w],
-ISNULL(CONVERT(int, [git_id_laea_100m_w]), 0) AS [git_id_laea_100m_w],
-ISNULL(CONVERT(int, [git_id_utm32_100m_w]), 0) AS [git_id_utm32_100m_w],
-ISNULL(CONVERT(int, [dtm_id]), 0) AS [dtm_id],
-ISNULL(CONVERT(int, [xbp_id]), 0) AS [xbp_id],
-ISNULL(CONVERT(int, [egt_nmt]), 0) AS [egt_nmt],
-ISNULL(CONVERT(smallint, [jan_id_saison_arb]), 0) AS [jan_id_saison_arb],
-ISNULL(CONVERT(smallint, [l25_id]), 0) AS [l25_id]
-INTO dbo.[tf_bst_sv_in_20050206_LOADING]
-FROM ext.[vf_bst_sv]
-WHERE [mow_id] = 20050206;
-Laden_Fakten	SCR13_Daten_Laden	info	WARNUNG [SELECT INTO tf_bst_sv_in_20050206_LOADING] Versuch 1/3: Could not allocate a new page for database 'msi_dm_bst_v3' because the 'PRIMARY' filegroup is full due to lack of storage space or database files reaching the maximum allowed size. Note that UNLIMITED files are still limited to 16TB. Create the necessary space by dropping objects in the filegroup, adding additional files to the filegroup, or setting autogrowth on for existing files in the filegroup.
-Laden_Fakten	SCR13_Daten_Laden	info	SQL Statement [SELECT INTO tf_bst_sv_in_20170802_LOADING]: SELECT
-ISNULL(CONVERT(int, [vrs_id]), 0) AS [vrs_id],
-ISNULL(CONVERT(int, [btr_id]), 0) AS [btr_id],
-ISNULL(CONVERT(int, [bvs_id]), 0) AS [bvs_id],
-ISNULL(CONVERT(smallint, [bsx_id_svoa]), 0) AS [bsx_id_svoa],
-ISNULL(CONVERT(smallint, [bsx_id_aszb]), 0) AS [bsx_id_aszb],
-ISNULL(CONVERT(smallint, [bsx_id_geb]), 0) AS [bsx_id_geb],
-ISNULL(CONVERT(smallint, [bsx_id_kfb]), 0) AS [bsx_id_kfb],
-ISNULL(CONVERT(smallint, [bzb_id]), 0) AS [bzb_id],
-ISNULL(CONVERT(smallint, [age_id]), 0) AS [age_id],
-ISNULL(CONVERT(smallint, [jan_id_rga]), 0) AS [jan_id_rga],
-ISNULL(CONVERT(smallint, [pgr_id]), 0) AS [pgr_id],
-ISNULL(CONVERT(smallint, [bro_id]), 0) AS [bro_id],
-ISNULL(CONVERT(smallint, [asb_id]), 0) AS [asb_id],
-ISNULL(CONVERT(smallint, [asb_id_korr]), 0) AS [asb_id_korr],
-ISNULL(CONVERT(smallint, [sua_id]), 0) AS [sua_id],
-ISNULL(CONVERT(smallint, [sua_id_korr]), 0) AS [sua_id_korr],
-ISNULL(CONVERT(smallint, [abi_id]), 0) AS [abi_id],
-ISNULL(CONVERT(smallint, [abi_id_korr]), 0) AS [abi_id_korr],
-ISNULL(CONVERT(int, [mow_id]), 0) AS [mow_id],
-ISNULL(CONVERT(smallint, [gda_id]), 0) AS [gda_id],
-ISNULL(CONVERT(smallint, [btg_id]), 0) AS [btg_id],
-ISNULL(CONVERT(smallint, [sex_id]), 0) AS [sex_id],
-ISNULL(CONVERT(smallint, [rvt_id]), 0) AS [rvt_id],
-ISNULL(CONVERT(smallint, [brs_id]), 0) AS [brs_id],
-ISNULL(CONVERT(int, [kba_id]), 0) AS [kba_id],
-ISNULL(CONVERT(smallint, [t08_id]), 0) AS [t08_id],
-ISNULL(CONVERT(smallint, [afn_id]), 0) AS [afn_id],
-ISNULL(CONVERT(smallint, [bfr_id_orig]), 0) AS [bfr_id_orig],
-ISNULL(CONVERT(smallint, [bfr_id]), 0) AS [bfr_id],
-ISNULL(CONVERT(smallint, [jan_id_aueg]), 0) AS [jan_id_aueg],
-ISNULL(CONVERT(int, [stt_id]), 0) AS [stt_id],
-ISNULL(CONVERT(smallint, [owk_id_rk]), 0) AS [owk_id_rk],
-ISNULL(CONVERT(int, [tag_id_w]), 0) AS [tag_id_w],
-ISNULL(CONVERT(int, [ort_id_w]), 0) AS [ort_id_w],
-ISNULL(CONVERT(int, [gst_id_w]), 0) AS [gst_id_w],
-ISNULL(CONVERT(int, [str_id_w]), 0) AS [str_id_w],
-ISNULL(CONVERT(int, [ort_id_b]), 0) AS [ort_id_b],
-ISNULL(CONVERT(int, [gst_id_b]), 0) AS [gst_id_b],
-ISNULL(CONVERT(int, [str_id_b]), 0) AS [str_id_b],
-ISNULL(CONVERT(int, [l93_id]), 0) AS [l93_id],
-ISNULL(CONVERT(int, [l03_id]), 0) AS [l03_id],
-ISNULL(CONVERT(smallint, [l08_id]), 0) AS [l08_id],
-ISNULL(CONVERT(smallint, [glz_id]), 0) AS [glz_id],
-ISNULL(CONVERT(int, [sav_id_klr]), 0) AS [sav_id_klr],
-ISNULL(CONVERT(int, [azw_id]), 0) AS [azw_id],
-ISNULL(CONVERT(smallint, [ezs_id]), 0) AS [ezs_id],
-ISNULL(CONVERT(smallint, [std_id]), 0) AS [std_id],
-ISNULL(CONVERT(int, [arbstd_uv]), 0) AS [arbstd_uv],
-ISNULL(CONVERT(smallint, [jan_id_fkt]), 0) AS [jan_id_fkt],
-ISNULL(CONVERT(int, [bed_id_ll_bv]), 0) AS [bed_id_ll_bv],
-ISNULL(CONVERT(int, [bed_id_ll_sv]), 0) AS [bed_id_ll_sv],
-ISNULL(CONVERT(smallint, [jan_id_ega]), 0) AS [jan_id_ega],
-ISNULL(CONVERT(smallint, [jan_id_bef]), 0) AS [jan_id_bef],
-ISNULL(CONVERT(smallint, [isc_id]), 0) AS [isc_id],
-ISNULL(CONVERT(smallint, [isc_id_korr]), 0) AS [isc_id_korr],
-ISNULL(CONVERT(smallint, [spb_anzahl]), 0) AS [spb_anzahl],
-CONVERT(int, [bed_id_insg]) AS [bed_id_insg],
-CONVERT(int, [bed_id_insg_sv]) AS [bed_id_insg_sv],
-CONVERT(int, [bed_id_insg_gb]) AS [bed_id_insg_gb],
-CONVERT(int, [bed_id_ubr]) AS [bed_id_ubr],
-CONVERT(int, [bed_id_sebv]) AS [bed_id_sebv],
-CONVERT(int, [bed_id_ll_bvmu]) AS [bed_id_ll_bvmu],
-CONVERT(int, [bed_id_ll_svmu]) AS [bed_id_ll_svmu],
-CONVERT(smallint, [bws_id]) AS [bws_id],
-ISNULL(CONVERT(smallint, [gee_id_w]), 0) AS [gee_id_w],
-ISNULL(CONVERT(int, [git_id_laea_100m_w]), 0) AS [git_id_laea_100m_w],
-ISNULL(CONVERT(int, [git_id_utm32_100m_w]), 0) AS [git_id_utm32_100m_w],
-ISNULL(CONVERT(int, [dtm_id]), 0) AS [dtm_id],
-ISNULL(CONVERT(int, [xbp_id]), 0) AS [xbp_id],
-ISNULL(CONVERT(int, [egt_nmt]), 0) AS [egt_nmt],
-ISNULL(CONVERT(smallint, [jan_id_saison_arb]), 0) AS [jan_id_saison_arb],
-ISNULL(CONVERT(smallint, [l25_id]), 0) AS [l25_id]
-INTO dbo.[tf_bst_sv_in_20170802_LOADING]
-FROM ext.[vf_bst_sv]
-WHERE [mow_id] = 20170802;
-Laden_Fakten	SCR13_Daten_Laden	info	WARNUNG [SELECT INTO tf_bst_sv_in_20170802_LOADING] Versuch 1/3: Could not allocate a new page for database 'msi_dm_bst_v3' because the 'PRIMARY' filegroup is full due to lack of storage space or database files reaching the maximum allowed size. Note that UNLIMITED files are still limited to 16TB. Create the necessary space by dropping objects in the filegroup, adding additional files to the filegroup, or setting autogrowth on for existing files in the filegroup.
-Laden_Fakten	SCR13_Daten_Laden	info	  SELECT INTO [tf_bst_sv_in_20170802_LOADING] WHERE mow_id = 20170802 (wird zu _in_ umbenannt)
-Laden_Fakten	SCR13_Daten_Laden	info	[LOAD_20170706] vf_bst_sv: SELECT INTO dbo.tf_bst_sv_in_20170706 | Zeilen: 32127912
-Laden_Fakten	SCR13_Daten_Laden	info	  Zeilen geladen (tf_bst_sv_in_20170706): 32127912
-Laden_Fakten	SCR13_Daten_Laden	info	  SELECT INTO [tf_bst_sv_in_20050206_LOADING] WHERE mow_id = 20050206 (wird zu _in_ umbenannt)
-Laden_Fakten	SCR13_Daten_Laden	info	[LOAD_20050106] vf_bst_sv: SELECT INTO dbo.tf_bst_sv_in_20050106 | Zeilen: 26087134
-Laden_Fakten	SCR13_Daten_Laden	info	  Zeilen geladen (tf_bst_sv_in_20050106): 26087134
-Laden_Fakten	SCR13_Daten_Laden	info	  SELECT INTO [tf_bst_sv_in_20190706_LOADING] WHERE mow_id = 20190706 (wird zu _in_ umbenannt)
-Laden_Fakten	SCR13_Daten_Laden	info	[LOAD_20190703] vf_bst_sv: SELECT INTO dbo.tf_bst_sv_in_20190703 | Zeilen: 33336521
-Laden_Fakten	SCR13_Daten_Laden	info	  Zeilen geladen (tf_bst_sv_in_20190703): 33336521
-Laden_Fakten	SCR13_Daten_Laden	info	  SELECT INTO [tf_bst_sv_in_20110406_LOADING] WHERE mow_id = 20110406 (wird zu _in_ umbenannt)
-Laden_Fakten	SCR13_Daten_Laden	info	[LOAD_20110306] vf_bst_sv: SELECT INTO dbo.tf_bst_sv_in_20110306 | Zeilen: 28331314
-Laden_Fakten	SCR13_Daten_Laden	info	  Zeilen geladen (tf_bst_sv_in_20110306): 28331314
-Laden_Fakten	SCR13_Daten_Laden	info	  SELECT INTO [tf_bst_sv_in_20150803_LOADING] WHERE mow_id = 20150803 (wird zu _in_ umbenannt)
-Laden_Fakten	SCR13_Daten_Laden	info	[LOAD_20150802] vf_bst_sv: SELECT INTO dbo.tf_bst_sv_in_20150802 | Zeilen: 30886535
-Laden_Fakten	SCR13_Daten_Laden	info	  Zeilen geladen (tf_bst_sv_in_20150802): 30886535
-Laden_Fakten	SCR13_Daten_Laden	info	  SELECT INTO [tf_bst_sv_in_20210706_LOADING] WHERE mow_id = 20210706 (wird zu _in_ umbenannt)
-Laden_Fakten	SCR13_Daten_Laden	info	[LOAD_20210703] vf_bst_sv: SELECT INTO dbo.tf_bst_sv_in_20210703 | Zeilen: 33707598
-Laden_Fakten	SCR13_Daten_Laden	info	  Zeilen geladen (tf_bst_sv_in_20210703): 33707598
-Laden_Fakten	SCR13_Daten_Laden	info	  SELECT INTO [tf_bst_sv_in_20250806_LOADING] WHERE mow_id = 20250806 (wird zu _in_ umbenannt)
-Laden_Fakten	SCR13_Daten_Laden	info	[LOAD_20250803] vf_bst_sv: SELECT INTO dbo.tf_bst_sv_in_20250803 | Zeilen: 34833305
-Laden_Fakten	SCR13_Daten_Laden	info	  Zeilen geladen (tf_bst_sv_in_20250803): 34833305
-Laden_Fakten	SCR13_Daten_Laden	info	  SELECT INTO [tf_bst_sv_in_20230802_LOADING] WHERE mow_id = 20230802 (wird zu _in_ umbenannt)
-Laden_Fakten	SCR13_Daten_Laden	info	[LOAD_20230706] vf_bst_sv: SELECT INTO dbo.tf_bst_sv_in_20230706 | Zeilen: 34584212
+Hallo Nils,
+
+ich habe beim Faktenladen für die FST-Würfel ein weiteres Problem. Ich bekomme folgende Fehlermeldung:
+
+Verfahren 'vf_fst_mabe_xs': 23 von 23 Partition(en) Tausch fehlgeschlagen (erste: pv=202310: [SWITCH OUT] fehlgeschlagen: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.). Erfolgreich getauscht: 0. Betroffene _in_-Tabellen entfernt -> naechster Lauf laedt NUR die fehlgeschlagenen Partitionen neu.
+
+Soweit ich und Thomas Kästner das nachvollziehen konnten stellt sich die Situation wie folgt dar:
+
+in-Tabelle ist nicht komprimiert
+out-Tabelle ist komprimiert mit PAGE
+Faktentabelle ist nicht komprimiert (obwohl PAGE in Parametertabelle eingestellt ist)
+
+Die Faktentabelle haben wir vorher gelöscht und vom Job neu anlegen lassen.
+
+Kannst du dir das bitte mal anschauen.
+
+
+-----------------------------------------------------------
+
+Desweiteren haben wir auf q0001157 die Run_Laden_FAKTEN.cmd wie folgt angepasst:
+
+Im ABSCHNITT 1 - UC4-JOB-PARAMETER haben wir am Ende eine Zeile für mein Problem mit dem Falschen DB-Namen bei FST eingefügt:
+
+:: Sonderfall FST ...
+if /i "!ATOMIC_DATENBANKNAME!"=="msi_fst" set ATOMIC_DATENBANKNAME=FST
+
+Dies müsste noch in GIT übernommen werden da sonst beim Faktenladen für die FST-Würfel die falsche Datenbank gesucht wird.
+Mit freundlichen Grüßen 
+
+
+log file 
+
+[20.07.2026 16:26:17,84] =============================================== 
+[20.07.2026 16:26:17,84] SSIS Faktenladen - Zentrales Ladeskript        
+[20.07.2026 16:26:17,84] Verfahren   : FST               
+[20.07.2026 16:26:17,84] Datenbank   : FST           
+[20.07.2026 16:26:17,85] Logdatei    : Laden_FAKTEN_FST_20260720_162617.log                   
+[20.07.2026 16:26:17,85] =============================================== 
+[20.07.2026 16:26:17,85] Archiv-Ordner (Windows-Pfad): F:\STL\Archiv 
+[20.07.2026 16:26:17,85] [OK]       Archiv-Ordner existiert bereits. 
+[20.07.2026 16:26:17,87] =============================================== 
+[20.07.2026 16:26:17,87] VORABPRUEFUNG DER PARAMETER GESTARTET         
+[20.07.2026 16:26:17,87] =============================================== 
+[20.07.2026 16:26:17,87] [OK]       ATOMIC_ORACLE_USERNAME ist gesetzt 
+[20.07.2026 16:26:17,88] [OK]       ATOMIC_ORACLE_PASSWORD ist gesetzt via POLYBASEAUTH [Wert verborgen] 
+[20.07.2026 16:26:17,88] [OK]       ATOMIC_INSTANCE          = Abnahme23 
+[20.07.2026 16:26:17,88] [OK]       PARAM_SERVER             = Q0001157 (Computername) 
+[20.07.2026 16:26:17,88] [OK]       PARAM_CONNECTION_SERVER  = Q0001157\Abnahme23 
+[20.07.2026 16:26:17,90] [OK]       PARAM_STL_ORDNER         = F:\STL 
+[20.07.2026 16:26:17,90] [OK]       PARAM_ORDNER_ARCHIV      = F:\STL\Archiv 
+[20.07.2026 16:26:17,90] [OK]       PARAM_STL_DATEINAME      = v.istat.svs46m_stat_fst.cube_export_polybase_test.csv 
+[20.07.2026 16:26:17,90] [OK]       ATOMIC_ENVIRONMENT       = istat 
+[20.07.2026 16:26:17,90] [OK]       PARAM_EXT_TABLE_LOCATION = istat.STATRT.VM_DDL_SQL_SERVER 
+[20.07.2026 16:26:17,90] [OK]       PARAM_EXT_SOURCE_NAME    = Oracle-istat (aus Umgebung abgeleitet) 
+[20.07.2026 16:26:17,92] [OK]       ATOMIC_ORACLE_HOSTPORT   = l9800022db.dst.baintern.de:57575 
+[20.07.2026 16:26:17,92] [OK]       PARAM_EXT_SOURCE_LOCATION= oracle://l9800022db.dst.baintern.de:57575 
+[20.07.2026 16:26:17,92] [OK]       ATOMIC_ORACLE_HOSTPORT_SECONDARY = l9801022db.dst.baintern.de:57575 
+[20.07.2026 16:26:17,92] [INFO]     PARAM_EXT_CONNECTION_OPTIONS (nur Logging, nicht ans Paket) = AlternateServers=(HostName=l9801022db.dst.baintern.de:PortNumber=57575:ServiceName=istat)%3BFailoverMode=0%3BLoadBalancing=0 
+[20.07.2026 16:26:17,93] [OK]       ATOMIC_VERFAHREN         = FST 
+[20.07.2026 16:26:17,93] [OK]       PARAM_VERFAHREN          = FST 
+[20.07.2026 16:26:17,93] [OK]       ATOMIC_DATENBANKNAME     = FST 
+[20.07.2026 16:26:17,93] [OK]       PARAM_DATENBANK          = FST 
+[20.07.2026 16:26:17,93] [OK]       PARAM_DATAMART           = FST 
+[20.07.2026 16:26:17,93] [OK]       PARAM_PROTOKOLL_DB       = FST 
+[20.07.2026 16:26:17,93] [OK]       PARAM_PARAMETER_DB       = FST 
+[20.07.2026 16:26:17,93] [OK]       PARAM_PARAMETERTABELLE   = tm_FST_param (abgeleitet aus Datenbankname) 
+[20.07.2026 16:26:17,95] [OK]       DTEXEC_PATH              = C:\Program Files\Microsoft SQL Server\160\DTS\Binn\DTExec.exe 
+[20.07.2026 16:26:17,96] [OK]       SSIS_PACKAGE             = E:\BDATA\Batches\Ladepakete\Fakten\Laden_FAKTEN.dtsx 
+[20.07.2026 16:26:17,96] [OK]       PARAM_PROTOKOLL_SP       = usp_SSIS_Protokoll 
+[20.07.2026 16:26:17,96] [OK]       PARAM_PROTOKOLL_TABELLE  = tm_FST_prot 
+[20.07.2026 16:26:17,96] [OK]       PARAM_MAXPARALLEL        = 8 
+[20.07.2026 16:26:17,98] [OK]       PARAM_EXT_SOURCE_NAME    = Oracle-istat 
+[20.07.2026 16:26:17,98] [OK]       PARAM_EXT_TABLE_SCHEMA   = ext 
+[20.07.2026 16:26:17,98] [OK]       PARAM_EXT_TABLE_NAME     = vm_ddl_sql_server 
+[20.07.2026 16:26:17,98] [OK]       PARAM_PARTITION_SCHEMA   = BI_DM_EXPORT 
+[20.07.2026 16:26:17,99] [OK]       PARAM_STEUERLISTEN_TABELLE= tm_steuerlistenfile_Fakten 
+[20.07.2026 16:26:17,99] =============================================== 
+[20.07.2026 16:26:17,99] VALIDATION_FAILED = 0        
+[20.07.2026 16:26:18,01] =============================================== 
+[20.07.2026 16:26:18,01] VORABPRUEFUNG BESTANDEN - Ausfuehrung startet. 
+[20.07.2026 16:26:18,01] =============================================== 
+[20.07.2026 16:26:18,01] SSIS-Ausfuehrung gestartet       
+[20.07.2026 16:26:18,03] Verfahren       : FST    
+[20.07.2026 16:26:18,03] Datenbankname   : FST 
+[20.07.2026 16:26:18,03] STL Ordner      : F:\STL    
+[20.07.2026 16:26:18,03] STL Dateiname   : v.istat.svs46m_stat_fst.cube_export_polybase_test.csv 
+[20.07.2026 16:26:18,04] Archiv Ordner   : F:\STL\Archiv 
+[20.07.2026 16:26:18,04] Umgebung        : istat  
+[20.07.2026 16:26:18,04] Oracle Host:Port (primaer)   : l9800022db.dst.baintern.de:57575 
+[20.07.2026 16:26:18,04] Oracle Host:Port (sekundaer) : l9801022db.dst.baintern.de:57575 
+[20.07.2026 16:26:18,06] EXT Source Name : Oracle-istat 
+[20.07.2026 16:26:18,06] EXT Source Loc  : oracle://l9800022db.dst.baintern.de:57575 
+[20.07.2026 16:26:18,06] EXT Table Loc   : istat.STATRT.VM_DDL_SQL_SERVER 
+[20.07.2026 16:26:18,06] Parameter DB    : FST 
+[20.07.2026 16:26:18,07] Parametertabelle: tm_FST_param 
+----------------------------------------------- 
+Microsoft (R) SQL Server Execute Package Utility
+Version 16.0.4225.2 for 64-bit
+Copyright (C) 2022 Microsoft. All rights reserved.
+
+Started:  16:26:18
+Info: 2026-07-20 16:26:18.92
+   Code: 0x00000000
+   Source: Paketstart SCR_PaketStart
+   Description: Fakten Laden - Paketstart
+End Info
+Info: 2026-07-20 16:26:18.93
+   Code: 0x00000000
+   Source: Paketstart SCR_PaketStart
+   Description: Schritt 1: ETL_Fakt_LaufHistorie sicherstellen
+End Info
+Info: 2026-07-20 16:26:18.95
+   Code: 0x00000000
+   Source: Paketstart SCR_PaketStart
+   Description: ETL_Fakt_LaufHistorie: geprueft/angelegt.
+End Info
+Info: 2026-07-20 16:26:18.95
+   Code: 0x00000000
+   Source: Paketstart SCR_PaketStart
+   Description: Schritt 2: Verwaiste Laeufe (LAUFEND) auf ABGEBROCHEN setzen
+End Info
+Info: 2026-07-20 16:26:18.95
+   Code: 0x00000000
+   Source: Paketstart SCR_PaketStart
+   Description: Verwaiste Laeufe auf ABGEBROCHEN gesetzt: 0
+End Info
+Info: 2026-07-20 16:26:18.96
+   Code: 0x00000000
+   Source: Paketstart SCR_PaketStart
+   Description: Schritt 3: ETL_Fakt_ArbeitslisteFEHLER AUSSTEHEND
+End Info
+Info: 2026-07-20 16:26:18.96
+   Code: 0x00000000
+   Source: Paketstart SCR_PaketStart
+   Description: Verfahren auf AUSSTEHEND zurueckgesetzt: -1
+End Info
+Info: 2026-07-20 16:26:18.96
+   Code: 0x00000000
+   Source: Paketstart SCR_PaketStart
+   Description: Schritt 4: Neuen Lauf anlegen
+End Info
+Info: 2026-07-20 16:26:18.98
+   Code: 0x00000000
+   Source: Paketstart SCR_PaketStart
+   Description: Paketstart erfolgreich abgeschlossen.
+End Info
+Info: 2026-07-20 16:26:19.00
+   Code: 0x00000000
+   Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
+   Description: SCR01_Parameter_Einlesen - Start
+End Info
+Info: 2026-07-20 16:26:19.00
+   Code: 0x00000000
+   Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
+   Description: Verbindung / Server
+End Info
+Info: 2026-07-20 16:26:19.00
+   Code: 0x00000000
+   Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
+   Description: [OK]       PARAM_SERVER                             = Q0001157
+End Info
+Info: 2026-07-20 16:26:19.01
+   Code: 0x00000000
+   Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
+   Description: [OK]       PARAM_CONNECTION_SERVER                  = Q0001157\Abnahme23
+End Info
+Info: 2026-07-20 16:26:19.01
+   Code: 0x00000000
+   Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
+   Description: [OK]       PARAM_DATENBANK                          = FST
+End Info
+Info: 2026-07-20 16:26:19.01
+   Code: 0x00000000
+   Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
+   Description: [OK]       PARAM_VERFAHREN                          = FST
+End Info
+Info: 2026-07-20 16:26:19.03
+   Code: 0x00000000
+   Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
+   Description: [OK]       PARAM_DATAMART                           = FST
+End Info
+Info: 2026-07-20 16:26:19.03
+   Code: 0x00000000
+   Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
+   Description: Oracle Credentials
+End Info
+Info: 2026-07-20 16:26:19.03
+   Code: 0x00000000
+   Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
+   Description: [OK]       ATOMIC_ORACLE_USERNAME                   = BI_DM_EXPORT
+End Info
+Info: 2026-07-20 16:26:19.04
+   Code: 0x00000000
+   Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
+   Description: [OK]       ATOMIC_ORACLE_PASSWORD                   = [Wert verborgen]
+End Info
+Info: 2026-07-20 16:26:19.04
+   Code: 0x00000000
+   Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
+   Description: Steuerlisten
+End Info
+Info: 2026-07-20 16:26:19.04
+   Code: 0x00000000
+   Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
+   Description: [OK]       PARAM_STL_ORDNER                         = F:\STL
+End Info
+Info: 2026-07-20 16:26:19.04
+   Code: 0x00000000
+   Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
+   Description: [OK]       PARAM_STEUERLISTEN_TABELLE               = tm_steuerlistenfile_Fakten
+End Info
+Info: 2026-07-20 16:26:19.06
+   Code: 0x00000000
+   Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
+   Description: Parametertabelle
+End Info
+Info: 2026-07-20 16:26:19.06
+   Code: 0x00000000
+   Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
+   Description: [OK]       PARAM_PARAMETER_DB                       = FST
+End Info
+Info: 2026-07-20 16:26:19.06
+   Code: 0x00000000
+   Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
+   Description: [OK]       PARAM_PARAMETERTABELLE                   = tm_FST_param
+End Info
+Info: 2026-07-20 16:26:19.07
+   Code: 0x00000000
+   Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
+   Description: PolyBase / External Source
+End Info
+Info: 2026-07-20 16:26:19.07
+   Code: 0x00000000
+   Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
+   Description: [OK]       PARAM_EXT_SOURCE_NAME                    = Oracle-istat
+End Info
+Info: 2026-07-20 16:26:19.07
+   Code: 0x00000000
+   Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
+   Description: [OK]       PARAM_EXT_SOURCE_LOCATION                = oracle://l9800022db.dst.baintern.de:57575
+End Info
+Info: 2026-07-20 16:26:19.09
+   Code: 0x00000000
+   Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
+   Description: [OK]       PARAM_EXT_TABLE_LOCATION                 = istat.STATRT.VM_DDL_SQL_SERVER
+End Info
+Info: 2026-07-20 16:26:19.09
+   Code: 0x00000000
+   Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
+   Description: [OK]       PARAM_EXT_TABLE_SCHEMA                   = ext
+End Info
+Info: 2026-07-20 16:26:19.09
+   Code: 0x00000000
+   Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
+   Description: [OK]       PARAM_EXT_TABLE_NAME                     = vm_ddl_sql_server
+End Info
+Info: 2026-07-20 16:26:19.10
+   Code: 0x00000000
+   Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
+   Description: Verarbeitung
+End Info
+Info: 2026-07-20 16:26:19.10
+   Code: 0x00000000
+   Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
+   Description: [OK]       PARAM_MAXPARALLEL                        = 8
+End Info
+Info: 2026-07-20 16:26:19.10
+   Code: 0x00000000
+   Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
+   Description: Protokollierung
+End Info
+Info: 2026-07-20 16:26:19.12
+   Code: 0x00000000
+   Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
+   Description: [OK]       PARAM_PROTOKOLL_DB                       = FST
+End Info
+Info: 2026-07-20 16:26:19.12
+   Code: 0x00000000
+   Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
+   Description: [OK]       PARAM_PROTOKOLL_SP                       = usp_SSIS_Protokoll
+End Info
+Info: 2026-07-20 16:26:19.12
+   Code: 0x00000000
+   Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
+   Description: [OK]       PARAM_PROTOKOLL_TABELLE                  = tm_FST_prot
+End Info
+Info: 2026-07-20 16:26:19.14
+   Code: 0x00000000
+   Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
+   Description: VALIDATION_FAILED = 0
+End Info
+Info: 2026-07-20 16:26:19.14
+   Code: 0x00000000
+   Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
+   Description: VORABPRUEFUNG BESTANDEN Paket wird fortgesetzt.
+End Info
+Info: 2026-07-20 16:26:19.15
+   Code: 0x00000000
+   Source: SCR02 Vorbereitungen SCR_02_Vorbereitungen
+   Description: SCR_02_Vorbereitungen - Start
+End Info
+Info: 2026-07-20 16:26:19.15
+   Code: 0x00000000
+   Source: SCR02 Vorbereitungen SCR_02_Vorbereitungen
+   Description: Steuerlisten-Tabelle: dbo.tm_steuerlistenfile_Fakten
+End Info
+Info: 2026-07-20 16:26:19.17
+   Code: 0x00000000
+   Source: SCR02 Vorbereitungen SCR_02_Vorbereitungen
+   Description: Pflichtfelder-Pruefung: alle Variablen vorhanden 
+End Info
+Info: 2026-07-20 16:26:19.17
+   Code: 0x00000000
+   Source: SCR02 Vorbereitungen SCR_02_Vorbereitungen
+   Description: Schritt 1: ETL_Fakt_Arbeitsliste sicherstellen
+End Info
+Info: 2026-07-20 16:26:19.18
+   Code: 0x00000000
+   Source: SCR02 Vorbereitungen SCR_02_Vorbereitungen
+   Description: ETL_Fakt_Arbeitsliste: geprueft/angelegt 
+End Info
+Info: 2026-07-20 16:26:19.18
+   Code: 0x00000000
+   Source: SCR02 Vorbereitungen SCR_02_Vorbereitungen
+   Description: Schritt 1b: Mapping-Funktion dbo.fn_ParamVerfahren sicherstellen
+End Info
+Info: 2026-07-20 16:26:19.20
+   Code: 0x00000000
+   Source: SCR02 Vorbereitungen SCR_02_Vorbereitungen
+   Description: Mapping-Funktion dbo.fn_ParamVerfahren: geprueft/angelegt 
+End Info
+Info: 2026-07-20 16:26:19.20
+   Code: 0x00000000
+   Source: SCR02 Vorbereitungen SCR_02_Vorbereitungen
+   Description: Schritt 2: ETL_Fakt_FehlerHistorie sicherstellen
+End Info
+Info: 2026-07-20 16:26:19.21
+   Code: 0x00000000
+   Source: SCR02 Vorbereitungen SCR_02_Vorbereitungen
+   Description: ETL_Fakt_FehlerHistorie: geprueft/angelegt 
+End Info
+Info: 2026-07-20 16:26:19.21
+   Code: 0x00000000
+   Source: SCR02 Vorbereitungen SCR_02_Vorbereitungen
+   Description: Schritt 3: PolyBase Master Key pruefen
+End Info
+Info: 2026-07-20 16:26:19.21
+   Code: 0x00000000
+   Source: SCR02 Vorbereitungen SCR_02_Vorbereitungen
+   Description: Master Key: bereits vorhanden uebersprungen 
+End Info
+Info: 2026-07-20 16:26:19.23
+   Code: 0x00000000
+   Source: SCR02 Vorbereitungen SCR_02_Vorbereitungen
+   Description: Schritt 4: PolyBase Credential pruefen
+End Info
+Info: 2026-07-20 16:26:19.23
+   Code: 0x00000000
+   Source: SCR02 Vorbereitungen SCR_02_Vorbereitungen
+   Description: Credential [Q0001157_BI_DM_EXPORT]: bereits vorhanden uebersprungen 
+End Info
+Info: 2026-07-20 16:26:19.25
+   Code: 0x00000000
+   Source: SCR02 Vorbereitungen SCR_02_Vorbereitungen
+   Description: Schritt 5: External Data Source pruefen
+End Info
+Info: 2026-07-20 16:26:19.25
+   Code: 0x00000000
+   Source: SCR02 Vorbereitungen SCR_02_Vorbereitungen
+   Description: External Data Source [Oracle-istat]: bereits vorhanden uebersprungen 
+End Info
+Info: 2026-07-20 16:26:19.25
+   Code: 0x00000000
+   Source: SCR02 Vorbereitungen SCR_02_Vorbereitungen
+   Description: Schritt 6: Schema [ext] pruefen
+End Info
+Info: 2026-07-20 16:26:19.26
+   Code: 0x00000000
+   Source: SCR02 Vorbereitungen SCR_02_Vorbereitungen
+   Description: Schema [ext]: bereits vorhanden uebersprungen 
+End Info
+Info: 2026-07-20 16:26:19.26
+   Code: 0x00000000
+   Source: SCR02 Vorbereitungen SCR_02_Vorbereitungen
+   Description: Schritt 7: Externe DDL-Tabelle [ext.vm_ddl_sql_server] pruefen
+End Info
+Info: 2026-07-20 16:26:19.28
+   Code: 0x00000000
+   Source: SCR02 Vorbereitungen SCR_02_Vorbereitungen
+   Description: Externe DDL-Tabelle [ext.vm_ddl_sql_server]: bereits vorhanden uebersprungen 
+End Info
+Info: 2026-07-20 16:26:19.28
+   Code: 0x00000000
+   Source: SCR02 Vorbereitungen SCR_02_Vorbereitungen
+   Description: Schritt 7a: Externe Partitionssicht [ext.v_partition_info] pruefen
+End Info
+Info: 2026-07-20 16:26:19.29
+   Code: 0x00000000
+   Source: SCR02 Vorbereitungen SCR_02_Vorbereitungen
+   Description: Externe Partitionssicht [ext.[v_partition_info]]: geloescht (falls vorhanden) wird neu angelegt
+End Info
+Info: 2026-07-20 16:26:19.29
+   Code: 0x00000000
+   Source: SCR02 Vorbereitungen SCR_02_Vorbereitungen
+   Description:   Oracle Location: ISTAT.BI_DM_EXPORT.V_PARTITION_INFO
+End Info
+Info: 2026-07-20 16:26:29.83
+   Code: 0x00000000
+   Source: SCR02 Vorbereitungen SCR_02_Vorbereitungen
+   Description: Externe Partitionssicht [ext.[v_partition_info]]: erfolgreich angelegt 
+End Info
+Info: 2026-07-20 16:26:29.83
+   Code: 0x00000000
+   Source: SCR02 Vorbereitungen SCR_02_Vorbereitungen
+   Description: Schritt 8: Lokale dbo-Kopie [dbo.vm_ddl_sql_server] erstellen
+End Info
+Info: 2026-07-20 16:26:29.85
+   Code: 0x00000000
+   Source: SCR02 Vorbereitungen SCR_02_Vorbereitungen
+   Description:   Alte dbo-Kopie geloescht (falls vorhanden)
+End Info
+Info: 2026-07-20 16:27:24.32
+   Code: 0x00000000
+   Source: SCR02 Vorbereitungen SCR_02_Vorbereitungen
+   Description:   dbo-Kopie erstellt: dbo.vm_ddl_sql_server | Zeilen: 995424
+End Info
+Info: 2026-07-20 16:27:26.53
+   Code: 0x00000000
+   Source: SCR02 Vorbereitungen SCR_02_Vorbereitungen
+   Description:   Index erstellt: IX_vm_ddl_sql_server_TABNAME_COLNAME (TABNAME, COLNAME)
+End Info
+Info: 2026-07-20 16:27:26.53
+   Code: 0x00000000
+   Source: SCR02 Vorbereitungen SCR_02_Vorbereitungen
+   Description: SCR_01_Vorbereitungen erfolgreich abgeschlossen.
+End Info
+Info: 2026-07-20 16:27:26.54
+   Code: 0x00000000
+   Source: SCR03 Stuerliste Laden SCR_03_Steuerlisten_Laden
+   Description: SCR_03_Steuerlisten_Laden - Start
+End Info
+Info: 2026-07-20 16:27:26.54
+   Code: 0x00000000
+   Source: SCR03 Stuerliste Laden SCR_03_Steuerlisten_Laden
+   Description: Pflichtfelder-Pruefung: alle Variablen vorhanden OK
+End Info
+Info: 2026-07-20 16:27:26.56
+   Code: 0x00000000
+   Source: SCR03 Stuerliste Laden SCR_03_Steuerlisten_Laden
+   Description: Arbeitstabelle : dbo.tm_steuerlistenfile_Fakten
+End Info
+Info: 2026-07-20 16:27:26.56
+   Code: 0x00000000
+   Source: SCR03 Stuerliste Laden SCR_03_Steuerlisten_Laden
+   Description: Audit-Tabelle  : dbo.tm_steuerlisten_audit
+End Info
+Info: 2026-07-20 16:27:26.57
+   Code: 0x00000000
+   Source: SCR03 Stuerliste Laden SCR_03_Steuerlisten_Laden
+   Description: Arbeitstabelle und Audit-Tabelle geprueft/angelegt OK
+End Info
+Info: 2026-07-20 16:27:26.57
+   Code: 0x00000000
+   Source: SCR03 Stuerliste Laden SCR_03_Steuerlisten_Laden
+   Description: Vollstaendiger Pfad : F:\STL\v.istat.svs46m_stat_fst.cube_export_polybase_test.csv
+End Info
+Info: 2026-07-20 16:27:26.57
+   Code: 0x00000000
+   Source: SCR03 Stuerliste Laden SCR_03_Steuerlisten_Laden
+   Description: Verarbeite Datei: v.istat.svs46m_stat_fst.cube_export_polybase_test.csv
+End Info
+Info: 2026-07-20 16:27:26.59
+   Code: 0x00000000
+   Source: SCR03 Stuerliste Laden SCR_03_Steuerlisten_Laden
+   Description:   Tabellentyp  : v
+End Info
+Info: 2026-07-20 16:27:26.59
+   Code: 0x00000000
+   Source: SCR03 Stuerliste Laden SCR_03_Steuerlisten_Laden
+   Description:   Umgebung     : istat
+End Info
+Info: 2026-07-20 16:27:26.60
+   Code: 0x00000000
+   Source: SCR03 Stuerliste Laden SCR_03_Steuerlisten_Laden
+   Description:   Themengebiet : svs46m_stat_fst
+End Info
+Info: 2026-07-20 16:27:26.60
+   Code: 0x00000000
+   Source: SCR03 Stuerliste Laden SCR_03_Steuerlisten_Laden
+   Description:   Arbeitstabelle: vollstaendig geleert
+End Info
+Info: 2026-07-20 16:27:26.62
+   Code: 0x00000000
+   Source: SCR03 Stuerliste Laden SCR_03_Steuerlisten_Laden
+   Description:   Zeilen gesamt: 1 | INSERT: 1 | Uebersprungen: 0
+End Info
+Info: 2026-07-20 16:27:26.64
+   Code: 0x00000000
+   Source: SCR03 Stuerliste Laden SCR_03_Steuerlisten_Laden
+   Description: Datei erfolgreich verarbeitet: v.istat.svs46m_stat_fst.cube_export_polybase_test.csv OK
+End Info
+Info: 2026-07-20 16:27:26.64
+   Code: 0x00000000
+   Source: SCR03 Stuerliste Laden SCR_03_Steuerlisten_Laden
+   Description: Geladene Tabellen aus [v.istat.svs46m_stat_fst.cube_export_polybase_test.csv] (1): vf_fst_mabe_xs
+End Info
+Info: 2026-07-20 16:27:26.65
+   Code: 0x00000000
+   Source: SCR03 Stuerliste Laden SCR_03_Steuerlisten_Laden
+   Description: Datei verschoben nach: F:\STL\Done\v.istat.svs46m_stat_fst.cube_export_polybase_test_20260720_162726.csv
+End Info
+Info: 2026-07-20 16:27:26.65
+   Code: 0x00000000
+   Source: SCR03 Stuerliste Laden SCR_03_Steuerlisten_Laden
+   Description: SCR_03_Steuerlisten_Laden erfolgreich abgeschlossen OK
+End Info
+Info: 2026-07-20 16:27:26.67
+   Code: 0x00000000
+   Source: SC04 Whereclasuse SC04_Whereclause
+   Description: SC04_Whereclause - Start
+End Info
+Info: 2026-07-20 16:27:26.67
+   Code: 0x00000000
+   Source: SC04 Whereclasuse SC04_Whereclause
+   Description: Referenzdatum: 01.07.2026 00:00:00
+End Info
+Info: 2026-07-20 16:27:26.68
+   Code: 0x00000000
+   Source: SC04 Whereclasuse SC04_Whereclause
+   Description: Steuerlisten-Tabelle : dbo.tm_steuerlistenfile_Fakten
+End Info
+Info: 2026-07-20 16:27:26.68
+   Code: 0x00000000
+   Source: SC04 Whereclasuse SC04_Whereclause
+   Description: Spalten geprueft/angelegt OK
+End Info
+Info: 2026-07-20 16:27:26.70
+   Code: 0x00000000
+   Source: SC04 Whereclasuse SC04_Whereclause
+   Description: Steuerlisten-Zeilen : 1
+End Info
+Info: 2026-07-20 16:27:26.71
+   Code: 0x00000000
+   Source: SC04 Whereclasuse SC04_Whereclause
+   Description:   VF_FST_MABE_XS_202508                              -> wert=202508 | muster=NULL
+End Info
+Info: 2026-07-20 16:27:26.71
+   Code: 0x00000000
+   Source: SC04 Whereclasuse SC04_Whereclause
+   Description: partition_wert (Cut-Off) gefuellt: 1
+End Info
+Info: 2026-07-20 16:27:26.73
+   Code: 0x00000000
+   Source: SC04 Whereclasuse SC04_Whereclause
+   Description: where_klausel  (Regex-Muster)    : 0
+End Info
+Info: 2026-07-20 16:27:26.73
+   Code: 0x00000000
+   Source: SC04 Whereclasuse SC04_Whereclause
+   Description: ohne Treffer                     : 0
+End Info
+Info: 2026-07-20 16:27:26.75
+   Code: 0x00000000
+   Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
+   Description: SCR_05_Parameter_Vollstaendigkeitspruefung - Start
+End Info
+Info: 2026-07-20 16:27:26.76
+   Code: 0x00000000
+   Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
+   Description: Pflichtparameter     : FaktentabelleTemplate, Faktentabelle, Faktenpartitionsspalte, Faktenkomprimierung, FaktenClusteredIndex, DateFormat, Anzahl_ParallelTasks
+End Info
+Info: 2026-07-20 16:27:26.76
+   Code: 0x00000000
+   Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
+   Description: SSIS-Variablen-Pruefung: alle vorhanden OK
+End Info
+Info: 2026-07-20 16:27:26.76
+   Code: 0x00000000
+   Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
+   Description: Schritt 1: Steuerlisten-Tabelle pruefen
+End Info
+Info: 2026-07-20 16:27:26.78
+   Code: 0x00000000
+   Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
+   Description: Steuerlisten-Tabelle [dbo.tm_steuerlistenfile_Fakten] vorhanden OK
+End Info
+Info: 2026-07-20 16:27:26.78
+   Code: 0x00000000
+   Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
+   Description: Steuerlisten-Tabelle enthaelt 1 Zeile(n) OK
+End Info
+Info: 2026-07-20 16:27:26.79
+   Code: 0x00000000
+   Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
+   Description: Schritt 2: Verfahren aus Steuerliste laden
+End Info
+Info: 2026-07-20 16:27:26.81
+   Code: 0x00000000
+   Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
+   Description: Verfahren in Steuerliste gefunden: 1
+End Info
+Info: 2026-07-20 16:27:26.81
+   Code: 0x00000000
+   Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
+   Description: Schritt 3: Parametertabelle vollstaendig pruefen
+End Info
+Info: 2026-07-20 16:27:26.82
+   Code: 0x00000000
+   Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
+   Description: Pruefe Verfahren: vf_fst_mabe_xs -> Parametertabelle-Verfahren: tf_fst_mabe_xs
+End Info
+Info: 2026-07-20 16:27:26.84
+   Code: 0x00000000
+   Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
+   Description:   [OK]      FaktentabelleTemplate
+End Info
+Info: 2026-07-20 16:27:26.85
+   Code: 0x00000000
+   Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
+   Description:   [OK]      Faktentabelle
+End Info
+Info: 2026-07-20 16:27:26.85
+   Code: 0x00000000
+   Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
+   Description:   [OK]      Faktenpartitionsspalte
+End Info
+Info: 2026-07-20 16:27:26.87
+   Code: 0x00000000
+   Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
+   Description:   [OK]      Faktenkomprimierung
+End Info
+Info: 2026-07-20 16:27:26.87
+   Code: 0x00000000
+   Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
+   Description:   [OK]      FaktenClusteredIndex
+End Info
+Info: 2026-07-20 16:27:26.89
+   Code: 0x00000000
+   Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
+   Description:   [OK]      DateFormat
+End Info
+Info: 2026-07-20 16:27:26.89
+   Code: 0x00000000
+   Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
+   Description:   [OK]      Anzahl_ParallelTasks
+End Info
+Info: 2026-07-20 16:27:26.90
+   Code: 0x00000000
+   Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
+   Description:   OK Alle Pflichtparameter fuer 'vf_fst_mabe_xs' vorhanden und befuellt.
+End Info
+Info: 2026-07-20 16:27:26.90
+   Code: 0x00000000
+   Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
+   Description: ZUSAMMENFASSUNG SCR_05_Parameter_Vollstaendigkeitspruefung
+End Info
+Info: 2026-07-20 16:27:26.90
+   Code: 0x00000000
+   Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
+   Description: Verfahren geprueft        : 1
+End Info
+Info: 2026-07-20 16:27:26.92
+   Code: 0x00000000
+   Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
+   Description: Vollstaendig (OK)         : 1
+End Info
+Info: 2026-07-20 16:27:26.92
+   Code: 0x00000000
+   Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
+   Description: Mit Fehlern              : 0
+End Info
+Info: 2026-07-20 16:27:26.92
+   Code: 0x00000000
+   Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
+   Description: ERGEBNIS: BESTANDEN - Alle Parameter vollstaendig und befuellt OK
+End Info
+Info: 2026-07-20 16:27:26.93
+   Code: 0x00000000
+   Source: SCR06 Arbeitsliste Aufbauen SCR_06_Arbeitsliste_Aufbauen_Fakten
+   Description: SCR_06_Arbeitsliste_Aufbauen_Fakten - Start
+End Info
+Info: 2026-07-20 16:27:26.93
+   Code: 0x00000000
+   Source: SCR06 Arbeitsliste Aufbauen SCR_06_Arbeitsliste_Aufbauen_Fakten
+   Description: Pflichtfelder-Pruefung: alle Variablen vorhanden OK
+End Info
+Info: 2026-07-20 16:27:26.95
+   Code: 0x00000000
+   Source: SCR06 Arbeitsliste Aufbauen SCR_06_Arbeitsliste_Aufbauen_Fakten
+   Description: Aktueller Lauf: Datei [v.istat.svs46m_stat_fst.cube_export_polybase_test.csv] | Tabellen in Steuerliste (1): vf_fst_mabe_xs
+End Info
+Info: 2026-07-20 16:27:26.95
+   Code: 0x00000000
+   Source: SCR06 Arbeitsliste Aufbauen SCR_06_Arbeitsliste_Aufbauen_Fakten
+   Description: Schritt 1: Neue Verfahren aus Steuerliste eintragen
+End Info
+Info: 2026-07-20 16:27:26.98
+   Code: 0x00000000
+   Source: SCR06 Arbeitsliste Aufbauen SCR_06_Arbeitsliste_Aufbauen_Fakten
+   Description: Neue Verfahren eingetragen: 0
+End Info
+Info: 2026-07-20 16:27:26.98
+   Code: 0x00000000
+   Source: SCR06 Arbeitsliste Aufbauen SCR_06_Arbeitsliste_Aufbauen_Fakten
+   Description: Schritt 2: Status analysieren und zuruecksetzen
+End Info
+Info: 2026-07-20 16:27:27.01
+   Code: 0x00000000
+   Source: SCR06 Arbeitsliste Aufbauen SCR_06_Arbeitsliste_Aufbauen_Fakten
+   Description: Status-Analyse (alle Verfahren aus Steuerliste):
+End Info
+Info: 2026-07-20 16:27:27.01
+   Code: 0x00000000
+   Source: SCR06 Arbeitsliste Aufbauen SCR_06_Arbeitsliste_Aufbauen_Fakten
+   Description:   - Total    : 11
+End Info
+Info: 2026-07-20 16:27:27.03
+   Code: 0x00000000
+   Source: SCR06 Arbeitsliste Aufbauen SCR_06_Arbeitsliste_Aufbauen_Fakten
+   Description:   - ERFOLG   : 0
+End Info
+Info: 2026-07-20 16:27:27.03
+   Code: 0x00000000
+   Source: SCR06 Arbeitsliste Aufbauen SCR_06_Arbeitsliste_Aufbauen_Fakten
+   Description:   - FEHLER   : 11
+End Info
+Info: 2026-07-20 16:27:27.03
+   Code: 0x00000000
+   Source: SCR06 Arbeitsliste Aufbauen SCR_06_Arbeitsliste_Aufbauen_Fakten
+   Description:   - ANDERE   : 0
+End Info
+Info: 2026-07-20 16:27:27.04
+   Code: 0x00000000
+   Source: SCR06 Arbeitsliste Aufbauen SCR_06_Arbeitsliste_Aufbauen_Fakten
+   Description: FEHLER vorhanden ? Nur FEHLER zu AUSSTEHEND (Erfolge bleiben) ? 1 Zeilen zur ckgesetzt
+End Info
+Info: 2026-07-20 16:27:27.07
+   Code: 0x00000000
+   Source: SCR06 Arbeitsliste Aufbauen SCR_06_Arbeitsliste_Aufbauen_Fakten
+   Description: ZUSAMMENFASSUNG
+End Info
+Info: 2026-07-20 16:27:27.07
+   Code: 0x00000000
+   Source: SCR06 Arbeitsliste Aufbauen SCR_06_Arbeitsliste_Aufbauen_Fakten
+   Description: Neue Verfahren : 0
+End Info
+Info: 2026-07-20 16:27:27.07
+   Code: 0x00000000
+   Source: SCR06 Arbeitsliste Aufbauen SCR_06_Arbeitsliste_Aufbauen_Fakten
+   Description: SCR_Arbeitsliste_Aufbauen_Fakten erfolgreich abgeschlossen OK
+End Info
+Info: 2026-07-20 16:27:27.09
+   Code: 0x00000000
+   Source: SCR07_Schemadaten_Kopieren SCR07_Schemadaten_Kopieren
+   Description: SCR07_Schemadaten_Kopieren - Start
+End Info
+Info: 2026-07-20 16:27:27.10
+   Code: 0x00000000
+   Source: SCR07_Schemadaten_Kopieren SCR07_Schemadaten_Kopieren
+   Description: Ziel-Tabelle tm_polybase_struktur geprueft/erstellt.
+End Info
+Info: 2026-07-20 16:27:27.10
+   Code: 0x00000000
+   Source: SCR07_Schemadaten_Kopieren SCR07_Schemadaten_Kopieren
+   Description: Verfahren zur Verarbeitung: 1
+End Info
+Info: 2026-07-20 16:27:27.12
+   Code: 0x00000000
+   Source: SCR07_Schemadaten_Kopieren SCR07_Schemadaten_Kopieren
+   Description: Oracle-Daten werden in Staging-Tabelle geladen...
+End Info
+Info: 2026-07-20 16:27:27.12
+   Code: 0x00000000
+   Source: SCR07_Schemadaten_Kopieren SCR07_Schemadaten_Kopieren
+   Description: Quelle: [FST].[ext].[vm_ddl_sql_server]
+End Info
+Info: 2026-07-20 16:27:27.15
+   Code: 0x00000000
+   Source: SCR07_Schemadaten_Kopieren SCR07_Schemadaten_Kopieren
+   Description: Staging-Tabelle existiert bereits mit 1002983 Zeilen - wird wiederverwendet
+End Info
+Info: 2026-07-20 16:27:27.15
+   Code: 0x00000000
+   Source: SCR07_Schemadaten_Kopieren SCR07_Schemadaten_Kopieren
+   Description: Verfahren: vf_fst_mabe_xs | Themengebiet: svs46m_stat_fst
+End Info
+Info: 2026-07-20 16:27:27.18
+   Code: 0x00000000
+   Source: SCR07_Schemadaten_Kopieren SCR07_Schemadaten_Kopieren
+   Description: [SCHRITT_5] vf_fst_mabe_xs: Schemadaten kopiert: 43 Spalten
+End Info
+Info: 2026-07-20 16:27:27.20
+   Code: 0x00000000
+   Source: SCR07_Schemadaten_Kopieren SCR07_Schemadaten_Kopieren
+   Description:   43 Spalten kopiert OK
+End Info
+Info: 2026-07-20 16:27:27.20
+   Code: 0x00000000
+   Source: SCR07_Schemadaten_Kopieren SCR07_Schemadaten_Kopieren
+   Description: Staging-Tabelle dbo.ddl_staging bleibt fuer Debugging erhalten
+End Info
+Info: 2026-07-20 16:27:27.20
+   Code: 0x00000000
+   Source: SCR07_Schemadaten_Kopieren SCR07_Schemadaten_Kopieren
+   Description: Erfolgreich: 1 | Fehler: 0
+End Info
+Info: 2026-07-20 16:27:27.21
+   Code: 0x00000000
+   Source: SCR08_Template_Erstellen SCR08_Template_Erstellen
+   Description: SCR08_Template_Erstellen - Start
+End Info
+Info: 2026-07-20 16:27:27.23
+   Code: 0x00000000
+   Source: SCR08_Template_Erstellen SCR08_Template_Erstellen
+   Description: Verfahren zur Verarbeitung: 1
+End Info
+Info: 2026-07-20 16:27:27.23
+   Code: 0x00000000
+   Source: SCR08_Template_Erstellen SCR08_Template_Erstellen
+   Description: Verfahren: vf_fst_mabe_xs | Themengebiet: svs46m_stat_fst
+End Info
+Info: 2026-07-20 16:27:27.25
+   Code: 0x00000000
+   Source: SCR08_Template_Erstellen SCR08_Template_Erstellen
+   Description:   Template-Existenzpruefung fuer: tf_fst_mabe_xs
+End Info
+Info: 2026-07-20 16:27:27.26
+   Code: 0x00000000
+   Source: SCR08_Template_Erstellen SCR08_Template_Erstellen
+   Description:   Template vorhanden OK
+End Info
+Info: 2026-07-20 16:27:27.26
+   Code: 0x00000000
+   Source: SCR08_Template_Erstellen SCR08_Template_Erstellen
+   Description: [SCHRITT_1] vf_fst_mabe_xs: Template erstellt/geprueft: FST.dbo.tf_fst_mabe_xs_template
+End Info
+Info: 2026-07-20 16:27:27.26
+   Code: 0x00000000
+   Source: SCR08_Template_Erstellen SCR08_Template_Erstellen
+   Description:   Template erstellt OK
+End Info
+Info: 2026-07-20 16:27:27.28
+   Code: 0x00000000
+   Source: SCR08_Template_Erstellen SCR08_Template_Erstellen
+   Description: Erfolgreich: 1 | Fehler: 0
+End Info
+Info: 2026-07-20 16:27:27.28
+   Code: 0x00000000
+   Source: SCR09_Ext_Tabelle_Erstellen SCR09_Ext_Tabelle_Erstellen
+   Description: SCR09_Ext_Tabelle_Erstellen - Start
+End Info
+Info: 2026-07-20 16:27:27.29
+   Code: 0x00000000
+   Source: SCR09_Ext_Tabelle_Erstellen SCR09_Ext_Tabelle_Erstellen
+   Description: Verfahren zur Verarbeitung: 1
+End Info
+Info: 2026-07-20 16:27:27.31
+   Code: 0x00000000
+   Source: SCR09_Ext_Tabelle_Erstellen SCR09_Ext_Tabelle_Erstellen
+   Description: Verfahren: vf_fst_mabe_xs | Themengebiet: svs46m_stat_fst
+End Info
+Info: 2026-07-20 16:27:27.31
+   Code: 0x00000000
+   Source: SCR09_Ext_Tabelle_Erstellen SCR09_Ext_Tabelle_Erstellen
+   Description:   Erstelle externe Tabelle: ext.[vf_fst_mabe_xs]
+End Info
+Info: 2026-07-20 16:27:27.32
+   Code: 0x00000000
+   Source: SCR09_Ext_Tabelle_Erstellen SCR09_Ext_Tabelle_Erstellen
+   Description:   Oracle Location: ISTAT.SVS46M_STAT_FST.VF_FST_MABE_XS
+End Info
+Info: 2026-07-20 16:27:29.40
+   Code: 0x00000000
+   Source: SCR09_Ext_Tabelle_Erstellen SCR09_Ext_Tabelle_Erstellen
+   Description:   OK Externe Tabelle erfolgreich: ext.[vf_fst_mabe_xs]
+End Info
+Info: 2026-07-20 16:27:29.42
+   Code: 0x00000000
+   Source: SCR09_Ext_Tabelle_Erstellen SCR09_Ext_Tabelle_Erstellen
+   Description: [SCHRITT_2] vf_fst_mabe_xs: Externe Tabelle erstellt: ext.vf_fst_mabe_xs
+End Info
+Info: 2026-07-20 16:27:29.42
+   Code: 0x00000000
+   Source: SCR09_Ext_Tabelle_Erstellen SCR09_Ext_Tabelle_Erstellen
+   Description:   Externe Tabelle erstellt OK
+End Info
+Info: 2026-07-20 16:27:29.42
+   Code: 0x00000000
+   Source: SCR09_Ext_Tabelle_Erstellen SCR09_Ext_Tabelle_Erstellen
+   Description: Erfolgreich: 1 | Fehler: 0
+End Info
+Info: 2026-07-20 16:27:29.43
+   Code: 0x00000000
+   Source: SCR10_Faktentabelle_Erstellen SCR10_Faktentabelle_Erstellen
+   Description: SCR10_Faktentabelle_Erstellen - Start
+End Info
+Info: 2026-07-20 16:27:29.47
+   Code: 0x00000000
+   Source: SCR10_Faktentabelle_Erstellen SCR10_Faktentabelle_Erstellen
+   Description: Verfahren: 1
+End Info
+Info: 2026-07-20 16:27:29.47
+   Code: 0x00000000
+   Source: SCR10_Faktentabelle_Erstellen SCR10_Faktentabelle_Erstellen
+   Description: Verfahren: vf_fst_mabe_xs | Faktentabelle: tf_fst_mabe_xs
+End Info
+Info: 2026-07-20 16:27:29.48
+   Code: 0x00000000
+   Source: SCR10_Faktentabelle_Erstellen SCR10_Faktentabelle_Erstellen
+   Description: Partitionsspalte: mon_id | IndexTyp: FALSE | Komprimierung: PAGE
+End Info
+Info: 2026-07-20 16:27:29.50
+   Code: 0x00000000
+   Source: SCR10_Faktentabelle_Erstellen SCR10_Faktentabelle_Erstellen
+   Description:   Faktentabelle dbo.tf_fst_mabe_xs existiert nicht -> wird erstellt
+End Info
+Info: 2026-07-20 16:27:29.62
+   Code: 0x00000000
+   Source: SCR10_Faktentabelle_Erstellen SCR10_Faktentabelle_Erstellen
+   Description:   Partitionsdatentyp (aus Spalte): INT
+End Info
+Info: 2026-07-20 16:27:29.64
+   Code: 0x00000000
+   Source: SCR10_Faktentabelle_Erstellen SCR10_Faktentabelle_Erstellen
+   Description:   PF und PS erstellt: PF_mon_id_tf_fst_mabe_xs / PS_mon_id_tf_fst_mabe_xs
+End Info
+Info: 2026-07-20 16:27:29.67
+   Code: 0x00000000
+   Source: SCR10_Faktentabelle_Erstellen SCR10_Faktentabelle_Erstellen
+   Description:   Faktentabelle erstellt: dbo.tf_fst_mabe_xs
+End Info
+Info: 2026-07-20 16:27:29.68
+   Code: 0x00000000
+   Source: SCR10_Faktentabelle_Erstellen SCR10_Faktentabelle_Erstellen
+   Description: [SCHRITT_3] vf_fst_mabe_xs: Faktentabelle erstellt: dbo.tf_fst_mabe_xs | PF: PF_mon_id_tf_fst_mabe_xs | Index: FALSE | Komprimierung: PAGE
+End Info
+Info: 2026-07-20 16:27:29.70
+   Code: 0x00000000
+   Source: SCR10_Faktentabelle_Erstellen SCR10_Faktentabelle_Erstellen
+   Description:   -> Schritt 3 abgeschlossen
+End Info
+Info: 2026-07-20 16:27:29.70
+   Code: 0x00000000
+   Source: SCR10_Faktentabelle_Erstellen SCR10_Faktentabelle_Erstellen
+   Description: Erfolgreich: 1 | Fehler: 0
+End Info
+Info: 2026-07-20 16:27:29.73
+   Code: 0x00000000
+   Source: SCR11_Partitionsgrenzen SCR11_Partitionsgrenzen
+   Description: SCR11_Partitionsgrenzen - Start
+End Info
+Info: 2026-07-20 16:27:29.75
+   Code: 0x00000000
+   Source: SCR11_Partitionsgrenzen SCR11_Partitionsgrenzen
+   Description: Verfahren: 1
+End Info
+Info: 2026-07-20 16:27:29.76
+   Code: 0x00000000
+   Source: SCR11_Partitionsgrenzen SCR11_Partitionsgrenzen
+   Description: Verfahren: vf_fst_mabe_xs | Tabelle: tf_fst_mabe_xs | Spalte: mon_id
+End Info
+Info: 2026-07-20 16:27:29.78
+   Code: 0x00000000
+   Source: SCR11_Partitionsgrenzen SCR11_Partitionsgrenzen
+   Description:   MODE: MANUAL | Cut-Off-Werte=1 | Regex-Muster=0
+End Info
+Info: 2026-07-20 16:29:15.22
+   Code: 0x00000000
+   Source: SCR11_Partitionsgrenzen SCR11_Partitionsgrenzen
+   Description:   Keine Partitionsmetadaten in v_partition_info fuer [vf_fst_mabe_xs] (z.B. View-Quelle) -> Fallback: DISTINCT mon_id aus ext.[vf_fst_mabe_xs]
+End Info
+Info: 2026-07-20 16:30:14.88
+   Code: 0x00000000
+   Source: SCR11_Partitionsgrenzen SCR11_Partitionsgrenzen
+   Description:   Oracle Werte gesamt: 32
+End Info
+Info: 2026-07-20 16:30:14.90
+   Code: 0x00000000
+   Source: SCR11_Partitionsgrenzen SCR11_Partitionsgrenzen
+   Description:   MSSQL Werte gesamt: 0
+End Info
+Info: 2026-07-20 16:30:14.90
+   Code: 0x00000000
+   Source: SCR11_Partitionsgrenzen SCR11_Partitionsgrenzen
+   Description:   Cut-Off <= 202508
+End Info
+Info: 2026-07-20 16:30:32.72
+   Code: 0x00000000
+   Source: SCR11_Partitionsgrenzen SCR11_Partitionsgrenzen
+   Description:   Geladen: 23 | AKTUALISIERUNG=0 | NEU=23
+End Info
+Info: 2026-07-20 16:30:32.72
+   Code: 0x00000000
+   Source: SCR11_Partitionsgrenzen SCR11_Partitionsgrenzen
+   Description:   ZUSAMMENFASSUNG: vf_fst_mabe_xs
+End Info
+Info: 2026-07-20 16:30:32.74
+   Code: 0x00000000
+   Source: SCR11_Partitionsgrenzen SCR11_Partitionsgrenzen
+   Description:   Modus: MANUAL
+End Info
+Info: 2026-07-20 16:30:32.74
+   Code: 0x00000000
+   Source: SCR11_Partitionsgrenzen SCR11_Partitionsgrenzen
+   Description:   Gesamt zu verarbeiten: 23
+End Info
+Info: 2026-07-20 16:30:32.74
+   Code: 0x00000000
+   Source: SCR11_Partitionsgrenzen SCR11_Partitionsgrenzen
+   Description:   AKTUALISIERUNG: 0
+End Info
+Info: 2026-07-20 16:30:32.75
+   Code: 0x00000000
+   Source: SCR11_Partitionsgrenzen SCR11_Partitionsgrenzen
+   Description:   NEU: 23
+End Info
+Info: 2026-07-20 16:30:32.75
+   Code: 0x00000000
+   Source: SCR11_Partitionsgrenzen SCR11_Partitionsgrenzen
+   Description:   Werte-Bereich: 202310 bis 202508 (23 Partitionen)
+End Info
+Info: 2026-07-20 16:30:33.20
+   Code: 0x00000000
+   Source: SCR11_Partitionsgrenzen SCR11_Partitionsgrenzen
+   Description:   SPLIT ausgefuehrt: 23 | Uebersprungen: 0
+End Info
+Info: 2026-07-20 16:30:33.22
+   Code: 0x00000000
+   Source: SCR11_Partitionsgrenzen SCR11_Partitionsgrenzen
+   Description: [SCHRITT_4] vf_fst_mabe_xs: Partitionsgrenzen erstellt. Modus=MANUAL | Gesamt=23 | AKTUALISIERUNG=0 | NEU=23 | Bereich=202310-202508
+End Info
+Info: 2026-07-20 16:30:33.22
+   Code: 0x00000000
+   Source: SCR11_Partitionsgrenzen SCR11_Partitionsgrenzen
+   Description:   Schritt 4 abgeschlossen OK
+End Info
+Info: 2026-07-20 16:30:33.24
+   Code: 0x00000000
+   Source: SCR11_Partitionsgrenzen SCR11_Partitionsgrenzen
+   Description: BA::objPartitionValues gesetzt: 23 Eintraege
+End Info
+Info: 2026-07-20 16:30:33.24
+   Code: 0x00000000
+   Source: SCR11_Partitionsgrenzen SCR11_Partitionsgrenzen
+   Description:   vf_fst_mabe_xs: 23 Partitionen (202310-202508)
+End Info
+Info: 2026-07-20 16:30:33.24
+   Code: 0x00000000
+   Source: SCR11_Partitionsgrenzen SCR11_Partitionsgrenzen
+   Description: Erfolgreich: 1 | Fehler: 0
+End Info
+Info: 2026-07-20 16:30:33.25
+   Code: 0x00000000
+   Source: SCR12_Staging_Erstellen SCR12_Staging_Erstellen
+   Description: SCR12_Staging_Erstellen - Start
+End Info
+Info: 2026-07-20 16:30:33.27
+   Code: 0x00000000
+   Source: SCR12_Staging_Erstellen SCR12_Staging_Erstellen
+   Description: Partitionswerte aus SCR09: 23 Eintraege
+End Info
+Info: 2026-07-20 16:30:33.28
+   Code: 0x00000000
+   Source: SCR12_Staging_Erstellen SCR12_Staging_Erstellen
+   Description: Verfahren aus Arbeitsliste: 1
+End Info
+Info: 2026-07-20 16:30:33.28
+   Code: 0x00000000
+   Source: SCR12_Staging_Erstellen SCR12_Staging_Erstellen
+   Description: Verfahren: vf_fst_mabe_xs
+End Info
+Info: 2026-07-20 16:30:33.30
+   Code: 0x00000000
+   Source: SCR12_Staging_Erstellen SCR12_Staging_Erstellen
+   Description:   _out erstellt: 202310 | Modus: NEU
+End Info
+Info: 2026-07-20 16:30:33.31
+   Code: 0x00000000
+   Source: SCR12_Staging_Erstellen SCR12_Staging_Erstellen
+   Description:   _out erstellt: 202311 | Modus: NEU
+End Info
+Info: 2026-07-20 16:30:33.34
+   Code: 0x00000000
+   Source: SCR12_Staging_Erstellen SCR12_Staging_Erstellen
+   Description:   _out erstellt: 202312 | Modus: NEU
+End Info
+Info: 2026-07-20 16:30:33.36
+   Code: 0x00000000
+   Source: SCR12_Staging_Erstellen SCR12_Staging_Erstellen
+   Description:   _out erstellt: 202401 | Modus: NEU
+End Info
+Info: 2026-07-20 16:30:33.38
+   Code: 0x00000000
+   Source: SCR12_Staging_Erstellen SCR12_Staging_Erstellen
+   Description:   _out erstellt: 202402 | Modus: NEU
+End Info
+Info: 2026-07-20 16:30:33.39
+   Code: 0x00000000
+   Source: SCR12_Staging_Erstellen SCR12_Staging_Erstellen
+   Description:   _out erstellt: 202403 | Modus: NEU
+End Info
+Info: 2026-07-20 16:30:33.41
+   Code: 0x00000000
+   Source: SCR12_Staging_Erstellen SCR12_Staging_Erstellen
+   Description:   _out erstellt: 202404 | Modus: NEU
+End Info
+Info: 2026-07-20 16:30:33.42
+   Code: 0x00000000
+   Source: SCR12_Staging_Erstellen SCR12_Staging_Erstellen
+   Description:   _out erstellt: 202405 | Modus: NEU
+End Info
+Info: 2026-07-20 16:30:33.44
+   Code: 0x00000000
+   Source: SCR12_Staging_Erstellen SCR12_Staging_Erstellen
+   Description:   _out erstellt: 202406 | Modus: NEU
+End Info
+Info: 2026-07-20 16:30:33.45
+   Code: 0x00000000
+   Source: SCR12_Staging_Erstellen SCR12_Staging_Erstellen
+   Description:   _out erstellt: 202407 | Modus: NEU
+End Info
+Info: 2026-07-20 16:30:33.47
+   Code: 0x00000000
+   Source: SCR12_Staging_Erstellen SCR12_Staging_Erstellen
+   Description:   _out erstellt: 202408 | Modus: NEU
+End Info
+Info: 2026-07-20 16:30:33.49
+   Code: 0x00000000
+   Source: SCR12_Staging_Erstellen SCR12_Staging_Erstellen
+   Description:   _out erstellt: 202409 | Modus: NEU
+End Info
+Info: 2026-07-20 16:30:33.50
+   Code: 0x00000000
+   Source: SCR12_Staging_Erstellen SCR12_Staging_Erstellen
+   Description:   _out erstellt: 202410 | Modus: NEU
+End Info
+Info: 2026-07-20 16:30:33.52
+   Code: 0x00000000
+   Source: SCR12_Staging_Erstellen SCR12_Staging_Erstellen
+   Description:   _out erstellt: 202411 | Modus: NEU
+End Info
+Info: 2026-07-20 16:30:33.53
+   Code: 0x00000000
+   Source: SCR12_Staging_Erstellen SCR12_Staging_Erstellen
+   Description:   _out erstellt: 202412 | Modus: NEU
+End Info
+Info: 2026-07-20 16:30:33.55
+   Code: 0x00000000
+   Source: SCR12_Staging_Erstellen SCR12_Staging_Erstellen
+   Description:   _out erstellt: 202501 | Modus: NEU
+End Info
+Info: 2026-07-20 16:30:33.56
+   Code: 0x00000000
+   Source: SCR12_Staging_Erstellen SCR12_Staging_Erstellen
+   Description:   _out erstellt: 202502 | Modus: NEU
+End Info
+Info: 2026-07-20 16:30:33.58
+   Code: 0x00000000
+   Source: SCR12_Staging_Erstellen SCR12_Staging_Erstellen
+   Description:   _out erstellt: 202503 | Modus: NEU
+End Info
+Info: 2026-07-20 16:30:33.59
+   Code: 0x00000000
+   Source: SCR12_Staging_Erstellen SCR12_Staging_Erstellen
+   Description:   _out erstellt: 202504 | Modus: NEU
+End Info
+Info: 2026-07-20 16:30:33.61
+   Code: 0x00000000
+   Source: SCR12_Staging_Erstellen SCR12_Staging_Erstellen
+   Description:   _out erstellt: 202505 | Modus: NEU
+End Info
+Info: 2026-07-20 16:30:33.64
+   Code: 0x00000000
+   Source: SCR12_Staging_Erstellen SCR12_Staging_Erstellen
+   Description:   _out erstellt: 202506 | Modus: NEU
+End Info
+Info: 2026-07-20 16:30:33.66
+   Code: 0x00000000
+   Source: SCR12_Staging_Erstellen SCR12_Staging_Erstellen
+   Description:   _out erstellt: 202507 | Modus: NEU
+End Info
+Info: 2026-07-20 16:30:33.67
+   Code: 0x00000000
+   Source: SCR12_Staging_Erstellen SCR12_Staging_Erstellen
+   Description:   _out erstellt: 202508 | Modus: NEU
+End Info
+Info: 2026-07-20 16:30:33.69
+   Code: 0x00000000
+   Source: SCR12_Staging_Erstellen SCR12_Staging_Erstellen
+   Description: [SCHRITT_5] vf_fst_mabe_xs: Staging erstellt: 23 Partition(en) | NEU: 23 | AKTUALISIERUNG: 0
+End Info
+Info: 2026-07-20 16:30:33.69
+   Code: 0x00000000
+   Source: SCR12_Staging_Erstellen SCR12_Staging_Erstellen
+   Description:   Schritt 5 abgeschlossen OK
+End Info
+Info: 2026-07-20 16:30:33.70
+   Code: 0x00000000
+   Source: SCR12_Staging_Erstellen SCR12_Staging_Erstellen
+   Description: Erfolgreich: 1 | Fehler: 0
+End Info
+Info: 2026-07-20 16:30:33.72
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description: SCR13_Daten_Laden - Start
+End Info
+Info: 2026-07-20 16:30:33.72
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description: Partitionswerte gesamt: 23 Eintraege
+End Info
+Info: 2026-07-20 16:30:33.74
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description: Verfahren: 1
+End Info
+Info: 2026-07-20 16:30:33.75
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description: Verfahren: vf_fst_mabe_xs | Spalte: mon_id
+End Info
+Info: 2026-07-20 16:30:33.75
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description:   Partitionswerte: 23
+End Info
+Info: 2026-07-20 16:30:33.77
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description: Arbeitspakete gesamt (Verfahren x Partition): 23 | Parallelitaet: 8
+End Info
+Info: 2026-07-20 16:30:33.83
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description:   SELECT INTO [tf_fst_mabe_xs_in_202410_LOADING] WHERE mon_id = 202410 (wird zu _in_ umbenannt)
+End Info
+Info: 2026-07-20 16:30:33.83
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description:   SELECT INTO [tf_fst_mabe_xs_in_202310_LOADING] WHERE mon_id = 202310 (wird zu _in_ umbenannt)
+End Info
+Info: 2026-07-20 16:30:33.83
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description:   SELECT INTO [tf_fst_mabe_xs_in_202404_LOADING] WHERE mon_id = 202404 (wird zu _in_ umbenannt)
+End Info
+Info: 2026-07-20 16:30:33.85
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description:   SELECT INTO [tf_fst_mabe_xs_in_202412_LOADING] WHERE mon_id = 202412 (wird zu _in_ umbenannt)
+End Info
+Info: 2026-07-20 16:30:33.85
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description:   SELECT INTO [tf_fst_mabe_xs_in_202402_LOADING] WHERE mon_id = 202402 (wird zu _in_ umbenannt)
+End Info
+Info: 2026-07-20 16:30:33.85
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description:   SELECT INTO [tf_fst_mabe_xs_in_202312_LOADING] WHERE mon_id = 202312 (wird zu _in_ umbenannt)
+End Info
+Info: 2026-07-20 16:30:33.86
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description:   SELECT INTO [tf_fst_mabe_xs_in_202408_LOADING] WHERE mon_id = 202408 (wird zu _in_ umbenannt)
+End Info
+Info: 2026-07-20 16:30:33.86
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description:   SELECT INTO [tf_fst_mabe_xs_in_202406_LOADING] WHERE mon_id = 202406 (wird zu _in_ umbenannt)
+End Info
+Info: 2026-07-20 16:30:35.53
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description:   Zeilen geladen (tf_fst_mabe_xs_in_202312): 63960
+End Info
+Info: 2026-07-20 16:30:35.55
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description: [LOAD_202312] vf_fst_mabe_xs: SELECT INTO dbo.tf_fst_mabe_xs_in_202312 | Zeilen: 63960
+End Info
+Info: 2026-07-20 16:30:35.60
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description:   SELECT INTO [tf_fst_mabe_xs_in_202401_LOADING] WHERE mon_id = 202401 (wird zu _in_ umbenannt)
+End Info
+Info: 2026-07-20 16:30:35.63
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description:   Zeilen geladen (tf_fst_mabe_xs_in_202404): 68142
+End Info
+Info: 2026-07-20 16:30:35.63
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description: [LOAD_202404] vf_fst_mabe_xs: SELECT INTO dbo.tf_fst_mabe_xs_in_202404 | Zeilen: 68142
+End Info
+Info: 2026-07-20 16:30:35.67
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description:   SELECT INTO [tf_fst_mabe_xs_in_202405_LOADING] WHERE mon_id = 202405 (wird zu _in_ umbenannt)
+End Info
+Info: 2026-07-20 16:30:37.32
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description:   Zeilen geladen (tf_fst_mabe_xs_in_202405): 67152
+End Info
+Info: 2026-07-20 16:30:37.33
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description:   Zeilen geladen (tf_fst_mabe_xs_in_202310): 63480
+End Info
+Info: 2026-07-20 16:30:37.33
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description: [LOAD_202405] vf_fst_mabe_xs: SELECT INTO dbo.tf_fst_mabe_xs_in_202405 | Zeilen: 67152
+End Info
+Info: 2026-07-20 16:30:37.33
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description: [LOAD_202310] vf_fst_mabe_xs: SELECT INTO dbo.tf_fst_mabe_xs_in_202310 | Zeilen: 63480
+End Info
+Info: 2026-07-20 16:30:37.38
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description:   SELECT INTO [tf_fst_mabe_xs_in_202311_LOADING] WHERE mon_id = 202311 (wird zu _in_ umbenannt)
+End Info
+Info: 2026-07-20 16:30:37.38
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description:   SELECT INTO [tf_fst_mabe_xs_in_202407_LOADING] WHERE mon_id = 202407 (wird zu _in_ umbenannt)
+End Info
+Info: 2026-07-20 16:30:38.88
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description:   Zeilen geladen (tf_fst_mabe_xs_in_202311): 65121
+End Info
+Info: 2026-07-20 16:30:38.88
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description: [LOAD_202311] vf_fst_mabe_xs: SELECT INTO dbo.tf_fst_mabe_xs_in_202311 | Zeilen: 65121
+End Info
+Info: 2026-07-20 16:30:38.94
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description:   SELECT INTO [tf_fst_mabe_xs_in_202403_LOADING] WHERE mon_id = 202403 (wird zu _in_ umbenannt)
+End Info
+Info: 2026-07-20 16:30:39.07
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description:   Zeilen geladen (tf_fst_mabe_xs_in_202407): 73058
+End Info
+Info: 2026-07-20 16:30:39.07
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description: [LOAD_202407] vf_fst_mabe_xs: SELECT INTO dbo.tf_fst_mabe_xs_in_202407 | Zeilen: 73058
+End Info
+Info: 2026-07-20 16:30:39.11
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description:   SELECT INTO [tf_fst_mabe_xs_in_202409_LOADING] WHERE mon_id = 202409 (wird zu _in_ umbenannt)
+End Info
+Info: 2026-07-20 16:30:41.29
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description:   Zeilen geladen (tf_fst_mabe_xs_in_202412): 61870
+End Info
+Info: 2026-07-20 16:30:41.29
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description: [LOAD_202412] vf_fst_mabe_xs: SELECT INTO dbo.tf_fst_mabe_xs_in_202412 | Zeilen: 61870
+End Info
+Info: 2026-07-20 16:30:41.35
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description:   SELECT INTO [tf_fst_mabe_xs_in_202501_LOADING] WHERE mon_id = 202501 (wird zu _in_ umbenannt)
+End Info
+Info: 2026-07-20 16:30:41.43
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description:   Zeilen geladen (tf_fst_mabe_xs_in_202402): 64431
+End Info
+Info: 2026-07-20 16:30:41.44
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description: [LOAD_202402] vf_fst_mabe_xs: SELECT INTO dbo.tf_fst_mabe_xs_in_202402 | Zeilen: 64431
+End Info
+Info: 2026-07-20 16:30:41.49
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description:   SELECT INTO [tf_fst_mabe_xs_in_202411_LOADING] WHERE mon_id = 202411 (wird zu _in_ umbenannt)
+End Info
+Info: 2026-07-20 16:30:41.52
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description:   Zeilen geladen (tf_fst_mabe_xs_in_202401): 61918
+End Info
+Info: 2026-07-20 16:30:41.54
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description: [LOAD_202401] vf_fst_mabe_xs: SELECT INTO dbo.tf_fst_mabe_xs_in_202401 | Zeilen: 61918
+End Info
+Info: 2026-07-20 16:30:41.57
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description:   Zeilen geladen (tf_fst_mabe_xs_in_202406): 67264
+End Info
+Info: 2026-07-20 16:30:41.57
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description: [LOAD_202406] vf_fst_mabe_xs: SELECT INTO dbo.tf_fst_mabe_xs_in_202406 | Zeilen: 67264
+End Info
+Info: 2026-07-20 16:30:41.58
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description:   SELECT INTO [tf_fst_mabe_xs_in_202502_LOADING] WHERE mon_id = 202502 (wird zu _in_ umbenannt)
+End Info
+Info: 2026-07-20 16:30:41.61
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description:   SELECT INTO [tf_fst_mabe_xs_in_202504_LOADING] WHERE mon_id = 202504 (wird zu _in_ umbenannt)
+End Info
+Info: 2026-07-20 16:30:41.69
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description:   Zeilen geladen (tf_fst_mabe_xs_in_202408): 65751
+End Info
+Info: 2026-07-20 16:30:41.69
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description: [LOAD_202408] vf_fst_mabe_xs: SELECT INTO dbo.tf_fst_mabe_xs_in_202408 | Zeilen: 65751
+End Info
+Info: 2026-07-20 16:30:41.75
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description:   SELECT INTO [tf_fst_mabe_xs_in_202506_LOADING] WHERE mon_id = 202506 (wird zu _in_ umbenannt)
+End Info
+Info: 2026-07-20 16:30:41.88
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description:   Zeilen geladen (tf_fst_mabe_xs_in_202403): 65769
+End Info
+Info: 2026-07-20 16:30:41.90
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description: [LOAD_202403] vf_fst_mabe_xs: SELECT INTO dbo.tf_fst_mabe_xs_in_202403 | Zeilen: 65769
+End Info
+Info: 2026-07-20 16:30:41.93
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description:   Zeilen geladen (tf_fst_mabe_xs_in_202410): 68621
+End Info
+Info: 2026-07-20 16:30:41.93
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description: [LOAD_202410] vf_fst_mabe_xs: SELECT INTO dbo.tf_fst_mabe_xs_in_202410 | Zeilen: 68621
+End Info
+Info: 2026-07-20 16:30:41.94
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description:   SELECT INTO [tf_fst_mabe_xs_in_202508_LOADING] WHERE mon_id = 202508 (wird zu _in_ umbenannt)
+End Info
+Info: 2026-07-20 16:30:42.05
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description:   Zeilen geladen (tf_fst_mabe_xs_in_202409): 66788
+End Info
+Info: 2026-07-20 16:30:42.05
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description: [LOAD_202409] vf_fst_mabe_xs: SELECT INTO dbo.tf_fst_mabe_xs_in_202409 | Zeilen: 66788
+End Info
+Info: 2026-07-20 16:30:43.57
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description:   Zeilen geladen (tf_fst_mabe_xs_in_202501): 58465
+End Info
+Info: 2026-07-20 16:30:43.57
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description: [LOAD_202501] vf_fst_mabe_xs: SELECT INTO dbo.tf_fst_mabe_xs_in_202501 | Zeilen: 58465
+End Info
+Info: 2026-07-20 16:30:44.11
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description:   Zeilen geladen (tf_fst_mabe_xs_in_202506): 51766
+End Info
+Info: 2026-07-20 16:30:44.13
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description: [LOAD_202506] vf_fst_mabe_xs: SELECT INTO dbo.tf_fst_mabe_xs_in_202506 | Zeilen: 51766
+End Info
+Info: 2026-07-20 16:30:44.15
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description:   Zeilen geladen (tf_fst_mabe_xs_in_202502): 58241
+End Info
+Info: 2026-07-20 16:30:44.16
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description: [LOAD_202502] vf_fst_mabe_xs: SELECT INTO dbo.tf_fst_mabe_xs_in_202502 | Zeilen: 58241
+End Info
+Info: 2026-07-20 16:30:44.22
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description:   SELECT INTO [tf_fst_mabe_xs_in_202503_LOADING] WHERE mon_id = 202503 (wird zu _in_ umbenannt)
+End Info
+Info: 2026-07-20 16:30:44.25
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description:   Zeilen geladen (tf_fst_mabe_xs_in_202508): 48179
+End Info
+Info: 2026-07-20 16:30:44.27
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description: [LOAD_202508] vf_fst_mabe_xs: SELECT INTO dbo.tf_fst_mabe_xs_in_202508 | Zeilen: 48179
+End Info
+Info: 2026-07-20 16:30:44.29
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description:   SELECT INTO [tf_fst_mabe_xs_in_202507_LOADING] WHERE mon_id = 202507 (wird zu _in_ umbenannt)
+End Info
+Info: 2026-07-20 16:30:44.32
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description:   Zeilen geladen (tf_fst_mabe_xs_in_202411): 64457
+End Info
+Info: 2026-07-20 16:30:44.33
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description: [LOAD_202411] vf_fst_mabe_xs: SELECT INTO dbo.tf_fst_mabe_xs_in_202411 | Zeilen: 64457
+End Info
+Info: 2026-07-20 16:30:44.43
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description:   Zeilen geladen (tf_fst_mabe_xs_in_202504): 55672
+End Info
+Info: 2026-07-20 16:30:44.44
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description: [LOAD_202504] vf_fst_mabe_xs: SELECT INTO dbo.tf_fst_mabe_xs_in_202504 | Zeilen: 55672
+End Info
+Info: 2026-07-20 16:30:44.52
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description:   SELECT INTO [tf_fst_mabe_xs_in_202505_LOADING] WHERE mon_id = 202505 (wird zu _in_ umbenannt)
+End Info
+Info: 2026-07-20 16:30:46.08
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description:   Zeilen geladen (tf_fst_mabe_xs_in_202503): 56069
+End Info
+Info: 2026-07-20 16:30:46.10
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description: [LOAD_202503] vf_fst_mabe_xs: SELECT INTO dbo.tf_fst_mabe_xs_in_202503 | Zeilen: 56069
+End Info
+Info: 2026-07-20 16:30:46.16
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description:   Zeilen geladen (tf_fst_mabe_xs_in_202507): 51341
+End Info
+Info: 2026-07-20 16:30:46.18
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description: [LOAD_202507] vf_fst_mabe_xs: SELECT INTO dbo.tf_fst_mabe_xs_in_202507 | Zeilen: 51341
+End Info
+Info: 2026-07-20 16:30:46.29
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description:   Zeilen geladen (tf_fst_mabe_xs_in_202505): 53268
+End Info
+Info: 2026-07-20 16:30:46.29
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description: [LOAD_202505] vf_fst_mabe_xs: SELECT INTO dbo.tf_fst_mabe_xs_in_202505 | Zeilen: 53268
+End Info
+Info: 2026-07-20 16:30:46.30
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description: [SCHRITT_6] vf_fst_mabe_xs: Daten geladen. Zeilen gesamt: 1420783
+End Info
+Info: 2026-07-20 16:30:46.30
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description:   Schritt 6 abgeschlossen OK (vf_fst_mabe_xs)
+End Info
+Info: 2026-07-20 16:30:46.32
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description: Erfolgreich: 1 | Fehler: 0
+End Info
+Info: 2026-07-20 16:30:46.33
+   Code: 0x00000000
+   Source: SCR14_usp_Faktenladen_StagetabellenDML SCR14_StagetabellenDML_Aufruf
+   Description: SCR14_StagetabellenDML_Aufruf - Start
+End Info
+Info: 2026-07-20 16:30:46.33
+   Code: 0x00000000
+   Source: SCR14_usp_Faktenladen_StagetabellenDML SCR14_StagetabellenDML_Aufruf
+   Description: Partitionswerte aus SCR09: 23 Eintraege
+End Info
+Info: 2026-07-20 16:30:46.35
+   Code: 0x00000000
+   Source: SCR14_usp_Faktenladen_StagetabellenDML SCR14_StagetabellenDML_Aufruf
+   Description: Verfahren mit Status 'DATEN_GELADEN': 1
+End Info
+Info: 2026-07-20 16:30:46.36
+   Code: 0x00000000
+   Source: SCR14_usp_Faktenladen_StagetabellenDML SCR14_StagetabellenDML_Aufruf
+   Description: Verfahren        : vf_fst_mabe_xs
+End Info
+Info: 2026-07-20 16:30:46.36
+   Code: 0x00000000
+   Source: SCR14_usp_Faktenladen_StagetabellenDML SCR14_StagetabellenDML_Aufruf
+   Description: Faktentabelle    : tf_fst_mabe_xs
+End Info
+Info: 2026-07-20 16:30:46.38
+   Code: 0x00000000
+   Source: SCR14_usp_Faktenladen_StagetabellenDML SCR14_StagetabellenDML_Aufruf
+   Description: Partitionsspalte : mon_id
+End Info
+Info: 2026-07-20 16:30:46.38
+   Code: 0x00000000
+   Source: SCR14_usp_Faktenladen_StagetabellenDML SCR14_StagetabellenDML_Aufruf
+   Description: ClusteredIndex   : FALSE
+End Info
+Info: 2026-07-20 16:30:46.40
+   Code: 0x00000000
+   Source: SCR14_usp_Faktenladen_StagetabellenDML SCR14_StagetabellenDML_Aufruf
+   Description: Komprimierung    : PAGE
+End Info
+Info: 2026-07-20 16:30:46.40
+   Code: 0x00000000
+   Source: SCR14_usp_Faktenladen_StagetabellenDML SCR14_StagetabellenDML_Aufruf
+   Description:   Prozedur: usp_Faktenladen_StagetabellenDML_vf_fst_mabe_xs
+End Info
+Info: 2026-07-20 16:30:46.41
+   Code: 0x00000000
+   Source: SCR14_usp_Faktenladen_StagetabellenDML SCR14_StagetabellenDML_Aufruf
+   Description:   Info: Prozedur [usp_Faktenladen_StagetabellenDML_vf_fst_mabe_xs] existiert nicht -> uebersprungen
+End Info
+Info: 2026-07-20 16:30:46.41
+   Code: 0x00000000
+   Source: SCR14_usp_Faktenladen_StagetabellenDML SCR14_StagetabellenDML_Aufruf
+   Description: [INFO_SCR11b] vf_fst_mabe_xs: Prozedur usp_Faktenladen_StagetabellenDML_vf_fst_mabe_xs nicht vorhanden -> uebersprungen
+End Info
+Info: 2026-07-20 16:30:46.43
+   Code: 0x00000000
+   Source: SCR14_usp_Faktenladen_StagetabellenDML SCR14_StagetabellenDML_Aufruf
+   Description: ZUSAMMENFASSUNG SCR11b_StagetabellenDML_Aufruf
+End Info
+Info: 2026-07-20 16:30:46.43
+   Code: 0x00000000
+   Source: SCR14_usp_Faktenladen_StagetabellenDML SCR14_StagetabellenDML_Aufruf
+   Description: Erfolgreich: 1
+End Info
+Info: 2026-07-20 16:30:46.43
+   Code: 0x00000000
+   Source: SCR14_usp_Faktenladen_StagetabellenDML SCR14_StagetabellenDML_Aufruf
+   Description: Fehler:      0
+End Info
+Info: 2026-07-20 16:30:46.44
+   Code: 0x00000000
+   Source: SCR14_usp_Faktenladen_StagetabellenDML SCR14_StagetabellenDML_Aufruf
+   Description: SCR11b_StagetabellenDML_Aufruf erfolgreich abgeschlossen
+End Info
+Info: 2026-07-20 16:30:46.46
+   Code: 0x00000000
+   Source: SCR15_usp_Faktenladen_Partitionladen SCR15_Partitionladen_Nachlauf
+   Description: SCR15_Partitionladen_Nachlauf - Start
+End Info
+Info: 2026-07-20 16:30:46.46
+   Code: 0x00000000
+   Source: SCR15_usp_Faktenladen_Partitionladen SCR15_Partitionladen_Nachlauf
+   Description: Partitionswerte: 23 Eintraege
+End Info
+Info: 2026-07-20 16:30:46.47
+   Code: 0x00000000
+   Source: SCR15_usp_Faktenladen_Partitionladen SCR15_Partitionladen_Nachlauf
+   Description: Verfahren mit Status 'ERFOLG': 0
+End Info
+Info: 2026-07-20 16:30:46.49
+   Code: 0x00000000
+   Source: SCR15_usp_Faktenladen_Partitionladen SCR15_Partitionladen_Nachlauf
+   Description: Keine Verfahren zu verarbeiten
+End Info
+Info: 2026-07-20 16:30:46.50
+   Code: 0x00000000
+   Source: SCR16_Stagingtabelle - Clustered Index erstellen SCR16_Stagingtabelle___Clustered_Index_erstellen
+   Description: SCR16_Stagingtabelle___Clustered_Index_erstellen - Start
+End Info
+Info: 2026-07-20 16:30:46.50
+   Code: 0x00000000
+   Source: SCR16_Stagingtabelle - Clustered Index erstellen SCR16_Stagingtabelle___Clustered_Index_erstellen
+   Description: Partitionswerte geladen: 1 Verfahren
+End Info
+Info: 2026-07-20 16:30:46.52
+   Code: 0x00000000
+   Source: SCR16_Stagingtabelle - Clustered Index erstellen SCR16_Stagingtabelle___Clustered_Index_erstellen
+   Description: Verfahren: 1
+End Info
+Info: 2026-07-20 16:30:46.54
+   Code: 0x00000000
+   Source: SCR16_Stagingtabelle - Clustered Index erstellen SCR16_Stagingtabelle___Clustered_Index_erstellen
+   Description: Verfahren: vf_fst_mabe_xs | IndexTyp: FALSE
+End Info
+Info: 2026-07-20 16:30:46.54
+   Code: 0x00000000
+   Source: SCR16_Stagingtabelle - Clustered Index erstellen SCR16_Stagingtabelle___Clustered_Index_erstellen
+   Description: Arbeitspakete (Tabelle x Index): 46 | Parallelitaet: 8 | MAXDOP/Build: 4
+End Info
+Info: 2026-07-20 16:30:47.19
+   Code: 0x00000000
+   Source: SCR16_Stagingtabelle - Clustered Index erstellen SCR16_Stagingtabelle___Clustered_Index_erstellen
+   Description: [SCHRITT_7A] vf_fst_mabe_xs: Index _in/_out erstellt
+End Info
+Info: 2026-07-20 16:30:47.19
+   Code: 0x00000000
+   Source: SCR16_Stagingtabelle - Clustered Index erstellen SCR16_Stagingtabelle___Clustered_Index_erstellen
+   Description:   Schritt 7a abgeschlossen OK (vf_fst_mabe_xs)
+End Info
+Info: 2026-07-20 16:30:47.21
+   Code: 0x00000000
+   Source: SCR16_Stagingtabelle - Clustered Index erstellen SCR16_Stagingtabelle___Clustered_Index_erstellen
+   Description: Erfolgreich: 1 | Fehler: 0
+End Info
+Info: 2026-07-20 16:30:47.21
+   Code: 0x00000000
+   Source: SCR17_Stagingtabelle komprimieren SCR17_Komprimierung_Out
+   Description: SCR17_Komprimierung_Out - Start
+End Info
+Info: 2026-07-20 16:30:47.22
+   Code: 0x00000000
+   Source: SCR17_Stagingtabelle komprimieren SCR17_Komprimierung_Out
+   Description: Partitionswerte geladen: 1 Verfahren
+End Info
+Info: 2026-07-20 16:30:47.24
+   Code: 0x00000000
+   Source: SCR17_Stagingtabelle komprimieren SCR17_Komprimierung_Out
+   Description: Verfahren: 1
+End Info
+Info: 2026-07-20 16:30:47.24
+   Code: 0x00000000
+   Source: SCR17_Stagingtabelle komprimieren SCR17_Komprimierung_Out
+   Description: Verfahren: vf_fst_mabe_xs | Komprimierung: PAGE | IndexTyp: FALSE
+End Info
+Info: 2026-07-20 16:30:47.27
+   Code: 0x00000000
+   Source: SCR17_Stagingtabelle komprimieren SCR17_Komprimierung_Out
+   Description:   Komprimierung PAGE auf: tf_fst_mabe_xs_out_202310 OK
+End Info
+Info: 2026-07-20 16:30:47.29
+   Code: 0x00000000
+   Source: SCR17_Stagingtabelle komprimieren SCR17_Komprimierung_Out
+   Description:   Komprimierung PAGE auf: tf_fst_mabe_xs_out_202311 OK
+End Info
+Info: 2026-07-20 16:30:47.30
+   Code: 0x00000000
+   Source: SCR17_Stagingtabelle komprimieren SCR17_Komprimierung_Out
+   Description:   Komprimierung PAGE auf: tf_fst_mabe_xs_out_202312 OK
+End Info
+Info: 2026-07-20 16:30:47.33
+   Code: 0x00000000
+   Source: SCR17_Stagingtabelle komprimieren SCR17_Komprimierung_Out
+   Description:   Komprimierung PAGE auf: tf_fst_mabe_xs_out_202401 OK
+End Info
+Info: 2026-07-20 16:30:47.35
+   Code: 0x00000000
+   Source: SCR17_Stagingtabelle komprimieren SCR17_Komprimierung_Out
+   Description:   Komprimierung PAGE auf: tf_fst_mabe_xs_out_202402 OK
+End Info
+Info: 2026-07-20 16:30:47.36
+   Code: 0x00000000
+   Source: SCR17_Stagingtabelle komprimieren SCR17_Komprimierung_Out
+   Description:   Komprimierung PAGE auf: tf_fst_mabe_xs_out_202403 OK
+End Info
+Info: 2026-07-20 16:30:47.38
+   Code: 0x00000000
+   Source: SCR17_Stagingtabelle komprimieren SCR17_Komprimierung_Out
+   Description:   Komprimierung PAGE auf: tf_fst_mabe_xs_out_202404 OK
+End Info
+Info: 2026-07-20 16:30:47.41
+   Code: 0x00000000
+   Source: SCR17_Stagingtabelle komprimieren SCR17_Komprimierung_Out
+   Description:   Komprimierung PAGE auf: tf_fst_mabe_xs_out_202405 OK
+End Info
+Info: 2026-07-20 16:30:47.43
+   Code: 0x00000000
+   Source: SCR17_Stagingtabelle komprimieren SCR17_Komprimierung_Out
+   Description:   Komprimierung PAGE auf: tf_fst_mabe_xs_out_202406 OK
+End Info
+Info: 2026-07-20 16:30:47.44
+   Code: 0x00000000
+   Source: SCR17_Stagingtabelle komprimieren SCR17_Komprimierung_Out
+   Description:   Komprimierung PAGE auf: tf_fst_mabe_xs_out_202407 OK
+End Info
+Info: 2026-07-20 16:30:47.47
+   Code: 0x00000000
+   Source: SCR17_Stagingtabelle komprimieren SCR17_Komprimierung_Out
+   Description:   Komprimierung PAGE auf: tf_fst_mabe_xs_out_202408 OK
+End Info
+Info: 2026-07-20 16:30:47.49
+   Code: 0x00000000
+   Source: SCR17_Stagingtabelle komprimieren SCR17_Komprimierung_Out
+   Description:   Komprimierung PAGE auf: tf_fst_mabe_xs_out_202409 OK
+End Info
+Info: 2026-07-20 16:30:47.51
+   Code: 0x00000000
+   Source: SCR17_Stagingtabelle komprimieren SCR17_Komprimierung_Out
+   Description:   Komprimierung PAGE auf: tf_fst_mabe_xs_out_202410 OK
+End Info
+Info: 2026-07-20 16:30:47.54
+   Code: 0x00000000
+   Source: SCR17_Stagingtabelle komprimieren SCR17_Komprimierung_Out
+   Description:   Komprimierung PAGE auf: tf_fst_mabe_xs_out_202411 OK
+End Info
+Info: 2026-07-20 16:30:47.55
+   Code: 0x00000000
+   Source: SCR17_Stagingtabelle komprimieren SCR17_Komprimierung_Out
+   Description:   Komprimierung PAGE auf: tf_fst_mabe_xs_out_202412 OK
+End Info
+Info: 2026-07-20 16:30:47.57
+   Code: 0x00000000
+   Source: SCR17_Stagingtabelle komprimieren SCR17_Komprimierung_Out
+   Description:   Komprimierung PAGE auf: tf_fst_mabe_xs_out_202501 OK
+End Info
+Info: 2026-07-20 16:30:47.58
+   Code: 0x00000000
+   Source: SCR17_Stagingtabelle komprimieren SCR17_Komprimierung_Out
+   Description:   Komprimierung PAGE auf: tf_fst_mabe_xs_out_202502 OK
+End Info
+Info: 2026-07-20 16:30:47.61
+   Code: 0x00000000
+   Source: SCR17_Stagingtabelle komprimieren SCR17_Komprimierung_Out
+   Description:   Komprimierung PAGE auf: tf_fst_mabe_xs_out_202503 OK
+End Info
+Info: 2026-07-20 16:30:47.63
+   Code: 0x00000000
+   Source: SCR17_Stagingtabelle komprimieren SCR17_Komprimierung_Out
+   Description:   Komprimierung PAGE auf: tf_fst_mabe_xs_out_202504 OK
+End Info
+Info: 2026-07-20 16:30:47.66
+   Code: 0x00000000
+   Source: SCR17_Stagingtabelle komprimieren SCR17_Komprimierung_Out
+   Description:   Komprimierung PAGE auf: tf_fst_mabe_xs_out_202505 OK
+End Info
+Info: 2026-07-20 16:30:47.69
+   Code: 0x00000000
+   Source: SCR17_Stagingtabelle komprimieren SCR17_Komprimierung_Out
+   Description:   Komprimierung PAGE auf: tf_fst_mabe_xs_out_202506 OK
+End Info
+Info: 2026-07-20 16:30:47.71
+   Code: 0x00000000
+   Source: SCR17_Stagingtabelle komprimieren SCR17_Komprimierung_Out
+   Description:   Komprimierung PAGE auf: tf_fst_mabe_xs_out_202507 OK
+End Info
+Info: 2026-07-20 16:30:47.74
+   Code: 0x00000000
+   Source: SCR17_Stagingtabelle komprimieren SCR17_Komprimierung_Out
+   Description:   Komprimierung PAGE auf: tf_fst_mabe_xs_out_202508 OK
+End Info
+Info: 2026-07-20 16:30:47.74
+   Code: 0x00000000
+   Source: SCR17_Stagingtabelle komprimieren SCR17_Komprimierung_Out
+   Description: [SCHRITT_7B] vf_fst_mabe_xs: Komprimierung PAGE auf 23 _out Tabellen
+End Info
+Info: 2026-07-20 16:30:47.76
+   Code: 0x00000000
+   Source: SCR17_Stagingtabelle komprimieren SCR17_Komprimierung_Out
+   Description:   Schritt 7b abgeschlossen OK
+End Info
+Info: 2026-07-20 16:30:47.76
+   Code: 0x00000000
+   Source: SCR17_Stagingtabelle komprimieren SCR17_Komprimierung_Out
+   Description: Erfolgreich: 1 | Fehler: 0
+End Info
+Info: 2026-07-20 16:30:47.77
+   Code: 0x00000000
+   Source: SCR18_Stagingtabelle - NCCI erstellen SCR18_NCCI_Out
+   Description: SCR18_NCCI_Out - Start
+End Info
+Info: 2026-07-20 16:30:47.77
+   Code: 0x00000000
+   Source: SCR18_Stagingtabelle - NCCI erstellen SCR18_NCCI_Out
+   Description: Partitionswerte geladen: 1 Verfahren
+End Info
+Info: 2026-07-20 16:30:47.80
+   Code: 0x00000000
+   Source: SCR18_Stagingtabelle - NCCI erstellen SCR18_NCCI_Out
+   Description: Verfahren: 1
+End Info
+Info: 2026-07-20 16:30:47.80
+   Code: 0x00000000
+   Source: SCR18_Stagingtabelle - NCCI erstellen SCR18_NCCI_Out
+   Description: Verfahren: vf_fst_mabe_xs | NCCI: FALSE | IndexTyp: FALSE
+End Info
+Info: 2026-07-20 16:30:47.80
+   Code: 0x00000000
+   Source: SCR18_Stagingtabelle - NCCI erstellen SCR18_NCCI_Out
+   Description:   NCCI nicht anwendbar uebersprungen
+End Info
+Info: 2026-07-20 16:30:47.82
+   Code: 0x00000000
+   Source: SCR18_Stagingtabelle - NCCI erstellen SCR18_NCCI_Out
+   Description: [SCHRITT_7C] vf_fst_mabe_xs: NCCI nicht anwendbar uebersprungen
+End Info
+Info: 2026-07-20 16:30:47.82
+   Code: 0x00000000
+   Source: SCR18_Stagingtabelle - NCCI erstellen SCR18_NCCI_Out
+   Description: Erfolgreich: 1 | Fehler: 0
+End Info
+Info: 2026-07-20 16:30:47.85
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: SCR19_Partitionstausch - Start
+End Info
+Info: 2026-07-20 16:30:47.85
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: Partitionswerte geladen: 1 Verfahren
+End Info
+Info: 2026-07-20 16:30:47.86
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: Verfahren: 1
+End Info
+Info: 2026-07-20 16:30:47.88
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: Verfahren: vf_fst_mabe_xs | Tabelle: tf_fst_mabe_xs
+End Info
+Info: 2026-07-20 16:30:47.88
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description:   Partitionen: 23
+End Info
+Info: 2026-07-20 16:30:47.90
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description:   Partition: 202310
+End Info
+Info: 2026-07-20 16:30:47.90
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description:   Partitionsnummer: 2
+End Info
+Info: 2026-07-20 16:30:47.91
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: WARNUNG [SWITCH OUT] Versuch 1/3: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.
+End Info
+Info: 2026-07-20 16:30:47.91
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: SQL Statement [SWITCH OUT]: ALTER TABLE dbo.[tf_fst_mabe_xs] SWITCH PARTITION 2 TO dbo.[tf_fst_mabe_xs_out_202310];
+End Info
+Info: 2026-07-20 16:31:17.93
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: WARNUNG [SWITCH OUT] Versuch 2/3: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.
+End Info
+Info: 2026-07-20 16:31:47.94
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: WARNUNG [SWITCH OUT] Versuch 3/3: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.
+End Info
+Error: 2026-07-20 16:31:47.95
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description:   FEHLER Partitionstausch pv=202310: [SWITCH OUT] fehlgeschlagen: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.
+End Error
+Error: 2026-07-20 16:31:47.95
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: [FEHLER_SWITCH_202310] vf_fst_mabe_xs: [SWITCH OUT] fehlgeschlagen: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.
+End Error
+Info: 2026-07-20 16:31:47.97
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description:   Partition: 202311
+End Info
+Info: 2026-07-20 16:31:47.98
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description:   Partitionsnummer: 3
+End Info
+Info: 2026-07-20 16:31:47.98
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: WARNUNG [SWITCH OUT] Versuch 1/3: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.
+End Info
+Info: 2026-07-20 16:31:48.00
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: SQL Statement [SWITCH OUT]: ALTER TABLE dbo.[tf_fst_mabe_xs] SWITCH PARTITION 3 TO dbo.[tf_fst_mabe_xs_out_202311];
+End Info
+Info: 2026-07-20 16:32:18.01
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: WARNUNG [SWITCH OUT] Versuch 2/3: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.
+End Info
+Info: 2026-07-20 16:32:48.02
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: WARNUNG [SWITCH OUT] Versuch 3/3: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.
+End Info
+Error: 2026-07-20 16:32:48.02
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description:   FEHLER Partitionstausch pv=202311: [SWITCH OUT] fehlgeschlagen: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.
+End Error
+Error: 2026-07-20 16:32:48.04
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: [FEHLER_SWITCH_202311] vf_fst_mabe_xs: [SWITCH OUT] fehlgeschlagen: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.
+End Error
+Info: 2026-07-20 16:32:48.05
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description:   Partition: 202312
+End Info
+Info: 2026-07-20 16:32:48.05
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description:   Partitionsnummer: 4
+End Info
+Info: 2026-07-20 16:32:48.07
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: WARNUNG [SWITCH OUT] Versuch 1/3: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.
+End Info
+Info: 2026-07-20 16:32:48.07
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: SQL Statement [SWITCH OUT]: ALTER TABLE dbo.[tf_fst_mabe_xs] SWITCH PARTITION 4 TO dbo.[tf_fst_mabe_xs_out_202312];
+End Info
+Info: 2026-07-20 16:33:18.08
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: WARNUNG [SWITCH OUT] Versuch 2/3: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.
+End Info
+Info: 2026-07-20 16:33:48.10
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: WARNUNG [SWITCH OUT] Versuch 3/3: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.
+End Info
+Error: 2026-07-20 16:33:48.10
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description:   FEHLER Partitionstausch pv=202312: [SWITCH OUT] fehlgeschlagen: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.
+End Error
+Error: 2026-07-20 16:33:48.11
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: [FEHLER_SWITCH_202312] vf_fst_mabe_xs: [SWITCH OUT] fehlgeschlagen: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.
+End Error
+Info: 2026-07-20 16:33:48.13
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description:   Partition: 202401
+End Info
+Info: 2026-07-20 16:33:48.13
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description:   Partitionsnummer: 5
+End Info
+Info: 2026-07-20 16:33:48.14
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: WARNUNG [SWITCH OUT] Versuch 1/3: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.
+End Info
+Info: 2026-07-20 16:33:48.14
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: SQL Statement [SWITCH OUT]: ALTER TABLE dbo.[tf_fst_mabe_xs] SWITCH PARTITION 5 TO dbo.[tf_fst_mabe_xs_out_202401];
+End Info
+Info: 2026-07-20 16:34:18.16
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: WARNUNG [SWITCH OUT] Versuch 2/3: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.
+End Info
+Info: 2026-07-20 16:34:48.17
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: WARNUNG [SWITCH OUT] Versuch 3/3: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.
+End Info
+Error: 2026-07-20 16:34:48.17
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description:   FEHLER Partitionstausch pv=202401: [SWITCH OUT] fehlgeschlagen: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.
+End Error
+Error: 2026-07-20 16:34:48.19
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: [FEHLER_SWITCH_202401] vf_fst_mabe_xs: [SWITCH OUT] fehlgeschlagen: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.
+End Error
+Info: 2026-07-20 16:34:48.20
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description:   Partition: 202402
+End Info
+Info: 2026-07-20 16:34:48.20
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description:   Partitionsnummer: 6
+End Info
+Info: 2026-07-20 16:34:48.22
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: WARNUNG [SWITCH OUT] Versuch 1/3: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.
+End Info
+Info: 2026-07-20 16:34:48.23
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: SQL Statement [SWITCH OUT]: ALTER TABLE dbo.[tf_fst_mabe_xs] SWITCH PARTITION 6 TO dbo.[tf_fst_mabe_xs_out_202402];
+End Info
+Info: 2026-07-20 16:35:18.25
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: WARNUNG [SWITCH OUT] Versuch 2/3: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.
+End Info
+Info: 2026-07-20 16:35:48.26
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: WARNUNG [SWITCH OUT] Versuch 3/3: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.
+End Info
+Error: 2026-07-20 16:35:48.26
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description:   FEHLER Partitionstausch pv=202402: [SWITCH OUT] fehlgeschlagen: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.
+End Error
+Error: 2026-07-20 16:35:48.28
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: [FEHLER_SWITCH_202402] vf_fst_mabe_xs: [SWITCH OUT] fehlgeschlagen: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.
+End Error
+Info: 2026-07-20 16:35:48.29
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description:   Partition: 202403
+End Info
+Info: 2026-07-20 16:35:48.29
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description:   Partitionsnummer: 7
+End Info
+Info: 2026-07-20 16:35:48.31
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: WARNUNG [SWITCH OUT] Versuch 1/3: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.
+End Info
+Info: 2026-07-20 16:35:48.31
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: SQL Statement [SWITCH OUT]: ALTER TABLE dbo.[tf_fst_mabe_xs] SWITCH PARTITION 7 TO dbo.[tf_fst_mabe_xs_out_202403];
+End Info
+Info: 2026-07-20 16:36:18.33
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: WARNUNG [SWITCH OUT] Versuch 2/3: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.
+End Info
+Info: 2026-07-20 16:36:48.34
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: WARNUNG [SWITCH OUT] Versuch 3/3: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.
+End Info
+Error: 2026-07-20 16:36:48.35
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description:   FEHLER Partitionstausch pv=202403: [SWITCH OUT] fehlgeschlagen: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.
+End Error
+Error: 2026-07-20 16:36:48.35
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: [FEHLER_SWITCH_202403] vf_fst_mabe_xs: [SWITCH OUT] fehlgeschlagen: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.
+End Error
+Info: 2026-07-20 16:36:48.38
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description:   Partition: 202404
+End Info
+Info: 2026-07-20 16:36:48.38
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description:   Partitionsnummer: 8
+End Info
+Info: 2026-07-20 16:36:48.40
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: WARNUNG [SWITCH OUT] Versuch 1/3: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.
+End Info
+Info: 2026-07-20 16:36:48.40
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: SQL Statement [SWITCH OUT]: ALTER TABLE dbo.[tf_fst_mabe_xs] SWITCH PARTITION 8 TO dbo.[tf_fst_mabe_xs_out_202404];
+End Info
+Info: 2026-07-20 16:37:18.41
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: WARNUNG [SWITCH OUT] Versuch 2/3: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.
+End Info
+Info: 2026-07-20 16:37:48.43
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: WARNUNG [SWITCH OUT] Versuch 3/3: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.
+End Info
+Error: 2026-07-20 16:37:48.43
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description:   FEHLER Partitionstausch pv=202404: [SWITCH OUT] fehlgeschlagen: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.
+End Error
+Error: 2026-07-20 16:37:48.45
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: [FEHLER_SWITCH_202404] vf_fst_mabe_xs: [SWITCH OUT] fehlgeschlagen: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.
+End Error
+Info: 2026-07-20 16:37:48.46
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description:   Partition: 202405
+End Info
+Info: 2026-07-20 16:37:48.46
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description:   Partitionsnummer: 9
+End Info
+Info: 2026-07-20 16:37:48.46
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: WARNUNG [SWITCH OUT] Versuch 1/3: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.
+End Info
+Info: 2026-07-20 16:37:48.48
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: SQL Statement [SWITCH OUT]: ALTER TABLE dbo.[tf_fst_mabe_xs] SWITCH PARTITION 9 TO dbo.[tf_fst_mabe_xs_out_202405];
+End Info
+Info: 2026-07-20 16:38:18.49
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: WARNUNG [SWITCH OUT] Versuch 2/3: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.
+End Info
+Info: 2026-07-20 16:38:48.51
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: WARNUNG [SWITCH OUT] Versuch 3/3: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.
+End Info
+Error: 2026-07-20 16:38:48.53
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description:   FEHLER Partitionstausch pv=202405: [SWITCH OUT] fehlgeschlagen: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.
+End Error
+Error: 2026-07-20 16:38:48.53
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: [FEHLER_SWITCH_202405] vf_fst_mabe_xs: [SWITCH OUT] fehlgeschlagen: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.
+End Error
+Info: 2026-07-20 16:38:48.54
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description:   Partition: 202406
+End Info
+Info: 2026-07-20 16:38:48.56
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description:   Partitionsnummer: 10
+End Info
+Info: 2026-07-20 16:38:48.56
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: WARNUNG [SWITCH OUT] Versuch 1/3: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.
+End Info
+Info: 2026-07-20 16:38:48.57
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: SQL Statement [SWITCH OUT]: ALTER TABLE dbo.[tf_fst_mabe_xs] SWITCH PARTITION 10 TO dbo.[tf_fst_mabe_xs_out_202406];
+End Info
+Info: 2026-07-20 16:39:18.59
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: WARNUNG [SWITCH OUT] Versuch 2/3: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.
+End Info
+Info: 2026-07-20 16:39:48.60
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: WARNUNG [SWITCH OUT] Versuch 3/3: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.
+End Info
+Error: 2026-07-20 16:39:48.60
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description:   FEHLER Partitionstausch pv=202406: [SWITCH OUT] fehlgeschlagen: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.
+End Error
+Error: 2026-07-20 16:39:48.61
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: [FEHLER_SWITCH_202406] vf_fst_mabe_xs: [SWITCH OUT] fehlgeschlagen: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.
+End Error
+Info: 2026-07-20 16:39:48.63
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description:   Partition: 202407
+End Info
+Info: 2026-07-20 16:39:48.64
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description:   Partitionsnummer: 11
+End Info
+Info: 2026-07-20 16:39:48.64
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: WARNUNG [SWITCH OUT] Versuch 1/3: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.
+End Info
+Info: 2026-07-20 16:39:48.64
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: SQL Statement [SWITCH OUT]: ALTER TABLE dbo.[tf_fst_mabe_xs] SWITCH PARTITION 11 TO dbo.[tf_fst_mabe_xs_out_202407];
+End Info
+Info: 2026-07-20 16:40:18.67
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: WARNUNG [SWITCH OUT] Versuch 2/3: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.
+End Info
+Info: 2026-07-20 16:40:48.70
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: WARNUNG [SWITCH OUT] Versuch 3/3: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.
+End Info
+Error: 2026-07-20 16:40:48.71
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description:   FEHLER Partitionstausch pv=202407: [SWITCH OUT] fehlgeschlagen: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.
+End Error
+Error: 2026-07-20 16:40:48.71
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: [FEHLER_SWITCH_202407] vf_fst_mabe_xs: [SWITCH OUT] fehlgeschlagen: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.
+End Error
+Info: 2026-07-20 16:40:48.79
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description:   Partition: 202408
+End Info
+Info: 2026-07-20 16:40:48.79
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description:   Partitionsnummer: 12
+End Info
+Info: 2026-07-20 16:40:48.81
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: WARNUNG [SWITCH OUT] Versuch 1/3: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.
+End Info
+Info: 2026-07-20 16:40:48.81
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: SQL Statement [SWITCH OUT]: ALTER TABLE dbo.[tf_fst_mabe_xs] SWITCH PARTITION 12 TO dbo.[tf_fst_mabe_xs_out_202408];
+End Info
+Info: 2026-07-20 16:41:18.82
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: WARNUNG [SWITCH OUT] Versuch 2/3: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.
+End Info
+Info: 2026-07-20 16:41:48.84
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: WARNUNG [SWITCH OUT] Versuch 3/3: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.
+End Info
+Error: 2026-07-20 16:41:48.84
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description:   FEHLER Partitionstausch pv=202408: [SWITCH OUT] fehlgeschlagen: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.
+End Error
+Error: 2026-07-20 16:41:48.85
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: [FEHLER_SWITCH_202408] vf_fst_mabe_xs: [SWITCH OUT] fehlgeschlagen: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.
+End Error
+Info: 2026-07-20 16:41:48.87
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description:   Partition: 202409
+End Info
+Info: 2026-07-20 16:41:48.87
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description:   Partitionsnummer: 13
+End Info
+Info: 2026-07-20 16:41:48.88
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: WARNUNG [SWITCH OUT] Versuch 1/3: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.
+End Info
+Info: 2026-07-20 16:41:48.88
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: SQL Statement [SWITCH OUT]: ALTER TABLE dbo.[tf_fst_mabe_xs] SWITCH PARTITION 13 TO dbo.[tf_fst_mabe_xs_out_202409];
+End Info
+Info: 2026-07-20 16:42:18.90
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: WARNUNG [SWITCH OUT] Versuch 2/3: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.
+End Info
+Info: 2026-07-20 16:42:48.92
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: WARNUNG [SWITCH OUT] Versuch 3/3: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.
+End Info
+Error: 2026-07-20 16:42:48.92
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description:   FEHLER Partitionstausch pv=202409: [SWITCH OUT] fehlgeschlagen: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.
+End Error
+Error: 2026-07-20 16:42:48.93
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: [FEHLER_SWITCH_202409] vf_fst_mabe_xs: [SWITCH OUT] fehlgeschlagen: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.
+End Error
+Info: 2026-07-20 16:42:48.95
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description:   Partition: 202410
+End Info
+Info: 2026-07-20 16:42:48.95
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description:   Partitionsnummer: 14
+End Info
+Info: 2026-07-20 16:42:48.95
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: WARNUNG [SWITCH OUT] Versuch 1/3: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.
+End Info
+Info: 2026-07-20 16:42:48.96
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: SQL Statement [SWITCH OUT]: ALTER TABLE dbo.[tf_fst_mabe_xs] SWITCH PARTITION 14 TO dbo.[tf_fst_mabe_xs_out_202410];
+End Info
+Info: 2026-07-20 16:43:18.97
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: WARNUNG [SWITCH OUT] Versuch 2/3: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.
+End Info
+Info: 2026-07-20 16:43:48.99
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: WARNUNG [SWITCH OUT] Versuch 3/3: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.
+End Info
+Error: 2026-07-20 16:43:48.99
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description:   FEHLER Partitionstausch pv=202410: [SWITCH OUT] fehlgeschlagen: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.
+End Error
+Error: 2026-07-20 16:43:49.01
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: [FEHLER_SWITCH_202410] vf_fst_mabe_xs: [SWITCH OUT] fehlgeschlagen: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.
+End Error
+Info: 2026-07-20 16:43:49.02
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description:   Partition: 202411
+End Info
+Info: 2026-07-20 16:43:49.02
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description:   Partitionsnummer: 15
+End Info
+Info: 2026-07-20 16:43:49.02
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: WARNUNG [SWITCH OUT] Versuch 1/3: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.
+End Info
+Info: 2026-07-20 16:43:49.04
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: SQL Statement [SWITCH OUT]: ALTER TABLE dbo.[tf_fst_mabe_xs] SWITCH PARTITION 15 TO dbo.[tf_fst_mabe_xs_out_202411];
+End Info
+Info: 2026-07-20 16:44:19.05
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: WARNUNG [SWITCH OUT] Versuch 2/3: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.
+End Info
+Info: 2026-07-20 16:44:49.07
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: WARNUNG [SWITCH OUT] Versuch 3/3: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.
+End Info
+Error: 2026-07-20 16:44:49.07
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description:   FEHLER Partitionstausch pv=202411: [SWITCH OUT] fehlgeschlagen: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.
+End Error
+Error: 2026-07-20 16:44:49.08
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: [FEHLER_SWITCH_202411] vf_fst_mabe_xs: [SWITCH OUT] fehlgeschlagen: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.
+End Error
+Info: 2026-07-20 16:44:49.10
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description:   Partition: 202412
+End Info
+Info: 2026-07-20 16:44:49.10
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description:   Partitionsnummer: 16
+End Info
+Info: 2026-07-20 16:44:49.11
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: WARNUNG [SWITCH OUT] Versuch 1/3: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.
+End Info
+Info: 2026-07-20 16:44:49.11
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: SQL Statement [SWITCH OUT]: ALTER TABLE dbo.[tf_fst_mabe_xs] SWITCH PARTITION 16 TO dbo.[tf_fst_mabe_xs_out_202412];
+End Info
+Info: 2026-07-20 16:45:19.13
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: WARNUNG [SWITCH OUT] Versuch 2/3: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.
+End Info
+Info: 2026-07-20 16:45:49.14
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: WARNUNG [SWITCH OUT] Versuch 3/3: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.
+End Info
+Error: 2026-07-20 16:45:49.14
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description:   FEHLER Partitionstausch pv=202412: [SWITCH OUT] fehlgeschlagen: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.
+End Error
+Error: 2026-07-20 16:45:49.16
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: [FEHLER_SWITCH_202412] vf_fst_mabe_xs: [SWITCH OUT] fehlgeschlagen: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.
+End Error
+Info: 2026-07-20 16:45:49.17
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description:   Partition: 202501
+End Info
+Info: 2026-07-20 16:45:49.17
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description:   Partitionsnummer: 17
+End Info
+Info: 2026-07-20 16:45:49.19
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: WARNUNG [SWITCH OUT] Versuch 1/3: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.
+End Info
+Info: 2026-07-20 16:45:49.19
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: SQL Statement [SWITCH OUT]: ALTER TABLE dbo.[tf_fst_mabe_xs] SWITCH PARTITION 17 TO dbo.[tf_fst_mabe_xs_out_202501];
+End Info
+Info: 2026-07-20 16:46:19.21
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: WARNUNG [SWITCH OUT] Versuch 2/3: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.
+End Info
+Info: 2026-07-20 16:46:49.21
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: WARNUNG [SWITCH OUT] Versuch 3/3: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.
+End Info
+Error: 2026-07-20 16:46:49.21
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description:   FEHLER Partitionstausch pv=202501: [SWITCH OUT] fehlgeschlagen: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.
+End Error
+Error: 2026-07-20 16:46:49.23
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: [FEHLER_SWITCH_202501] vf_fst_mabe_xs: [SWITCH OUT] fehlgeschlagen: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.
+End Error
+Info: 2026-07-20 16:46:49.25
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description:   Partition: 202502
+End Info
+Info: 2026-07-20 16:46:49.25
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description:   Partitionsnummer: 18
+End Info
+Info: 2026-07-20 16:46:49.26
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: WARNUNG [SWITCH OUT] Versuch 1/3: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.
+End Info
+Info: 2026-07-20 16:46:49.26
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: SQL Statement [SWITCH OUT]: ALTER TABLE dbo.[tf_fst_mabe_xs] SWITCH PARTITION 18 TO dbo.[tf_fst_mabe_xs_out_202502];
+End Info
+Info: 2026-07-20 16:47:19.28
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: WARNUNG [SWITCH OUT] Versuch 2/3: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.
+End Info
+Info: 2026-07-20 16:47:49.30
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: WARNUNG [SWITCH OUT] Versuch 3/3: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.
+End Info
+Error: 2026-07-20 16:47:49.30
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description:   FEHLER Partitionstausch pv=202502: [SWITCH OUT] fehlgeschlagen: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.
+End Error
+Error: 2026-07-20 16:47:49.32
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: [FEHLER_SWITCH_202502] vf_fst_mabe_xs: [SWITCH OUT] fehlgeschlagen: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.
+End Error
+Info: 2026-07-20 16:47:49.33
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description:   Partition: 202503
+End Info
+Info: 2026-07-20 16:47:49.35
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description:   Partitionsnummer: 19
+End Info
+Info: 2026-07-20 16:47:49.35
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: WARNUNG [SWITCH OUT] Versuch 1/3: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.
+End Info
+Info: 2026-07-20 16:47:49.35
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: SQL Statement [SWITCH OUT]: ALTER TABLE dbo.[tf_fst_mabe_xs] SWITCH PARTITION 19 TO dbo.[tf_fst_mabe_xs_out_202503];
+End Info
+Info: 2026-07-20 16:48:19.38
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: WARNUNG [SWITCH OUT] Versuch 2/3: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.
+End Info
+Info: 2026-07-20 16:48:49.39
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: WARNUNG [SWITCH OUT] Versuch 3/3: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.
+End Info
+Error: 2026-07-20 16:48:49.39
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description:   FEHLER Partitionstausch pv=202503: [SWITCH OUT] fehlgeschlagen: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.
+End Error
+Error: 2026-07-20 16:48:49.41
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: [FEHLER_SWITCH_202503] vf_fst_mabe_xs: [SWITCH OUT] fehlgeschlagen: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.
+End Error
+Info: 2026-07-20 16:48:49.42
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description:   Partition: 202504
+End Info
+Info: 2026-07-20 16:48:49.42
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description:   Partitionsnummer: 20
+End Info
+Info: 2026-07-20 16:48:49.42
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: WARNUNG [SWITCH OUT] Versuch 1/3: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.
+End Info
+Info: 2026-07-20 16:48:49.44
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: SQL Statement [SWITCH OUT]: ALTER TABLE dbo.[tf_fst_mabe_xs] SWITCH PARTITION 20 TO dbo.[tf_fst_mabe_xs_out_202504];
+End Info
+Info: 2026-07-20 16:49:19.45
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: WARNUNG [SWITCH OUT] Versuch 2/3: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.
+End Info
+Info: 2026-07-20 16:49:49.46
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: WARNUNG [SWITCH OUT] Versuch 3/3: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.
+End Info
+Error: 2026-07-20 16:49:49.46
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description:   FEHLER Partitionstausch pv=202504: [SWITCH OUT] fehlgeschlagen: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.
+End Error
+Error: 2026-07-20 16:49:49.47
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: [FEHLER_SWITCH_202504] vf_fst_mabe_xs: [SWITCH OUT] fehlgeschlagen: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.
+End Error
+Info: 2026-07-20 16:49:49.49
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description:   Partition: 202505
+End Info
+Info: 2026-07-20 16:49:49.49
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description:   Partitionsnummer: 21
+End Info
+Info: 2026-07-20 16:49:49.50
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: WARNUNG [SWITCH OUT] Versuch 1/3: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.
+End Info
+Info: 2026-07-20 16:49:49.50
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: SQL Statement [SWITCH OUT]: ALTER TABLE dbo.[tf_fst_mabe_xs] SWITCH PARTITION 21 TO dbo.[tf_fst_mabe_xs_out_202505];
+End Info
+Info: 2026-07-20 16:50:19.52
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: WARNUNG [SWITCH OUT] Versuch 2/3: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.
+End Info
+Info: 2026-07-20 16:50:49.53
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: WARNUNG [SWITCH OUT] Versuch 3/3: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.
+End Info
+Error: 2026-07-20 16:50:49.53
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description:   FEHLER Partitionstausch pv=202505: [SWITCH OUT] fehlgeschlagen: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.
+End Error
+Error: 2026-07-20 16:50:49.54
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: [FEHLER_SWITCH_202505] vf_fst_mabe_xs: [SWITCH OUT] fehlgeschlagen: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.
+End Error
+Info: 2026-07-20 16:50:49.56
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description:   Partition: 202506
+End Info
+Info: 2026-07-20 16:50:49.56
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description:   Partitionsnummer: 22
+End Info
+Info: 2026-07-20 16:50:49.57
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: WARNUNG [SWITCH OUT] Versuch 1/3: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.
+End Info
+Info: 2026-07-20 16:50:49.57
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: SQL Statement [SWITCH OUT]: ALTER TABLE dbo.[tf_fst_mabe_xs] SWITCH PARTITION 22 TO dbo.[tf_fst_mabe_xs_out_202506];
+End Info
+Info: 2026-07-20 16:51:19.59
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: WARNUNG [SWITCH OUT] Versuch 2/3: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.
+End Info
+Info: 2026-07-20 16:51:49.60
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: WARNUNG [SWITCH OUT] Versuch 3/3: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.
+End Info
+Error: 2026-07-20 16:51:49.60
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description:   FEHLER Partitionstausch pv=202506: [SWITCH OUT] fehlgeschlagen: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.
+End Error
+Error: 2026-07-20 16:51:49.62
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: [FEHLER_SWITCH_202506] vf_fst_mabe_xs: [SWITCH OUT] fehlgeschlagen: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.
+End Error
+Info: 2026-07-20 16:51:49.63
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description:   Partition: 202507
+End Info
+Info: 2026-07-20 16:51:49.63
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description:   Partitionsnummer: 23
+End Info
+Info: 2026-07-20 16:51:49.65
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: WARNUNG [SWITCH OUT] Versuch 1/3: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.
+End Info
+Info: 2026-07-20 16:51:49.65
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: SQL Statement [SWITCH OUT]: ALTER TABLE dbo.[tf_fst_mabe_xs] SWITCH PARTITION 23 TO dbo.[tf_fst_mabe_xs_out_202507];
+End Info
+Info: 2026-07-20 16:52:19.66
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: WARNUNG [SWITCH OUT] Versuch 2/3: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.
+End Info
+Info: 2026-07-20 16:52:49.67
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: WARNUNG [SWITCH OUT] Versuch 3/3: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.
+End Info
+Error: 2026-07-20 16:52:49.67
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description:   FEHLER Partitionstausch pv=202507: [SWITCH OUT] fehlgeschlagen: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.
+End Error
+Error: 2026-07-20 16:52:49.67
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: [FEHLER_SWITCH_202507] vf_fst_mabe_xs: [SWITCH OUT] fehlgeschlagen: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.
+End Error
+Info: 2026-07-20 16:52:49.68
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description:   Partition: 202508
+End Info
+Info: 2026-07-20 16:52:49.70
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description:   Partitionsnummer: 24
+End Info
+Info: 2026-07-20 16:52:49.70
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: WARNUNG [SWITCH OUT] Versuch 1/3: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.
+End Info
+Info: 2026-07-20 16:52:49.70
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: SQL Statement [SWITCH OUT]: ALTER TABLE dbo.[tf_fst_mabe_xs] SWITCH PARTITION 24 TO dbo.[tf_fst_mabe_xs_out_202508];
+End Info
+Info: 2026-07-20 16:53:19.72
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: WARNUNG [SWITCH OUT] Versuch 2/3: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.
+End Info
+Info: 2026-07-20 16:53:49.74
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: WARNUNG [SWITCH OUT] Versuch 3/3: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.
+End Info
+Error: 2026-07-20 16:53:49.74
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description:   FEHLER Partitionstausch pv=202508: [SWITCH OUT] fehlgeschlagen: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.
+End Error
+Error: 2026-07-20 16:53:49.75
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: [FEHLER_SWITCH_202508] vf_fst_mabe_xs: [SWITCH OUT] fehlgeschlagen: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.
+End Error
+Info: 2026-07-20 16:53:49.77
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description:   ABSCHLUSSSTATUS: tf_fst_mabe_xs
+End Info
+Info: 2026-07-20 16:53:49.78
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description:   Getauscht OK: 0 | Fehler: 23
+End Info
+Info: 2026-07-20 16:53:49.78
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description:   Zeilen: 0
+End Info
+Info: 2026-07-20 16:53:49.78
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description:   MIN:    NULL
+End Info
+Info: 2026-07-20 16:53:49.80
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description:   MAX:    NULL
+End Info
+Info: 2026-07-20 16:53:49.80
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: [ABSCHLUSS] vf_fst_mabe_xs: Getauscht OK: 0 | Fehler: 23 | Zeilen: 0 | MIN: NULL | MAX: NULL
+End Info
+Error: 2026-07-20 16:53:49.80
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: [FEHLER_SCR15] vf_fst_mabe_xs: 23 von 23 Partition(en) Tausch fehlgeschlagen (erste: pv=202310: [SWITCH OUT] fehlgeschlagen: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.). Erfolgreich getauscht: 0. Betroffene _in_-Tabellen entfernt -> naechster Lauf laedt NUR die fehlgeschlagenen Partitionen neu.
+End Error
+Error: 2026-07-20 16:53:49.81
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description:   Verfahren 'vf_fst_mabe_xs': 23 von 23 Partition(en) Tausch fehlgeschlagen (erste: pv=202310: [SWITCH OUT] fehlgeschlagen: ALTER TABLE SWITCH statement failed. Source and target partitions have different values for the DATA_COMPRESSION option.). Erfolgreich getauscht: 0. Betroffene _in_-Tabellen entfernt -> naechster Lauf laedt NUR die fehlgeschlagenen Partitionen neu.
+End Error
+Info: 2026-07-20 16:53:49.81
+   Code: 0x00000000
+   Source: SCR19_Partitionstausch SCR19_Partitionstausch
+   Description: Erfolgreich: 0 | Fehler: 1
+End Info
+Error: 2026-07-20 16:53:49.81
+   Code: 0x00000006
+   Source: SCR19_Partitionstausch 
+   Description: The script returned a failure result.
+End Error
+Info: 2026-07-20 16:53:49.84
+   Code: 0x00000000
+   Source: OnTaskFailed OnFailed
+   Description: Cleanup: keine leeren _out_/_in_-Tabellen und keine ext-Tabellen gefunden
+End Info
+Warning: 2026-07-20 16:53:49.84
+   Code: 0x80019002
+   Source: Laden_Fakten 
+   Description: SSIS Warning Code DTS_W_MAXIMUMERRORCOUNTREACHED.  The Execution method succeeded, but the number of errors raised (49) reached the maximum allowed (1); resulting in failure. This occurs when the number of errors reaches the number specified in MaximumErrorCount. Change the MaximumErrorCount or fix the errors.
+End Warning
+DTExec: The package execution returned DTSER_FAILURE (1).
+Started:  16:26:18
+Finished: 16:53:49
+Elapsed:  1651.67 seconds
+ 
+[20.07.2026 16:53:51,58] SSIS-Ausfuehrung abgeschlossen 
+[20.07.2026 16:53:51,58] Exitcode: 1           
+----------------------------------------------- 
