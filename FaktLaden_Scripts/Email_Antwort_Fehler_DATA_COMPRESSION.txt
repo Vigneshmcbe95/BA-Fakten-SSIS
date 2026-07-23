@@ -2,67 +2,12 @@ Betreff: AW: Faktenladen FST-Wuerfel - Partitionstausch fehlgeschlagen (DATA_COM
 
 Hallo Nils,
 
-danke fuer die Meldung und die gute Vorarbeit mit Thomas - eure Analyse war
-genau richtig.
+Problem: SWITCH OUT schlug fuer alle 23 Partitionen von vf_fst_mabe_xs fehl ("different values for the DATA_COMPRESSION option").
+Ursache: SCR10 hat die Faktentabelle nie komprimiert, obwohl die Parametertabelle PAGE vorgibt - dadurch stand die (unkomprimierte) Faktentabelle gegen die (PAGE-komprimierte) _out_-Tabelle aus SCR17.
+Loesung: SCR10 komprimiert die Faktentabelle jetzt beim Erstellen passend zum Parameter, und SCR17 komprimiert zusaetzlich auch die _in_-Tabelle - damit passt SWITCH OUT und SWITCH IN.
 
-1) Ursache
-------------------------
-Der Fehler
+Hinweis: bereits bestehende, falsch komprimierte Faktentabellen werden davon nicht automatisch erfasst (SCR10 prueft nur CCI/Partitionierung, nicht Komprimierung) - bei Bedarf einmalig manuell per REBUILD nachkomprimieren, sagt Bescheid falls relevant.
 
-    Verfahren 'vf_fst_mabe_xs': 23 von 23 Partition(en) Tausch fehlgeschlagen
-    (erste: pv=202310: [SWITCH OUT] fehlgeschlagen: ALTER TABLE SWITCH
-    statement failed. Source and target partitions have different values
-    for the DATA_COMPRESSION option.)
-
-kommt daher, dass die Faktentabelle beim Erstellen (SCR10_Faktentabelle_
-Erstellen) NIE komprimiert wurde - unabhaengig davon, was in der
-Parametertabelle unter "Faktenkomprimierung" steht. Der Parameterwert (bei
-euch PAGE) wurde zwar korrekt gelesen und sogar im Log ausgegeben, aber nie
-tatsaechlich per DATA_COMPRESSION auf die Tabelle angewandt. Das gilt sowohl
-fuer neu erstellte als auch fuer geloescht-und-neu-erstellte Faktentabellen
-(also auch in eurem Fall, wo ihr die Tabelle vorher geloescht hattet).
-
-Die _out_-Tabellen dagegen werden bereits korrekt in SCR17_Komprimierung_Out
-mit PAGE komprimiert. Beim Partitionstausch (SCR19, SWITCH OUT) vergleicht
-SQL Server dann Faktentabelle (unkomprimiert) gegen _out_-Tabelle
-(komprimiert) - das schlaegt zwingend fehl, da SWITCH identische
-Komprimierung auf beiden Seiten voraussetzt.
-
-Zusaetzlich haetten wir nach einer reinen Behebung an der Faktentabelle den
-gleichen Fehler kurz danach beim SWITCH IN bekommen: die _in_-Tabellen
-wurden bisher nirgends komprimiert. Das ist bisher nicht aufgefallen, weil
-die (bislang unkomprimierte) Faktentabelle zufaellig zur ebenfalls
-unkomprimierten _in_-Tabelle "gepasst" hat.
-
-2) Behobene Stellen
-------------------------
-- FaktLaden_Scripts/SCR10_Faktentabelle_Erstellen.vb
-  Nach dem Erstellen der Faktentabelle wird jetzt (sofern kein CCI und
-  Faktenkomprimierung = PAGE/ROW) sofort
-      ALTER TABLE ... REBUILD WITH (DATA_COMPRESSION = <Wert>)
-  ausgefuehrt - die Faktentabelle entspricht damit ab sofort dem in der
-  Parametertabelle hinterlegten Wert.
-
-- FaktLaden_Scripts/SCR17_Komprimierung_Out.vb
-  Komprimiert jetzt zusaetzlich zur _out_-Tabelle auch die passende
-  _in_-Tabelle je Partition mit demselben Wert, damit auch der SWITCH IN
-  (neue Daten -> Faktentabelle) nicht an unterschiedlicher Komprimierung
-  scheitert.
-
-3) Wichtiger Hinweis zu bereits bestehenden Tabellen
-------------------------
-Die Pruefung in SCR10, ob eine bereits vorhandene Faktentabelle "in
-Ordnung" ist, prueft nur CCI-Vorhandensein und Partitionierung - nicht die
-Komprimierung. D.h. fuer Faktentabellen, die JETZT SCHON existieren und
-falsch (nicht) komprimiert sind, greift die Korrektur nicht automatisch -
-sie werden vom Skript unveraendert uebernommen. Falls ihr weitere,
-bestehende Tabellen mit demselben Symptom habt, muesste dort einmalig
-manuell nachkomprimiert werden (ALTER TABLE ... REBUILD WITH
-(DATA_COMPRESSION=PAGE)) bzw. wir muessten die Strukturpruefung in SCR10
-noch um die Komprimierung erweitern. Sagt Bescheid, falls das bei euch
-relevant ist.
-
-Zum zweiten Punkt (Run_Laden_FAKTEN.cmd / Sonderfall FST-Datenbankname):
-das nehme ich separat in GIT auf.
+Den Run_Laden_FAKTEN.cmd-Punkt (Sonderfall FST-Datenbankname) nehme ich separat in GIT auf.
 
 Viele Gruesse
