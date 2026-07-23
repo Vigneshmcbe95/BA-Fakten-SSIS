@@ -262,18 +262,44 @@ Partial Public Class ScriptMain
             " WHERE i.object_id = OBJECT_ID('dbo.[" & factTable & "]')" &
             "   AND i.index_id > 1 AND i.type_desc = 'NONCLUSTERED'"
 
+        ' Diese Abfrage selbst hatte bisher KEINE Wiederholung (im Gegensatz zu
+        ' allen anderen SQL-Aufrufen im Skript) - ein transienter Fehler hier
+        ' wuerde die Methode unbemerkt abbrechen lassen (aufgefangen erst vom
+        ' aeusseren Try/Catch in Main, ohne erkennbaren Bezug zur NCI-
+        ' Replikation). Jetzt mit Wiederholung, damit ein Netzwerk-/Timeout-
+        ' Aussetzer nicht stillschweigend dazu fuehrt, dass fuer DIESE Tabelle
+        ' keine NCI-Replikation stattfindet.
         Dim aufbau As New List(Of String())()
-        Using conn As New SqlConnection(connStr)
-            conn.Open()
-            Using cmd As New SqlCommand(sql, conn)
-                cmd.CommandTimeout = 0
-                Using rdr As SqlDataReader = cmd.ExecuteReader()
-                    While rdr.Read()
-                        aufbau.Add(New String() {rdr(0).ToString().Trim(), rdr(1).ToString()})
-                    End While
+        Dim versuchLesen As Integer = 0
+        While versuchLesen < MAX_VERSUCHE
+            versuchLesen += 1
+            Try
+                aufbau.Clear()
+                Using conn As New SqlConnection(connStr)
+                    conn.Open()
+                    Using cmd As New SqlCommand(sql, conn)
+                        cmd.CommandTimeout = 0
+                        Using rdr As SqlDataReader = cmd.ExecuteReader()
+                            While rdr.Read()
+                                aufbau.Add(New String() {rdr(0).ToString().Trim(), rdr(1).ToString()})
+                            End While
+                        End Using
+                    End Using
                 End Using
-            End Using
-        End Using
+                Exit While
+            Catch ex As Exception
+                Log(String.Format("WARNUNG [NCI-Metadaten lesen '{0}'] Versuch {1}/{2}: {3}", stagingTable, versuchLesen, MAX_VERSUCHE, ex.Message))
+                If versuchLesen < MAX_VERSUCHE Then Thread.Sleep(WARTE_SEK * 1000) Else Throw
+            End Try
+        End While
+
+        ' Schliesst die bisherige "stille Luecke": frueher wurde in diesem Fall
+        ' ueberhaupt nichts geloggt, wodurch nicht erkennbar war, ob die Pruefung
+        ' lief und nichts fand, oder ob sie gar nicht erst ausgefuehrt wurde.
+        If aufbau.Count = 0 Then
+            Log("    NCI-Pruefung " & stagingTable & ": keine zusaetzlichen NONCLUSTERED Indizes auf " & factTable & " gefunden (nichts zu replizieren)")
+            Return
+        End If
 
         For Each idx As String() In aufbau
             Dim idxName As String = idx(0)

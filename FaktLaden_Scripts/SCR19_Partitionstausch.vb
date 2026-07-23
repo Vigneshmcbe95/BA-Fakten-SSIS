@@ -107,6 +107,14 @@ Partial Public Class ScriptMain
                             End If
                             pnrVal = Convert.ToInt32(pnr)
                             Log("  Partitionsnummer: " & pnrVal.ToString())
+                            ' Sicherheitsnetz: nichtclusterte (Rowstore) Indizes der Faktentabelle
+                            ' (z.B. manuell angelegte wie nci_tf_bst_gb) koennen auf _out_/_in_
+                            ' fehlen, wenn SCR16 sie fuer diese Partition nicht erreicht hat.
+                            ' Hier direkt vor dem jeweiligen SWITCH nachpruefen/nachbauen, statt
+                            ' uns auf SCR16 zu verlassen - sonst schlaegt SWITCH mit "no identical
+                            ' index" fehl, obwohl die eigentliche Ursache weiter oben im Ablauf lag.
+                            NonclusteredReplizieren(connStr, v.Faktentabelle, outTable)
+
                             ' SWITCH OUT (alte Partitionsdaten -> _out_)
                             SqlAusfuehren(connStr, "ALTER TABLE dbo.[" & v.Faktentabelle & "] SWITCH PARTITION " & pnrVal & " TO dbo.[" & outTable & "];", "SWITCH OUT")
                             switchedOut = True
@@ -129,6 +137,9 @@ Partial Public Class ScriptMain
                                 "CHECK([" & v.PartitionColumn & "] IS NOT NULL AND [" & v.PartitionColumn & "] > " & lowerBound.ToString() & " AND [" & v.PartitionColumn & "] <= " & pvStr & ");",
                                 "CK setzen")
                             Log("  CHECK Constraint: " & ckName & " (" & v.PartitionColumn & " IS NOT NULL AND > " & lowerBound.ToString() & " AND <= " & pvStr & ") OK")
+                            ' Sicherheitsnetz (siehe Kommentar bei SWITCH OUT) - auch fuer _in_
+                            ' direkt vor SWITCH IN pruefen/nachbauen.
+                            NonclusteredReplizieren(connStr, v.Faktentabelle, inTable)
                             ' SWITCH IN (neue Daten -> Faktenpartition)
                             SqlAusfuehren(connStr, "ALTER TABLE dbo.[" & inTable & "] SWITCH TO dbo.[" & v.Faktentabelle & "] PARTITION " & pnrVal & ";", "SWITCH IN")
                             Log("  SWITCH IN " & v.Faktentabelle & " Partition " & pnrVal.ToString() & " OK")
@@ -217,6 +228,69 @@ Partial Public Class ScriptMain
             Dts.TaskResult = ScriptResults.Failure
         End Try
     End Sub
+
+    ' -----------------------------------------------------------------------
+    ' NonclusteredReplizieren - Liest ALLE NONCLUSTERED (Rowstore) Indizes der
+    ' Faktentabelle (index_id > 1) und baut jeden fehlenden 1:1 auf der Ziel-
+    ' Tabelle (_in_/_out_) nach (Name, UNIQUE, Schluessel-/INCLUDE-Spalten,
+    ' Filter), BEVOR SWITCH versucht wird. Identisch zur Logik in SCR16 -
+    ' hier als Sicherheitsnetz direkt vor dem SWITCH, falls SCR16 diese
+    ' Tabelle nicht erreicht hat. Columnstore (NCCI) bleibt aussen vor.
+    ' -----------------------------------------------------------------------
+    Private Sub NonclusteredReplizieren(connStr As String, factTable As String, zielTable As String)
+        Dim sql As String =
+            "SELECT i.name AS idxName," &
+            " 'CREATE ' + CASE WHEN i.is_unique = 1 THEN 'UNIQUE ' ELSE '' END +" &
+            " 'NONCLUSTERED INDEX [' + i.name + '] ON dbo.[" & zielTable & "] (' +" &
+            " STUFF((SELECT ', [' + c.name + ']' + CASE WHEN ic.is_descending_key = 1 THEN ' DESC' ELSE '' END" &
+            "        FROM sys.index_columns ic JOIN sys.columns c ON c.object_id = ic.object_id AND c.column_id = ic.column_id" &
+            "        WHERE ic.object_id = i.object_id AND ic.index_id = i.index_id AND ic.is_included_column = 0" &
+            "        ORDER BY ic.key_ordinal FOR XML PATH(''), TYPE).value('.','nvarchar(max)'), 1, 2, '') + ')' +" &
+            " ISNULL(' INCLUDE (' + STUFF((SELECT ', [' + c.name + ']'" &
+            "        FROM sys.index_columns ic JOIN sys.columns c ON c.object_id = ic.object_id AND c.column_id = ic.column_id" &
+            "        WHERE ic.object_id = i.object_id AND ic.index_id = i.index_id AND ic.is_included_column = 1" &
+            "        ORDER BY ic.index_column_id FOR XML PATH(''), TYPE).value('.','nvarchar(max)'), 1, 2, '') + ')', '') +" &
+            " ISNULL(' WHERE ' + i.filter_definition, '') + ';' AS createStmt" &
+            " FROM sys.indexes i" &
+            " WHERE i.object_id = OBJECT_ID('dbo.[" & factTable.ToLower() & "]')" &
+            "   AND i.index_id > 1 AND i.type_desc = 'NONCLUSTERED'"
+
+        Dim aufbau As New List(Of String())()
+        Using conn As New SqlConnection(connStr)
+            conn.Open()
+            Using cmd As New SqlCommand(sql, conn)
+                cmd.CommandTimeout = 0
+                Using rdr As SqlDataReader = cmd.ExecuteReader()
+                    While rdr.Read()
+                        aufbau.Add(New String() {rdr(0).ToString().Trim(), rdr(1).ToString()})
+                    End While
+                End Using
+            End Using
+        End Using
+
+        If aufbau.Count = 0 Then
+            Log("    Sicherheitsnetz-Indexpruefung " & zielTable & ": keine zusaetzlichen NCI auf Faktentabelle gefunden")
+            Return
+        End If
+
+        For Each idx As String() In aufbau
+            Dim idxName As String = idx(0)
+            Dim createStmt As String = idx(1)
+            If IndexVorhanden(connStr, zielTable, idxName) Then
+                Log("    Sicherheitsnetz-Indexpruefung " & zielTable & ": " & idxName & " bereits vorhanden")
+            Else
+                SqlAusfuehren(connStr, createStmt, "NCI " & idxName & " auf " & zielTable)
+                Log("    WARNUNG: fehlenden Index " & idxName & " erst hier (SCR19) auf " & zielTable & " nachgebaut - SCR16 hat ihn nicht angelegt")
+            End If
+        Next
+    End Sub
+
+    ' -----------------------------------------------------------------------
+    ' IndexVorhanden - Prueft, ob ein Index auf einer Tabelle existiert.
+    ' -----------------------------------------------------------------------
+    Private Function IndexVorhanden(connStr As String, tbl As String, idxName As String) As Boolean
+        Return Convert.ToInt32(SqlSkalar(connStr, "SELECT COUNT(*) FROM sys.indexes WHERE object_id=OBJECT_ID('dbo.[" & tbl & "]') AND name='" & idxName & "'", "Index pruefen")) > 0
+    End Function
 
     ' -----------------------------------------------------------------------
     ' VerfahrenLaden - Laedt die zu verarbeitenden Verfahren aus der
