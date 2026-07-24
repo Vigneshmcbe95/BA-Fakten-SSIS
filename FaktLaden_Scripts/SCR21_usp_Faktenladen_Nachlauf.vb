@@ -131,6 +131,29 @@ Partial Public Class ScriptMain
 
                 Log("  Prozedur existiert")
 
+                ' Signatur-Vorabpruefung: SCR21 ruft IMMER mit 11 Parametern auf
+                ' (originale 10 + @MowIdListe, seit 2026-06-05). Aeltere/eigene
+                ' Prozeduren, die noch nicht auf 11 Parameter erweitert wurden,
+                ' scheitern sonst mit einer kryptischen SQL-Server-Meldung
+                ' ("has too many arguments specified") ohne erkennbaren Bezug
+                ' zur eigentlichen Ursache. Hier stattdessen klar benennen, was
+                ' zu tun ist, und die Prozedur fuer dieses Verfahren ueberspringen
+                ' statt den ganzen Lauf mit einer unklaren Fehlermeldung zu blockieren.
+                Dim erwarteteParameter As Integer = 11
+                Dim tatsaechlicheParameter As Integer = ParameterAnzahlErmitteln(connStr, procName)
+                If tatsaechlicheParameter <> erwarteteParameter Then
+                    Dim hinweis As String =
+                        "Prozedur " & procName & " erwartet " & tatsaechlicheParameter.ToString() &
+                        " Parameter, SCR21 ruft aber mit " & erwarteteParameter.ToString() &
+                        " Parametern auf (seit Einfuehrung von @MowIdListe am 2026-06-05). " &
+                        "Bitte die Prozedur um den 11. Parameter @MowIdListe (nvarchar, kommagetrennte mow_ids) erweitern."
+                    cntFehler += 1
+                    FehlerSetzen(connStr, v.ID, hinweis)
+                    ProtokollSchreiben(connStr, v.Verfahren, "FEHLER_SCR17", hinweis)
+                    LogFehler("FEHLER '" & v.Verfahren & "': " & hinweis)
+                    Continue For
+                End If
+
                 Try
                     StatusSetzen(connStr, v.ID, STATUS_RUN)
                     Dim protokollID As String = "{" & Guid.NewGuid().ToString() & "}"
@@ -229,6 +252,20 @@ Partial Public Class ScriptMain
             Using cmd As New SqlCommand("SELECT COUNT(*) FROM sys.objects WHERE object_id=OBJECT_ID(@p) AND type IN ('P','PC')", c)
                 cmd.Parameters.AddWithValue("@p", procName)
                 Return CInt(cmd.ExecuteScalar()) > 0
+            End Using
+        End Using
+    End Function
+
+    ' -----------------------------------------------------------------------
+    ' ParameterAnzahlErmitteln - Liefert die Anzahl der Parameter einer
+    ' Stored Procedure (fuer die Signatur-Vorabpruefung vor EXEC).
+    ' -----------------------------------------------------------------------
+    Private Function ParameterAnzahlErmitteln(connStr As String, procName As String) As Integer
+        Using c As New SqlConnection(connStr)
+            c.Open()
+            Using cmd As New SqlCommand("SELECT COUNT(*) FROM sys.parameters WHERE object_id=OBJECT_ID(@p)", c)
+                cmd.Parameters.AddWithValue("@p", procName)
+                Return CInt(cmd.ExecuteScalar())
             End Using
         End Using
     End Function
