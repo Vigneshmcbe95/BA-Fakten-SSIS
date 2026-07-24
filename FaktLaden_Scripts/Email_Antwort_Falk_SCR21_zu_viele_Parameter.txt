@@ -1,0 +1,10 @@
+Betreff: AW: Faktenladen tg_fst_hoch_tln - "has too many arguments specified" (usp_Faktenladen_Nachlauf)
+
+Hallo Falk,
+
+Problem: Nachlauf fuer tg_fst_hoch_tln schlug fehl mit "Procedure or function usp_Faktenladen_Nachlauf_tg_fst_hoch_tln has too many arguments specified" (auch schon bei msi_dm_bb aufgetreten).
+Ursache: SCR21 ruft seit 2026-06-05 alle usp_Faktenladen_Nachlauf_* Prozeduren mit 11 Parametern auf (neu dazugekommen: @MowIdListe) - Eure Prozedur wurde seitdem nicht auf 11 Parameter erweitert und akzeptiert weiterhin nur die urspruenglichen 10.
+Loesung im Skript: SCR21 prueft jetzt vor dem Aufruf die tatsaechliche Parameteranzahl der Prozedur und meldet bei Abweichung klar, welche Prozedur um welchen Parameter (@MowIdListe, nvarchar, kommagetrennte mow_ids) erweitert werden muss, statt der kryptischen SQL-Server-Meldung.
+Was noch zu tun bleibt: die Prozeduren selbst (usp_Faktenladen_Nachlauf_tg_fst_hoch_tln und ggf. die bei msi_dm_bb) muesst Ihr bzw. die jeweiligen Eigentuemer um den 11. Parameter @MowIdListe erweitern - das liegt ausserhalb unseres Skripts, da jede Prozedur individuell je Tabelle gepflegt wird.
+
+Viele Gruesse
