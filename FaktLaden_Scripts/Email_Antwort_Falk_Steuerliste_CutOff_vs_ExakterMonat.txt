@@ -1,0 +1,18 @@
+Betreff: AW: Faktenladen FST - Steuerliste laedt mehr Monate als angegeben (VF_FST_MABE_XS_202508)
+
+Hallo Falk,
+
+Problem: Steuerliste enthielt nur VF_FST_MABE_XS_202508, geladen wurden aber alle Monate vom Anfang bis 202508 statt nur dieser eine Monat.
+Ursache: kein Fehler, sondern die vorhandene Schreibweise - ein fester Datumswert als Suffix (_202508) ist im Skript als "Cut-Off" definiert und bedeutet "lade alles <= diesem Wert", nicht "lade genau diesen Monat".
+Loesung: fuer genau einen Monat bitte die Token-Schreibweise verwenden: VF_FST_MABE_XS:YYYYMM(202508) - das laedt ausschliesslich 202508 (siehe FaktLaden_Scripts/Steuerliste_Filter_Schreibweisen.md, dort auch alle anderen Schreibweisen).
+
+Zur Uebersicht die beiden relevanten Schreibweisen im Vergleich:
+
+Schreibweise                                         | Typ            | Was geladen wird
+------------------------------------------------------|----------------|---------------------------
+tabelle_202508 (fester 6-stelliger Suffix)             | Cut-Off        | Alle Partitionen <= 202508
+tabelle:YYYYMM(202508) (Token, auch mit nur 1 Wert)    | Mengen-Treffer | Nur dieser eine Monat
+
+Das ist keine neue Aenderung unsererseits, sondern das bisherige, dokumentierte Verhalten - koennt ihr die Steuerliste entsprechend anpassen?
+
+Viele Gruesse
