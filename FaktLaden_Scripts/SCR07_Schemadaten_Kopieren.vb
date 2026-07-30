@@ -143,6 +143,14 @@ Partial Public Class ScriptMain
 
         Log("Oracle-Abfrage laeuft (kann 20-60 Sekunden dauern)...")
 
+        ' COLNO IS NOT NULL filtert Oracle-systemgenerierte Metadaten-Artefakte
+        ' (z.B. Constraint-Spalten wie 'SYS_C00015_26072613:32:21$') aus, die
+        ' keinen echten Spaltenindex haben und wegen Sonderzeichen (: $) die
+        ' dynamische CREATE EXTERNAL TABLE-Anweisung in SCR09 mit einem
+        ' Syntaxfehler zum Absturz bringen. Eigentlich gehoert der Filter in
+        ' die Oracle-View selbst (vm_ddl_sql_server auf COLUMN_ID IS NOT NULL),
+        ' das kann aber aktuell nicht kurzfristig deployt werden - deshalb
+        ' hier als Uebergangsloesung zusaetzlich beim Staging gefiltert.
         Dim sqlSelect As String =
 "SELECT
     CAST(RTRIM(THMNAME) AS VARCHAR(100)) COLLATE Latin1_General_100_CI_AS_SC_UTF8 AS THMNAME,
@@ -155,7 +163,8 @@ Partial Public Class ScriptMain
     SCALE,
     IS_NULLABLE
 INTO dbo.ddl_staging
-FROM [" & _datenbank & "].[" & _extTableSchema & "].[" & _extTableName & "];"
+FROM [" & _datenbank & "].[" & _extTableSchema & "].[" & _extTableName & "]
+WHERE COLNO IS NOT NULL;"
 
         SqlAusfuehren(connStr, sqlSelect, "Staging SELECT INTO")
 
