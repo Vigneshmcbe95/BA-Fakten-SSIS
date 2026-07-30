@@ -106,9 +106,18 @@ Partial Public Class ScriptMain
         ' Example: "ISTAT.STATRT.VM_DDL_SQL_SERVER" → "ISTAT"
         Dim oracleEnvironment As String = _extTableLocation.Split("."c)(0).ToUpper()
 
+        ' Oracle-Objektname aus der Steuerliste kann als tf_... oder vf_...
+        ' gepflegt sein, waehrend das tatsaechliche Oracle-Objekt das jeweils
+        ' andere Praefix hat (Tippfehler/Konvention in der Steuerliste). Gegen
+        ' die lokal gestagte Oracle-DDL-Metadatenkopie (dbo.ddl_staging, von
+        ' SCR07 je Lauf aktualisiert) pruefen, welches Praefix tatsaechlich
+        ' existiert, statt blind das Steuerlisten-Praefix zu verwenden -
+        ' sonst zeigt LOCATION auf ein nicht existierendes Oracle-Objekt und
+        ' der Fehler zeigt sich erst spaeter beim Laden in SCR13.
+        Dim oracleObjektName As String = OracleObjektNameAufloesen(connStr, v.Themengebiet, v.Verfahren)
+
         ' Oracle LOCATION: <ENVIRONMENT>.<THEMENGEBIET>.<VERFAHREN> (all UPPER)
-        ' Verfahren = Oracle-Objektname aus der Steuerliste (nicht Faktentabelle).
-        Dim location As String = oracleEnvironment & "." & v.Themengebiet.ToUpper() & "." & v.Verfahren.ToUpper()
+        Dim location As String = oracleEnvironment & "." & v.Themengebiet.ToUpper() & "." & oracleObjektName.ToUpper()
 
         Log("  Oracle Location: " & location)
 
@@ -178,6 +187,60 @@ WHERE schema_id = SCHEMA_ID('" & _extSchema & "')
 
         Log("  OK Externe Tabelle erfolgreich: " & extFullName)
     End Sub
+
+    ' -----------------------------------------------------------------------
+    ' OracleObjektNameAufloesen - Prueft anhand von dbo.ddl_staging (lokale
+    ' Kopie der Oracle-DDL-Metadaten, siehe SCR07), ob der Steuerlisten-Name
+    ' 1:1 als Oracle-Objekt existiert. Falls nicht und der Name mit tf_/vf_
+    ' beginnt, wird das jeweils andere Praefix probiert. Existiert auch das
+    ' nicht, wird mit einer klaren Meldung abgebrochen (statt spaeter mit
+    ' einem Oracle-Fehler in SCR13 auf ein nicht existierendes Objekt).
+    ' -----------------------------------------------------------------------
+    Private Function OracleObjektNameAufloesen(connStr As String, thema As String, verfahren As String) As String
+        Dim name As String = verfahren.Trim().ToLower()
+
+        If OracleObjektExistiert(connStr, thema, name) Then
+            Return name
+        End If
+
+        Dim alternativName As String = Nothing
+        If name.StartsWith("tf_") Then
+            alternativName = "vf_" & name.Substring(3)
+        ElseIf name.StartsWith("vf_") Then
+            alternativName = "tf_" & name.Substring(3)
+        End If
+
+        If alternativName IsNot Nothing AndAlso OracleObjektExistiert(connStr, thema, alternativName) Then
+            Log("  Hinweis: Steuerlisten-Name '" & name & "' nicht in Oracle gefunden, " &
+                "'" & alternativName & "' verwendet (tf_/vf_ Praefix abweichend)")
+            Return alternativName
+        End If
+
+        Throw New Exception(
+            "Oracle-Objekt fuer Themengebiet '" & thema & "' nicht gefunden - weder '" & name &
+            "' noch" & If(alternativName IsNot Nothing, " '" & alternativName & "'", "") &
+            " existiert in dbo.ddl_staging. Bitte Steuerliste/Oracle-Objektname pruefen.")
+    End Function
+
+    ' -----------------------------------------------------------------------
+    ' OracleObjektExistiert - Prueft, ob ein Tabellenname fuer ein
+    ' Themengebiet in dbo.ddl_staging vorkommt.
+    ' -----------------------------------------------------------------------
+    Private Function OracleObjektExistiert(connStr As String, thema As String, tab As String) As Boolean
+        Dim sql As String =
+"SELECT COUNT(*) FROM dbo.ddl_staging
+WHERE THMNAME = @thema
+  AND TABNAME = @tab"
+        Using conn As New SqlConnection(connStr)
+            conn.Open()
+            Using cmd As New SqlCommand(sql, conn)
+                cmd.CommandTimeout = 0
+                cmd.Parameters.AddWithValue("@thema", thema.Trim().ToLower())
+                cmd.Parameters.AddWithValue("@tab", tab.Trim().ToLower())
+                Return Convert.ToInt32(cmd.ExecuteScalar()) > 0
+            End Using
+        End Using
+    End Function
 
     ' -----------------------------------------------------------------------
     ' VerfahrenLaden - Laedt die zu verarbeitenden Verfahren aus der
