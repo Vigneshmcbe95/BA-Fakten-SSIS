@@ -1029,4 +1029,36 @@ Elapsed:  146.157 seconds
  
 [29.07.2026 12:17:30,60] SSIS-Ausfuehrung abgeschlossen 
 [29.07.2026 12:17:30,62] Exitcode: 1           
------------------------------------------------ 
+----------------------------------------------- Hallo Thomas,
+
+Fehler: Incorrect syntax near 'SYS_C00015_26072613:'.
+Incorrect syntax near the keyword 'with'. If this statement is a common table expression, an xmlnamespaces clause or a change tracking context clause, the previous statement must be terminated with a semicolon.
+
+SELECT *
+  FROM [msi_dm_lst_sgbiii].[ext].[vm_ddl_sql_server]
+  where tabname =lower('TF_LST_BEST_ALG')
+AND  thmname ='xro_dm_stat_lst_sgbiii'
+AND COLNO is NULL
+
+
+THMNAME       TABNAME         COLNAME       COLNO              IS_NULLABLE                COLLENGTH  PRECISION                SCALE TYPNAME
+xro_dm_stat_lst_sgbiii            tf_lst_best_alg              sys_c00015_26072613:32:21$        NULL   1             0                5             0             smallint
+
+Die Spalte SYS_C00015_26072613:32:21$ scheint kein fachliches Tabellenfeld, sondern ein systemgeneriertes Metadaten-Artefakt zu sein, da sie keinen Spaltenindex (COLNO = NULL) besitzt und Sonderzeichen (: und $) enthält, wodurch die Erstellung der External Table fehlschlägt.
+
+
+LG
+Nils
+
+Hallo Niels,
+
+ja sieht komisch aus.
+
+Kann in der View auf COLUMN_ID IS NOT NULL Filtern.
+
+Kann aber bis zu Umsetzung etwas dauern, da ich in STATRT nicht deployen kann (versuche es morgen mal).
+Müsste PuT mache, die sind aber im Moment nahezu handlungsunfähig….
+
+Viele Grüße
+Thomas
+
