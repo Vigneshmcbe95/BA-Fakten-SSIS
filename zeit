@@ -1,0 +1,21 @@
+Letzte Woche (4 Punkte)
+
+1. Komprimierung behoben — SCR10 wendet die konfigurierte Komprimierung jetzt auf die Faktentabelle an (vorher stillschweigend ignoriert); SCR17 wurde erweitert und komprimiert jetzt auch die _in_-Tabellen, nicht nur die _out_-Tabellen, damit SWITCH nicht mehr an unterschiedlicher Komprimierung scheitert.
+2. Fehlende-Index-SWITCH-Fehler behoben — SCR19 prueft/repariert jetzt selbst fehlende, manuell angelegte Indizes (wie nci_tf_bst_gb) direkt vor jedem SWITCH, statt sich darauf zu verlassen, dass SCR16 jede Partition erreicht hat; SCR16 hat zusaetzlich eine Wiederholungslogik erhalten und eine stille Logluecke bei der Index-Replikationspruefung geschlossen.
+3. SCR13 vergroessert die Datendatei jetzt automatisch bei Fehler 1105 ("filegroup is full") statt blind zu wiederholen — behebt die transienten Fehler bei grossen, gleichzeitigen Partitionsladungen.
+4. Parameter-/Prozedur-Abgleich behoben — SCR05 gleicht Verfahrensnamen jetzt ab, egal ob roh oder vf->tf uebersetzt; SCR21 prueft die Parameteranzahl jetzt vorab und meldet bei einer veralteten Nachlauf-Prozedur einen klaren, verwertbaren Fehler statt einer kryptischen SQL-Server-Meldung.
+
+Diese Woche (4 Punkte)
+
+1. SCR09 behoben — loest tf_/vf_ Oracle-Objektnamen-Abweichungen auf, indem dbo.ddl_staging geprueft und bei Bedarf das jeweils andere Praefix probiert wird, bevor die LOCATION der externen Tabelle gebaut wird - statt erst spaeter in SCR13 zu scheitern.
+2. SCR07 behoben — filtert systemgenerierte Oracle-Metadaten-Artefaktzeilen (COLNO IS NOT NULL) beim Staging der DDL-Metadaten heraus, damit ein fehlerhafter Spaltenname mit Sonderzeichen CREATE EXTERNAL TABLE nicht mehr zum Absturz bringt.
+3. Steuerliste-Verwirrung fuer Falk diagnostiziert (Cut-Off vs. exakter Monat) — klargestellt, dass ein reiner Datums-Suffix (_202508) dokumentiertes, gewolltes Verhalten ist ("lade alles bis zu diesem Monat"), kein Fehler, und die korrekte Schreibweise (:YYYYMM(202508)) fuer genau einen Monat erklaert.
+4. Tatsaechliche Rolle der _template-Tabelle in der Pipeline nachvollzogen — bestaetigt, dass sie weiterhin die massgebliche Strukturquelle sowohl fuer die Faktentabelle (SCR10) als auch fuer die _out_-Staging-Tabellen (SCR12) ist, waehrend SCR13 beim Laden der _in_-Tabelle die Struktur bewusst aus der Faktentabelle selbst liest, um konsistent mit dem zu bleiben, was SWITCH tatsaechlich prueft.
+
+Selbststudium zur ODI-Architektur (Schemas, logisches vs. physisches Schema, Context-Mechanismus), Abgleich mit SSIS-Kenntnissen
+
+Persönliche Lernnotizen in Confluence dokumentiert (ODI-für-SSIS-Entwickler-Referenzseite)
+
+Vorbereitung der Schema-Erstellung für B05 begonnen (SVS41WH_FST, SSC41WH_FST), Tabellenliste/Create-Table-Skripte geprüft
+
+Nachverfolgung verbleibender offener Punkte (SVN-Account, Datenbank-Rollen, SQL-Developer-Verbindungen, Innovator-DWH-Repository-Zugriff)
