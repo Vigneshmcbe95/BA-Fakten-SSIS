@@ -304,71 +304,30 @@ Partial Public Class ScriptMain
         ' decimal(38,0) der ext-Quelle vs. decimal(17,10) der Faktentabelle:
         ' der Wert wird auf decimal(17,10) konvertiert). Die Faktentabelle ist
         ' die massgebliche Struktur (Template wird manuell gepflegt).
-        ' Manche Faktentabellen-Spalten existieren nicht (mehr) auf der Oracle-
-        ' Seite, oder heissen dort abweichend (Tippfehler in der Quelle, seit
-        ' Jahren so vorhanden, Anpassung in Oracle/Innovator laut Quellsystem-
-        ' Team nicht wirtschaftlich moeglich). Zwei Faelle:
-        '   1) Bekannter Schreibfehler auf Oracle-Seite: quelle (unten) auf den
-        '      tatsaechlichen Oracle-Spaltennamen umgebogen - EINZIGER bekannter
-        '      Fall: tf_lst_tkug_pers_verbl.ftv_ezp_id (Fakten-/Zielname) liegt
-        '      auf Oracle-Seite unter FTB_EZP_ID (v/b vertauscht). Die Ausgabe-
-        '      Spalte heisst weiterhin [ftv_ezp_id] wie in der Faktentabelle -
-        '      nur woher gelesen wird, aendert sich.
-        '   2) Alle anderen, tatsaechlich fehlenden Spalten (kein bekannter
-        '      Schreibfehler-Fall): per LEFT JOIN gegen sys.columns der
-        '      ext-Tabelle geprueft, ob die Spalte dort ueberhaupt (unter
-        '      "quelle") existiert - falls nicht, statt CONVERT(...,[spalte])
-        '      ein Literal-Default erzeugen (kein Verweis mehr auf eine nicht
-        '      existierende Quellspalte), sonst bricht SELECT INTO mit
-        '      "Invalid column name" ab statt die Zeile mit Default zu laden.
         Dim selectList As String = Nothing
         Dim sqlCols As String =
 "SELECT STRING_AGG(CAST(
-    CASE WHEN ext_c.column_id IS NULL THEN
-        CASE WHEN c.is_nullable = 0 THEN
-                CASE WHEN ty.name LIKE '%char%' THEN ''''''
-                     WHEN ty.name LIKE '%date%' OR ty.name IN ('time','datetimeoffset') THEN '''1900-01-01'''
-                     WHEN ty.name IN ('float','real','decimal','numeric','int','bigint','smallint','tinyint','bit','money','smallmoney') THEN '0'
-                     ELSE 'NULL' END
-             ELSE 'NULL' END
-      + ' AS [' + c.name + ']'
-    ELSE
-        CASE WHEN c.is_nullable = 0 THEN 'ISNULL(' ELSE '' END
-      + 'CONVERT(' + ty.name
-      + CASE WHEN ty.name IN ('varchar','char') THEN '(' + CASE WHEN c.max_length = -1 THEN 'MAX' ELSE CAST(c.max_length AS varchar(10)) END + ')'
-             WHEN ty.name IN ('nvarchar','nchar') THEN '(' + CASE WHEN c.max_length = -1 THEN 'MAX' ELSE CAST(c.max_length/2 AS varchar(10)) END + ')'
-             WHEN ty.name IN ('decimal','numeric') THEN '(' + CAST(c.precision AS varchar(10)) + ',' + CAST(c.scale AS varchar(10)) + ')'
-             WHEN ty.name IN ('datetime2','time','datetimeoffset') THEN '(' + CAST(c.scale AS varchar(10)) + ')'
-             WHEN ty.name = 'varbinary' THEN '(' + CASE WHEN c.max_length = -1 THEN 'MAX' ELSE CAST(c.max_length AS varchar(10)) END + ')'
-             ELSE '' END
-      + ', [' + quelle.name + '])'
-      + CASE WHEN ty.name IN ('varchar','char','nvarchar','nchar') AND c.collation_name IS NOT NULL
-             THEN ' COLLATE ' + c.collation_name ELSE '' END
-      + CASE WHEN c.is_nullable = 0 THEN
-                CASE WHEN ty.name LIKE '%char%' THEN ', '''')'
-                     WHEN ty.name LIKE '%date%' OR ty.name IN ('time','datetimeoffset') THEN ', ''1900-01-01'')'
-                     WHEN ty.name IN ('float','real','decimal','numeric','int','bigint','smallint','tinyint','bit','money','smallmoney') THEN ', 0)'
-                     ELSE ', NULL)' END
-            ELSE '' END
-      + ' AS [' + c.name + ']'
-    END
+    CASE WHEN c.is_nullable = 0 THEN 'ISNULL(' ELSE '' END
+  + 'CONVERT(' + ty.name
+  + CASE WHEN ty.name IN ('varchar','char') THEN '(' + CASE WHEN c.max_length = -1 THEN 'MAX' ELSE CAST(c.max_length AS varchar(10)) END + ')'
+         WHEN ty.name IN ('nvarchar','nchar') THEN '(' + CASE WHEN c.max_length = -1 THEN 'MAX' ELSE CAST(c.max_length/2 AS varchar(10)) END + ')'
+         WHEN ty.name IN ('decimal','numeric') THEN '(' + CAST(c.precision AS varchar(10)) + ',' + CAST(c.scale AS varchar(10)) + ')'
+         WHEN ty.name IN ('datetime2','time','datetimeoffset') THEN '(' + CAST(c.scale AS varchar(10)) + ')'
+         WHEN ty.name = 'varbinary' THEN '(' + CASE WHEN c.max_length = -1 THEN 'MAX' ELSE CAST(c.max_length AS varchar(10)) END + ')'
+         ELSE '' END
+  + ', [' + c.name + '])'
+  + CASE WHEN ty.name IN ('varchar','char','nvarchar','nchar') AND c.collation_name IS NOT NULL
+         THEN ' COLLATE ' + c.collation_name ELSE '' END
+  + CASE WHEN c.is_nullable = 0 THEN
+            CASE WHEN ty.name LIKE '%char%' THEN ', '''')'
+                 WHEN ty.name LIKE '%date%' OR ty.name IN ('time','datetimeoffset') THEN ', ''1900-01-01'')'
+                 WHEN ty.name IN ('float','real','decimal','numeric','int','bigint','smallint','tinyint','bit','money','smallmoney') THEN ', 0)'
+                 ELSE ', NULL)' END
+        ELSE '' END
+  + ' AS [' + c.name + ']'
   AS nvarchar(max)), ',' + CHAR(13) + CHAR(10)) WITHIN GROUP (ORDER BY c.column_id)
 FROM sys.columns c
 JOIN sys.types ty ON ty.user_type_id = c.user_type_id
-CROSS APPLY (
-    -- Bekannte Oracle-seitige Schreibfehler-Ausnahmen (Fakten-Spaltenname -> tatsaechlicher Oracle-Spaltenname).
-    -- Nur diese eine Zeile bisher bekannt: Oracle hat
-    -- FTB_EZP_ID statt FTV_EZP_ID (v/b vertauscht). Weitere Faelle hier als
-    -- weitere WHEN-Zeile ergaenzen, nicht generell fuer alle Spalten aufloesen.
-    SELECT CASE
-        WHEN '" & extTable.ToLower().Replace("'", "''") & "' = 'tf_lst_tkug_pers_verbl' AND c.name = 'ftv_ezp_id'
-            THEN 'FTB_EZP_ID'
-        ELSE c.name
-    END AS name
-) quelle
-LEFT JOIN sys.columns ext_c
-    ON ext_c.object_id = OBJECT_ID('ext.[" & extTable.ToLower().Replace("'", "''") & "]')
-   AND ext_c.name = quelle.name
 WHERE c.object_id = OBJECT_ID('dbo.[" & v.Faktentabelle.ToLower().Replace("'", "''") & "]') AND c.is_computed = 0;"
 
         ' =====================================================================
@@ -426,45 +385,14 @@ WHERE c.object_id = OBJECT_ID('dbo.[" & v.Faktentabelle.ToLower().Replace("'", "
                                 " gelesen (sys.columns leer/Tabelle fehlt) - SELECT-Liste konnte nicht erzeugt werden.")
         End If
 
-        ' Fehlende Spalten (Faktentabelle hat sie, ext-Tabelle nicht) mit Default
-        ' geladen statt geladen zu verweigern - dafuer einmalig sichtbar loggen,
-        ' damit ein stiller Datenverlust nicht unbemerkt bleibt.
-        Dim sqlFehlendeSpalten As String =
-"SELECT c.name
-FROM sys.columns c
-CROSS APPLY (
-    SELECT CASE
-        WHEN '" & extTable.ToLower().Replace("'", "''") & "' = 'tf_lst_tkug_pers_verbl' AND c.name = 'ftv_ezp_id'
-            THEN 'FTB_EZP_ID'
-        ELSE c.name
-    END AS name
-) quelle
-LEFT JOIN sys.columns ext_c
-    ON ext_c.object_id = OBJECT_ID('ext.[" & extTable.ToLower().Replace("'", "''") & "]')
-   AND ext_c.name = quelle.name
-WHERE c.object_id = OBJECT_ID('dbo.[" & v.Faktentabelle.ToLower().Replace("'", "''") & "]')
-  AND c.is_computed = 0
-  AND ext_c.column_id IS NULL;"
-        Try
-            Using conn As New SqlConnection(connStr)
-                conn.Open()
-                Using cmd As New SqlCommand(sqlFehlendeSpalten, conn)
-                    cmd.CommandTimeout = 0
-                    Using reader = cmd.ExecuteReader()
-                        Dim fehlend As New List(Of String)
-                        While reader.Read()
-                            fehlend.Add(reader.GetString(0))
-                        End While
-                        If fehlend.Count > 0 Then
-                            Log("  Hinweis: Spalte(n) nicht in ext." & extTable & " vorhanden, mit Default geladen: " &
-                                String.Join(", ", fehlend))
-                        End If
-                    End Using
-                End Using
-            End Using
-        Catch
-            ' Rein informativ - ein Fehler hier darf den Ladevorgang nicht blockieren.
-        End Try
+        ' EINZELFALL-PATCH nur fuer tf_lst_tkug_pers_verbl: Oracle hat die Spalte
+        ' unter FTB_EZP_ID statt FTV_EZP_ID (Schreibfehler in der Quelle, nicht
+        ' kurzfristig auf Oracle-Seite behebbar). Betrifft ausschliesslich diese
+        ' eine Tabelle/Spalte - alle anderen Tabellen bleiben von der obigen,
+        ' unveraenderten sys.columns-Logik unberuehrt.
+        If extTable.ToLower() = "tf_lst_tkug_pers_verbl" Then
+            selectList = selectList.Replace("[ftv_ezp_id])", "[FTB_EZP_ID])")
+        End If
 
         Dim sql As String =
             "SELECT" & vbCrLf &
