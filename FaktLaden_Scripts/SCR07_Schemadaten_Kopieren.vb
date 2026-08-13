@@ -78,7 +78,16 @@ Partial Public Class ScriptMain
                 Try
                     StatusSetzen(connStr, v.ID, "SCHEMADATEN_KOPIEREN")
 
-                    Dim rows As Integer = InsertTabelle(connStr, v.Themengebiet, v.Verfahren)
+                    ' Steuerlisten-Name kann als tf_... oder vf_... gepflegt sein,
+                    ' waehrend das tatsaechliche Oracle-Objekt (vm_ddl_sql_server,
+                    ' hier ueber dbo.ddl_staging gespiegelt) das jeweils andere
+                    ' Praefix hat. Gleiche Aufloesung wie in SCR09
+                    ' (OracleObjektNameAufloesen) - sonst liefert die direkte
+                    ' TABNAME-Abfrage 0 Zeilen und der Lauf bricht ohne echten
+                    ' Grund mit "Keine Schemadaten gefunden" ab.
+                    Dim tabOracle As String = TabellenNameInStagingAufloesen(connStr, v.Themengebiet, v.Verfahren)
+
+                    Dim rows As Integer = InsertTabelle(connStr, v.Themengebiet, v.Verfahren, tabOracle)
 
                     If rows = 0 Then
                         Log("  WARNUNG: Keine Schemadaten fuer " & v.Themengebiet & "." & v.Verfahren)
@@ -185,7 +194,7 @@ WHERE COLNO IS NOT NULL;"
     ' -----------------------------------------------------------------------
     ' InsertTabelle - Fuegt eine Zeile in die Zieltabelle ein.
     ' -----------------------------------------------------------------------
-    Private Function InsertTabelle(connStr As String, thema As String, tab As String) As Integer
+    Private Function InsertTabelle(connStr As String, thema As String, tab As String, tabOracle As String) As Integer
         ' DELETE old data
         Dim sqlDelete As String =
 "DELETE FROM dbo.tm_polybase_struktur
@@ -209,12 +218,17 @@ WHERE themengebiet = @thema
         '                 *4 (max 4000) COLLATE ...CS...; varbinary(len); sonst TYPNAME.
         '   columns_dbo : [spalte] = (ISNULL()CONVERT() je nach Typ/Nullability),
         '                 NOT-NULL-Default char->'''' / numerisch->0 / date->1900-01-01 / sonst NULL.
+        ' Gefiltert wird gegen @tabOracle (tatsaechlicher, ggf. per tf_/vf_-
+        ' Praefixtausch aufgeloester Oracle-Objektname), gespeichert wird aber
+        ' immer der Steuerlisten-Name @tab - damit bleibt tm_polybase_struktur
+        ' konsistent mit allen nachfolgenden Lookups (SCR09/SCR13), die weiterhin
+        ' mit dem Steuerlisten-Namen suchen.
         Dim sqlInsert As String =
 "INSERT INTO dbo.tm_polybase_struktur
     (themengebiet, tabname, colname, colno, columns_dbo, columns_ext)
 SELECT DISTINCT
     ddl.THMNAME,
-    ddl.TABNAME,
+    @tab,
     ddl.COLNAME,
     ddl.COLNO,
     -- columns_dbo: SELECT-Liste fuer SELECT INTO (dbo-Typen, Nullability/Defaults)
@@ -266,7 +280,7 @@ SELECT DISTINCT
     )
 FROM dbo.ddl_staging ddl
 WHERE ddl.THMNAME = @thema
-  AND ddl.TABNAME = @tab;"
+  AND ddl.TABNAME = @tabOracle;"
 
         Using conn As New SqlConnection(connStr)
             conn.Open()
@@ -274,6 +288,7 @@ WHERE ddl.THMNAME = @thema
                 cmd.CommandTimeout = 0
                 cmd.Parameters.AddWithValue("@thema", thema.Trim().ToLower())
                 cmd.Parameters.AddWithValue("@tab", tab.Trim().ToLower())
+                cmd.Parameters.AddWithValue("@tabOracle", tabOracle.Trim().ToLower())
                 cmd.ExecuteNonQuery()
             End Using
         End Using
@@ -292,6 +307,60 @@ WHERE themengebiet = @thema
                 cmd.Parameters.AddWithValue("@thema", thema.Trim().ToLower())
                 cmd.Parameters.AddWithValue("@tab", tab.Trim().ToLower())
                 Return Convert.ToInt32(cmd.ExecuteScalar())
+            End Using
+        End Using
+    End Function
+
+    ' -----------------------------------------------------------------------
+    ' TabellenNameInStagingAufloesen - Prueft anhand von dbo.ddl_staging, ob
+    ' der Steuerlisten-Name 1:1 als Oracle-Objekt vorkommt. Falls nicht und
+    ' der Name mit tf_/vf_ beginnt, wird das jeweils andere Praefix probiert
+    ' (gleiche Logik wie OracleObjektNameAufloesen in SCR09 - dort gegen
+    ' Oracle direkt, hier gegen die lokale Staging-Kopie aus StageOracleData).
+    ' Liefert im Nichttreffer-Fall den unveraenderten Originalnamen zurueck,
+    ' damit InsertTabelle wie bisher "Keine Schemadaten gefunden" meldet statt
+    ' hart abzubrechen.
+    ' -----------------------------------------------------------------------
+    Private Function TabellenNameInStagingAufloesen(connStr As String, thema As String, tab As String) As String
+        Dim name As String = tab.Trim().ToLower()
+
+        If TabelleInStagingVorhanden(connStr, thema, name) Then
+            Return name
+        End If
+
+        Dim alternativName As String = Nothing
+        If name.StartsWith("tf_") Then
+            alternativName = "vf_" & name.Substring(3)
+        ElseIf name.StartsWith("vf_") Then
+            alternativName = "tf_" & name.Substring(3)
+        End If
+
+        If alternativName IsNot Nothing AndAlso TabelleInStagingVorhanden(connStr, thema, alternativName) Then
+            Log("  Hinweis: Steuerlisten-Name '" & name & "' nicht in Oracle-DDL gefunden, " &
+                "'" & alternativName & "' verwendet (tf_/vf_ Praefix abweichend)")
+            Return alternativName
+        End If
+
+        Return name
+    End Function
+
+    ' -----------------------------------------------------------------------
+    ' TabelleInStagingVorhanden - Prueft, ob ein Tabellenname fuer ein
+    ' Themengebiet in dbo.ddl_staging vorkommt.
+    ' -----------------------------------------------------------------------
+    Private Function TabelleInStagingVorhanden(connStr As String, thema As String, tab As String) As Boolean
+        Dim sql As String =
+"SELECT COUNT(*) FROM dbo.ddl_staging
+WHERE THMNAME = @thema
+  AND TABNAME = @tab;"
+
+        Using conn As New SqlConnection(connStr)
+            conn.Open()
+            Using cmd As New SqlCommand(sql, conn)
+                cmd.CommandTimeout = 0
+                cmd.Parameters.AddWithValue("@thema", thema.Trim().ToLower())
+                cmd.Parameters.AddWithValue("@tab", tab.Trim().ToLower())
+                Return Convert.ToInt32(cmd.ExecuteScalar()) > 0
             End Using
         End Using
     End Function
