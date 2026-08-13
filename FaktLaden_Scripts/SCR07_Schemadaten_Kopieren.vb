@@ -257,12 +257,23 @@ SELECT DISTINCT
         END
     ),
     -- columns_ext: EXT-Tabellen Spaltendefinition (Oracle NUMBER -> float/decimal)
+    -- smallint/tinyint werden auf int angehoben: vm_ddl_sql_server bildet nur
+    -- die Oracle-Quelle 1:1 ab und deklariert manche Integer-Spalten enger als
+    -- die tatsaechlichen Werte (z.B. ANK_BEW_ANZ, BSK_PERS_ANZ). Da PolyBase den
+    -- ODBC-Lesepuffer nach der hier deklarierten Spaltenbreite dimensioniert,
+    -- fuehrt das zu "Numeric value out of range" beim Lesen, bevor SCR13 ueberhaupt
+    -- konvertieren kann. columns_dbo (SCR13) leitet den Zieltyp separat aus der
+    -- echten Faktentabelle ab (sys.columns) - eine breitere ext-Spalte hier
+    -- aendert daher nichts am finalen Zieltyp, sie vergroessert nur den
+    -- Lesepuffer. Bewusst im Skript statt in vm_ddl_sql_server behoben, da die
+    -- View nur die Oracle-Struktur abbilden soll (Absprache mit Thomas).
     CONCAT(
         CHAR(9), UPPER(ddl.COLNAME), ' ',
         CASE WHEN (ddl.TYPNAME LIKE 'number%' OR ddl.TYPNAME LIKE 'decimal%' OR ddl.TYPNAME LIKE 'numeric%')
                   AND (ddl.PRECISION IS NULL OR ddl.PRECISION = 0) THEN 'float'
              WHEN (ddl.TYPNAME LIKE 'number%' OR ddl.TYPNAME LIKE 'decimal%' OR ddl.TYPNAME LIKE 'numeric%')
                   AND ddl.PRECISION > 0 THEN CONCAT('decimal(', ddl.PRECISION, ',', ISNULL(CAST(ddl.SCALE AS VARCHAR(10)), '0'), ')')
+             WHEN ddl.TYPNAME IN ('smallint','tinyint') THEN 'int'
              ELSE ddl.TYPNAME
         END,
         CASE WHEN ddl.TYPNAME IN ('nvarchar','varchar','nchar','char')
