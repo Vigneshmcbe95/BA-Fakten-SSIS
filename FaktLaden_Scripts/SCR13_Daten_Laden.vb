@@ -307,7 +307,7 @@ Partial Public Class ScriptMain
         ' Manche Faktentabellen-Spalten existieren nicht (mehr) auf der Oracle-
         ' Seite, oder heissen dort abweichend (Tippfehler in der Quelle, seit
         ' Jahren so vorhanden, Anpassung in Oracle/Innovator laut Quellsystem-
-        ' Team nicht wirtschaftlich moeglich - siehe Mail Thomas). Zwei Faelle:
+        ' Team nicht wirtschaftlich moeglich). Zwei Faelle:
         '   1) Bekannter Schreibfehler auf Oracle-Seite: quelle (unten) auf den
         '      tatsaechlichen Oracle-Spaltennamen umgebogen - EINZIGER bekannter
         '      Fall: tf_lst_tkug_pers_verbl.ftv_ezp_id (Fakten-/Zielname) liegt
@@ -357,7 +357,7 @@ FROM sys.columns c
 JOIN sys.types ty ON ty.user_type_id = c.user_type_id
 CROSS APPLY (
     -- Bekannte Oracle-seitige Schreibfehler-Ausnahmen (Fakten-Spaltenname -> tatsaechlicher Oracle-Spaltenname).
-    -- Nur diese eine Zeile bisher bekannt (Mail Thomas, 2026-08): Oracle hat
+    -- Nur diese eine Zeile bisher bekannt: Oracle hat
     -- FTB_EZP_ID statt FTV_EZP_ID (v/b vertauscht). Weitere Faelle hier als
     -- weitere WHEN-Zeile ergaenzen, nicht generell fuer alle Spalten aufloesen.
     SELECT CASE
