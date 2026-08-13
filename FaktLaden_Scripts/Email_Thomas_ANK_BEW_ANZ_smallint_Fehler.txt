@@ -1,0 +1,14 @@
+Betreff: Fakten-Laden fehlgeschlagen - Typfehler in vm_ddl_sql_server (ANK_BEW_ANZ)
+
+Hallo Thomas,
+
+beim Fakten-Laden (SCR13) schlagen tf_lst_pot_kug, tf_lst_bearb_kug, tf_lst_bearb_kug_sl und tf_lst_bearb_kug_sl1 fehl mit folgendem Fehler:
+
+"[Microsoft][ODBC Oracle Wire Protocol driver]Numeric value out of range. Error in column 12."
+
+Ursache: vm_ddl_sql_server meldet die Spalte ANK_BEW_ANZ als smallint, obwohl die tatsaechlichen Oracle-Werte diesen Bereich (-32768 bis 32767) ueberschreiten.
+
+Bitte den Typ/Precision fuer ANK_BEW_ANZ in vm_ddl_sql_server auf mindestens int korrigieren (und pruefen, ob weitere Spalten vom gleichen Mapping-Fehler betroffen sind) - bis dahin bleibt der Fakten-Load fuer diese vier Tabellen blockiert.
+
+Danke,
+[dein Name]
