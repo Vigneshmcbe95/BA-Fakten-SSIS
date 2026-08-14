@@ -1,0 +1,9 @@
+Hallo zusammen,
+
+die Lösung wäre, den Estimator vor dem Ladevorgang per T-SQL zu deaktivieren, falls er aktiv ist:
+
+ALTER DATABASE SCOPED CONFIGURATION SET LEGACY_CARDINALITY_ESTIMATION = OFF;
+
+Und nach dem Ladevorgang wieder zu aktiveren.
+
+@Rümmeli Nils - extern: Könntest du das umsetzen?
