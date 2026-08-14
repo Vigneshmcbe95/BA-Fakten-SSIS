@@ -130,19 +130,27 @@ Partial Public Class ScriptMain
             Dim zeilenJeVerfahren As New ConcurrentDictionary(Of Integer, Long)()
             Dim fehlerJeVerfahren As New ConcurrentDictionary(Of Integer, Integer)()
 
-            Dim opts As New ParallelOptions With {.MaxDegreeOfParallelism = _maxparallel}
-            Parallel.ForEach(arbeitspakete, opts,
-                Sub(p As ArbeitsPaket)
-                    Try
-                        Dim zeilen As Long = VerarbeitePartition(p.V, p.Pv, connStr)
-                        zeilenJeVerfahren.AddOrUpdate(p.V.ID, zeilen, Function(k, alt) alt + zeilen)
-                    Catch ex As Exception
-                        fehlerJeVerfahren.AddOrUpdate(p.V.ID, 1, Function(k, alt) alt + 1)
-                        Interlocked.Increment(_cntFehler)
-                        _fehlerListe.Add("FEHLER '" & p.V.Verfahren & "' pv=" & p.Pv & ": " & ex.Message)
-                        LogFehler("FEHLER bei pv=" & p.Pv & " (" & p.V.Faktentabelle.ToLower() & "_in_" & p.Pv & "): " & ex.Message)
-                    End Try
-                End Sub)
+            ' Legacy Cardinality Estimator nur fuer den Ladevorgang deaktivieren,
+            ' falls er aktiv ist - danach wieder in den Ausgangszustand
+            ' zurueckversetzen. War er bereits deaktiviert, bleibt er unangetastet.
+            Dim legacyCEWarAn As Boolean = LegacyCEPruefenUndDeaktivieren(connStr)
+            Try
+                Dim opts As New ParallelOptions With {.MaxDegreeOfParallelism = _maxparallel}
+                Parallel.ForEach(arbeitspakete, opts,
+                    Sub(p As ArbeitsPaket)
+                        Try
+                            Dim zeilen As Long = VerarbeitePartition(p.V, p.Pv, connStr)
+                            zeilenJeVerfahren.AddOrUpdate(p.V.ID, zeilen, Function(k, alt) alt + zeilen)
+                        Catch ex As Exception
+                            fehlerJeVerfahren.AddOrUpdate(p.V.ID, 1, Function(k, alt) alt + 1)
+                            Interlocked.Increment(_cntFehler)
+                            _fehlerListe.Add("FEHLER '" & p.V.Verfahren & "' pv=" & p.Pv & ": " & ex.Message)
+                            LogFehler("FEHLER bei pv=" & p.Pv & " (" & p.V.Faktentabelle.ToLower() & "_in_" & p.Pv & "): " & ex.Message)
+                        End Try
+                    End Sub)
+            Finally
+                If legacyCEWarAn Then LegacyCEWiederAktivieren(connStr)
+            End Try
 
             ' ─────────────────────────────────────────────────────────────────
             ' Phase 3 (sequentiell): Status je Verfahren abschliessen
@@ -182,6 +190,46 @@ Partial Public Class ScriptMain
             Dts.TaskResult = ScriptResults.Failure
         End Try
 
+    End Sub
+
+    ' -----------------------------------------------------------------------
+    ' LegacyCEPruefenUndDeaktivieren - Prueft den aktuellen Zustand von
+    ' LEGACY_CARDINALITY_ESTIMATION. War er AN, wird er fuer den Ladevorgang
+    ' AUS geschaltet und True zurueckgegeben (spaeter wieder herstellen). War
+    ' er bereits AUS, bleibt er unangetastet und es wird False zurueckgegeben.
+    ' -----------------------------------------------------------------------
+    Private Function LegacyCEPruefenUndDeaktivieren(connStr As String) As Boolean
+        Try
+            Dim wert As Object = SqlSkalar(connStr,
+                "SELECT value FROM sys.database_scoped_configurations WHERE name = 'LEGACY_CARDINALITY_ESTIMATION';",
+                "Legacy CE Status pruefen")
+
+            If wert IsNot Nothing AndAlso wert IsNot DBNull.Value AndAlso Convert.ToInt32(wert) = 1 Then
+                SqlAusfuehren(connStr,
+                    "ALTER DATABASE SCOPED CONFIGURATION SET LEGACY_CARDINALITY_ESTIMATION = OFF;",
+                    "Legacy CE deaktivieren")
+                Log("Legacy Cardinality Estimator war AN - fuer den Ladevorgang AUS geschaltet.")
+                Return True
+            End If
+        Catch ex As Exception
+            Log("WARNUNG: Legacy CE Status konnte nicht geprueft/gesetzt werden: " & ex.Message)
+        End Try
+        Return False
+    End Function
+
+    ' -----------------------------------------------------------------------
+    ' LegacyCEWiederAktivieren - Schaltet LEGACY_CARDINALITY_ESTIMATION wieder
+    ' AN (nur aufgerufen, wenn er vor dem Laden AN war).
+    ' -----------------------------------------------------------------------
+    Private Sub LegacyCEWiederAktivieren(connStr As String)
+        Try
+            SqlAusfuehren(connStr,
+                "ALTER DATABASE SCOPED CONFIGURATION SET LEGACY_CARDINALITY_ESTIMATION = ON;",
+                "Legacy CE wieder aktivieren")
+            Log("Legacy Cardinality Estimator wieder AN geschaltet.")
+        Catch ex As Exception
+            LogFehler("WARNUNG: Legacy CE konnte nicht wiederhergestellt werden: " & ex.Message)
+        End Try
     End Sub
 
     ' -----------------------------------------------------------------------
