@@ -1,0 +1,31 @@
+FST Entwicklungsumgebung - Arbeitslog
+
+Tag 1 (4 Pkt)
+1. Umgebungs-/Schema-Nummernschema über alle Sandboxen hinweg gemappt.
+2. Logisch→physikalische Schema-Auflösung über Context nachvollzogen.
+3. Context geklont und neu verdrahtet — logische Schemas auf neue physikalische Ziele gemappt.
+4. Bestätigt: Repo + Context müssen existieren, bevor das Deploy-Tool das Ziel auflösen kann.
+
+Tag 2 (4 Pkt)
+1. Repo-Klon-Anfrage abgesteckt — Inputs und offene Fragen.
+2. Login-Eintrag der neuen Umgebung in der geteilten Config registriert.
+3. Zielschemata als physikalische Verbindungen vor DB-Anlage registriert.
+4. Deploy-Tool-Ersteinrichtung konfiguriert — Verbindung, Favoriten, Release-Definition.
+
+Tag 3 (4 Pkt)
+1. SVN-Zugriffsproblem festgestellt — Ticket erstellt.
+2. SDST-Admin (lokal) abbestellt.
+3. Neue Anfrage für SDST-Admin (lokal) im IM-Webshop gestellt.
+4. Admin-Rechte auf SDST getestet.
+
+Tag 4 (4 Pkt)
+1. Create-Schema-Schritt ausgeführt — Datenbank-Ordner, Add, Create Schema.
+2. Neue Gruppe DBADMIN angelegt, überflüssige Gruppe entfernt.
+3. Build ausgeführt — Release-ZIP erstellt.
+4. Ziel-User-Mapping geprüft — Umbenennung erst nach Remapping wirksam.
+
+Tag 5 (4 Pkt)
+1. Transfer-and-Install gestartet — Zielumgebung ausgewählt.
+2. Neue Sandbox im Install-Wizard ausgewählt.
+3. Fehlerfall bei fehlendem Repo nachvollzogen und dokumentiert.
+4. Schema-Mapping-Auflösung an bestehender Sandbox verifiziert.
