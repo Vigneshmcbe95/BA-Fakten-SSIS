@@ -18,14 +18,13 @@ Tag 3 (4 Pkt)
 3. Neue Anfrage für SDST-Admin (lokal) im IM-Webshop gestellt.
 4. Admin-Rechte auf SDST getestet.
 
-Tag 4 (4 Pkt)
-1. Create-Schema-Schritt ausgeführt — Datenbank-Ordner, Add, Create Schema.
-2. Neue Gruppe DBADMIN angelegt, überflüssige Gruppe entfernt.
-3. Build ausgeführt — Release-ZIP erstellt.
-4. Ziel-User-Mapping geprüft — Umbenennung erst nach Remapping wirksam.
+Diagnosed SCR13 overflow errors on 4 tables — traced to undersized smallint columns in PolyBase ext tables.
+2. Fixed SCR07: added tf_/vf_ prefix fallback when resolving Oracle tables.
+3. Fixed SCR07: widened smallint/tinyint ext columns to int.
+4. Verified fix via manual PolyBase test table before deploying.
 
-Tag 5 (4 Pkt)
-1. Transfer-and-Install gestartet — Zielumgebung ausgewählt.
-2. Neue Sandbox im Install-Wizard ausgewählt.
-3. Fehlerfall bei fehlendem Repo nachvollzogen und dokumentiert.
-4. Schema-Mapping-Auflösung an bestehender Sandbox verifiziert.
+Day 2 (4 pts)
+1. Diagnosed ftv_ezp_id failure on tf_lst_tkug_pers_verbl; source team confirmed real Oracle column is FTB_EZP_ID.
+2. Tested PolyBase rename at ext-table level — failed schema validation, ruled out.
+3. Patched SCR13: single-table fix aliasing FTB_EZP_ID → ftv_ezp_id.
+4. Implemented legacy cardinality estimator toggle in SCR13 (off during load, restored after, skipped if already off).
