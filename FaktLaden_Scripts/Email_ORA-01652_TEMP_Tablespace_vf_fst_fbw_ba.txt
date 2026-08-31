@@ -1,0 +1,21 @@
+Betreff: Fakten-Laden fehlgeschlagen - ORA-01652 (TEMP-Tablespace) bei vf_fst_fbw_ba
+
+Hallo zusammen,
+
+beim Fakten-Laden (SCR11_Partitionsgrenzen) schlaegt die Pruefung fuer vf_fst_fbw_ba, Partition mow_id=202001, nach 3 Versuchen fehl mit folgendem Fehler:
+
+"[Microsoft][ODBC Oracle Wire Protocol driver][Oracle]ORA-12801: Fehler in parallelem Abfrage-Server P1AY angezeigt
+ORA-01652: Temp-Segment kann nicht um 128 in Tablespace TEMP erweitert werden"
+
+Ursache: ORA-12801 ist nur die generische Meldung, dass ein paralleler Abfrage-Server fehlgeschlagen ist - die eigentliche Ursache ist ORA-01652: Oracle konnte fuer die Abfrage kein zusaetzliches Temp-Segment im Tablespace TEMP allokieren, d. h. der TEMP-Tablespace ist zu voll bzw. zu klein fuer das, was diese Abfrage an Sortier-/Hash-Speicher benoetigt.
+
+Das Paket lief bis zu diesem Fehler ca. 2,5 Stunden und brach danach vollstaendig ab (DTS_W_MAXIMUMERRORCOUNTREACHED).
+
+Bitte pruefen:
+1. Aktuelle Groesse/Auslastung des TEMP-Tablespace auf der Oracle-Instanz (ISTAT).
+2. Ob der TEMP-Tablespace erweitert werden kann/muss.
+3. Ob die Abfrage gegen vf_fst_fbw_ba (Partition 202001) ungewoehnlich viel Temp-Speicher benoetigt (z. B. veraltete Statistiken, Datenschiefe, Plan-Regression) und ob das isoliert reproduzierbar ist.
+
+Bis dahin bleibt der Fakten-Load fuer vf_fst_fbw_ba blockiert.
+
+Danke,
