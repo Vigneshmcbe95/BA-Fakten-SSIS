@@ -315,16 +315,41 @@ ELSE
         Dim vorhanden As Boolean =
             Convert.ToInt32(SqlSkalarAusfuehren(connStr, sqlPruefen, "Master Key prüfen")) = 1
 
-        If vorhanden Then
-            Log("Master Key: bereits vorhanden uebersprungen ")
+        If Not vorhanden Then
+            Log("Master Key: nicht vorhanden wird angelegt")
+            Dim sqlErstellen As String =
+                "CREATE MASTER KEY ENCRYPTION BY PASSWORD = '" & _credKennwort & "';"
+            SqlAusfuehren(connStr, sqlErstellen, "Master Key anlegen")
+            Log("Master Key: erfolgreich angelegt ")
             Return
         End If
 
-        Log("Master Key: nicht vorhanden wird angelegt")
-        Dim sqlErstellen As String =
-            "CREATE MASTER KEY ENCRYPTION BY PASSWORD = '" & _credKennwort & "';"
-        SqlAusfuehren(connStr, sqlErstellen, "Master Key anlegen")
-        Log("Master Key: erfolgreich angelegt ")
+        ' Der Metadateneintrag existiert, das heisst aber nicht, dass SQL Server ihn in
+        ' dieser Session auch tatsaechlich entschluesseln kann (z.B. nach einem Restore/Kopie
+        ' der DB auf eine andere Instanz - der Master Key ist dann nicht mehr automatisch ueber
+        ' den Service Master Key oeffenbar). Deshalb aktiv pruefen statt blind zu vertrauen,
+        ' sonst schlaegt spaeter das Anlegen/Nutzen des PolyBase Credentials fehl.
+        Log("Master Key: vorhanden wird geprueft ob er in dieser Session oeffenbar ist")
+        Using conn As New SqlConnection(connStr)
+            conn.Open()
+            Try
+                Using cmd As New SqlCommand(
+                    "OPEN MASTER KEY DECRYPTION BY PASSWORD = '" & _credKennwort & "';", conn)
+                    cmd.ExecuteNonQuery()
+                End Using
+                Log("Master Key: laesst sich oeffnen uebersprungen ")
+            Catch ex As Exception
+                Log("Master Key: laesst sich nicht oeffnen (" & ex.Message & ") wird geloescht und neu angelegt")
+                Using cmd As New SqlCommand("DROP MASTER KEY;", conn)
+                    cmd.ExecuteNonQuery()
+                End Using
+                Using cmd As New SqlCommand(
+                    "CREATE MASTER KEY ENCRYPTION BY PASSWORD = '" & _credKennwort & "';", conn)
+                    cmd.ExecuteNonQuery()
+                End Using
+                Log("Master Key: erfolgreich neu angelegt ")
+            End Try
+        End Using
 
     End Sub
 
