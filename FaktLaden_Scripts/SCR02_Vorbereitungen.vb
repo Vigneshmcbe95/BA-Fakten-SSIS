@@ -321,6 +321,7 @@ ELSE
                 "CREATE MASTER KEY ENCRYPTION BY PASSWORD = '" & _credKennwort & "';"
             SqlAusfuehren(connStr, sqlErstellen, "Master Key anlegen")
             Log("Master Key: erfolgreich angelegt ")
+            KoppleMasterKeyAnServiceMasterKey(connStr)
             Return
         End If
 
@@ -351,6 +352,21 @@ ELSE
             End Try
         End Using
 
+        KoppleMasterKeyAnServiceMasterKey(connStr)
+
+    End Sub
+
+    ' -----------------------------------------------------------------------
+    ' KoppleMasterKeyAnServiceMasterKey - PolyBase-Abfragen gegen External
+    ' Tables laufen intern ueber den Data Movement Service (DMS), nicht ueber
+    ' die aufrufende Session - ein OPEN MASTER KEY dort hilft dem DMS nichts.
+    ' Damit der Master Key auch dort automatisch entschluesselt werden kann,
+    ' wird er zusaetzlich an den Service Master Key gekoppelt. Idempotent -
+    ' mehrfaches Ausfuehren ist unschaedlich.
+    ' -----------------------------------------------------------------------
+    Private Sub KoppleMasterKeyAnServiceMasterKey(connStr As String)
+        Log("Master Key: wird an Service Master Key gekoppelt (fuer automatisches Oeffnen, auch durch PolyBase DMS)")
+        SqlAusfuehren(connStr, "ALTER MASTER KEY ADD ENCRYPTION BY SERVICE MASTER KEY;", "Master Key an Service Master Key koppeln")
     End Sub
 
     ' -----------------------------------------------------------------------
