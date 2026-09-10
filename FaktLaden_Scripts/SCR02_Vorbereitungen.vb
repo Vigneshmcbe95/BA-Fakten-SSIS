@@ -325,11 +325,7 @@ ELSE
             Return
         End If
 
-        ' Der Metadateneintrag existiert, das heisst aber nicht, dass SQL Server ihn in
-        ' dieser Session auch tatsaechlich entschluesseln kann (z.B. nach einem Restore/Kopie
-        ' der DB auf eine andere Instanz - der Master Key ist dann nicht mehr automatisch ueber
-        ' den Service Master Key oeffenbar). Deshalb aktiv pruefen statt blind zu vertrauen,
-        ' sonst schlaegt spaeter das Anlegen/Nutzen des PolyBase Credentials fehl.
+        ' Existiert nicht heisst automatisch oeffenbar - aktiv pruefen
         Log("Master Key: vorhanden wird geprueft ob er in dieser Session oeffenbar ist")
         Using conn As New SqlConnection(connStr)
             conn.Open()
@@ -357,12 +353,7 @@ ELSE
     End Sub
 
     ' -----------------------------------------------------------------------
-    ' KoppleMasterKeyAnServiceMasterKey - PolyBase-Abfragen gegen External
-    ' Tables laufen intern ueber den Data Movement Service (DMS), nicht ueber
-    ' die aufrufende Session - ein OPEN MASTER KEY dort hilft dem DMS nichts.
-    ' Damit der Master Key auch dort automatisch entschluesselt werden kann,
-    ' wird er zusaetzlich an den Service Master Key gekoppelt. Idempotent -
-    ' mehrfaches Ausfuehren ist unschaedlich.
+    ' Fuer PolyBase DMS: automatisches Oeffnen sicherstellen
     ' -----------------------------------------------------------------------
     Private Sub KoppleMasterKeyAnServiceMasterKey(connStr As String)
         Log("Master Key: wird an Service Master Key gekoppelt (fuer automatisches Oeffnen, auch durch PolyBase DMS)")
