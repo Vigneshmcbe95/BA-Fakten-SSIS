@@ -1,0 +1,25 @@
+Betreff: Rueckmeldung zu den zwei Fehlern (vd_dwh_fst_ktd_id / SCR13 Retry)
+
+Hallo,
+
+kurze Rueckmeldung zu den zwei gemeldeten Fehlern:
+
+1) Externe Tabelle vd_dwh_fst_ktd_id ("Cannot find data type UNDEFINED")
+--------------------------------------------------------------------------
+Ursache liegt auf der Oracle-Seite: fuer ALLE Spalten von vd_dwh_fst_ktd_id
+liefert die DDL-Quelle (ext.vm_ddl_sql_server) den Typnamen "UNDEFINED"
+statt eines echten Oracle-Datentyps. Da es sich um eine View handelt
+(Praefix "vd_"), kann Oracle darueber offenbar keinen Datentyp ermitteln -
+das ist kein Fehler in unserem Mapping-Skript, sondern muss auf Oracle-
+Seite geprueft werden.
+
+2) SCR13 Retry liess verwaiste _LOADING-Tabelle stehen
+--------------------------------------------------------------------------
+Wenn ein vorheriger Lauf abgebrochen/gekillt wurde, blieb die _LOADING-
+Zwischentabelle bestehen, und der naechste Lauf scheiterte mit "already
+an object" darauf. Behoben: das Skript loescht die _LOADING-Tabelle jetzt
+in genau dem selben SQL-Batch, in dem sie neu angelegt wird - das greift
+unabhaengig davon, ob der vorherige Lauf sauber fehlgeschlagen oder
+zwangsweise abgebrochen wurde.
+
+Viele Gruesse
