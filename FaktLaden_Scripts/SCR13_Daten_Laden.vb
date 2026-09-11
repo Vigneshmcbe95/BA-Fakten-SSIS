@@ -442,7 +442,12 @@ WHERE c.object_id = OBJECT_ID('dbo.[" & v.Faktentabelle.ToLower().Replace("'", "
             selectList = selectList.Replace("[ftv_ezp_id])", "[FTB_EZP_ID])")
         End If
 
+        ' DROP vorab im selben Batch: falls ein vorheriger Versuch die Tabelle
+        ' schon angelegt hat und erst danach fehlgeschlagen ist (z.B. Verbindungsfehler
+        ' nach erfolgreichem SELECT INTO), macht das jeden Retry selbst-bereinigend -
+        ' sonst schlaegt jeder weitere Versuch mit "already an object" fehl.
         Dim sql As String =
+            "IF OBJECT_ID('dbo.[" & loadingTable & "]','U') IS NOT NULL DROP TABLE dbo.[" & loadingTable & "];" & vbCrLf &
             "SELECT" & vbCrLf &
             selectList & vbCrLf &
             "INTO dbo.[" & loadingTable & "]" & vbCrLf &
