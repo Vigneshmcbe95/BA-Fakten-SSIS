@@ -1,32 +1,16 @@
-Betreff: Ursache gefunden und geloest - kein Oracle-Eingriff mehr noetig
+Betreff: FLOAT(53)-Fehler geloest - kein Oracle-Eingriff mehr noetig
 
 Hallo Falk,
 
-kurzes Update zum FLOAT(53)-Fehler bei vf_fst_krn_agh_mn (svs46m_stat_fst):
+Ursache: SCR07 hat jan_id_spb_agh / jan_id_taet_uw_agh als float
+gemappt, weil die Oracle-Metadaten-View PRECISION=0 lieferte - obwohl
+TYPNAME bereits 'decimal(38)' als Text enthielt.
 
-Ursache: In unserem Schema-Mapping-Skript (SCR07_Schemadaten_Kopieren.vb)
-wurde eine Spalte nur dann als decimal(p,s) uebernommen, wenn die
-numerische PRECISION-Spalte aus der Oracle-Metadaten-View einen Wert > 0
-enthielt. Fuer jan_id_spb_agh und jan_id_taet_uw_agh liefert die
-Metadaten-View PRECISION=0, obwohl TYPNAME selbst bereits den korrekten
-Wert als Text enthaelt ('decimal(38)'). Deshalb wurde faelschlich
-'float' generiert, was beim Erstellen der externen Tabelle in SCR09 zum
-Schema-Konflikt mit Oracle (Fehler 105083) fuehrte.
+Loesung (umgesetzt): SCR07 nutzt jetzt PRECISION, faellt bei 0/NULL auf
+die in TYPNAME eingebettete Zahl zurueck. Beide Spalten werden nun
+korrekt als decimal(38,0) gemappt.
 
-Loesung (bereits umgesetzt, kein Oracle-Eingriff notwendig):
-Das Mapping in SCR07 wurde erweitert. Es nutzt jetzt zuerst
-ddl.PRECISION, und wenn diese 0/NULL ist, faellt es auf die im
-TYPNAME-Text eingebettete Praezision zurueck (z.B. die 38 aus
-'decimal(38)'). Nur wenn beide Quellen keine Praezision liefern, wird
-weiterhin auf float ausgewichen. Damit werden jan_id_spb_agh und
-jan_id_taet_uw_agh jetzt korrekt als decimal(38,0) in die externe
-Tabelle uebernommen.
-
-Die Aenderung ist committed und im Repository. Ich lasse SCR07 fuer
-svs46m_stat_fst neu laufen, damit tm_polybase_struktur aktualisiert
-wird, und teste danach den Fakten-Ladelauf erneut.
-
-Die vorherige Bitte, den Datentyp direkt auf Oracle-Seite zu aendern,
-ist damit erledigt - ihr muesst nichts mehr tun.
+Ihr muesst auf Oracle-Seite nichts aendern. Ich teste den Ladelauf
+erneut.
 
 Viele Gruesse
