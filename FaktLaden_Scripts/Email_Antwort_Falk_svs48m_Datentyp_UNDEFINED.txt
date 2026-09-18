@@ -1,0 +1,19 @@
+Betreff: Datentyp fehlt in Themengebiet svs48m_stat_fst
+
+Hallo Falk,
+
+der aktuelle Lauf basiert auf dem Themengebiet svs48m_stat_fst (aus der
+geladenen .csv-Steuerlistendatei). Fuer dieses Themengebiet sind auf
+Oracle-Seite fuer folgende Spalten in vf_fst_krn_agh_mn noch keine
+Datentypen definiert - die Metadaten-View liefert dort UNDEFINED:
+
+- jan_id_spb_agh
+- jan_id_taet_uw_agh
+
+Zum Vergleich: Fuer das Themengebiet svs46m_stat_fst sind beide Spalten
+bereits korrekt als decimal(38) definiert.
+
+Koenntest du bitte die Datentypen fuer svs48m_stat_fst ebenfalls auf
+decimal(38) setzen, damit der Lauf durchlaeuft?
+
+Viele Gruesse
