@@ -1,0 +1,21 @@
+Betreff: Korrektur - Datentyp betrifft svs46m_stat_fst, nicht svs48m_stat_fst
+
+Hallo Falk,
+
+kurze Korrektur zu meiner letzten Mail: Der aktuelle fehlgeschlagene Lauf
+basiert tatsaechlich auf der Steuerlistendatei
+v.istat.svs46m_stat_fst.komplett_neu.csv, Themengebiet svs46m_stat_fst -
+nicht svs48m_stat_fst, wie ich faelschlicherweise geschrieben hatte.
+
+Betroffen ist also weiterhin die Spalte jan_id_spb_agh (und
+jan_id_taet_uw_agh) in vf_fst_krn_agh_mn, aber im Themengebiet
+svs46m_stat_fst. svs48m_stat_fst war in meiner vorherigen Mail ein
+Verwechslung aus einer nicht nach Themengebiet gefilterten Testabfrage
+und ist fuer diesen Lauf nicht relevant.
+
+Bitte den Datentyp fuer jan_id_spb_agh / jan_id_taet_uw_agh im
+Themengebiet svs46m_stat_fst auf decimal(38) setzen.
+
+Entschuldige die Verwechslung.
+
+Viele Gruesse
