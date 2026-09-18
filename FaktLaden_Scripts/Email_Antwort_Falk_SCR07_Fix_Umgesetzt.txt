@@ -1,4 +1,4 @@
-Betreff: FLOAT(53)-Fehler geloest - kein Oracle-Eingriff mehr noetig
+Betreff: FLOAT(53)-Fehler gelöst - kein Oracle-Eingriff mehr nötig
 
 Hallo Falk,
 
@@ -6,11 +6,11 @@ Ursache: SCR07 hat jan_id_spb_agh / jan_id_taet_uw_agh als float
 gemappt, weil die Oracle-Metadaten-View PRECISION=0 lieferte - obwohl
 TYPNAME bereits 'decimal(38)' als Text enthielt.
 
-Loesung (umgesetzt): SCR07 nutzt jetzt PRECISION, faellt bei 0/NULL auf
-die in TYPNAME eingebettete Zahl zurueck. Beide Spalten werden nun
+Lösung (umgesetzt): SCR07 nutzt jetzt PRECISION, fällt bei 0/NULL auf
+die in TYPNAME eingebettete Zahl zurück. Beide Spalten werden nun
 korrekt als decimal(38,0) gemappt.
 
-Ihr muesst auf Oracle-Seite nichts aendern. Ich teste den Ladelauf
+Ihr müsst auf Oracle-Seite nichts ändern. Ich teste den Ladelauf
 erneut.
 
-Viele Gruesse
+Viele Grüße
