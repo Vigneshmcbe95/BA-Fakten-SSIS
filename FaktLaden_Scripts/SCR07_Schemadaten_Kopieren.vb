@@ -257,12 +257,29 @@ SELECT DISTINCT
         END
     ),
     -- columns_ext: EXT-Tabellen Spaltendefinition (Oracle NUMBER -> float/decimal)
+    -- Praezision-Fallback: manche Oracle-Views (z.B. svs46m_stat_fst /
+    -- vf_fst_krn_agh_mn) liefern in ddl.PRECISION faelschlich 0/NULL,
+    -- obwohl TYPNAME den echten Wert bereits als Text enthaelt
+    -- (z.B. 'decimal(38)'). Bevor wir deshalb faelschlich auf 'float'
+    -- ausweichen, versuchen wir zuerst, die Praezision aus TYPNAME selbst
+    -- zu extrahieren.
     CONCAT(
         CHAR(9), UPPER(ddl.COLNAME), ' ',
         CASE WHEN (ddl.TYPNAME LIKE 'number%' OR ddl.TYPNAME LIKE 'decimal%' OR ddl.TYPNAME LIKE 'numeric%')
-                  AND (ddl.PRECISION IS NULL OR ddl.PRECISION = 0) THEN 'float'
+                  AND ddl.PRECISION > 0
+             THEN CONCAT('decimal(', ddl.PRECISION, ',', ISNULL(CAST(ddl.SCALE AS VARCHAR(10)), '0'), ')')
              WHEN (ddl.TYPNAME LIKE 'number%' OR ddl.TYPNAME LIKE 'decimal%' OR ddl.TYPNAME LIKE 'numeric%')
-                  AND ddl.PRECISION > 0 THEN CONCAT('decimal(', ddl.PRECISION, ',', ISNULL(CAST(ddl.SCALE AS VARCHAR(10)), '0'), ')')
+                  AND ddl.TYPNAME LIKE '%(%)%'
+                  AND TRY_CAST(
+                        SUBSTRING(ddl.TYPNAME, CHARINDEX('(', ddl.TYPNAME) + 1,
+                                  CHARINDEX(')', ddl.TYPNAME) - CHARINDEX('(', ddl.TYPNAME) - 1)
+                      AS INT) > 0
+             THEN CONCAT('decimal(',
+                    SUBSTRING(ddl.TYPNAME, CHARINDEX('(', ddl.TYPNAME) + 1,
+                              CHARINDEX(')', ddl.TYPNAME) - CHARINDEX('(', ddl.TYPNAME) - 1),
+                    ',', ISNULL(CAST(ddl.SCALE AS VARCHAR(10)), '0'), ')')
+             WHEN (ddl.TYPNAME LIKE 'number%' OR ddl.TYPNAME LIKE 'decimal%' OR ddl.TYPNAME LIKE 'numeric%')
+             THEN 'float'
              WHEN ddl.TYPNAME IN ('smallint','tinyint') THEN 'int'
              ELSE ddl.TYPNAME
         END,
