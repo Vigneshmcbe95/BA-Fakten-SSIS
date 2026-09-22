@@ -1,0 +1,29 @@
+Betreff: Wiederholte Oracle-Verbindungsabbrüche in SCR11 - fehlende Partitionsmetadaten für Views
+
+Hallo Falk,
+
+im Lauf vom 18./19.09. gab es in SCR11_Partitionsgrenzen wiederholt
+Verbindungsabbrüche zu Oracle (Fehler 105082, "Socket closed" /
+"Connection Dead" / "Timeout expired"), betroffen u. a.
+vf_fst_krn_beb_tn, vf_fst_krn_beh_tn, vf_fst_krn_bnf_mn/tn,
+vf_fst_krn_bvb_mn/tn, vf_fst_krn_egf_tn, vf_fst_krn_esflza_tn,
+vf_fst_krn_esg_tn, vf_fst_krn_evl_tn, vf_fst_krn_exg_tn.
+
+Ursache: SCR11 liest Partitionsgrenzen normalerweise günstig aus der
+Oracle-Metadaten-Sicht v_partition_info (ein Katalog-Lookup, kein
+Scan der Daten). Für diese Objekte handelt es sich aber um Oracle-
+VIEWS (Präfix vf_*), die keine Einträge in dba_tab_partitions haben.
+Deshalb greift für jede dieser Tabellen einzeln ein Fallback: SCR11
+führt direkt SELECT DISTINCT <partitionsspalte> FROM ext.[view] aus -
+also einen echten Scan der Oracle-View über die Verbindung, pro
+Tabelle einzeln. Diese laufzeitintensiven Einzel-Scans sind vermutlich
+der Grund, warum die ODBC-Verbindung dabei wiederholt abbricht.
+
+Die dba_tab_partitions-Metadaten müssen auf Oracle-Seite für diese
+View-Quellen mit den aktuellen Partitionsdaten aktualisiert werden,
+damit v_partition_info sie wieder erfasst und SCR11 den günstigen
+Katalog-Pfad nutzen kann, statt jede View einzeln per Fallback zu
+scannen. Das sollte sowohl die Laufzeit als auch die
+Verbindungsabbrüche beheben.
+
+Viele Grüße
