@@ -1,0 +1,7 @@
+Betreff: RE: Polybase - Nach Installation auf ECO Abnahme28 - Immer noch Verbindungsfehler
+
+Hallo Christian,
+
+ich habe den neuesten Log-Lauf geprüft - bitte das Oracle-Kennwort in der Windows-Umgebungsvariable POLYBASEAUTH auf Abnahme28 prüfen, es ist zu kurz für die Passwortrichtlinie.
+
+Viele Grüße
