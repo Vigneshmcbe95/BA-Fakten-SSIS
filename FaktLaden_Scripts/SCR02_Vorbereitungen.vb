@@ -458,11 +458,11 @@ ELSE
             Convert.ToInt32(SqlSkalarAusfuehren(connStr, sqlPruefen, "DDL-Tabelle prüfen")) > 0
 
         If vorhanden Then
-            Log("Externe DDL-Tabelle [" & vollName & "]: bereits vorhanden uebersprungen ")
-            Return
+            Log("Externe DDL-Tabelle [" & vollName & "]: bereits vorhanden wird neu angelegt")
+            SqlAusfuehren(connStr, "DROP EXTERNAL TABLE " & vollName & ";", "DDL-Tabelle loeschen")
+        Else
+            Log("Externe DDL-Tabelle [" & vollName & "]: nicht vorhanden wird angelegt")
         End If
-
-        Log("Externe DDL-Tabelle [" & vollName & "]: nicht vorhanden wird angelegt")
 
         Dim sqlErstellen As String =
 "CREATE EXTERNAL TABLE " & vollName & "
