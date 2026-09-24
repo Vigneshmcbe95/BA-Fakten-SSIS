@@ -22,4 +22,10 @@ an die Kapazitätsgrenze stößt. ISTAT_IA ist für genau solche
 ressourcenintensiven Ladevorgänge vorgesehen und sollte das Problem
 vermeiden.
 
+Das ist aber nur eine kurzfristige Entlastung. Langfristig müssen wir
+für die Oracle-Views eine eigene Kopierstrategie umsetzen, da Views in
+Oracle grundsätzlich nicht partitioniert sind und deshalb nicht über
+Partitions-Pushdown gelesen werden können. Ohne eigene Strategie bleibt
+das TEMP-Problem bei jedem Full Load bestehen.
+
 Viele Grüße
