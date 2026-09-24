@@ -1,0 +1,5 @@
+Hallo Sebastian,
+
+umgesetzt - die Ausgabe wird jetzt auch in UC4/Automic angezeigt.
+
+Grüße
