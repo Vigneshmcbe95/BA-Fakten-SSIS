@@ -558,4 +558,6 @@ echo ----------------------------------------------- >> "!LOGFILE!"
 
 del "!LOCKFILE!" 2>nul
 
+type "!LOGFILE!"
+
 exit /b !SSIS_EXIT!
