@@ -1,1204 +1,1142 @@
-[24.09.2026  9:46:19,08] =============================================== 
-[24.09.2026  9:46:19,08] SSIS Faktenladen - Zentrales Ladeskript        
-[24.09.2026  9:46:19,08] Verfahren   : LST               
-[24.09.2026  9:46:19,09] Datenbank   : msi_dm_lst_sgbiii           
-[24.09.2026  9:46:19,09] Logdatei    : Laden_FAKTEN_msi_dm_lst_sgbiii_20260924_094617.log                   
-[24.09.2026  9:46:19,09] =============================================== 
-[24.09.2026  9:46:19,09] Archiv-Ordner (Windows-Pfad): F:\STL\Archiv 
-[24.09.2026  9:46:19,11] [OK]       Archiv-Ordner existiert bereits. 
-[24.09.2026  9:46:19,11] =============================================== 
-[24.09.2026  9:46:19,11] VORABPRUEFUNG DER PARAMETER GESTARTET         
-[24.09.2026  9:46:19,12] =============================================== 
-[24.09.2026  9:46:19,12] [OK]       ATOMIC_ORACLE_USERNAME ist gesetzt 
-[24.09.2026  9:46:19,12] [OK]       ATOMIC_ORACLE_PASSWORD ist gesetzt via POLYBASEAUTH [Wert verborgen] 
-[24.09.2026  9:46:19,12] [OK]       ATOMIC_INSTANCE          = Abnahme21 
-[24.09.2026  9:46:19,12] [OK]       PARAM_SERVER             = Q0003713 (Computername) 
-[24.09.2026  9:46:19,12] [OK]       PARAM_CONNECTION_SERVER  = Q0003713\Abnahme21 
-[24.09.2026  9:46:19,14] [OK]       PARAM_STL_ORDNER         = F:\STL 
-[24.09.2026  9:46:19,14] [OK]       PARAM_ORDNER_ARCHIV      = F:\STL\Archiv 
-[24.09.2026  9:46:19,16] [OK]       PARAM_STL_DATEINAME      = f.istat.xro_dm_stat_lst_sgbiii.alg_20260924.csv 
-[24.09.2026  9:46:19,16] [OK]       ATOMIC_ENVIRONMENT       = istat 
-[24.09.2026  9:46:19,16] [OK]       PARAM_EXT_TABLE_LOCATION = istat.STATRT.VM_DDL_SQL_SERVER 
-[24.09.2026  9:46:19,16] [OK]       PARAM_EXT_SOURCE_NAME    = Oracle-istat (aus Umgebung abgeleitet) 
-[24.09.2026  9:46:19,16] [OK]       ATOMIC_ORACLE_HOSTPORT   = l9800022db.dst.baintern.de:57575 
-[24.09.2026  9:46:19,16] [OK]       PARAM_EXT_SOURCE_LOCATION= oracle://l9800022db.dst.baintern.de:57575 
-[24.09.2026  9:46:19,17] [OK]       ATOMIC_ORACLE_HOSTPORT_SECONDARY = l9801022db.dst.baintern.de:57575 
-[24.09.2026  9:46:19,17] [INFO]     PARAM_EXT_CONNECTION_OPTIONS (nur Logging, nicht ans Paket) = AlternateServers=(HostName=l9801022db.dst.baintern.de:PortNumber=57575:ServiceName=istat)%3BFailoverMode=0%3BLoadBalancing=0 
-[24.09.2026  9:46:19,17] [OK]       ATOMIC_VERFAHREN         = LST 
-[24.09.2026  9:46:19,17] [OK]       PARAM_VERFAHREN          = LST 
-[24.09.2026  9:46:19,19] [OK]       ATOMIC_DATENBANKNAME     = msi_dm_lst_sgbiii 
-[24.09.2026  9:46:19,19] [OK]       PARAM_DATENBANK          = msi_dm_lst_sgbiii 
-[24.09.2026  9:46:19,19] [OK]       PARAM_DATAMART           = msi_dm_lst_sgbiii 
-[24.09.2026  9:46:19,19] [OK]       PARAM_PROTOKOLL_DB       = msi_dm_lst_sgbiii 
-[24.09.2026  9:46:19,19] [OK]       PARAM_PARAMETER_DB       = msi_dm_lst_sgbiii 
-[24.09.2026  9:46:19,19] [OK]       PARAM_PARAMETERTABELLE   = tm_msi_dm_lst_sgbiii_param (abgeleitet aus Datenbankname) 
-[24.09.2026  9:46:19,20] [OK]       DTEXEC_PATH              = C:\Program Files\Microsoft SQL Server\160\DTS\Binn\DTExec.exe 
-[24.09.2026  9:46:19,20] [OK]       SSIS_PACKAGE             = E:\BDATA\Batches\Ladepakete\Laden_FAKTEN.dtsx 
-[24.09.2026  9:46:19,22] [OK]       PARAM_PROTOKOLL_SP       = usp_SSIS_Protokoll 
-[24.09.2026  9:46:19,22] [OK]       PARAM_PROTOKOLL_TABELLE  = tm_msi_dm_lst_sgbiii_prot 
-[24.09.2026  9:46:19,22] [OK]       PARAM_MAXPARALLEL        = 8 
-[24.09.2026  9:46:19,22] [OK]       PARAM_EXT_SOURCE_NAME    = Oracle-istat 
-[24.09.2026  9:46:19,22] [OK]       PARAM_EXT_TABLE_SCHEMA   = ext 
-[24.09.2026  9:46:19,23] [OK]       PARAM_EXT_TABLE_NAME     = vm_ddl_sql_server 
-[24.09.2026  9:46:19,23] [OK]       PARAM_PARTITION_SCHEMA   = BI_DM_EXPORT 
-[24.09.2026  9:46:19,23] [OK]       PARAM_STEUERLISTEN_TABELLE= tm_steuerlistenfile_Fakten 
-[24.09.2026  9:46:19,25] =============================================== 
-[24.09.2026  9:46:19,25] VALIDATION_FAILED = 0        
-[24.09.2026  9:46:19,25] =============================================== 
-[24.09.2026  9:46:19,25] VORABPRUEFUNG BESTANDEN - Ausfuehrung startet. 
-[24.09.2026  9:46:19,25] =============================================== 
-[24.09.2026  9:46:19,26] SSIS-Ausfuehrung gestartet       
-[24.09.2026  9:46:19,26] Verfahren       : LST    
-[24.09.2026  9:46:19,26] Datenbankname   : msi_dm_lst_sgbiii 
-[24.09.2026  9:46:19,26] STL Ordner      : F:\STL    
-[24.09.2026  9:46:19,28] STL Dateiname   : f.istat.xro_dm_stat_lst_sgbiii.alg_20260924.csv 
-[24.09.2026  9:46:19,28] Archiv Ordner   : F:\STL\Archiv 
-[24.09.2026  9:46:19,28] Umgebung        : istat  
-[24.09.2026  9:46:19,28] Oracle Host:Port (primaer)   : l9800022db.dst.baintern.de:57575 
-[24.09.2026  9:46:19,30] Oracle Host:Port (sekundaer) : l9801022db.dst.baintern.de:57575 
-[24.09.2026  9:46:19,30] EXT Source Name : Oracle-istat 
-[24.09.2026  9:46:19,30] EXT Source Loc  : oracle://l9800022db.dst.baintern.de:57575 
-[24.09.2026  9:46:19,30] EXT Table Loc   : istat.STATRT.VM_DDL_SQL_SERVER 
-[24.09.2026  9:46:19,31] Parameter DB    : msi_dm_lst_sgbiii 
-[24.09.2026  9:46:19,31] Parametertabelle: tm_msi_dm_lst_sgbiii_param 
+[24.09.2026 11:18:04,10] =============================================== 
+[24.09.2026 11:18:04,10] SSIS Faktenladen - Zentrales Ladeskript        
+[24.09.2026 11:18:04,10] Verfahren   : LST               
+[24.09.2026 11:18:04,11] Datenbank   : msi_dm_lst_sgbiii           
+[24.09.2026 11:18:04,11] Logdatei    : Laden_FAKTEN_msi_dm_lst_sgbiii_20260924_111803.log                   
+[24.09.2026 11:18:04,11] =============================================== 
+[24.09.2026 11:18:04,11] Archiv-Ordner (Windows-Pfad): F:\STL\Archiv 
+[24.09.2026 11:18:04,11] [OK]       Archiv-Ordner existiert bereits. 
+[24.09.2026 11:18:04,13] =============================================== 
+[24.09.2026 11:18:04,13] VORABPRUEFUNG DER PARAMETER GESTARTET         
+[24.09.2026 11:18:04,13] =============================================== 
+[24.09.2026 11:18:04,13] [OK]       ATOMIC_ORACLE_USERNAME ist gesetzt 
+[24.09.2026 11:18:04,14] [OK]       ATOMIC_ORACLE_PASSWORD ist gesetzt via POLYBASEAUTH [Wert verborgen] 
+[24.09.2026 11:18:04,14] [OK]       ATOMIC_INSTANCE          = Abnahme21 
+[24.09.2026 11:18:04,14] [OK]       PARAM_SERVER             = Q0003713 (Computername) 
+[24.09.2026 11:18:04,14] [OK]       PARAM_CONNECTION_SERVER  = Q0003713\Abnahme21 
+[24.09.2026 11:18:04,14] [OK]       PARAM_STL_ORDNER         = F:\STL 
+[24.09.2026 11:18:04,14] [OK]       PARAM_ORDNER_ARCHIV      = F:\STL\Archiv 
+[24.09.2026 11:18:04,16] [OK]       PARAM_STL_DATEINAME      = f.istat.xro_dm_stat_lst_sgbiii.alg_20260924.csv 
+[24.09.2026 11:18:04,16] [OK]       ATOMIC_ENVIRONMENT       = istat 
+[24.09.2026 11:18:04,16] [OK]       PARAM_EXT_TABLE_LOCATION = istat.STATRT.VM_DDL_SQL_SERVER 
+[24.09.2026 11:18:04,16] [OK]       PARAM_EXT_SOURCE_NAME    = Oracle-istat (aus Umgebung abgeleitet) 
+[24.09.2026 11:18:04,17] [OK]       ATOMIC_ORACLE_HOSTPORT   = l9800022db.dst.baintern.de:57575 
+[24.09.2026 11:18:04,17] [OK]       PARAM_EXT_SOURCE_LOCATION= oracle://l9800022db.dst.baintern.de:57575 
+[24.09.2026 11:18:04,17] [OK]       ATOMIC_ORACLE_HOSTPORT_SECONDARY = l9801022db.dst.baintern.de:57575 
+[24.09.2026 11:18:04,17] [INFO]     PARAM_EXT_CONNECTION_OPTIONS (nur Logging, nicht ans Paket) = AlternateServers=(HostName=l9801022db.dst.baintern.de:PortNumber=57575:ServiceName=istat)%3BFailoverMode=0%3BLoadBalancing=0 
+[24.09.2026 11:18:04,17] [OK]       ATOMIC_VERFAHREN         = LST 
+[24.09.2026 11:18:04,17] [OK]       PARAM_VERFAHREN          = LST 
+[24.09.2026 11:18:04,19] [OK]       ATOMIC_DATENBANKNAME     = msi_dm_lst_sgbiii 
+[24.09.2026 11:18:04,19] [OK]       PARAM_DATENBANK          = msi_dm_lst_sgbiii 
+[24.09.2026 11:18:04,19] [OK]       PARAM_DATAMART           = msi_dm_lst_sgbiii 
+[24.09.2026 11:18:04,19] [OK]       PARAM_PROTOKOLL_DB       = msi_dm_lst_sgbiii 
+[24.09.2026 11:18:04,19] [OK]       PARAM_PARAMETER_DB       = msi_dm_lst_sgbiii 
+[24.09.2026 11:18:04,19] [OK]       PARAM_PARAMETERTABELLE   = tm_msi_dm_lst_sgbiii_param (abgeleitet aus Datenbankname) 
+[24.09.2026 11:18:04,20] [OK]       DTEXEC_PATH              = C:\Program Files\Microsoft SQL Server\160\DTS\Binn\DTExec.exe 
+[24.09.2026 11:18:04,20] [OK]       SSIS_PACKAGE             = E:\BDATA\Batches\Ladepakete\Laden_FAKTEN.dtsx 
+[24.09.2026 11:18:04,20] [OK]       PARAM_PROTOKOLL_SP       = usp_SSIS_Protokoll 
+[24.09.2026 11:18:04,22] [OK]       PARAM_PROTOKOLL_TABELLE  = tm_msi_dm_lst_sgbiii_prot 
+[24.09.2026 11:18:04,22] [OK]       PARAM_MAXPARALLEL        = 8 
+[24.09.2026 11:18:04,22] [OK]       PARAM_EXT_SOURCE_NAME    = Oracle-istat 
+[24.09.2026 11:18:04,22] [OK]       PARAM_EXT_TABLE_SCHEMA   = ext 
+[24.09.2026 11:18:04,24] [OK]       PARAM_EXT_TABLE_NAME     = vm_ddl_sql_server 
+[24.09.2026 11:18:04,24] [OK]       PARAM_PARTITION_SCHEMA   = BI_DM_EXPORT 
+[24.09.2026 11:18:04,24] [OK]       PARAM_STEUERLISTEN_TABELLE= tm_steuerlistenfile_Fakten 
+[24.09.2026 11:18:04,24] =============================================== 
+[24.09.2026 11:18:04,24] VALIDATION_FAILED = 0        
+[24.09.2026 11:18:04,25] =============================================== 
+[24.09.2026 11:18:04,25] VORABPRUEFUNG BESTANDEN - Ausfuehrung startet. 
+[24.09.2026 11:18:04,25] =============================================== 
+[24.09.2026 11:18:04,25] SSIS-Ausfuehrung gestartet       
+[24.09.2026 11:18:04,27] Verfahren       : LST    
+[24.09.2026 11:18:04,27] Datenbankname   : msi_dm_lst_sgbiii 
+[24.09.2026 11:18:04,27] STL Ordner      : F:\STL    
+[24.09.2026 11:18:04,27] STL Dateiname   : f.istat.xro_dm_stat_lst_sgbiii.alg_20260924.csv 
+[24.09.2026 11:18:04,27] Archiv Ordner   : F:\STL\Archiv 
+[24.09.2026 11:18:04,28] Umgebung        : istat  
+[24.09.2026 11:18:04,28] Oracle Host:Port (primaer)   : l9800022db.dst.baintern.de:57575 
+[24.09.2026 11:18:04,28] Oracle Host:Port (sekundaer) : l9801022db.dst.baintern.de:57575 
+[24.09.2026 11:18:04,28] EXT Source Name : Oracle-istat 
+[24.09.2026 11:18:04,30] EXT Source Loc  : oracle://l9800022db.dst.baintern.de:57575 
+[24.09.2026 11:18:04,30] EXT Table Loc   : istat.STATRT.VM_DDL_SQL_SERVER 
+[24.09.2026 11:18:04,30] Parameter DB    : msi_dm_lst_sgbiii 
+[24.09.2026 11:18:04,30] Parametertabelle: tm_msi_dm_lst_sgbiii_param 
 ----------------------------------------------- 
 Microsoft (R) SQL Server Execute Package Utility
 Version 16.0.4252.3 for 64-bit
 Copyright (C) 2022 Microsoft. All rights reserved.
 
-Started:  09:46:19
-Info: 2026-09-24 09:46:20.22
+Started:  11:18:04
+Info: 2026-09-24 11:18:05.08
    Code: 0x00000000
    Source: Paketstart SCR_PaketStart
    Description: Fakten Laden - Paketstart
 End Info
-Info: 2026-09-24 09:46:20.22
+Info: 2026-09-24 11:18:05.10
    Code: 0x00000000
    Source: Paketstart SCR_PaketStart
    Description: Schritt 1: ETL_Fakt_LaufHistorie sicherstellen
 End Info
-Info: 2026-09-24 09:46:20.25
+Info: 2026-09-24 11:18:05.11
    Code: 0x00000000
    Source: Paketstart SCR_PaketStart
    Description: ETL_Fakt_LaufHistorie: geprueft/angelegt.
 End Info
-Info: 2026-09-24 09:46:20.26
+Info: 2026-09-24 11:18:05.11
    Code: 0x00000000
    Source: Paketstart SCR_PaketStart
    Description: Schritt 2: Verwaiste Laeufe (LAUFEND) auf ABGEBROCHEN setzen
 End Info
-Info: 2026-09-24 09:46:20.26
+Info: 2026-09-24 11:18:05.11
    Code: 0x00000000
    Source: Paketstart SCR_PaketStart
    Description: Verwaiste Laeufe auf ABGEBROCHEN gesetzt: 0
 End Info
-Info: 2026-09-24 09:46:20.26
+Info: 2026-09-24 11:18:05.13
    Code: 0x00000000
    Source: Paketstart SCR_PaketStart
    Description: Schritt 3: ETL_Fakt_ArbeitslisteFEHLER AUSSTEHEND
 End Info
-Info: 2026-09-24 09:46:20.30
+Info: 2026-09-24 11:18:05.13
    Code: 0x00000000
    Source: Paketstart SCR_PaketStart
    Description: Verfahren auf AUSSTEHEND zurueckgesetzt: 0
 End Info
-Info: 2026-09-24 09:46:20.30
+Info: 2026-09-24 11:18:05.13
    Code: 0x00000000
    Source: Paketstart SCR_PaketStart
    Description: Schritt 4: Neuen Lauf anlegen
 End Info
-Info: 2026-09-24 09:46:20.31
+Info: 2026-09-24 11:18:05.14
    Code: 0x00000000
    Source: Paketstart SCR_PaketStart
    Description: Paketstart erfolgreich abgeschlossen.
 End Info
-Info: 2026-09-24 09:46:20.33
+Info: 2026-09-24 11:18:05.14
    Code: 0x00000000
    Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
    Description: SCR01_Parameter_Einlesen - Start
 End Info
-Info: 2026-09-24 09:46:20.33
+Info: 2026-09-24 11:18:05.14
    Code: 0x00000000
    Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
    Description: Verbindung / Server
 End Info
-Info: 2026-09-24 09:46:20.41
+Info: 2026-09-24 11:18:05.14
    Code: 0x00000000
    Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
    Description: [OK]       PARAM_SERVER                             = Q0003713
 End Info
-Info: 2026-09-24 09:46:20.41
+Info: 2026-09-24 11:18:05.16
    Code: 0x00000000
    Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
    Description: [OK]       PARAM_CONNECTION_SERVER                  = Q0003713\Abnahme21
 End Info
-Info: 2026-09-24 09:46:20.42
+Info: 2026-09-24 11:18:05.16
    Code: 0x00000000
    Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
    Description: [OK]       PARAM_DATENBANK                          = msi_dm_lst_sgbiii
 End Info
-Info: 2026-09-24 09:46:20.42
+Info: 2026-09-24 11:18:05.16
    Code: 0x00000000
    Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
    Description: [OK]       PARAM_VERFAHREN                          = LST
 End Info
-Info: 2026-09-24 09:46:20.42
+Info: 2026-09-24 11:18:05.16
    Code: 0x00000000
    Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
    Description: [OK]       PARAM_DATAMART                           = msi_dm_lst_sgbiii
 End Info
-Info: 2026-09-24 09:46:20.42
+Info: 2026-09-24 11:18:05.17
    Code: 0x00000000
    Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
    Description: Oracle Credentials
 End Info
-Info: 2026-09-24 09:46:20.44
+Info: 2026-09-24 11:18:05.17
    Code: 0x00000000
    Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
    Description: [OK]       ATOMIC_ORACLE_USERNAME                   = BI_DM_EXPORT
 End Info
-Info: 2026-09-24 09:46:20.44
+Info: 2026-09-24 11:18:05.17
    Code: 0x00000000
    Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
    Description: [OK]       ATOMIC_ORACLE_PASSWORD                   = [Wert verborgen]
 End Info
-Info: 2026-09-24 09:46:20.44
+Info: 2026-09-24 11:18:05.17
    Code: 0x00000000
    Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
    Description: Steuerlisten
 End Info
-Info: 2026-09-24 09:46:20.44
+Info: 2026-09-24 11:18:05.17
    Code: 0x00000000
    Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
    Description: [OK]       PARAM_STL_ORDNER                         = F:\STL
 End Info
-Info: 2026-09-24 09:46:20.45
+Info: 2026-09-24 11:18:05.19
    Code: 0x00000000
    Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
    Description: [OK]       PARAM_STEUERLISTEN_TABELLE               = tm_steuerlistenfile_Fakten
 End Info
-Info: 2026-09-24 09:46:20.45
+Info: 2026-09-24 11:18:05.19
    Code: 0x00000000
    Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
    Description: Parametertabelle
 End Info
-Info: 2026-09-24 09:46:20.45
+Info: 2026-09-24 11:18:05.19
    Code: 0x00000000
    Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
    Description: [OK]       PARAM_PARAMETER_DB                       = msi_dm_lst_sgbiii
 End Info
-Info: 2026-09-24 09:46:20.45
+Info: 2026-09-24 11:18:05.19
    Code: 0x00000000
    Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
    Description: [OK]       PARAM_PARAMETERTABELLE                   = tm_msi_dm_lst_sgbiii_param
 End Info
-Info: 2026-09-24 09:46:20.47
+Info: 2026-09-24 11:18:05.20
    Code: 0x00000000
    Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
    Description: PolyBase / External Source
 End Info
-Info: 2026-09-24 09:46:20.47
+Info: 2026-09-24 11:18:05.20
    Code: 0x00000000
    Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
    Description: [OK]       PARAM_EXT_SOURCE_NAME                    = Oracle-istat
 End Info
-Info: 2026-09-24 09:46:20.47
+Info: 2026-09-24 11:18:05.20
    Code: 0x00000000
    Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
    Description: [OK]       PARAM_EXT_SOURCE_LOCATION                = oracle://l9800022db.dst.baintern.de:57575
 End Info
-Info: 2026-09-24 09:46:20.47
+Info: 2026-09-24 11:18:05.20
    Code: 0x00000000
    Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
    Description: [OK]       PARAM_EXT_TABLE_LOCATION                 = istat.STATRT.VM_DDL_SQL_SERVER
 End Info
-Info: 2026-09-24 09:46:20.48
+Info: 2026-09-24 11:18:05.22
    Code: 0x00000000
    Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
    Description: [OK]       PARAM_EXT_TABLE_SCHEMA                   = ext
 End Info
-Info: 2026-09-24 09:46:20.48
+Info: 2026-09-24 11:18:05.22
    Code: 0x00000000
    Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
    Description: [OK]       PARAM_EXT_TABLE_NAME                     = vm_ddl_sql_server
 End Info
-Info: 2026-09-24 09:46:20.48
+Info: 2026-09-24 11:18:05.22
    Code: 0x00000000
    Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
    Description: Verarbeitung
 End Info
-Info: 2026-09-24 09:46:20.50
+Info: 2026-09-24 11:18:05.22
    Code: 0x00000000
    Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
    Description: [OK]       PARAM_MAXPARALLEL                        = 8
 End Info
-Info: 2026-09-24 09:46:20.50
+Info: 2026-09-24 11:18:05.24
    Code: 0x00000000
    Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
    Description: Protokollierung
 End Info
-Info: 2026-09-24 09:46:20.50
+Info: 2026-09-24 11:18:05.24
    Code: 0x00000000
    Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
    Description: [OK]       PARAM_PROTOKOLL_DB                       = msi_dm_lst_sgbiii
 End Info
-Info: 2026-09-24 09:46:20.52
+Info: 2026-09-24 11:18:05.24
    Code: 0x00000000
    Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
    Description: [OK]       PARAM_PROTOKOLL_SP                       = usp_SSIS_Protokoll
 End Info
-Info: 2026-09-24 09:46:20.52
+Info: 2026-09-24 11:18:05.24
    Code: 0x00000000
    Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
    Description: [OK]       PARAM_PROTOKOLL_TABELLE                  = tm_msi_dm_lst_sgbiii_prot
 End Info
-Info: 2026-09-24 09:46:20.52
+Info: 2026-09-24 11:18:05.25
    Code: 0x00000000
    Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
    Description: VALIDATION_FAILED = 0
 End Info
-Info: 2026-09-24 09:46:20.53
+Info: 2026-09-24 11:18:05.25
    Code: 0x00000000
    Source: SCR01 Parameter einlesen SCR01_Parameter_Einlesen
    Description: VORABPRUEFUNG BESTANDEN Paket wird fortgesetzt.
 End Info
-Info: 2026-09-24 09:46:20.53
+Info: 2026-09-24 11:18:05.25
    Code: 0x00000000
    Source: SCR02 Vorbereitungen SCR_02_Vorbereitungen
    Description: SCR_02_Vorbereitungen - Start
 End Info
-Info: 2026-09-24 09:46:20.55
+Info: 2026-09-24 11:18:05.27
    Code: 0x00000000
    Source: SCR02 Vorbereitungen SCR_02_Vorbereitungen
    Description: Steuerlisten-Tabelle: dbo.tm_steuerlistenfile_Fakten
 End Info
-Info: 2026-09-24 09:46:20.55
+Info: 2026-09-24 11:18:05.27
    Code: 0x00000000
    Source: SCR02 Vorbereitungen SCR_02_Vorbereitungen
    Description: Pflichtfelder-Pruefung: alle Variablen vorhanden 
 End Info
-Info: 2026-09-24 09:46:20.56
+Info: 2026-09-24 11:18:05.27
    Code: 0x00000000
    Source: SCR02 Vorbereitungen SCR_02_Vorbereitungen
    Description: Schritt 1: ETL_Fakt_Arbeitsliste sicherstellen
 End Info
-Info: 2026-09-24 09:46:20.59
+Info: 2026-09-24 11:18:05.28
    Code: 0x00000000
    Source: SCR02 Vorbereitungen SCR_02_Vorbereitungen
    Description: ETL_Fakt_Arbeitsliste: geprueft/angelegt 
 End Info
-Info: 2026-09-24 09:46:20.59
+Info: 2026-09-24 11:18:05.28
    Code: 0x00000000
    Source: SCR02 Vorbereitungen SCR_02_Vorbereitungen
    Description: Schritt 1b: Mapping-Funktion dbo.fn_ParamVerfahren sicherstellen
 End Info
-Info: 2026-09-24 09:46:20.61
+Info: 2026-09-24 11:18:05.30
    Code: 0x00000000
    Source: SCR02 Vorbereitungen SCR_02_Vorbereitungen
    Description: Mapping-Funktion dbo.fn_ParamVerfahren: geprueft/angelegt 
 End Info
-Info: 2026-09-24 09:46:20.61
+Info: 2026-09-24 11:18:05.30
    Code: 0x00000000
    Source: SCR02 Vorbereitungen SCR_02_Vorbereitungen
    Description: Schritt 2: ETL_Fakt_FehlerHistorie sicherstellen
 End Info
-Info: 2026-09-24 09:46:20.64
+Info: 2026-09-24 11:18:05.31
    Code: 0x00000000
    Source: SCR02 Vorbereitungen SCR_02_Vorbereitungen
    Description: ETL_Fakt_FehlerHistorie: geprueft/angelegt 
 End Info
-Info: 2026-09-24 09:46:20.64
+Info: 2026-09-24 11:18:05.31
    Code: 0x00000000
    Source: SCR02 Vorbereitungen SCR_02_Vorbereitungen
    Description: Schritt 3: PolyBase Master Key pruefen
 End Info
-Info: 2026-09-24 09:46:20.66
+Info: 2026-09-24 11:18:05.31
    Code: 0x00000000
    Source: SCR02 Vorbereitungen SCR_02_Vorbereitungen
    Description: Master Key: vorhanden wird geprueft ob er in dieser Session oeffenbar ist
 End Info
-Info: 2026-09-24 09:46:20.66
+Info: 2026-09-24 11:18:05.31
    Code: 0x00000000
    Source: SCR02 Vorbereitungen SCR_02_Vorbereitungen
    Description: Master Key: laesst sich oeffnen uebersprungen 
 End Info
-Info: 2026-09-24 09:46:20.66
+Info: 2026-09-24 11:18:05.33
    Code: 0x00000000
    Source: SCR02 Vorbereitungen SCR_02_Vorbereitungen
    Description: Master Key: wird an Service Master Key gekoppelt (fuer automatisches Oeffnen, auch durch PolyBase DMS)
 End Info
-Info: 2026-09-24 09:46:20.67
+Info: 2026-09-24 11:18:05.35
    Code: 0x00000000
    Source: SCR02 Vorbereitungen SCR_02_Vorbereitungen
    Description: Schritt 4: PolyBase Credential pruefen
 End Info
-Info: 2026-09-24 09:46:20.69
+Info: 2026-09-24 11:18:05.35
    Code: 0x00000000
    Source: SCR02 Vorbereitungen SCR_02_Vorbereitungen
    Description: Credential [Q0003713_BI_DM_EXPORT]: bereits vorhanden uebersprungen 
 End Info
-Info: 2026-09-24 09:46:20.69
+Info: 2026-09-24 11:18:05.36
    Code: 0x00000000
    Source: SCR02 Vorbereitungen SCR_02_Vorbereitungen
    Description: Schritt 5: External Data Source pruefen
 End Info
-Info: 2026-09-24 09:46:20.69
+Info: 2026-09-24 11:18:05.36
    Code: 0x00000000
    Source: SCR02 Vorbereitungen SCR_02_Vorbereitungen
    Description: External Data Source [Oracle-istat]: bereits vorhanden uebersprungen 
 End Info
-Info: 2026-09-24 09:46:20.70
+Info: 2026-09-24 11:18:05.36
    Code: 0x00000000
    Source: SCR02 Vorbereitungen SCR_02_Vorbereitungen
    Description: Schritt 6: Schema [ext] pruefen
 End Info
-Info: 2026-09-24 09:46:20.70
+Info: 2026-09-24 11:18:05.36
    Code: 0x00000000
    Source: SCR02 Vorbereitungen SCR_02_Vorbereitungen
    Description: Schema [ext]: bereits vorhanden uebersprungen 
 End Info
-Info: 2026-09-24 09:46:20.70
+Info: 2026-09-24 11:18:05.38
    Code: 0x00000000
    Source: SCR02 Vorbereitungen SCR_02_Vorbereitungen
    Description: Schritt 7: Externe DDL-Tabelle [ext.vm_ddl_sql_server] pruefen
 End Info
-Info: 2026-09-24 09:46:20.72
+Info: 2026-09-24 11:18:05.38
    Code: 0x00000000
    Source: SCR02 Vorbereitungen SCR_02_Vorbereitungen
    Description: Externe DDL-Tabelle [ext.vm_ddl_sql_server]: bereits vorhanden uebersprungen 
 End Info
-Info: 2026-09-24 09:46:20.72
+Info: 2026-09-24 11:18:05.38
    Code: 0x00000000
    Source: SCR02 Vorbereitungen SCR_02_Vorbereitungen
    Description: Schritt 7a: Externe Partitionssicht [ext.v_partition_info] pruefen
 End Info
-Info: 2026-09-24 09:46:20.75
+Info: 2026-09-24 11:18:05.39
    Code: 0x00000000
    Source: SCR02 Vorbereitungen SCR_02_Vorbereitungen
    Description: Externe Partitionssicht [ext.[v_partition_info]]: geloescht (falls vorhanden) wird neu angelegt
 End Info
-Info: 2026-09-24 09:46:20.75
+Info: 2026-09-24 11:18:05.39
    Code: 0x00000000
    Source: SCR02 Vorbereitungen SCR_02_Vorbereitungen
    Description:   Oracle Location: ISTAT.BI_DM_EXPORT.V_PARTITION_INFO
 End Info
-Info: 2026-09-24 09:46:22.59
+Info: 2026-09-24 11:18:06.58
    Code: 0x00000000
    Source: SCR02 Vorbereitungen SCR_02_Vorbereitungen
    Description: Externe Partitionssicht [ext.[v_partition_info]]: erfolgreich angelegt 
 End Info
-Info: 2026-09-24 09:46:22.61
+Info: 2026-09-24 11:18:06.58
    Code: 0x00000000
    Source: SCR02 Vorbereitungen SCR_02_Vorbereitungen
    Description: Schritt 8: Lokale dbo-Kopie [dbo.vm_ddl_sql_server] erstellen
 End Info
-Info: 2026-09-24 09:46:22.66
+Info: 2026-09-24 11:18:06.60
    Code: 0x00000000
    Source: SCR02 Vorbereitungen SCR_02_Vorbereitungen
    Description:   Alte dbo-Kopie geloescht (falls vorhanden)
 End Info
-Info: 2026-09-24 09:46:38.44
+Info: 2026-09-24 11:18:26.20
    Code: 0x00000000
    Source: SCR02 Vorbereitungen SCR_02_Vorbereitungen
-   Description:   dbo-Kopie erstellt: dbo.vm_ddl_sql_server | Zeilen: 1013334
+   Description:   dbo-Kopie erstellt: dbo.vm_ddl_sql_server | Zeilen: 1013350
 End Info
-Info: 2026-09-24 09:46:39.58
+Info: 2026-09-24 11:18:27.30
    Code: 0x00000000
    Source: SCR02 Vorbereitungen SCR_02_Vorbereitungen
    Description:   Index erstellt: IX_vm_ddl_sql_server_TABNAME_COLNAME (TABNAME, COLNAME)
 End Info
-Info: 2026-09-24 09:46:39.58
+Info: 2026-09-24 11:18:27.30
    Code: 0x00000000
    Source: SCR02 Vorbereitungen SCR_02_Vorbereitungen
    Description: SCR_01_Vorbereitungen erfolgreich abgeschlossen.
 End Info
-Info: 2026-09-24 09:46:39.58
+Info: 2026-09-24 11:18:27.31
    Code: 0x00000000
    Source: SCR03 Stuerliste Laden SCR_03_Steuerlisten_Laden
    Description: SCR_03_Steuerlisten_Laden - Start
 End Info
-Info: 2026-09-24 09:46:39.59
+Info: 2026-09-24 11:18:27.31
    Code: 0x00000000
    Source: SCR03 Stuerliste Laden SCR_03_Steuerlisten_Laden
    Description: Pflichtfelder-Pruefung: alle Variablen vorhanden OK
 End Info
-Info: 2026-09-24 09:46:39.59
+Info: 2026-09-24 11:18:27.33
    Code: 0x00000000
    Source: SCR03 Stuerliste Laden SCR_03_Steuerlisten_Laden
    Description: Arbeitstabelle : dbo.tm_steuerlistenfile_Fakten
 End Info
-Info: 2026-09-24 09:46:39.59
+Info: 2026-09-24 11:18:27.33
    Code: 0x00000000
    Source: SCR03 Stuerliste Laden SCR_03_Steuerlisten_Laden
    Description: Audit-Tabelle  : dbo.tm_steuerlisten_audit
 End Info
-Info: 2026-09-24 09:46:39.66
+Info: 2026-09-24 11:18:27.35
    Code: 0x00000000
    Source: SCR03 Stuerliste Laden SCR_03_Steuerlisten_Laden
    Description: Arbeitstabelle und Audit-Tabelle geprueft/angelegt OK
 End Info
-Info: 2026-09-24 09:46:39.67
+Info: 2026-09-24 11:18:27.35
    Code: 0x00000000
    Source: SCR03 Stuerliste Laden SCR_03_Steuerlisten_Laden
    Description: Vollstaendiger Pfad : F:\STL\f.istat.xro_dm_stat_lst_sgbiii.alg_20260924.csv
 End Info
-Info: 2026-09-24 09:46:39.67
+Info: 2026-09-24 11:18:27.35
    Code: 0x00000000
    Source: SCR03 Stuerliste Laden SCR_03_Steuerlisten_Laden
    Description: Verarbeite Datei: f.istat.xro_dm_stat_lst_sgbiii.alg_20260924.csv
 End Info
-Info: 2026-09-24 09:46:39.67
+Info: 2026-09-24 11:18:27.35
    Code: 0x00000000
    Source: SCR03 Stuerliste Laden SCR_03_Steuerlisten_Laden
    Description:   Tabellentyp  : f
 End Info
-Info: 2026-09-24 09:46:39.69
+Info: 2026-09-24 11:18:27.36
    Code: 0x00000000
    Source: SCR03 Stuerliste Laden SCR_03_Steuerlisten_Laden
    Description:   Umgebung     : istat
 End Info
-Info: 2026-09-24 09:46:39.69
+Info: 2026-09-24 11:18:27.36
    Code: 0x00000000
    Source: SCR03 Stuerliste Laden SCR_03_Steuerlisten_Laden
    Description:   Themengebiet : xro_dm_stat_lst_sgbiii
 End Info
-Info: 2026-09-24 09:46:39.70
+Info: 2026-09-24 11:18:27.36
    Code: 0x00000000
    Source: SCR03 Stuerliste Laden SCR_03_Steuerlisten_Laden
    Description:   Arbeitstabelle: vollstaendig geleert
 End Info
-Info: 2026-09-24 09:46:39.72
+Info: 2026-09-24 11:18:27.39
    Code: 0x00000000
    Source: SCR03 Stuerliste Laden SCR_03_Steuerlisten_Laden
    Description:   Zeilen gesamt: 4 | INSERT: 4 | Uebersprungen: 0
 End Info
-Info: 2026-09-24 09:46:39.73
+Info: 2026-09-24 11:18:27.41
    Code: 0x00000000
    Source: SCR03 Stuerliste Laden SCR_03_Steuerlisten_Laden
    Description: Datei erfolgreich verarbeitet: f.istat.xro_dm_stat_lst_sgbiii.alg_20260924.csv OK
 End Info
-Info: 2026-09-24 09:46:39.73
+Info: 2026-09-24 11:18:27.41
    Code: 0x00000000
    Source: SCR03 Stuerliste Laden SCR_03_Steuerlisten_Laden
    Description: Geladene Tabellen aus [f.istat.xro_dm_stat_lst_sgbiii.alg_20260924.csv] (4): tf_lst_alg_mig, tf_lst_best_alg_hoch, tf_lst_best_alg, tf_lst_bew_alg
 End Info
-Info: 2026-09-24 09:46:39.73
+Info: 2026-09-24 11:18:27.42
    Code: 0x00000000
    Source: SCR03 Stuerliste Laden SCR_03_Steuerlisten_Laden
-   Description: Datei verschoben nach: F:\STL\Done\f.istat.xro_dm_stat_lst_sgbiii.alg_20260924.csv
+   Description: Datei verschoben nach: F:\STL\Done\f.istat.xro_dm_stat_lst_sgbiii.alg_20260924_20260924_111827.csv
 End Info
-Info: 2026-09-24 09:46:39.73
+Info: 2026-09-24 11:18:27.42
    Code: 0x00000000
    Source: SCR03 Stuerliste Laden SCR_03_Steuerlisten_Laden
    Description: SCR_03_Steuerlisten_Laden erfolgreich abgeschlossen OK
 End Info
-Info: 2026-09-24 09:46:39.75
+Info: 2026-09-24 11:18:27.44
    Code: 0x00000000
    Source: SC04 Whereclasuse SC04_Whereclause
    Description: SC04_Whereclause - Start
 End Info
-Info: 2026-09-24 09:46:39.75
+Info: 2026-09-24 11:18:27.44
    Code: 0x00000000
    Source: SC04 Whereclasuse SC04_Whereclause
    Description: Referenzdatum: 01.09.2026 00:00:00
 End Info
-Info: 2026-09-24 09:46:39.76
+Info: 2026-09-24 11:18:27.44
    Code: 0x00000000
    Source: SC04 Whereclasuse SC04_Whereclause
    Description: Steuerlisten-Tabelle : dbo.tm_steuerlistenfile_Fakten
 End Info
-Info: 2026-09-24 09:46:39.78
+Info: 2026-09-24 11:18:27.45
    Code: 0x00000000
    Source: SC04 Whereclasuse SC04_Whereclause
    Description: Spalten geprueft/angelegt OK
 End Info
-Info: 2026-09-24 09:46:39.80
+Info: 2026-09-24 11:18:27.45
    Code: 0x00000000
    Source: SC04 Whereclasuse SC04_Whereclause
    Description: Steuerlisten-Zeilen : 4
 End Info
-Info: 2026-09-24 09:46:39.80
+Info: 2026-09-24 11:18:27.45
    Code: 0x00000000
    Source: SC04 Whereclasuse SC04_Whereclause
    Description:   TF_LST_ALG_MIG                                     -> wert=NULL | muster=NULL
 End Info
-Info: 2026-09-24 09:46:39.81
+Info: 2026-09-24 11:18:27.47
    Code: 0x00000000
    Source: SC04 Whereclasuse SC04_Whereclause
    Description:   TF_LST_BEST_ALG                                    -> wert=NULL | muster=NULL
 End Info
-Info: 2026-09-24 09:46:39.81
+Info: 2026-09-24 11:18:27.47
    Code: 0x00000000
    Source: SC04 Whereclasuse SC04_Whereclause
    Description:   TF_LST_BEST_ALG_HOCH                               -> wert=NULL | muster=NULL
 End Info
-Info: 2026-09-24 09:46:39.83
+Info: 2026-09-24 11:18:27.49
    Code: 0x00000000
    Source: SC04 Whereclasuse SC04_Whereclause
    Description:   TF_LST_BEW_ALG                                     -> wert=NULL | muster=NULL
 End Info
-Info: 2026-09-24 09:46:39.83
+Info: 2026-09-24 11:18:27.49
    Code: 0x00000000
    Source: SC04 Whereclasuse SC04_Whereclause
    Description: partition_wert (Cut-Off) gefuellt: 0
 End Info
-Info: 2026-09-24 09:46:39.84
+Info: 2026-09-24 11:18:27.49
    Code: 0x00000000
    Source: SC04 Whereclasuse SC04_Whereclause
    Description: where_klausel  (Regex-Muster)    : 0
 End Info
-Info: 2026-09-24 09:46:39.84
+Info: 2026-09-24 11:18:27.49
    Code: 0x00000000
    Source: SC04 Whereclasuse SC04_Whereclause
    Description: ohne Treffer                     : 4
 End Info
-Info: 2026-09-24 09:46:39.86
+Info: 2026-09-24 11:18:27.50
    Code: 0x00000000
    Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
    Description: SCR_05_Parameter_Vollstaendigkeitspruefung - Start
 End Info
-Info: 2026-09-24 09:46:39.86
+Info: 2026-09-24 11:18:27.50
    Code: 0x00000000
    Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
    Description: Pflichtparameter     : FaktentabelleTemplate, Faktentabelle, Faktenpartitionsspalte, Faktenkomprimierung, FaktenClusteredIndex, DateFormat, Anzahl_ParallelTasks
 End Info
-Info: 2026-09-24 09:46:39.86
+Info: 2026-09-24 11:18:27.52
    Code: 0x00000000
    Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
    Description: SSIS-Variablen-Pruefung: alle vorhanden OK
 End Info
-Info: 2026-09-24 09:46:39.86
+Info: 2026-09-24 11:18:27.52
    Code: 0x00000000
    Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
    Description: Schritt 1: Steuerlisten-Tabelle pruefen
 End Info
-Info: 2026-09-24 09:46:39.89
+Info: 2026-09-24 11:18:27.52
    Code: 0x00000000
    Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
    Description: Steuerlisten-Tabelle [dbo.tm_steuerlistenfile_Fakten] vorhanden OK
 End Info
-Info: 2026-09-24 09:46:39.91
+Info: 2026-09-24 11:18:27.53
    Code: 0x00000000
    Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
    Description: Steuerlisten-Tabelle enthaelt 4 Zeile(n) OK
 End Info
-Info: 2026-09-24 09:46:39.91
+Info: 2026-09-24 11:18:27.53
    Code: 0x00000000
    Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
    Description: Schritt 2: Verfahren aus Steuerliste laden
 End Info
-Info: 2026-09-24 09:46:39.91
+Info: 2026-09-24 11:18:27.53
    Code: 0x00000000
    Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
    Description: Verfahren in Steuerliste gefunden: 4
 End Info
-Info: 2026-09-24 09:46:39.92
+Info: 2026-09-24 11:18:27.53
    Code: 0x00000000
    Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
    Description: Schritt 3: Parametertabelle vollstaendig pruefen
 End Info
-Info: 2026-09-24 09:46:39.92
+Info: 2026-09-24 11:18:27.55
    Code: 0x00000000
    Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
    Description: Pruefe Verfahren: tf_lst_alg_mig -> Parametertabelle-Verfahren: tf_lst_alg_mig
 End Info
-Info: 2026-09-24 09:46:39.94
+Info: 2026-09-24 11:18:27.56
    Code: 0x00000000
    Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
    Description:   [OK]      FaktentabelleTemplate
 End Info
-Info: 2026-09-24 09:46:39.94
+Info: 2026-09-24 11:18:27.58
    Code: 0x00000000
    Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
    Description:   [OK]      Faktentabelle
 End Info
-Info: 2026-09-24 09:46:39.95
+Info: 2026-09-24 11:18:27.58
    Code: 0x00000000
    Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
    Description:   [OK]      Faktenpartitionsspalte
 End Info
-Info: 2026-09-24 09:46:39.95
+Info: 2026-09-24 11:18:27.58
    Code: 0x00000000
    Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
    Description:   [OK]      Faktenkomprimierung
 End Info
-Info: 2026-09-24 09:46:39.97
+Info: 2026-09-24 11:18:27.60
    Code: 0x00000000
    Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
    Description:   [OK]      FaktenClusteredIndex
 End Info
-Info: 2026-09-24 09:46:39.98
+Info: 2026-09-24 11:18:27.60
    Code: 0x00000000
    Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
    Description:   [OK]      DateFormat
 End Info
-Info: 2026-09-24 09:46:39.98
+Info: 2026-09-24 11:18:27.61
    Code: 0x00000000
    Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
    Description:   [OK]      Anzahl_ParallelTasks
 End Info
-Info: 2026-09-24 09:46:39.98
+Info: 2026-09-24 11:18:27.61
    Code: 0x00000000
    Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
    Description:   OK Alle Pflichtparameter fuer 'tf_lst_alg_mig' vorhanden und befuellt.
 End Info
-Info: 2026-09-24 09:46:39.98
+Info: 2026-09-24 11:18:27.61
    Code: 0x00000000
    Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
    Description: Pruefe Verfahren: tf_lst_best_alg -> Parametertabelle-Verfahren: tf_lst_best_alg
 End Info
-Info: 2026-09-24 09:46:40.00
+Info: 2026-09-24 11:18:27.63
    Code: 0x00000000
    Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
    Description:   [OK]      FaktentabelleTemplate
 End Info
-Info: 2026-09-24 09:46:40.00
+Info: 2026-09-24 11:18:27.70
    Code: 0x00000000
    Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
    Description:   [OK]      Faktentabelle
 End Info
-Info: 2026-09-24 09:46:40.01
+Info: 2026-09-24 11:18:27.72
    Code: 0x00000000
    Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
    Description:   [OK]      Faktenpartitionsspalte
 End Info
-Info: 2026-09-24 09:46:40.01
+Info: 2026-09-24 11:18:27.74
    Code: 0x00000000
    Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
    Description:   [OK]      Faktenkomprimierung
 End Info
-Info: 2026-09-24 09:46:40.01
+Info: 2026-09-24 11:18:27.75
    Code: 0x00000000
    Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
    Description:   [OK]      FaktenClusteredIndex
 End Info
-Info: 2026-09-24 09:46:40.03
+Info: 2026-09-24 11:18:27.75
    Code: 0x00000000
    Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
    Description:   [OK]      DateFormat
 End Info
-Info: 2026-09-24 09:46:40.03
+Info: 2026-09-24 11:18:27.75
    Code: 0x00000000
    Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
    Description:   [OK]      Anzahl_ParallelTasks
 End Info
-Info: 2026-09-24 09:46:40.03
+Info: 2026-09-24 11:18:27.77
    Code: 0x00000000
    Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
    Description:   OK Alle Pflichtparameter fuer 'tf_lst_best_alg' vorhanden und befuellt.
 End Info
-Info: 2026-09-24 09:46:40.05
+Info: 2026-09-24 11:18:27.77
    Code: 0x00000000
    Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
    Description: Pruefe Verfahren: tf_lst_best_alg_hoch -> Parametertabelle-Verfahren: tf_lst_best_alg_hoch
 End Info
-Info: 2026-09-24 09:46:40.05
+Info: 2026-09-24 11:18:27.78
    Code: 0x00000000
    Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
    Description:   [OK]      FaktentabelleTemplate
 End Info
-Info: 2026-09-24 09:46:40.06
+Info: 2026-09-24 11:18:27.80
    Code: 0x00000000
    Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
    Description:   [OK]      Faktentabelle
 End Info
-Info: 2026-09-24 09:46:40.06
+Info: 2026-09-24 11:18:27.80
    Code: 0x00000000
    Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
    Description:   [OK]      Faktenpartitionsspalte
 End Info
-Info: 2026-09-24 09:46:40.08
+Info: 2026-09-24 11:18:27.80
    Code: 0x00000000
    Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
    Description:   [OK]      Faktenkomprimierung
 End Info
-Info: 2026-09-24 09:46:40.08
+Info: 2026-09-24 11:18:27.81
    Code: 0x00000000
    Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
    Description:   [OK]      FaktenClusteredIndex
 End Info
-Info: 2026-09-24 09:46:40.09
+Info: 2026-09-24 11:18:27.81
    Code: 0x00000000
    Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
    Description:   [OK]      DateFormat
 End Info
-Info: 2026-09-24 09:46:40.09
+Info: 2026-09-24 11:18:27.83
    Code: 0x00000000
    Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
    Description:   [OK]      Anzahl_ParallelTasks
 End Info
-Info: 2026-09-24 09:46:40.09
+Info: 2026-09-24 11:18:27.83
    Code: 0x00000000
    Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
    Description:   OK Alle Pflichtparameter fuer 'tf_lst_best_alg_hoch' vorhanden und befuellt.
 End Info
-Info: 2026-09-24 09:46:40.11
+Info: 2026-09-24 11:18:27.83
    Code: 0x00000000
    Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
    Description: Pruefe Verfahren: tf_lst_bew_alg -> Parametertabelle-Verfahren: tf_lst_bew_alg
 End Info
-Info: 2026-09-24 09:46:40.11
+Info: 2026-09-24 11:18:27.85
    Code: 0x00000000
    Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
    Description:   [OK]      FaktentabelleTemplate
 End Info
-Info: 2026-09-24 09:46:40.11
+Info: 2026-09-24 11:18:27.85
    Code: 0x00000000
    Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
    Description:   [OK]      Faktentabelle
 End Info
-Info: 2026-09-24 09:46:40.11
+Info: 2026-09-24 11:18:27.85
    Code: 0x00000000
    Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
    Description:   [OK]      Faktenpartitionsspalte
 End Info
-Info: 2026-09-24 09:46:40.12
+Info: 2026-09-24 11:18:27.85
    Code: 0x00000000
    Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
    Description:   [OK]      Faktenkomprimierung
 End Info
-Info: 2026-09-24 09:46:40.12
+Info: 2026-09-24 11:18:27.86
    Code: 0x00000000
    Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
    Description:   [OK]      FaktenClusteredIndex
 End Info
-Info: 2026-09-24 09:46:40.12
+Info: 2026-09-24 11:18:27.86
    Code: 0x00000000
    Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
    Description:   [OK]      DateFormat
 End Info
-Info: 2026-09-24 09:46:40.14
+Info: 2026-09-24 11:18:27.86
    Code: 0x00000000
    Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
    Description:   [OK]      Anzahl_ParallelTasks
 End Info
-Info: 2026-09-24 09:46:40.14
+Info: 2026-09-24 11:18:27.86
    Code: 0x00000000
    Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
    Description:   OK Alle Pflichtparameter fuer 'tf_lst_bew_alg' vorhanden und befuellt.
 End Info
-Info: 2026-09-24 09:46:40.14
+Info: 2026-09-24 11:18:27.86
    Code: 0x00000000
    Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
    Description: ZUSAMMENFASSUNG SCR_05_Parameter_Vollstaendigkeitspruefung
 End Info
-Info: 2026-09-24 09:46:40.14
+Info: 2026-09-24 11:18:27.88
    Code: 0x00000000
    Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
    Description: Verfahren geprueft        : 4
 End Info
-Info: 2026-09-24 09:46:40.14
+Info: 2026-09-24 11:18:27.88
    Code: 0x00000000
    Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
    Description: Vollstaendig (OK)         : 4
 End Info
-Info: 2026-09-24 09:46:40.16
+Info: 2026-09-24 11:18:27.88
    Code: 0x00000000
    Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
    Description: Mit Fehlern              : 0
 End Info
-Info: 2026-09-24 09:46:40.16
+Info: 2026-09-24 11:18:27.88
    Code: 0x00000000
    Source: SCR05 Parameter_Vollstaendigkeitspruefung SCR_05_Parameter_Vollstaendigkeitspruefung
    Description: ERGEBNIS: BESTANDEN - Alle Parameter vollstaendig und befuellt OK
 End Info
-Info: 2026-09-24 09:46:40.16
+Info: 2026-09-24 11:18:27.89
    Code: 0x00000000
    Source: SCR06 Arbeitsliste Aufbauen SCR_06_Arbeitsliste_Aufbauen_Fakten
    Description: SCR_06_Arbeitsliste_Aufbauen_Fakten - Start
 End Info
-Info: 2026-09-24 09:46:40.17
+Info: 2026-09-24 11:18:27.89
    Code: 0x00000000
    Source: SCR06 Arbeitsliste Aufbauen SCR_06_Arbeitsliste_Aufbauen_Fakten
    Description: Pflichtfelder-Pruefung: alle Variablen vorhanden OK
 End Info
-Info: 2026-09-24 09:46:40.17
+Info: 2026-09-24 11:18:27.91
    Code: 0x00000000
    Source: SCR06 Arbeitsliste Aufbauen SCR_06_Arbeitsliste_Aufbauen_Fakten
    Description: Aktueller Lauf: Datei [f.istat.xro_dm_stat_lst_sgbiii.alg_20260924.csv] | Tabellen in Steuerliste (4): tf_lst_alg_mig, tf_lst_best_alg, tf_lst_best_alg_hoch, tf_lst_bew_alg
 End Info
-Info: 2026-09-24 09:46:40.17
+Info: 2026-09-24 11:18:27.91
    Code: 0x00000000
    Source: SCR06 Arbeitsliste Aufbauen SCR_06_Arbeitsliste_Aufbauen_Fakten
    Description: Schritt 1: Neue Verfahren aus Steuerliste eintragen
 End Info
-Info: 2026-09-24 09:46:40.20
+Info: 2026-09-24 11:18:27.94
    Code: 0x00000000
    Source: SCR06 Arbeitsliste Aufbauen SCR_06_Arbeitsliste_Aufbauen_Fakten
    Description: Neue Verfahren eingetragen: 0
 End Info
-Info: 2026-09-24 09:46:40.20
+Info: 2026-09-24 11:18:27.95
    Code: 0x00000000
    Source: SCR06 Arbeitsliste Aufbauen SCR_06_Arbeitsliste_Aufbauen_Fakten
    Description: Schritt 2: Status analysieren und zuruecksetzen
 End Info
-Info: 2026-09-24 09:46:40.22
+Info: 2026-09-24 11:18:27.97
    Code: 0x00000000
    Source: SCR06 Arbeitsliste Aufbauen SCR_06_Arbeitsliste_Aufbauen_Fakten
    Description: Status-Analyse (alle Verfahren aus Steuerliste):
 End Info
-Info: 2026-09-24 09:46:40.22
+Info: 2026-09-24 11:18:27.99
    Code: 0x00000000
    Source: SCR06 Arbeitsliste Aufbauen SCR_06_Arbeitsliste_Aufbauen_Fakten
    Description:   - Total    : 48
 End Info
-Info: 2026-09-24 09:46:40.23
+Info: 2026-09-24 11:18:27.99
    Code: 0x00000000
    Source: SCR06 Arbeitsliste Aufbauen SCR_06_Arbeitsliste_Aufbauen_Fakten
    Description:   - ERFOLG   : 0
 End Info
-Info: 2026-09-24 09:46:40.23
+Info: 2026-09-24 11:18:27.99
    Code: 0x00000000
    Source: SCR06 Arbeitsliste Aufbauen SCR_06_Arbeitsliste_Aufbauen_Fakten
    Description:   - FEHLER   : 24
 End Info
-Info: 2026-09-24 09:46:40.23
+Info: 2026-09-24 11:18:28.00
    Code: 0x00000000
    Source: SCR06 Arbeitsliste Aufbauen SCR_06_Arbeitsliste_Aufbauen_Fakten
    Description:   - ANDERE   : 24
 End Info
-Info: 2026-09-24 09:46:40.25
+Info: 2026-09-24 11:18:28.02
    Code: 0x00000000
    Source: SCR06 Arbeitsliste Aufbauen SCR_06_Arbeitsliste_Aufbauen_Fakten
    Description: FEHLER vorhanden ? Nur FEHLER zu AUSSTEHEND (Erfolge bleiben) ? 2 Zeilen zurckgesetzt
 End Info
-Info: 2026-09-24 09:46:40.26
+Info: 2026-09-24 11:18:28.03
    Code: 0x00000000
    Source: SCR06 Arbeitsliste Aufbauen SCR_06_Arbeitsliste_Aufbauen_Fakten
    Description: ZUSAMMENFASSUNG
 End Info
-Info: 2026-09-24 09:46:40.28
+Info: 2026-09-24 11:18:28.03
    Code: 0x00000000
    Source: SCR06 Arbeitsliste Aufbauen SCR_06_Arbeitsliste_Aufbauen_Fakten
    Description: Neue Verfahren : 0
 End Info
-Info: 2026-09-24 09:46:40.28
+Info: 2026-09-24 11:18:28.03
    Code: 0x00000000
    Source: SCR06 Arbeitsliste Aufbauen SCR_06_Arbeitsliste_Aufbauen_Fakten
    Description: SCR_Arbeitsliste_Aufbauen_Fakten erfolgreich abgeschlossen OK
 End Info
-Info: 2026-09-24 09:46:40.30
+Info: 2026-09-24 11:18:28.05
    Code: 0x00000000
    Source: SCR07_Schemadaten_Kopieren SCR07_Schemadaten_Kopieren
    Description: SCR07_Schemadaten_Kopieren - Start
 End Info
-Info: 2026-09-24 09:46:40.31
+Info: 2026-09-24 11:18:28.06
    Code: 0x00000000
    Source: SCR07_Schemadaten_Kopieren SCR07_Schemadaten_Kopieren
    Description: Ziel-Tabelle tm_polybase_struktur geprueft/erstellt.
 End Info
-Info: 2026-09-24 09:46:40.33
+Info: 2026-09-24 11:18:28.06
    Code: 0x00000000
    Source: SCR07_Schemadaten_Kopieren SCR07_Schemadaten_Kopieren
    Description: Verfahren zur Verarbeitung: 2
 End Info
-Info: 2026-09-24 09:46:40.33
+Info: 2026-09-24 11:18:28.08
    Code: 0x00000000
    Source: SCR07_Schemadaten_Kopieren SCR07_Schemadaten_Kopieren
    Description: Oracle-Daten werden in Staging-Tabelle geladen...
 End Info
-Info: 2026-09-24 09:46:40.33
+Info: 2026-09-24 11:18:28.08
    Code: 0x00000000
    Source: SCR07_Schemadaten_Kopieren SCR07_Schemadaten_Kopieren
    Description: Quelle: [msi_dm_lst_sgbiii].[ext].[vm_ddl_sql_server]
 End Info
-Info: 2026-09-24 09:46:40.44
+Info: 2026-09-24 11:18:28.10
    Code: 0x00000000
    Source: SCR07_Schemadaten_Kopieren SCR07_Schemadaten_Kopieren
    Description: Staging-Tabelle existiert bereits mit 997569 Zeilen - wird wiederverwendet
 End Info
-Info: 2026-09-24 09:46:40.44
+Info: 2026-09-24 11:18:28.10
    Code: 0x00000000
    Source: SCR07_Schemadaten_Kopieren SCR07_Schemadaten_Kopieren
    Description: Verfahren: tf_lst_best_alg | Themengebiet: xro_dm_stat_lst_sgbiii
 End Info
-Info: 2026-09-24 09:46:40.55
+Info: 2026-09-24 11:18:28.14
    Code: 0x00000000
    Source: SCR07_Schemadaten_Kopieren SCR07_Schemadaten_Kopieren
    Description: [SCHRITT_5] tf_lst_best_alg: Schemadaten kopiert: 64 Spalten
 End Info
-Info: 2026-09-24 09:46:40.55
+Info: 2026-09-24 11:18:28.16
    Code: 0x00000000
    Source: SCR07_Schemadaten_Kopieren SCR07_Schemadaten_Kopieren
    Description:   64 Spalten kopiert OK
 End Info
-Info: 2026-09-24 09:46:40.55
+Info: 2026-09-24 11:18:28.16
    Code: 0x00000000
    Source: SCR07_Schemadaten_Kopieren SCR07_Schemadaten_Kopieren
    Description: Verfahren: tf_lst_bew_alg | Themengebiet: xro_dm_stat_lst_sgbiii
 End Info
-Info: 2026-09-24 09:46:40.62
+Info: 2026-09-24 11:18:28.20
    Code: 0x00000000
    Source: SCR07_Schemadaten_Kopieren SCR07_Schemadaten_Kopieren
    Description: [SCHRITT_5] tf_lst_bew_alg: Schemadaten kopiert: 74 Spalten
 End Info
-Info: 2026-09-24 09:46:40.62
+Info: 2026-09-24 11:18:28.22
    Code: 0x00000000
    Source: SCR07_Schemadaten_Kopieren SCR07_Schemadaten_Kopieren
    Description:   74 Spalten kopiert OK
 End Info
-Info: 2026-09-24 09:46:40.62
+Info: 2026-09-24 11:18:28.22
    Code: 0x00000000
    Source: SCR07_Schemadaten_Kopieren SCR07_Schemadaten_Kopieren
    Description: Staging-Tabelle dbo.ddl_staging bleibt fuer Debugging erhalten
 End Info
-Info: 2026-09-24 09:46:40.62
+Info: 2026-09-24 11:18:28.22
    Code: 0x00000000
    Source: SCR07_Schemadaten_Kopieren SCR07_Schemadaten_Kopieren
    Description: Erfolgreich: 2 | Fehler: 0
 End Info
-Info: 2026-09-24 09:46:40.64
+Info: 2026-09-24 11:18:28.24
    Code: 0x00000000
    Source: SCR08_Template_Erstellen SCR08_Template_Erstellen
    Description: SCR08_Template_Erstellen - Start
 End Info
-Info: 2026-09-24 09:46:40.66
+Info: 2026-09-24 11:18:28.25
    Code: 0x00000000
    Source: SCR08_Template_Erstellen SCR08_Template_Erstellen
    Description: Verfahren zur Verarbeitung: 2
 End Info
-Info: 2026-09-24 09:46:40.66
+Info: 2026-09-24 11:18:28.25
    Code: 0x00000000
    Source: SCR08_Template_Erstellen SCR08_Template_Erstellen
    Description: Verfahren: tf_lst_best_alg | Themengebiet: xro_dm_stat_lst_sgbiii
 End Info
-Info: 2026-09-24 09:46:40.66
+Info: 2026-09-24 11:18:28.27
    Code: 0x00000000
    Source: SCR08_Template_Erstellen SCR08_Template_Erstellen
    Description:   Template-Existenzpruefung fuer: tf_lst_best_alg
 End Info
-Info: 2026-09-24 09:46:40.67
+Info: 2026-09-24 11:18:28.27
    Code: 0x00000000
    Source: SCR08_Template_Erstellen SCR08_Template_Erstellen
    Description:   Template vorhanden OK
 End Info
-Info: 2026-09-24 09:46:40.67
+Info: 2026-09-24 11:18:28.28
    Code: 0x00000000
    Source: SCR08_Template_Erstellen SCR08_Template_Erstellen
    Description: [SCHRITT_1] tf_lst_best_alg: Template erstellt/geprueft: msi_dm_lst_sgbiii.dbo.tf_lst_best_alg_template
 End Info
-Info: 2026-09-24 09:46:40.67
+Info: 2026-09-24 11:18:28.28
    Code: 0x00000000
    Source: SCR08_Template_Erstellen SCR08_Template_Erstellen
    Description:   Template erstellt OK
 End Info
-Info: 2026-09-24 09:46:40.67
+Info: 2026-09-24 11:18:28.28
    Code: 0x00000000
    Source: SCR08_Template_Erstellen SCR08_Template_Erstellen
    Description: Verfahren: tf_lst_bew_alg | Themengebiet: xro_dm_stat_lst_sgbiii
 End Info
-Info: 2026-09-24 09:46:40.69
+Info: 2026-09-24 11:18:28.30
    Code: 0x00000000
    Source: SCR08_Template_Erstellen SCR08_Template_Erstellen
    Description:   Template-Existenzpruefung fuer: tf_lst_bew_alg
 End Info
-Info: 2026-09-24 09:46:40.69
+Info: 2026-09-24 11:18:28.30
    Code: 0x00000000
    Source: SCR08_Template_Erstellen SCR08_Template_Erstellen
    Description:   Template vorhanden OK
 End Info
-Info: 2026-09-24 09:46:40.69
+Info: 2026-09-24 11:18:28.30
    Code: 0x00000000
    Source: SCR08_Template_Erstellen SCR08_Template_Erstellen
    Description: [SCHRITT_1] tf_lst_bew_alg: Template erstellt/geprueft: msi_dm_lst_sgbiii.dbo.tf_lst_bew_alg_template
 End Info
-Info: 2026-09-24 09:46:40.70
+Info: 2026-09-24 11:18:28.31
    Code: 0x00000000
    Source: SCR08_Template_Erstellen SCR08_Template_Erstellen
    Description:   Template erstellt OK
 End Info
-Info: 2026-09-24 09:46:40.70
+Info: 2026-09-24 11:18:28.31
    Code: 0x00000000
    Source: SCR08_Template_Erstellen SCR08_Template_Erstellen
    Description: Erfolgreich: 2 | Fehler: 0
 End Info
-Info: 2026-09-24 09:46:40.70
+Info: 2026-09-24 11:18:28.31
    Code: 0x00000000
    Source: SCR09_Ext_Tabelle_Erstellen SCR09_Ext_Tabelle_Erstellen
    Description: SCR09_Ext_Tabelle_Erstellen - Start
 End Info
-Info: 2026-09-24 09:46:40.72
+Info: 2026-09-24 11:18:28.33
    Code: 0x00000000
    Source: SCR09_Ext_Tabelle_Erstellen SCR09_Ext_Tabelle_Erstellen
    Description: Verfahren zur Verarbeitung: 2
 End Info
-Info: 2026-09-24 09:46:40.72
+Info: 2026-09-24 11:18:28.35
    Code: 0x00000000
    Source: SCR09_Ext_Tabelle_Erstellen SCR09_Ext_Tabelle_Erstellen
    Description: Verfahren: tf_lst_best_alg | Themengebiet: xro_dm_stat_lst_sgbiii
 End Info
-Info: 2026-09-24 09:46:40.73
+Info: 2026-09-24 11:18:28.35
    Code: 0x00000000
    Source: SCR09_Ext_Tabelle_Erstellen SCR09_Ext_Tabelle_Erstellen
    Description:   Erstelle externe Tabelle: ext.[tf_lst_best_alg]
 End Info
-Info: 2026-09-24 09:46:40.73
+Info: 2026-09-24 11:18:28.36
    Code: 0x00000000
    Source: SCR09_Ext_Tabelle_Erstellen SCR09_Ext_Tabelle_Erstellen
    Description:   Oracle Location: ISTAT.XRO_DM_STAT_LST_SGBIII.TF_LST_BEST_ALG
 End Info
-Info: 2026-09-24 09:46:40.78
+Info: 2026-09-24 11:18:28.38
    Code: 0x00000000
    Source: SCR09_Ext_Tabelle_Erstellen SCR09_Ext_Tabelle_Erstellen
    Description: WARNUNG [Ext Tabelle erstellen] Versuch 1/3: Incorrect syntax near 'SYS_C00015_26072613:'.
 Incorrect syntax near the keyword 'with'. If this statement is a common table expression, an xmlnamespaces clause or a change tracking context clause, the previous statement must be terminated with a semicolon.
 End Info
-Info: 2026-09-24 09:47:10.82
+Info: 2026-09-24 11:18:58.47
    Code: 0x00000000
    Source: SCR09_Ext_Tabelle_Erstellen SCR09_Ext_Tabelle_Erstellen
    Description: WARNUNG [Ext Tabelle erstellen] Versuch 2/3: Incorrect syntax near 'SYS_C00015_26072613:'.
 Incorrect syntax near the keyword 'with'. If this statement is a common table expression, an xmlnamespaces clause or a change tracking context clause, the previous statement must be terminated with a semicolon.
 End Info
-Info: 2026-09-24 09:47:40.83
+Info: 2026-09-24 11:19:28.50
    Code: 0x00000000
    Source: SCR09_Ext_Tabelle_Erstellen SCR09_Ext_Tabelle_Erstellen
    Description: WARNUNG [Ext Tabelle erstellen] Versuch 3/3: Incorrect syntax near 'SYS_C00015_26072613:'.
 Incorrect syntax near the keyword 'with'. If this statement is a common table expression, an xmlnamespaces clause or a change tracking context clause, the previous statement must be terminated with a semicolon.
 End Info
-Error: 2026-09-24 09:47:40.85
+Error: 2026-09-24 11:19:28.52
    Code: 0x00000000
    Source: SCR09_Ext_Tabelle_Erstellen SCR09_Ext_Tabelle_Erstellen
    Description: [FEHLER_SCR07] tf_lst_best_alg: Incorrect syntax near 'SYS_C00015_26072613:'.
 Incorrect syntax near the keyword 'with'. If this statement is a common table expression, an xmlnamespaces clause or a change tracking context clause, the previous statement must be terminated with a semicolon.
 End Error
-Error: 2026-09-24 09:47:40.86
+Error: 2026-09-24 11:19:28.52
    Code: 0x00000000
    Source: SCR09_Ext_Tabelle_Erstellen SCR09_Ext_Tabelle_Erstellen
    Description: FEHLER 'tf_lst_best_alg': Incorrect syntax near 'SYS_C00015_26072613:'.
 Incorrect syntax near the keyword 'with'. If this statement is a common table expression, an xmlnamespaces clause or a change tracking context clause, the previous statement must be terminated with a semicolon.
 End Error
-Info: 2026-09-24 09:47:40.86
+Info: 2026-09-24 11:19:28.52
    Code: 0x00000000
    Source: SCR09_Ext_Tabelle_Erstellen SCR09_Ext_Tabelle_Erstellen
    Description: Verfahren: tf_lst_bew_alg | Themengebiet: xro_dm_stat_lst_sgbiii
 End Info
-Info: 2026-09-24 09:47:40.86
+Info: 2026-09-24 11:19:28.54
    Code: 0x00000000
    Source: SCR09_Ext_Tabelle_Erstellen SCR09_Ext_Tabelle_Erstellen
    Description:   Erstelle externe Tabelle: ext.[tf_lst_bew_alg]
 End Info
-Info: 2026-09-24 09:47:40.88
+Info: 2026-09-24 11:19:28.54
    Code: 0x00000000
    Source: SCR09_Ext_Tabelle_Erstellen SCR09_Ext_Tabelle_Erstellen
    Description:   Oracle Location: ISTAT.XRO_DM_STAT_LST_SGBIII.TF_LST_BEW_ALG
 End Info
-Info: 2026-09-24 09:47:40.91
+Info: 2026-09-24 11:19:28.55
    Code: 0x00000000
    Source: SCR09_Ext_Tabelle_Erstellen SCR09_Ext_Tabelle_Erstellen
    Description: WARNUNG [Ext Tabelle erstellen] Versuch 1/3: Incorrect syntax near 'SYS_C00019_26072614:'.
 Incorrect syntax near the keyword 'with'. If this statement is a common table expression, an xmlnamespaces clause or a change tracking context clause, the previous statement must be terminated with a semicolon.
 End Info
-Info: 2026-09-24 09:48:10.91
+Info: 2026-09-24 11:19:58.58
    Code: 0x00000000
    Source: SCR09_Ext_Tabelle_Erstellen SCR09_Ext_Tabelle_Erstellen
    Description: WARNUNG [Ext Tabelle erstellen] Versuch 2/3: Incorrect syntax near 'SYS_C00019_26072614:'.
 Incorrect syntax near the keyword 'with'. If this statement is a common table expression, an xmlnamespaces clause or a change tracking context clause, the previous statement must be terminated with a semicolon.
 End Info
-Info: 2026-09-24 09:48:40.96
+Info: 2026-09-24 11:20:28.62
    Code: 0x00000000
    Source: SCR09_Ext_Tabelle_Erstellen SCR09_Ext_Tabelle_Erstellen
    Description: WARNUNG [Ext Tabelle erstellen] Versuch 3/3: Incorrect syntax near 'SYS_C00019_26072614:'.
 Incorrect syntax near the keyword 'with'. If this statement is a common table expression, an xmlnamespaces clause or a change tracking context clause, the previous statement must be terminated with a semicolon.
 End Info
-Error: 2026-09-24 09:48:40.96
+Error: 2026-09-24 11:20:28.63
    Code: 0x00000000
    Source: SCR09_Ext_Tabelle_Erstellen SCR09_Ext_Tabelle_Erstellen
    Description: [FEHLER_SCR07] tf_lst_bew_alg: Incorrect syntax near 'SYS_C00019_26072614:'.
 Incorrect syntax near the keyword 'with'. If this statement is a common table expression, an xmlnamespaces clause or a change tracking context clause, the previous statement must be terminated with a semicolon.
 End Error
-Error: 2026-09-24 09:48:40.98
+Error: 2026-09-24 11:20:28.63
    Code: 0x00000000
    Source: SCR09_Ext_Tabelle_Erstellen SCR09_Ext_Tabelle_Erstellen
    Description: FEHLER 'tf_lst_bew_alg': Incorrect syntax near 'SYS_C00019_26072614:'.
 Incorrect syntax near the keyword 'with'. If this statement is a common table expression, an xmlnamespaces clause or a change tracking context clause, the previous statement must be terminated with a semicolon.
 End Error
-Info: 2026-09-24 09:48:40.98
+Info: 2026-09-24 11:20:28.63
    Code: 0x00000000
    Source: SCR09_Ext_Tabelle_Erstellen SCR09_Ext_Tabelle_Erstellen
    Description: Erfolgreich: 0 | Fehler: 2
 End Info
-Error: 2026-09-24 09:48:40.98
+Error: 2026-09-24 11:20:28.65
    Code: 0x00000006
    Source: SCR09_Ext_Tabelle_Erstellen 
    Description: The script returned a failure result.
 End Error
-Info: 2026-09-24 09:48:41.08
+Info: 2026-09-24 11:20:28.87
    Code: 0x00000000
    Source: OnTaskFailed OnFailed
    Description: Cleanup: keine leeren _out_/_in_-Tabellen und keine ext-Tabellen gefunden
 End Info
-Warning: 2026-09-24 09:48:41.08
+Warning: 2026-09-24 11:20:28.87
    Code: 0x80019002
    Source: Laden_Fakten 
    Description: SSIS Warning Code DTS_W_MAXIMUMERRORCOUNTREACHED.  The Execution method succeeded, but the number of errors raised (5) reached the maximum allowed (1); resulting in failure. This occurs when the number of errors reaches the number specified in MaximumErrorCount. Change the MaximumErrorCount or fix the errors.
 End Warning
 DTExec: The package execution returned DTSER_FAILURE (1).
-Started:  09:46:19
-Finished: 09:48:41
-Elapsed:  141.703 seconds
+Started:  11:18:04
+Finished: 11:20:28
+Elapsed:  144.516 seconds
  
-[24.09.2026  9:48:42,93] SSIS-Ausfuehrung abgeschlossen 
-[24.09.2026  9:48:42,93] Exitcode: 1           
+[24.09.2026 11:20:30,90] SSIS-Ausfuehrung abgeschlossen 
+[24.09.2026 11:20:30,90] Exitcode: 1           
 ----------------------------------------------- 
-
-
-Hallo Nils,
-
-in der LST SGBIII können die Tabellen auf den Ausschnitt nicht übertragen werden. Hast Du inzwischen rausfinden können, woran es liegt?
-2
-3
-4
-
-0
-
-5
-
-12
-
-13
-
-14
-15
-
-15
-15
-15
-15
-
-tf_Ist_best_alg
-tf_Ist_bew_alg
-tf_Ist_alg_mig
-tf_Ist_best_alg_hoch
-
-xro_dm_stat_lst_sgbiii
-xro_dm_stat_Ist_sgbiii
-xro_dm_stat_Ist_sgbiii
-xro_dm_stat_lst_sgbiii
-
-FEHLER
-FEHLER
-EXT_TABELLE_ERSTELLT
-EXT_TABELLE_ERSTELLT
-
-EXT_TABELLE_ERSTELLEN
-EXT_TABELLE_ERSTELLEN
-EXT_TABELLE_ERSTELLT
-EXT_TABELLE_ERSTELLT
-
-0
-0
-
-0
-
-Incorrect syntax near 'SYS_C00015_26072613:'. I ...
-Incorrect syntax near 'SYS_C00019_26072614.". I ...
-NULL
-NULL
-
-2026-09-24 09:47:40.853
-2026-09-24 09:48:40.963
-2026-09-24 09:46:40.257
-2026-09-24 09:46:40.257
- 
-
-Ich kann den Test in LST SGBII derzeit noch nicht durchführen, da neue Entwicklungen in der Datenbank vorliegen, die nicht überschrieben werden dürfen. 
