@@ -142,8 +142,8 @@ Partial Public Class ScriptMain
                 "SELECT COUNT(*) FROM dbo.ddl_staging;", "Staging Count"))
 
             If rowCount > 0 Then
-                Log("Staging-Tabelle existiert bereits mit " & rowCount.ToString() & " Zeilen - wird wiederverwendet")
-                Return
+                Log("Staging-Tabelle existiert bereits mit " & rowCount.ToString() & " Zeilen - wird neu geladen")
+                SqlAusfuehren(connStr, "DROP TABLE dbo.ddl_staging;", "Staging DROP")
             Else
                 Log("Staging-Tabelle existiert aber ist leer - wird neu geladen")
                 SqlAusfuehren(connStr, "DROP TABLE dbo.ddl_staging;", "Staging DROP")
