@@ -1,0 +1,7 @@
+Betreff: TEMP-Tablespace auf ISTAT erhöhen
+
+Hallo Thorsten,
+
+könntest du bitte den TEMP-Tablespace auf ISTAT erhöhen?
+
+Viele Grüße
