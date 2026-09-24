@@ -1,0 +1,10 @@
+Betreff: LST SGBIII - Filter jetzt angewendet, bitte erneut laufen lassen
+
+Hallo Nils,
+
+der COLNO IS NOT NULL Filter war zwar im Paket vorhanden, wurde aber
+auf die vorhandenen Metadaten nicht angewendet. Das ist jetzt behoben.
+
+Bitte den Lauf für LST SGBIII erneut starten und prüfen.
+
+Viele Grüße
