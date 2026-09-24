@@ -4,4 +4,7 @@ Hallo Thorsten,
 
 könntest du bitte den TEMP-Tablespace auf ISTAT erhöhen?
 
+Fehler: ORA-01652: Temp-Segment kann nicht um 128 in Tablespace TEMP
+erweitert werden.
+
 Viele Grüße
