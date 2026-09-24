@@ -1,0 +1,25 @@
+Betreff: RE: Polybase - Fehler beim Fakten laden für Datenbank msi_dm_fst
+
+Hallo Falk,
+
+ich habe die Datenbank geprüft. Der aktuelle Fehler ist:
+
+ORA-01652: Temp-Segment kann nicht um 128 in Tablespace TEMP erweitert
+werden.
+
+Der Job hängt vermutlich genau deshalb seit Schritt 4 - die Abfrage
+wartet auf Platz im TEMP-Tablespace, der aktuell voll ist.
+
+Bitte den Job stoppen und für den Full Load stattdessen den Service
+Namen ISTAT_IA verwenden statt ISTAT.
+
+Grund: Der Full Load prüft pro Tabelle sehr viele einzelne
+Partitionswerte einzeln gegen Oracle (mehrere hundert Abfragen pro
+Tabelle), was auf Oracle-Seite viel TEMP-Tablespace für Sortierungen
+braucht. Der normale Service ISTAT teilt sich den TEMP-Tablespace mit
+anderen parallel laufenden Sessions, wodurch der Full Load hier schnell
+an die Kapazitätsgrenze stößt. ISTAT_IA ist für genau solche
+ressourcenintensiven Ladevorgänge vorgesehen und sollte das Problem
+vermeiden.
+
+Viele Grüße
