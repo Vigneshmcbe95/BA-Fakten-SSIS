@@ -1,0 +1,37 @@
+Betreff: TEMP-Tablespace-Problem - Ursache und Lösungsoptionen
+
+Ursache:
+
+Die Oracle-Fakten-Views sind nicht partitioniert. Unser Ladeprozess
+arbeitet monatsweise (mon_id / mow_id): Das Skript ermittelt zuerst
+per SELECT DISTINCT mon_id / mow_id die Liste der Monate und lädt
+dann für jeden einzelnen Wert die Daten dieses Monats in einer
+eigenen Abfrage.
+
+Da die View nicht partitioniert ist, kann keine dieser Einzelwert-
+Abfragen Partition Pruning nutzen - Oracle muss die View jedes Mal
+komplett scannen. Bei mehreren hundert unterschiedlichen Werten pro
+Tabelle bedeutet das mehrere hundert Full Scans, wodurch der
+TEMP-Tablespace erschöpft wird (ORA-01652).
+
+Mögliche Lösungen:
+
+1. TEMP-Tablespace erhöhen und den Lauf 3-5 Mal wiederholen, um zu
+   prüfen, ob die Größe unter realer Last jedes Mal ausreicht.
+   Schnelle Lösung, behebt aber nicht die eigentliche Ursache - der
+   Ladevorgang benötigt weiterhin bei jedem Lauf einen großen
+   TEMP-Tablespace.
+
+2. Für jeden einzelnen mon_id-/mow_id-Wert eine eigene Oracle-View
+   anlegen. Vermeidet die wiederholten Full Scans, bringt aber
+   laufenden Pflegeaufwand auf Oracle-Seite mit sich (pro Wert muss
+   eine View erstellt/gepflegt werden).
+
+3. Die komplette View einmalig per SELECT nach SQL Server laden
+   (Staging-Tabelle), dort einen Index anlegen und von dort aus für
+   die weitere Verarbeitung abfragen. Muss vorab auf Performance
+   getestet werden.
+
+Bitte lasst uns wissen, für welche Option wir uns entscheiden sollen.
+
+Viele Grüße
