@@ -43,6 +43,7 @@ Partial Public Class ScriptMain
     Private _steuerlistenTabelle As String = String.Empty
     Private _partitionSchema As String = String.Empty
     Private _credName As String = String.Empty
+    Private _extLoginTimeout As String = String.Empty
 
     ' -----------------------------------------------------------------------
     ' Main - Einstiegspunkt - steuert den Ablauf des Skripts.
@@ -178,6 +179,7 @@ Partial Public Class ScriptMain
         _extTabDDLLocation = Dts.Variables("BA::ExtTableLocation").Value.ToString().Trim()
         _steuerlistenTabelle = Dts.Variables("BA::SteuerlistenTabelle").Value.ToString().Trim()
         _partitionSchema = Dts.Variables("BA::partition_schema").Value.ToString().Trim()
+        _extLoginTimeout = Dts.Variables("BA::LoginTimeout").Value.ToString().Trim()
         _credName = _server & "_" & _credBenutzer
 
         Log("Steuerlisten-Tabelle: dbo." & _steuerlistenTabelle)
@@ -374,11 +376,15 @@ ELSE
             Convert.ToInt32(SqlSkalarAusfuehren(connStr, sqlPruefen, "Credential prüfen")) > 0
 
         If vorhanden Then
-            Log("Credential [" & _credName & "]: bereits vorhanden uebersprungen ")
-            Return
+            Log("Credential [" & _credName & "]: bereits vorhanden wird neu angelegt")
+            SqlAusfuehren(connStr,
+                "IF EXISTS (SELECT 1 FROM sys.external_data_sources WHERE name = '" & _extSourceName & "') DROP EXTERNAL DATA SOURCE [" & _extSourceName & "];",
+                "Abhaengige Data Source loeschen")
+            SqlAusfuehren(connStr, "DROP DATABASE SCOPED CREDENTIAL [" & _credName & "];", "Credential loeschen")
+        Else
+            Log("Credential [" & _credName & "]: nicht vorhanden wird angelegt")
         End If
 
-        Log("Credential [" & _credName & "]: nicht vorhanden wird angelegt")
         Dim sqlErstellen As String =
 "CREATE DATABASE SCOPED CREDENTIAL [" & _credName & "]
  WITH IDENTITY = '" & _credBenutzer & "',
@@ -402,16 +408,18 @@ ELSE
             Convert.ToInt32(SqlSkalarAusfuehren(connStr, sqlPruefen, "Data Source prüfen")) > 0
 
         If vorhanden Then
-            Log("External Data Source [" & _extSourceName & "]: bereits vorhanden uebersprungen ")
-            Return
+            Log("External Data Source [" & _extSourceName & "]: bereits vorhanden wird neu angelegt")
+            SqlAusfuehren(connStr, "DROP EXTERNAL DATA SOURCE [" & _extSourceName & "];", "Data Source loeschen")
+        Else
+            Log("External Data Source [" & _extSourceName & "]: nicht vorhanden wird angelegt")
         End If
 
-        Log("External Data Source [" & _extSourceName & "]: nicht vorhanden wird angelegt")
         Dim sqlErstellen As String =
 "CREATE EXTERNAL DATA SOURCE [" & _extSourceName & "]
  WITH (
      LOCATION   = N'" & _extSourceLocation & "',
-     CREDENTIAL = [" & _credName & "]
+     CREDENTIAL = [" & _credName & "],
+     CONNECTION_OPTIONS = 'LoginTimeout=" & _extLoginTimeout & "'
  );"
         SqlAusfuehren(connStr, sqlErstellen, "Data Source anlegen")
         Log("External Data Source [" & _extSourceName & "]: erfolgreich angelegt ")

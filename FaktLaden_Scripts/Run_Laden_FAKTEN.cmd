@@ -165,6 +165,8 @@ set PARAM_EXT_TABLE_NAME=vm_ddl_sql_server
 :: --- Oracle-Schema der Partitionssicht V_PARTITION_INFO (Owner-Filter in SCR11) ---
 set PARAM_PARTITION_SCHEMA=BI_DM_EXPORT
 
+set PARAM_EXT_LOGIN_TIMEOUT=3600
+
 :: --- CONNECTION_OPTIONS fuer Failover (nur Logging - nicht ans SSIS-Paket uebergeben) ---
 set PARAM_EXT_CONNECTION_OPTIONS=
 set FAILOVER_CONFIGURED=0
@@ -525,6 +527,7 @@ echo ----------------------------------------------- >> "!LOGFILE!"
   /SET \Package.Variables[BA::Maxparallel].Value;"!PARAM_MAXPARALLEL!" ^
   /SET \Package.Variables[BA::ExtSourceName].Value;"!PARAM_EXT_SOURCE_NAME!" ^
   /SET \Package.Variables[BA::ExtSourceLocation].Value;"!PARAM_EXT_SOURCE_LOCATION!" ^
+  /SET \Package.Variables[BA::LoginTimeout].Value;"!PARAM_EXT_LOGIN_TIMEOUT!" ^
   /SET \Package.Variables[BA::ExtTableLocation].Value;"!PARAM_EXT_TABLE_LOCATION!" ^
   /SET \Package.Variables[BA::ExtTableSchema].Value;"!PARAM_EXT_TABLE_SCHEMA!" ^
   /SET \Package.Variables[BA::ExtTableName].Value;"!PARAM_EXT_TABLE_NAME!" ^
