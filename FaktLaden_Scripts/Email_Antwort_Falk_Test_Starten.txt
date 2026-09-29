@@ -1,0 +1,7 @@
+Betreff: Bitte Test starten - LoginTimeout umgesetzt
+
+Hallo Falk,
+
+LoginTimeout ist umgesetzt (PARAM_EXT_LOGIN_TIMEOUT=3600 im cmd-Skript), QueryTimeout ist bereits unbegrenzt, bitte den Test starten.
+
+Viele Grüße
