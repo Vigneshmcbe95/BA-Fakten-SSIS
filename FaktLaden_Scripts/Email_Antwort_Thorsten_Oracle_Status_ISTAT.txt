@@ -1,14 +1,7 @@
-Betreff: Bitte Oracle-Status für Service ISTAT prüfen
+Betreff: TCP-Verbindung zu ISTAT fehlgeschlagen
 
 Hallo Thorsten,
 
-wir haben bestätigt, dass der Netzwerkweg in Ordnung ist - die TCP-
-Verbindung zu l9800022db.dst.baintern.de:57575 funktioniert. Das
-Problem liegt speziell daran, dass der Oracle-Listener den Service
-ISTAT nicht erkennt (TNS-12514), und teilweise bekommen wir auch
-Connection refused/ORA-12203, selbst bei bereits existierenden
-externen Tabellen.
-
-Könntest du bitte den Oracle-Listener-Status für ISTAT prüfen?
+die TCP-Verbindung zu ISTAT ist fehlgeschlagen.
 
 Viele Grüße
