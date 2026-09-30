@@ -1,0 +1,10 @@
+Betreff: Bitte Oracle-Status für Service ISTAT prüfen
+
+Hallo Thorsten,
+
+könntest du bitte den Status von Oracle für den Service ISTAT prüfen?
+Aktuell wird jede Verbindung abgelehnt (Connection refused / TNS-12514),
+auch bei bereits existierenden externen Tabellen schlägt die Abfrage
+fehl.
+
+Viele Grüße
