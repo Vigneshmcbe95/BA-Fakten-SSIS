@@ -1,0 +1,14 @@
+Check: TCP-Erreichbarkeit zu Oracle-Host fuer Service ISTAT pruefen.
+
+Auf dem SQL-Server-Host ausfuehren (PowerShell):
+
+Test-NetConnection -ComputerName l9800022db.dst.baintern.de -Port 57575
+
+TcpTestSucceeded = True  -> Netzwerk/Port offen, Problem liegt am Oracle-Listener/Service (siehe TNS-12514).
+TcpTestSucceeded = False -> Nichts erreichbar, Listener down oder Firewall/Netzwerk blockiert (siehe Connection refused / ORA-12203).
+
+Fuer mehr Details:
+Test-NetConnection -ComputerName l9800022db.dst.baintern.de -Port 57575 -InformationLevel Detailed
+
+Falls tnsping verfuegbar ist (direkter Test am Listener, ohne SQL Server/PolyBase):
+tnsping "(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=l9800022db.dst.baintern.de)(PORT=57575))(CONNECT_DATA=(SERVICE_NAME=ISTAT)))"
