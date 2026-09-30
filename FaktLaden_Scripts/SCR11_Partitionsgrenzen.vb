@@ -588,8 +588,8 @@ Partial Public Class ScriptMain
     ' -----------------------------------------------------------------------
     Private Function OracleDistinctWerteLaden(connStr As String, v As VerfahrenInfo) As List(Of Integer)
         Dim liste As New List(Of Integer)()
-        Dim sql As String = "SELECT DISTINCT [" & v.PartitionsSpalte & "] FROM ext.[" & v.Verfahren.ToLower() &
-                            "] WHERE [" & v.PartitionsSpalte & "] IS NOT NULL"
+        Dim sql As String = "SELECT [" & v.PartitionsSpalte & "] FROM ext.[" & v.Verfahren.ToLower() &
+                            "] WHERE [" & v.PartitionsSpalte & "] IS NOT NULL GROUP BY [" & v.PartitionsSpalte & "]"
         Dim versuch As Integer = 0
         While versuch < MAX_VERSUCHE
             versuch += 1
