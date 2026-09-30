@@ -2,9 +2,13 @@ Betreff: Bitte Oracle-Status für Service ISTAT prüfen
 
 Hallo Thorsten,
 
-könntest du bitte den Status von Oracle für den Service ISTAT prüfen?
-Aktuell wird jede Verbindung abgelehnt (Connection refused / TNS-12514),
-auch bei bereits existierenden externen Tabellen schlägt die Abfrage
-fehl.
+wir haben bestätigt, dass der Netzwerkweg in Ordnung ist - die TCP-
+Verbindung zu l9800022db.dst.baintern.de:57575 funktioniert. Das
+Problem liegt speziell daran, dass der Oracle-Listener den Service
+ISTAT nicht erkennt (TNS-12514), und teilweise bekommen wir auch
+Connection refused/ORA-12203, selbst bei bereits existierenden
+externen Tabellen.
+
+Könntest du bitte den Oracle-Listener-Status für ISTAT prüfen?
 
 Viele Grüße
