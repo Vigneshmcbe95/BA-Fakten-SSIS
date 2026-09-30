@@ -1,0 +1,7 @@
+Betreff: GROUP BY umgesetzt
+
+Hallo Falk,
+
+GROUP BY statt SELECT DISTINCT ist umgesetzt.
+
+Viele Grüße

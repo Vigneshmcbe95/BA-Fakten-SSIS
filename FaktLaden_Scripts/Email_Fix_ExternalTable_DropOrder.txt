@@ -1,0 +1,3 @@
+Betreff: Fix umgesetzt
+
+Externe Tabellen vor Data Source Löschung entfernt.

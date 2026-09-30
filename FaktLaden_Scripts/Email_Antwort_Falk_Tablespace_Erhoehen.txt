@@ -1,0 +1,14 @@
+Betreff: RE: Polybase - Fehler beim Fakten laden für Datenbank msi_dm_fst
+
+Hallo Falk,
+
+kurzes Update aus dem Gespräch mit Sebastian: Als erster Schritt bitte
+den TEMP-Tablespace weit genug erhöhen, das sollte den ORA-01652-Fehler
+beheben.
+
+Falls das bei FST wegen der vielen View-basierten Tabellen nicht
+ausreicht, müssen wir das Vorgehen für diese Tabellen grundlegend neu
+gestalten (Re-Design), da Views in Oracle nicht partitioniert werden
+können.
+
+Viele Grüße
