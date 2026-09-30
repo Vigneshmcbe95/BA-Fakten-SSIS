@@ -378,6 +378,13 @@ ELSE
         If vorhanden Then
             Log("Credential [" & _credName & "]: bereits vorhanden wird neu angelegt")
             SqlAusfuehren(connStr,
+"DECLARE @sql nvarchar(max) = N'';
+ SELECT @sql = @sql + N'DROP EXTERNAL TABLE ' + QUOTENAME(s.name) + N'.' + QUOTENAME(t.name) + N';'
+ FROM sys.external_tables t JOIN sys.schemas s ON t.schema_id = s.schema_id
+ WHERE s.name = '" & _extTabSchema & "';
+ EXEC sp_executesql @sql;",
+                "Abhaengige externe Tabellen loeschen")
+            SqlAusfuehren(connStr,
                 "IF EXISTS (SELECT 1 FROM sys.external_data_sources WHERE name = '" & _extSourceName & "') DROP EXTERNAL DATA SOURCE [" & _extSourceName & "];",
                 "Abhaengige Data Source loeschen")
             SqlAusfuehren(connStr, "DROP DATABASE SCOPED CREDENTIAL [" & _credName & "];", "Credential loeschen")
