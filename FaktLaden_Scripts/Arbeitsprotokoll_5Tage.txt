@@ -27,3 +27,9 @@ Tag 5 - Confluence-Dokumentation
 2. An der vollständigen Auflistung aller ETL- und tm-Tabellen gearbeitet
 3. Am Retry-Mechanismus mit Szenarien je Pipeline gearbeitet
 4. An der Beantwortung offener Fragen gearbeitet, inkl. Log-Pfad und done-Ordner-Logik
+
+Tag 6 - Vertiefung und Korrekturen
+1. SCR13-Datenladen bis ins Detail nachvollzogen (Temp-Tabelle, Umbenennung, Resume pro Partition)
+2. Fehlenden Schritt STL Laden in DIM-Ablauf ergänzt
+3. ETL_LaufHistorie/ETL_FehlerHistorie bei DIM nachträglich korrekt nachgewiesen
+4. Log-Pfad, done-Ordner-Bedingung und Doppellauf-Schutz im Detail dokumentiert
