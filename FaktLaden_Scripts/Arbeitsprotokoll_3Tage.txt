@@ -1,0 +1,17 @@
+Tag 1 - Fakten Staging/UC4 Fixes
+1. Stale ddl_staging, vm_ddl_sql_server Rebuild-Bug behoben
+2. TEMP-Tablespace-Erschöpfung durch Full Scans diagnostiziert
+3. UC4-Logging in beiden cmd-Skripten ergänzt
+4. Falk Ursache und Optionen für Tablespace gesendet
+
+Tag 2 - LoginTimeout und Credential-Fixes
+1. Oracle-Treiber-Timeout-Standards per Doku bestätigt
+2. LoginTimeout 3600 über neue Paketvariable ergänzt
+3. Reihenfolge bei Credential/Data-Source-Neuanlage behoben
+4. DISTINCT auf GROUP BY laut Teamcall umgestellt
+
+Tag 3 - Laden_DIM und Oracle-Konnektivität
+1. Fehler 2714 als geloggten Quelltext erkannt, kein Laufzeitfehler
+2. Duplikat-Bug durch leeres Themengebiet gefunden und behoben
+3. TNS-12514 und Connection-refused-Fehler diagnostiziert
+4. Hostname-Tippfehler entdeckt, TCP-Fehler bestätigt
