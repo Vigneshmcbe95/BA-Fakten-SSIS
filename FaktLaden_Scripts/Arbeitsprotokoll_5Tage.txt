@@ -1,0 +1,29 @@
+Tag 1 - Fakten Staging/UC4 Fixes
+1. Stale ddl_staging, vm_ddl_sql_server Rebuild-Bug behoben
+2. TEMP-Tablespace-Erschöpfung durch Full Scans diagnostiziert
+3. UC4-Logging in beiden cmd-Skripten ergänzt
+4. Ursache und Optionen für Tablespace gesendet
+
+Tag 2 - LoginTimeout und Credential-Fixes
+1. Oracle-Treiber-Timeout-Standards per Doku bestätigt
+2. LoginTimeout 3600 über neue Paketvariable ergänzt
+3. Reihenfolge bei Credential/Data-Source-Neuanlage behoben
+4. DISTINCT auf GROUP BY laut Teamcall umgestellt
+
+Tag 3 - Laden_DIM Fehleranalyse
+1. Fehler 2714 als geloggten Quelltext erkannt, kein Laufzeitfehler
+2. SCR_03/SCR_04 Doppelanlage der externen Tabelle nachvollzogen
+3. Duplikat-Bug durch leeres Themengebiet gefunden
+4. Fix in MetadatenErmitteln geschrieben (wirft Fehler statt leer)
+
+Tag 4 - Oracle-Konnektivität
+1. TNS-12514 und Connection-refused-Fehler diagnostiziert
+2. Hostname-Tippfehler in Test entdeckt und korrigiert
+3. TCP-Erreichbarkeit zu ISTAT bestätigt fehlgeschlagen
+4. Konkreter Befund zur weiteren Klärung gesendet
+
+Tag 5 - Confluence-Dokumentation
+1. An drei Seiten gearbeitet: Fakten-Ablauf, DIM-Ablauf, Fragen/Antworten
+2. An der vollständigen Auflistung aller ETL- und tm-Tabellen gearbeitet
+3. Am Retry-Mechanismus mit Szenarien je Pipeline gearbeitet
+4. An der Beantwortung offener Fragen gearbeitet, inkl. Log-Pfad und done-Ordner-Logik
