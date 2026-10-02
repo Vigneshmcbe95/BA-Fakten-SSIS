@@ -1,16 +1,1 @@
-Betreff: Ladelauf vf_fst_km_bd bitte stoppen
-
-Hallo Falk,
-
-kannst du bitte den laufenden Ladelauf (UC4-Job, SQL-Session 255) noch einmal stoppen?
-
-Der Lauf hängt in SCR11 (Partitionsgrenzen) beim Verfahren vf_fst_km_bd. vf_fst_km_bd ist eine View, deshalb liest SCR11 die 206 Monatswerte direkt aus den Daten. Danach prüft es jeden Monat einzeln mit
-
-  SELECT TOP 1 1 FROM ext.[vf_fst_km_bd] WHERE [mon_id] = 201001
-
-Diese erste Prüfung läuft bereits seit ca. 32 Stunden. PolyBase zieht dabei die Daten aus Oracle in die tempdb, statt nur eine Zeile zu lesen. Bei 206 Monaten würde der Lauf so nicht fertig.
-
-Ich schaue mir das an und melde mich, sobald ich eine Lösung habe. Bitte den Lauf bis dahin nicht neu starten, sonst bleibt er an derselben Stelle wieder hängen.
-
-Danke und viele Grüße
-Vignesh
+Hallo Falk, kannst du bitte den Ladelauf noch einmal stoppen? Er hängt wieder an derselben Stelle, ich schaue mir das an. Danke!
