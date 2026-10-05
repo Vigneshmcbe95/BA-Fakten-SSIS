@@ -85,7 +85,7 @@ Partial Public Class ScriptMain
 
                     If benutzerWerte.Count > 0 OrElse musterListe.Count > 0 Then
                         ' ═════════════════════════════════════════════════════
-                        ' MODE 1: MANUAL (Steuerliste, SC04)
+                        ' MODUS 1: MANUAL (Steuerliste, SC04)
                         ' Zwei Selektoren moeglich (auch kombiniert):
                         '   (a) partition_wert  -> CUT-OFF: alle Werte <= MAX(wert)
                         '   (b) where_klausel    -> REGEX : alle Werte, deren String
@@ -178,7 +178,7 @@ Partial Public Class ScriptMain
 
                     Else
                         ' ═════════════════════════════════════════════════════
-                        ' MODE 2: AUTOMATIC (kein partition_wert in CSV)
+                        ' MODUS 2: AUTOMATIC (kein partition_wert in CSV)
                         ' ═════════════════════════════════════════════════════
                         modus = "AUTOMATIC"
                         Log("  MODE: AUTOMATIC (Full Reload aller Oracle-Partitionen, kein Delta)")
@@ -287,7 +287,7 @@ Partial Public Class ScriptMain
                     End If
 
                     ' ═════════════════════════════════════════════════════════
-                    ' ZUSAMMENFASSUNG (COMPACT)
+                    ' ZUSAMMENFASSUNG (KOMPAKT)
                     ' ═════════════════════════════════════════════════════════
                     zuVerarbeiten = zuVerarbeiten.OrderBy(Function(z) z.Wert).ToList()
 
@@ -300,7 +300,7 @@ Partial Public Class ScriptMain
                     End If
                     Log("  NEU: " & zuVerarbeiten.Where(Function(z) z.Modus = "NEU").Count().ToString())
 
-                    ' Show value range in ONE line
+                    ' Wertebereich in EINER Zeile anzeigen
                     If zuVerarbeiten.Count > 0 Then
                         Dim minVal As Integer = zuVerarbeiten.Min(Function(z) z.Wert)
                         Dim maxVal As Integer = zuVerarbeiten.Max(Function(z) z.Wert)
@@ -344,7 +344,7 @@ Partial Public Class ScriptMain
 
                     StatusSetzen(connStr, v.ID, "PARTITIONSGRENZEN_ERSTELLT")
 
-                    ' Compact protocol entry
+                    ' Kompakter Protokolleintrag
                     Dim protMsg As String = "Partitionsgrenzen erstellt. Modus=" & modus &
                         " | Gesamt=" & zuVerarbeiten.Count.ToString() &
                         If(modus = "MANUAL", " | AKTUALISIERUNG=" & zuVerarbeiten.Where(Function(z) z.Modus = "AKTUALISIERUNG").Count().ToString(), "") &
@@ -386,7 +386,7 @@ Partial Public Class ScriptMain
 
                 Log("BA::objPartitionValues gesetzt: " & gesamtAnzahl.ToString() & " Eintraege")
 
-                ' Show summary by Verfahren (compact)
+                ' Zusammenfassung je Verfahren anzeigen (kompakt)
                 For Each kvp As KeyValuePair(Of String, List(Of PartitionsEintrag)) In gesamtErgebnis
                     Dim minV As Integer = kvp.Value.Min(Function(p) p.Wert)
                     Dim maxV As Integer = kvp.Value.Max(Function(p) p.Wert)
@@ -660,7 +660,7 @@ Partial Public Class ScriptMain
                                             pf As String, ps As String,
                                             dateigruppe As String, partWert As Integer)
 
-        ' Direct check: is this boundary already in the partition function?
+        ' Direkte Pruefung: Ist diese Grenze bereits in der Partitionsfunktion vorhanden?
         Dim sqlBoundExists As String =
             "SELECT COUNT(*) FROM sys.partition_range_values prv " &
             "JOIN sys.partition_functions pfn ON prv.function_id=pfn.function_id " &
@@ -720,32 +720,32 @@ Partial Public Class ScriptMain
         End While
 
         If treffer = 1 Then
-            Return  ' Boundary already exists
+            Return  ' Grenze existiert bereits
         End If
 
         If leer = 1 Then
-            ' Direct SPLIT - partition is empty
+            ' Direkter SPLIT - Partition ist leer
             SqlAusfuehren(connStr,
                 "ALTER PARTITION SCHEME [" & ps & "] NEXT USED [" & dateigruppe & "];" &
                 "ALTER PARTITION FUNCTION [" & pf & "]() SPLIT RANGE(" & partWert & ");",
                 "SPLIT direkt")
         Else
             ' ═════════════════════════════════════════════════════════════
-            ' SWITCH OUT / SPLIT / SWITCH IN (WITH CCI/CI FIX)
+            ' SWITCH OUT / SPLIT / SWITCH IN (MIT CCI/CI-KORREKTUR)
             ' ═════════════════════════════════════════════════════════════
             Dim tmpTabelle As String = v.Faktentabelle & "_tmp_" & partName.ToString()
             SqlAusfuehren(connStr, "IF OBJECT_ID('dbo.[" & tmpTabelle & "]','U') IS NOT NULL DROP TABLE dbo.[" & tmpTabelle & "];", "Tmp loeschen")
 
             Dim spaltenDef As String = HoleSpaltendefinition(connStr, v.Faktentabelle)
 
-            ' Get compression
+            ' Komprimierung ermitteln
             Dim komprimierung As String = Convert.ToString(SqlSkalar(connStr,
                 "SELECT TOP 1 p.data_compression_desc FROM sys.partitions p JOIN sys.indexes i ON p.object_id=i.object_id AND p.index_id=i.index_id JOIN sys.tables t ON t.object_id=p.object_id WHERE t.name='" & v.Faktentabelle & "' AND p.partition_number=1",
                 "Komprimierung"))
             Dim kompStr As String = If(komprimierung = "PAGE" OrElse komprimierung = "ROW", " WITH (DATA_COMPRESSION=" & komprimierung & ")", "")
 
             ' ═════════════════════════════════════════════════════════════
-            ' FIX: Detect source table index type
+            ' KORREKTUR: Indextyp der Quelltabelle ermitteln
             ' ═════════════════════════════════════════════════════════════
             Dim sqlIndexInfo As String =
                 "SELECT i.type_desc, i.name " &
@@ -778,22 +778,22 @@ Partial Public Class ScriptMain
                 End Try
             End While
 
-            ' Create temp table (HEAP first)
+            ' Temp-Tabelle anlegen (zunaechst als HEAP)
             SqlAusfuehren(connStr,
                 "CREATE TABLE dbo.[" & tmpTabelle & "] (" & spaltenDef & ")" & kompStr & ";",
                 "Tmp erstellen")
 
             ' ═════════════════════════════════════════════════════════════
-            ' Create matching clustered index on temp table
+            ' Passenden Clustered Index auf der Temp-Tabelle anlegen
             ' ═════════════════════════════════════════════════════════════
             If indexType = "CLUSTERED COLUMNSTORE" Then
-                ' Source has Clustered Columnstore Index (CCI)
+                ' Quelle hat Clustered Columnstore Index (CCI)
                 SqlAusfuehren(connStr,
                     "CREATE CLUSTERED COLUMNSTORE INDEX [CCI_" & tmpTabelle & "] ON dbo.[" & tmpTabelle & "];",
                     "Tmp CCI erstellen")
 
             ElseIf indexType = "CLUSTERED" Then
-                ' Source has regular Clustered Index (CI) - get key columns
+                ' Quelle hat regulaeren Clustered Index (CI) - Schluesselspalten ermitteln
                 Dim sqlIndexCols As String =
                     "SELECT STUFF((SELECT ', ' + QUOTENAME(c.name) " &
                     "FROM sys.index_columns ic " &
@@ -808,7 +808,7 @@ Partial Public Class ScriptMain
                     "CREATE CLUSTERED INDEX [CI_" & tmpTabelle & "] ON dbo.[" & tmpTabelle & "] (" & indexColumns & ")" & kompStr & ";",
                     "Tmp CI erstellen")
             End If
-            ' If HEAP (no index_id=1), temp table stays as HEAP
+            ' Bei HEAP (kein index_id=1) bleibt die Temp-Tabelle ein HEAP
 
             ' Zusaetzliche NONCLUSTERED (Rowstore) Indizes der Faktentabelle, die NICHT
             ' aus der Parametertabelle stammen (z.B. per separater Prozedur angelegt wie
@@ -816,7 +816,7 @@ Partial Public Class ScriptMain
             ' SWITCH ("no identical index").
             NonclusteredReplizieren(connStr, v.Faktentabelle, tmpTabelle)
 
-            ' Now SWITCH OUT will work - indexes match!
+            ' Jetzt funktioniert SWITCH OUT - Indizes stimmen ueberein!
             SqlAusfuehren(connStr,
                 "ALTER TABLE dbo.[" & v.Faktentabelle & "] SWITCH PARTITION " & partId & " TO dbo.[" & tmpTabelle & "];",
                 "SWITCH OUT")
@@ -827,12 +827,12 @@ Partial Public Class ScriptMain
                 "ALTER PARTITION FUNCTION [" & pf & "]() SPLIT RANGE(" & partWert & ");",
                 "SPLIT")
 
-            ' Find new partition ID
+            ' Neue Partitions-ID ermitteln
             Dim neuePartId As Object = SqlSkalar(connStr,
                 "SELECT sprv.boundary_id FROM sys.partition_functions spf JOIN sys.partition_range_values sprv ON sprv.function_id=spf.function_id WHERE spf.name='" & pf & "' AND sprv.value=" & partName,
                 "Neue PartID")
 
-            ' CHECK constraint
+            ' CHECK-Constraint
             SqlAusfuehren(connStr,
                 "ALTER TABLE dbo.[" & tmpTabelle & "] WITH CHECK ADD CONSTRAINT [CK_" & tmpTabelle & "] CHECK([" & v.PartitionsSpalte & "]<=" & partName & " AND [" & v.PartitionsSpalte & "]>" & partWert & " AND [" & v.PartitionsSpalte & "] IS NOT NULL);",
                 "CHECK Constraint")
@@ -842,7 +842,7 @@ Partial Public Class ScriptMain
                 "ALTER TABLE dbo.[" & tmpTabelle & "] SWITCH TO dbo.[" & v.Faktentabelle & "] PARTITION " & Convert.ToInt32(neuePartId) & ";",
                 "SWITCH IN")
 
-            ' Cleanup
+            ' Aufraeumen
             SqlAusfuehren(connStr, "DROP TABLE dbo.[" & tmpTabelle & "];", "Tmp loeschen")
         End If
 
