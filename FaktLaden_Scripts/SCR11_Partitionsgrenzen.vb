@@ -33,6 +33,7 @@ Partial Public Class ScriptMain
     Private _parametertab As String = String.Empty
     Private _stlTabelle As String = String.Empty
     Private _partitionSchema As String = String.Empty
+    Private _werteAusDistinct As Boolean = False
 
     ' -----------------------------------------------------------------------
     ' Main - Einstiegspunkt - steuert den Ablauf des Skripts.
@@ -152,7 +153,7 @@ Partial Public Class ScriptMain
                         ' Nur Partitionen mit echten Daten (leere still ueberspringen)
                         Dim kandidaten As List(Of Integer) = treffer.OrderBy(Function(w) w).ToList()
                         Dim vorFilter As Integer = kandidaten.Count
-                        kandidaten = kandidaten.Where(Function(w) PartitionHatDaten(connStr, v, w)).ToList()
+                        kandidaten = WerteMitDatenFiltern(connStr, v, kandidaten)
                         If kandidaten.Count < vorFilter Then
                             Log("  Leere Partitionen ohne Daten uebersprungen: " &
                                 (vorFilter - kandidaten.Count).ToString())
@@ -222,7 +223,7 @@ Partial Public Class ScriptMain
                             ' Leere Partitionen werden still uebersprungen (nur Zaehler).
                             Dim vorFilterVoll As Integer = vollWerte.Count
                             Dim ladeWerte As List(Of Integer) =
-                                vollWerte.Where(Function(w) PartitionHatDaten(connStr, v, w)).ToList()
+                                WerteMitDatenFiltern(connStr, v, vollWerte)
                             If ladeWerte.Count < vorFilterVoll Then
                                 Log("  Leere Partitionen ohne Daten uebersprungen: " &
                                     (vorFilterVoll - ladeWerte.Count).ToString())
@@ -254,7 +255,7 @@ Partial Public Class ScriptMain
                             Dim vollWerteA As List(Of Integer) = oracleAlleWerte.OrderBy(Function(w) w).ToList()
                             Dim vorFilterAppend As Integer = vollWerteA.Count
                             Dim ladeWerteA As List(Of Integer) =
-                                vollWerteA.Where(Function(w) PartitionHatDaten(connStr, v, w)).ToList()
+                                WerteMitDatenFiltern(connStr, v, vollWerteA)
                             If ladeWerteA.Count < vorFilterAppend Then
                                 Log("  Leere Partitionen ohne Daten uebersprungen: " &
                                     (vorFilterAppend - ladeWerteA.Count).ToString())
@@ -497,6 +498,7 @@ Partial Public Class ScriptMain
     ' -----------------------------------------------------------------------
     Private Function OracleAlleWerteLaden(connStr As String, v As VerfahrenInfo) As List(Of Integer)
         Dim liste As New List(Of Integer)()
+        _werteAusDistinct = False
         Dim sql As String =
             "SELECT DISTINCT HIGH_VALUE FROM ext.[v_partition_info] " &
             "WHERE TABLE_NAME = UPPER('" & v.Verfahren & "') " &
@@ -572,7 +574,9 @@ Partial Public Class ScriptMain
                 ' aus der ext-Quelle lesen (DISTINCT). Diese Werte sind echte
                 ' Datenwerte -> keine Umrechnung. Hinweis: dieser Pfad scannt die Quelle.
                 Log("  Keine Partitionsmetadaten in v_partition_info fuer [" & v.Verfahren & "] (z.B. View-Quelle) -> Fallback: DISTINCT " & v.PartitionsSpalte & " aus ext.[" & v.Verfahren.ToLower() & "]")
-                Return OracleDistinctWerteLaden(connStr, v)
+                Dim distinctWerte As List(Of Integer) = OracleDistinctWerteLaden(connStr, v)
+                _werteAusDistinct = True
+                Return distinctWerte
             Catch ex As Exception
                 If versuch < MAX_VERSUCHE Then System.Threading.Thread.Sleep(WARTE_SEK * 1000) Else Throw
             End Try
@@ -1077,6 +1081,24 @@ Partial Public Class ScriptMain
                 "Spalte umstellen und den Lauf erneut starten.")
         End If
     End Sub
+
+    Private Function WerteMitDatenFiltern(connStr As String, v As VerfahrenInfo, werte As List(Of Integer)) As List(Of Integer)
+        ' Werte aus dem DISTINCT-Fallback (View ohne Partitionsmetadaten) haben per Definition Daten -> Einzelpruefung je Wert ueberspringen (bei Views Full Scan je Wert).
+        If _werteAusDistinct Then
+            Log("  Datenpruefung je Partition uebersprungen: " & werte.Count.ToString() & " Werte aus DISTINCT der Quelle.")
+            Return New List(Of Integer)(werte)
+        End If
+        Dim ergebnis As New List(Of Integer)()
+        Dim i As Integer = 0
+        For Each w As Integer In werte
+            i += 1
+            If PartitionHatDaten(connStr, v, w) Then ergebnis.Add(w)
+            If i Mod 20 = 0 OrElse i = werte.Count Then
+                Log("  Datenpruefung: " & i.ToString() & "/" & werte.Count.ToString() & " geprueft (zuletzt " & w.ToString() & ")")
+            End If
+        Next
+        Return ergebnis
+    End Function
 
     ' -----------------------------------------------------------------------
     ' PartitionHatDaten - Prueft per Einzel-Partition-Pushdown, ob die
