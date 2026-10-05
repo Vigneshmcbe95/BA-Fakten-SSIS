@@ -1,1 +1,1 @@
-Hallo Falk, kannst du bitte den aktuellen Ladelauf abbrechen? Die alte Session 255 auf Q0003713 hängt noch und blockiert alles. KILL hat auf SQL-Server-Seite nicht gewirkt, die Abfrage muss auf Oracle-Seite beendet werden (User BI_DM_EXPORT, Abfrage auf vf_fst_km_bd). Danach starten wir neu. Danke!
+Hallo Falk, bitte den aktuellen Lauf abbrechen. Die alte Session 255 hängt und blockiert, KILL wirkt nicht – sie muss auf Oracle-Seite beendet werden (User BI_DM_EXPORT). Danke!
