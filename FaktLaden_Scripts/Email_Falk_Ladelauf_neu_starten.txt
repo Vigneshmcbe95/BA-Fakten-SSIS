@@ -1,1 +1,1 @@
-Hallo Falk, ich habe SCR11 angepasst – bei Views wie vf_fst_km_bd wird die Einzelprüfung je Partition jetzt übersprungen, daran hing der Lauf. Kannst du den Ladelauf bitte neu starten? Danke!
+Hallo Falk, ich habe SCR11 angepasst – bei Views wie vf_fst_km_bd wird die Einzelprüfung je Partition jetzt übersprungen, daran hing der Lauf. Grund: Werte aus View haben immer Daten. Kannst du den Ladelauf bitte neu starten? Danke!
