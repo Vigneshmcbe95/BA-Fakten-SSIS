@@ -33,16 +33,30 @@ GROUP BY t.name
 ORDER BY mb DESC;
 
 -- 4) Autogrow-Ereignisse aus dem Default Trace (warum ist das Wachstum um 02:18 gescheitert?)
-SELECT t.StartTime, te.name, t.FileName, t.Duration / 1000 AS ms
-FROM sys.traces st
-CROSS APPLY sys.fn_trace_gettable(st.path, DEFAULT) t
+-- 4a) Ist der Default Trace eingeschaltet? (value_in_use = 1)
+SELECT name, value_in_use FROM sys.configurations WHERE name = 'default trace enabled';
+
+-- 4b) Alle Trace-Dateien lesen (nicht nur die aktuelle).
+--     erste_zeit nach 02:18 -> der Zeitraum ist bereits ueberschrieben.
+DECLARE @tracePfad nvarchar(260);
+SELECT @tracePfad = LEFT(path, LEN(path) - CHARINDEX(N'', REVERSE(path)) + 1) + N'log.trc'
+FROM sys.traces WHERE is_default = 1;
+
+SELECT MIN(t.StartTime) AS erste_zeit, MAX(t.StartTime) AS letzte_zeit
+FROM sys.fn_trace_gettable(@tracePfad, DEFAULT) t;
+
+-- 4c) Wachstumsereignisse der Datenbank (92 = Data File Auto Grow, 93 = Log File Auto Grow)
+SELECT t.StartTime, te.name, t.FileName, t.Duration / 1000 AS ms,
+       t.IntegerData * 8 / 1024 AS wachstum_mb
+FROM sys.fn_trace_gettable(@tracePfad, DEFAULT) t
 JOIN sys.trace_events te ON te.trace_event_id = t.EventClass
-WHERE st.is_default = 1
-  AND t.DatabaseName = 'msi_dm_fst'
-  AND t.StartTime >= '2026-10-06 01:00'
+WHERE t.DatabaseName = 'msi_dm_fst'
+  AND t.EventClass IN (92, 93)
+  AND t.StartTime >= '2026-10-05 15:00'
 ORDER BY t.StartTime;
 
 -- 5) Eintraege im SQL-Server-Fehlerprotokoll zur Datenbank
+--    Leer ist normal: "filegroup is full" geht nur an den Aufrufer (SSIS), nicht ins Fehlerprotokoll.
 EXEC sys.xp_readerrorlog 0, 1, N'msi_dm_fst';
 
 -- 6) NUR DURCH DEN DBA: Datendatei vor dem Lauf vergroessern (Beispiel +100 GB).
