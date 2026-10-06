@@ -39,7 +39,7 @@ SELECT name, value_in_use FROM sys.configurations WHERE name = 'default trace en
 -- 4b) Alle Trace-Dateien lesen (nicht nur die aktuelle).
 --     erste_zeit nach 02:18 -> der Zeitraum ist bereits ueberschrieben.
 DECLARE @tracePfad nvarchar(260);
-SELECT @tracePfad = LEFT(path, LEN(path) - CHARINDEX(N'', REVERSE(path)) + 1) + N'log.trc'
+SELECT @tracePfad = LEFT(path, LEN(path) - CHARINDEX(N'\', REVERSE(path)) + 1) + N'log.trc'
 FROM sys.traces WHERE is_default = 1;
 
 SELECT MIN(t.StartTime) AS erste_zeit, MAX(t.StartTime) AS letzte_zeit
