@@ -1,0 +1,1 @@
+Hallo Falk, das Problem in SCR11 ist gelöst, der Lauf kam diesmal bis SCR13. Dort ist er um 02:18 abgebrochen: Die Dateigruppe PRIMARY von msi_dm_fst war voll, weil auf E: kein Platz mehr frei war. Lösung: SCR13 reserviert jetzt vor dem Laden einmalig genug Platz und bricht bei zu wenig Platz sofort mit klarer Meldung ab, statt nachts. Viele Grüße
