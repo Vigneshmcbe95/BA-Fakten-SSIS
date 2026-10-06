@@ -33,6 +33,10 @@ GROUP BY t.name
 ORDER BY mb DESC;
 
 -- 4) Autogrow-Ereignisse aus dem Default Trace (warum ist das Wachstum um 02:18 gescheitert?)
+--    Teil 4 braucht die Berechtigung ALTER TRACE (sonst liefert sys.traces keine Zeile
+--    und es kommt 'Trace file name '' is invalid'). Ohne Berechtigung -> DBA ausfuehren lassen.
+SELECT HAS_PERMS_BY_NAME(NULL, NULL, 'ALTER TRACE') AS darf_trace_lesen;  -- 1 = ja, 0 = nein
+
 -- 4a) Ist der Default Trace eingeschaltet? (value_in_use = 1)
 SELECT name, value_in_use FROM sys.configurations WHERE name = 'default trace enabled';
 
