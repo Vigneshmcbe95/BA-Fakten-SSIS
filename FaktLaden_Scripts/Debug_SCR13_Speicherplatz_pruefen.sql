@@ -31,3 +31,21 @@ JOIN sys.allocation_units a ON a.container_id = p.partition_id
 WHERE t.name LIKE '%[_]LOADING'
 GROUP BY t.name
 ORDER BY mb DESC;
+
+-- 4) Autogrow-Ereignisse aus dem Default Trace (warum ist das Wachstum um 02:18 gescheitert?)
+SELECT t.StartTime, te.name, t.FileName, t.Duration / 1000 AS ms
+FROM sys.traces st
+CROSS APPLY sys.fn_trace_gettable(st.path, DEFAULT) t
+JOIN sys.trace_events te ON te.trace_event_id = t.EventClass
+WHERE st.is_default = 1
+  AND t.DatabaseName = 'msi_dm_fst'
+  AND t.StartTime >= '2026-10-06 01:00'
+ORDER BY t.StartTime;
+
+-- 5) Eintraege im SQL-Server-Fehlerprotokoll zur Datenbank
+EXEC sys.xp_readerrorlog 0, 1, N'msi_dm_fst';
+
+-- 6) NUR DURCH DEN DBA: Datendatei vor dem Lauf vergroessern (Beispiel +100 GB).
+--    Vorher pruefen, dass auf E: genug Platz frei ist.
+-- ALTER DATABASE msi_dm_fst
+-- MODIFY FILE (NAME = msi_dm_fst, SIZE = 809000MB);
