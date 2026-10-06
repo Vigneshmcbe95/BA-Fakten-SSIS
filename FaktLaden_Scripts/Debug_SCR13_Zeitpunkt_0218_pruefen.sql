@@ -24,3 +24,7 @@ FROM msdb.dbo.backupset bs
 JOIN msdb.dbo.backupmediafamily bmf ON bmf.media_set_id = bs.media_set_id
 WHERE bs.backup_start_date BETWEEN '2026-10-05 22:00' AND '2026-10-06 06:00'
 ORDER BY bs.backup_start_date;
+
+SELECT SERVERPROPERTY('ErrorLogFileName') AS errorlog_pfad;
+EXEC sys.xp_readerrorlog 0, 1, N'Trace';
+EXEC sys.xp_readerrorlog 1, 1, N'Trace';
