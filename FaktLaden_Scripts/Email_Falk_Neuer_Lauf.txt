@@ -1,1 +1,1 @@
-Hallo Falk, ja, bitte einen neuen Lauf starten. Der Wiederanlauf ist jetzt korrigiert, es werden alle 66 Tabellen komplett neu geladen. Danke! Viele Grüße
+Hallo Falk, du hast nichts falsch gemacht. Auch nach Abbruch und Neustart setzt das Paket am Status der Arbeitsliste wieder auf – und dort lag der Fehler: Es wurden nur die fehlerhaften Tabellen zurückgesetzt, die hängengebliebenen wurden übersprungen. Das ist jetzt korrigiert. Kannst du bitte einen neuen Lauf starten? Dann werden alle 66 Tabellen komplett geladen. Danke! Viele Grüße
