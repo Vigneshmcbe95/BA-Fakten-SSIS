@@ -43,6 +43,10 @@ Partial Public Class ScriptMain
             sqlConn = New SqlConnection(builder.ConnectionString)
             sqlConn.Open()
 
+            ' Vor dem Abschluss sichtbar machen, welche Verfahren ohne Partitionstausch
+            ' auf ERFOLG gesetzt werden - nichts wird still als Erfolg verbucht.
+            NichtGetauschteProtokollieren(sqlConn, runID)
+
             Dim sql As String =
 "SET NOCOUNT ON;
 DECLARE @ID INT = @RunID, @Start DATETIME, @End DATETIME = GETDATE();
@@ -50,8 +54,10 @@ DECLARE @ID INT = @RunID, @Start DATETIME, @End DATETIME = GETDATE();
 SELECT @Start = PaketStartzeit FROM dbo.ETL_Fakt_LaufHistorie WHERE ID = @ID;
 
 -- Abschluss: Alle Verfahren dieses Laufs, die NICHT auf FEHLER stehen, auf ERFOLG setzen.
--- Ein Verfahren durchlaeuft alle Skripte (verarbeitet oder uebersprungen); am Paketende
--- gilt es als erfolgreich, sofern es nirgends einen Fehler gab.
+-- Ein Verfahren durchlaeuft alle Skripte (verarbeitet oder uebersprungen, z.B. keine Daten
+-- in Oracle); am Paketende gilt es als erfolgreich, sofern es nirgends einen Fehler gab.
+-- Verfahren, die dabei NICHT bis zum Partitionstausch kamen, werden vorher als WARNUNG
+-- protokolliert (siehe NichtGetauschteProtokollieren).
 UPDATE dbo.ETL_Fakt_Arbeitsliste
 SET    Status = 'ERFOLG', LetzterSchritt = 'ERFOLG', AktualisiertAm = GETDATE()
 WHERE  RunID = @ID AND Status <> 'FEHLER' AND Status <> 'ERFOLG';
@@ -143,6 +149,37 @@ SELECT
                 sqlConn.Close()
             End If
         End Try
+    End Sub
+
+    ' -----------------------------------------------------------------------
+    ' NichtGetauschteProtokollieren - Listet die Verfahren dieses Laufs, die
+    ' weder ERFOLG (nach dem Partitionstausch) noch FEHLER sind. Sie werden
+    ' gleich danach auf ERFOLG gesetzt. Das ist richtig, wenn es keine Daten
+    ' gab (z.B. "kein Ladevorgang noetig"), sonst ein Hinweis auf ein Problem.
+    ' -----------------------------------------------------------------------
+    Private Sub NichtGetauschteProtokollieren(conn As SqlConnection, runID As Integer)
+        Dim sql As String =
+"SELECT Verfahren, Status, ISNULL(LetzterSchritt, '') AS LetzterSchritt
+FROM dbo.ETL_Fakt_Arbeitsliste
+WHERE RunID = @RunID AND Status <> 'FEHLER' AND Status <> 'ERFOLG'
+ORDER BY Verfahren"
+        Dim anzahl As Integer = 0
+        Using cmd As New SqlCommand(sql, conn)
+            cmd.CommandTimeout = 0
+            cmd.Parameters.Add("@RunID", SqlDbType.Int).Value = runID
+            Using rdr As SqlDataReader = cmd.ExecuteReader()
+                While rdr.Read()
+                    If anzahl = 0 Then
+                        Log("WARNUNG: Verfahren ohne Partitionstausch - werden auf ERFOLG gesetzt (nur korrekt, wenn keine Daten zu laden waren):")
+                    End If
+                    anzahl += 1
+                    Log("  WARNUNG: " & rdr.GetString(0) & " | Status=" & rdr.GetString(1) & " | LetzterSchritt=" & rdr.GetString(2))
+                End While
+            End Using
+        End Using
+        If anzahl > 0 Then
+            Log("WARNUNG: " & anzahl.ToString() & " Verfahren ohne Partitionstausch - Zeilenzahl in der Zusammenfassung pruefen.")
+        End If
     End Sub
 
     ' -----------------------------------------------------------------------

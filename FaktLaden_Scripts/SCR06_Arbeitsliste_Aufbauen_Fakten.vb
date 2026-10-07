@@ -10,8 +10,8 @@ Imports Microsoft.SqlServer.Dts.Runtime
 '  Skript       : SCR_06_Arbeitsliste_Aufbauen_Fakten
 '  Paket        : Fakten Laden (SSIS)
 '  Zweck        : Baut die Arbeitsliste fuer den Lauf auf: traegt neue
-'                 Verfahren ein, setzt FEHLER-Zeilen auf AUSSTEHEND zurueck
-'                 und aktualisiert die RunID.
+'                 Verfahren ein, setzt FEHLER- und haengengebliebene Zeilen
+'                 auf AUSSTEHEND zurueck und aktualisiert die RunID.
 '  Protokoll    : Nur SSIS-Events (FireInformation / FireError)
 ' =============================================================================
 <Microsoft.SqlServer.Dts.Tasks.ScriptTask.SSISScriptTaskEntryPointAttribute()>
@@ -286,25 +286,11 @@ WHERE a.Status = 'ERFOLG'
   AND p.Verfahren IS NOT NULL;"
             resetReason = "Nur ERFOLG vorhanden → Alle ERFOLG zu AUSSTEHEND (kompletter Neulauf)"
 
-        ElseIf countFehler > 0 Then
-            ' Fall 2: FEHLER vorhanden → Nur FEHLER zu AUSSTEHEND
-            resetSql = "
-UPDATE a
-SET a.Status = 'AUSSTEHEND',
-    a.LetzterSchritt = NULL,
-    a.Fehlermeldung = NULL,
-    a.Versuche = 0,
-    a.AktualisiertAm = GETDATE()
-FROM dbo.ETL_Fakt_Arbeitsliste a
-INNER JOIN " & _parameterDB & ".dbo." & _parametertabelle & " p ON LOWER(p.Verfahren) = dbo.fn_ParamVerfahren(a.Verfahren)
-INNER JOIN dbo." & _steuerlistenTabelle & " f ON dbo.fn_ParamVerfahren(LOWER(LTRIM(RTRIM(f.tabelle)))) = LOWER(LTRIM(RTRIM(p.Verfahren)))
-    AND LOWER(LTRIM(RTRIM(f.themengebiet))) = LOWER(LTRIM(RTRIM(a.Themengebiet)))" & DateiFilter() & "
-WHERE a.Status = 'FEHLER'
-  AND p.Verfahren IS NOT NULL;"
-            resetReason = "FEHLER vorhanden → Nur FEHLER zu AUSSTEHEND (Erfolge bleiben)"
-
-        ElseIf countOther > 0 Then
-            ' Fall 3: ANDERE Status (DATA_LOADING, SCHEMA_KOPIERT, etc.)
+        ElseIf countFehler > 0 OrElse countOther > 0 Then
+            ' Fall 2: FEHLER oder haengengebliebene Zeilen (z.B. DATEN_GELADEN nach
+            ' abgebrochenem Lauf) -> alle NICHT-ERFOLG zu AUSSTEHEND, wie im
+            ' Dimensionspaket. Nur FEHLER zurueckzusetzen liess haengengebliebene
+            ' Tabellen liegen; sie wurden nie fertig geladen.
             resetSql = "
 UPDATE a
 SET a.Status = 'AUSSTEHEND',
@@ -318,7 +304,7 @@ INNER JOIN dbo." & _steuerlistenTabelle & " f ON dbo.fn_ParamVerfahren(LOWER(LTR
     AND LOWER(LTRIM(RTRIM(f.themengebiet))) = LOWER(LTRIM(RTRIM(a.Themengebiet)))" & DateiFilter() & "
 WHERE a.Status NOT IN ('ERFOLG', 'AUSSTEHEND')
   AND p.Verfahren IS NOT NULL;"
-            resetReason = "ANDERE Status vorhanden → Alle NICHT-ERFOLG zu AUSSTEHEND"
+            resetReason = "FEHLER oder ANDERE vorhanden → Alle NICHT-ERFOLG zu AUSSTEHEND (Erfolge bleiben)"
 
         Else
             Return "Kein Reset nötig (nur AUSSTEHEND oder keine Daten)"
