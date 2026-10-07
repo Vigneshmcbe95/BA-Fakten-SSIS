@@ -1,0 +1,1 @@
+Hallo Falk, kurze Korrektur: Nur 14 von 66 Tabellen sind gefüllt – der Wiederanlauf hat die hängengebliebenen Tabellen übersprungen. Ich arbeite daran. Außerdem brauchen wir am Ende des Laufs eine Datenqualitätsprüfung gegen die Quelle (Zeilenzahlen Oracle vs. SQL Server) – das setze ich um. Viele Grüße
