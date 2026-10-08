@@ -1,0 +1,1 @@
+Das Paket macht es nur im Datenladeskript (SCR13), dort wo die Staging-Tabellen per SELECT INTO befüllt werden. In den früheren Schritten wurde es übersehen – SCR02 greift schon vorher über PolyBase zu. Ich setze die Umschaltung jetzt an den Anfang des Pakets, dann gilt sie für alle Schritte.
