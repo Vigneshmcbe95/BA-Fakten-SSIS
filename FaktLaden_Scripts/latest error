@@ -1,0 +1,245 @@
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description: [LOAD_200512] vf_fst_krn_fbw_tn: SELECT INTO dbo.vf_fst_krn_fbw_tn_in_200512 | Zeilen: 1584235
+End Info
+Info: 2026-10-08 00:24:04.91
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description:   SELECT INTO [vf_fst_krn_fbw_tn_in_200601_LOADING] WHERE mon_id = 200601 (wird zu _in_ umbenannt)
+End Info
+Info: 2026-10-08 00:25:54.35
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description:   Zeilen geladen (vf_fst_krn_fbw_tn_in_200612): 1294782
+End Info
+Info: 2026-10-08 00:25:54.37
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description: [LOAD_200612] vf_fst_krn_fbw_tn: SELECT INTO dbo.vf_fst_krn_fbw_tn_in_200612 | Zeilen: 1294782
+End Info
+Info: 2026-10-08 00:25:54.38
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description:   SELECT INTO [vf_fst_krn_fbw_tn_in_200701_LOADING] WHERE mon_id = 200701 (wird zu _in_ umbenannt)
+End Info
+Info: 2026-10-08 00:26:35.71
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description: WARNUNG [SELECT INTO vf_fst_krn_fbw_tn_in_200601_LOADING] Versuch 1/3: Could not allocate a new page for database 'msi_dm_fst' because the 'PRIMARY' filegroup is full due to lack of storage space or database files reaching the maximum allowed size. Note that UNLIMITED files are still limited to 16TB. Create the necessary space by dropping objects in the filegroup, adding additional files to the filegroup, or setting autogrowth on for existing files in the filegroup.
+End Info
+Info: 2026-10-08 00:26:35.74
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description: WARNUNG [Dateiwachstum]: Datendatei konnte nicht vergroessert werden - Laufwerk vermutlich voll: MODIFY FILE encountered operating system error 112(There is not enough space on the disk.) while attempting to expand the physical file 'E:\Daten\MSSQL15.ABNAHME21\MSSQL\DATA\msi_dm_fst.mdf'.
+End Info
+Info: 2026-10-08 00:26:35.87
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description: WARNUNG [SELECT INTO vf_fst_krn_fbw_tn_in_200905_LOADING] Versuch 1/3: Could not allocate a new page for database 'msi_dm_fst' because the 'PRIMARY' filegroup is full due to lack of storage space or database files reaching the maximum allowed size. Note that UNLIMITED files are still limited to 16TB. Create the necessary space by dropping objects in the filegroup, adding additional files to the filegroup, or setting autogrowth on for existing files in the filegroup.
+End Info
+Info: 2026-10-08 00:26:35.88
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description: WARNUNG [Dateiwachstum]: Datendatei konnte nicht vergroessert werden - Laufwerk vermutlich voll: MODIFY FILE encountered operating system error 112(There is not enough space on the disk.) while attempting to expand the physical file 'E:\Daten\MSSQL15.ABNAHME21\MSSQL\DATA\msi_dm_fst.mdf'.
+End Info
+Info: 2026-10-08 00:26:36.09
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description: WARNUNG [SELECT INTO vf_fst_krn_fbw_tn_in_201009_LOADING] Versuch 1/3: Could not allocate a new page for database 'msi_dm_fst' because the 'PRIMARY' filegroup is full due to lack of storage space or database files reaching the maximum allowed size. Note that UNLIMITED files are still limited to 16TB. Create the necessary space by dropping objects in the filegroup, adding additional files to the filegroup, or setting autogrowth on for existing files in the filegroup.
+End Info
+Info: 2026-10-08 00:26:36.10
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description: WARNUNG [Dateiwachstum]: Datendatei konnte nicht vergroessert werden - Laufwerk vermutlich voll: MODIFY FILE encountered operating system error 112(There is not enough space on the disk.) while attempting to expand the physical file 'E:\Daten\MSSQL15.ABNAHME21\MSSQL\DATA\msi_dm_fst.mdf'.
+End Info
+Info: 2026-10-08 00:26:36.15
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description: WARNUNG [SELECT INTO vf_fst_krn_tn_in_200912_LOADING] Versuch 1/3: Could not allocate a new page for database 'msi_dm_fst' because the 'PRIMARY' filegroup is full due to lack of storage space or database files reaching the maximum allowed size. Note that UNLIMITED files are still limited to 16TB. Create the necessary space by dropping objects in the filegroup, adding additional files to the filegroup, or setting autogrowth on for existing files in the filegroup.
+End Info
+Info: 2026-10-08 00:26:36.15
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description: WARNUNG [Dateiwachstum]: Datendatei konnte nicht vergroessert werden - Laufwerk vermutlich voll: MODIFY FILE encountered operating system error 112(There is not enough space on the disk.) while attempting to expand the physical file 'E:\Daten\MSSQL15.ABNAHME21\MSSQL\DATA\msi_dm_fst.mdf'.
+End Info
+Info: 2026-10-08 00:26:36.16
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description: WARNUNG [SELECT INTO vf_fst_krn_tn_in_201103_LOADING] Versuch 1/3: Could not allocate a new page for database 'msi_dm_fst' because the 'PRIMARY' filegroup is full due to lack of storage space or database files reaching the maximum allowed size. Note that UNLIMITED files are still limited to 16TB. Create the necessary space by dropping objects in the filegroup, adding additional files to the filegroup, or setting autogrowth on for existing files in the filegroup.
+End Info
+Info: 2026-10-08 00:26:36.16
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description: WARNUNG [Dateiwachstum]: Datendatei konnte nicht vergroessert werden - Laufwerk vermutlich voll: MODIFY FILE encountered operating system error 112(There is not enough space on the disk.) while attempting to expand the physical file 'E:\Daten\MSSQL15.ABNAHME21\MSSQL\DATA\msi_dm_fst.mdf'.
+End Info
+Info: 2026-10-08 00:26:37.68
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description: WARNUNG [SELECT INTO vf_fst_krn_tn_in_201107_LOADING] Versuch 1/3: Could not allocate a new page for database 'msi_dm_fst' because the 'PRIMARY' filegroup is full due to lack of storage space or database files reaching the maximum allowed size. Note that UNLIMITED files are still limited to 16TB. Create the necessary space by dropping objects in the filegroup, adding additional files to the filegroup, or setting autogrowth on for existing files in the filegroup.
+End Info
+Info: 2026-10-08 00:26:37.69
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description: WARNUNG [Dateiwachstum]: Datendatei konnte nicht vergroessert werden - Laufwerk vermutlich voll: MODIFY FILE encountered operating system error 112(There is not enough space on the disk.) while attempting to expand the physical file 'E:\Daten\MSSQL15.ABNAHME21\MSSQL\DATA\msi_dm_fst.mdf'.
+End Info
+Info: 2026-10-08 00:26:51.15
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description:   Zeilen geladen (vf_fst_krn_fbw_tn_in_200802): 944714
+End Info
+Info: 2026-10-08 00:26:51.16
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description: [LOAD_200802] vf_fst_krn_fbw_tn: SELECT INTO dbo.vf_fst_krn_fbw_tn_in_200802 | Zeilen: 944714
+End Info
+Info: 2026-10-08 00:26:51.18
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description:   SELECT INTO [vf_fst_krn_fbw_tn_in_200803_LOADING] WHERE mon_id = 200803 (wird zu _in_ umbenannt)
+End Info
+Info: 2026-10-08 00:30:08.65
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description:   Zeilen geladen (vf_fst_krn_fbw_tn_in_200701): 821172
+End Info
+Info: 2026-10-08 00:30:08.65
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description: [LOAD_200701] vf_fst_krn_fbw_tn: SELECT INTO dbo.vf_fst_krn_fbw_tn_in_200701 | Zeilen: 821172
+End Info
+Info: 2026-10-08 00:30:08.68
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description:   SELECT INTO [vf_fst_krn_fbw_tn_in_200702_LOADING] WHERE mon_id = 200702 (wird zu _in_ umbenannt)
+End Info
+Info: 2026-10-08 00:31:26.24
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description: WARNUNG [SELECT INTO vf_fst_krn_fbw_tn_in_200905_LOADING] Versuch 2/3: Could not allocate a new page for database 'msi_dm_fst' because the 'PRIMARY' filegroup is full due to lack of storage space or database files reaching the maximum allowed size. Note that UNLIMITED files are still limited to 16TB. Create the necessary space by dropping objects in the filegroup, adding additional files to the filegroup, or setting autogrowth on for existing files in the filegroup.
+End Info
+Info: 2026-10-08 00:31:26.24
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description: WARNUNG [SELECT INTO vf_fst_krn_fbw_tn_in_200803_LOADING] Versuch 1/3: Could not allocate a new page for database 'msi_dm_fst' because the 'PRIMARY' filegroup is full due to lack of storage space or database files reaching the maximum allowed size. Note that UNLIMITED files are still limited to 16TB. Create the necessary space by dropping objects in the filegroup, adding additional files to the filegroup, or setting autogrowth on for existing files in the filegroup.
+End Info
+Info: 2026-10-08 00:31:26.26
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description: WARNUNG [Dateiwachstum]: Datendatei konnte nicht vergroessert werden - Laufwerk vermutlich voll: MODIFY FILE encountered operating system error 112(There is not enough space on the disk.) while attempting to expand the physical file 'E:\Daten\MSSQL15.ABNAHME21\MSSQL\DATA\msi_dm_fst.mdf'.
+End Info
+Info: 2026-10-08 00:31:26.26
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description: WARNUNG [SELECT INTO vf_fst_krn_fbw_tn_in_201009_LOADING] Versuch 2/3: Could not allocate a new page for database 'msi_dm_fst' because the 'PRIMARY' filegroup is full due to lack of storage space or database files reaching the maximum allowed size. Note that UNLIMITED files are still limited to 16TB. Create the necessary space by dropping objects in the filegroup, adding additional files to the filegroup, or setting autogrowth on for existing files in the filegroup.
+End Info
+Info: 2026-10-08 00:31:26.26
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description: WARNUNG [Dateiwachstum]: Datendatei konnte nicht vergroessert werden - Laufwerk vermutlich voll: MODIFY FILE encountered operating system error 112(There is not enough space on the disk.) while attempting to expand the physical file 'E:\Daten\MSSQL15.ABNAHME21\MSSQL\DATA\msi_dm_fst.mdf'.
+End Info
+Info: 2026-10-08 00:31:26.27
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description: WARNUNG [Dateiwachstum]: Datendatei konnte nicht vergroessert werden - Laufwerk vermutlich voll: MODIFY FILE encountered operating system error 112(There is not enough space on the disk.) while attempting to expand the physical file 'E:\Daten\MSSQL15.ABNAHME21\MSSQL\DATA\msi_dm_fst.mdf'.
+End Info
+Info: 2026-10-08 00:31:26.29
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description: WARNUNG [SELECT INTO vf_fst_krn_tn_in_201107_LOADING] Versuch 2/3: Could not allocate a new page for database 'msi_dm_fst' because the 'PRIMARY' filegroup is full due to lack of storage space or database files reaching the maximum allowed size. Note that UNLIMITED files are still limited to 16TB. Create the necessary space by dropping objects in the filegroup, adding additional files to the filegroup, or setting autogrowth on for existing files in the filegroup.
+End Info
+Info: 2026-10-08 00:31:26.29
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description: WARNUNG [Dateiwachstum]: Datendatei konnte nicht vergroessert werden - Laufwerk vermutlich voll: MODIFY FILE encountered operating system error 112(There is not enough space on the disk.) while attempting to expand the physical file 'E:\Daten\MSSQL15.ABNAHME21\MSSQL\DATA\msi_dm_fst.mdf'.
+End Info
+Info: 2026-10-08 00:31:26.32
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description: WARNUNG [SELECT INTO vf_fst_krn_tn_in_200912_LOADING] Versuch 2/3: Could not allocate a new page for database 'msi_dm_fst' because the 'PRIMARY' filegroup is full due to lack of storage space or database files reaching the maximum allowed size. Note that UNLIMITED files are still limited to 16TB. Create the necessary space by dropping objects in the filegroup, adding additional files to the filegroup, or setting autogrowth on for existing files in the filegroup.
+End Info
+Info: 2026-10-08 00:31:26.32
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description: WARNUNG [Dateiwachstum]: Datendatei konnte nicht vergroessert werden - Laufwerk vermutlich voll: MODIFY FILE encountered operating system error 112(There is not enough space on the disk.) while attempting to expand the physical file 'E:\Daten\MSSQL15.ABNAHME21\MSSQL\DATA\msi_dm_fst.mdf'.
+End Info
+Info: 2026-10-08 00:31:26.38
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description: WARNUNG [SELECT INTO vf_fst_krn_tn_in_201103_LOADING] Versuch 2/3: Could not allocate a new page for database 'msi_dm_fst' because the 'PRIMARY' filegroup is full due to lack of storage space or database files reaching the maximum allowed size. Note that UNLIMITED files are still limited to 16TB. Create the necessary space by dropping objects in the filegroup, adding additional files to the filegroup, or setting autogrowth on for existing files in the filegroup.
+End Info
+Info: 2026-10-08 00:31:26.40
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description: WARNUNG [Dateiwachstum]: Datendatei konnte nicht vergroessert werden - Laufwerk vermutlich voll: MODIFY FILE encountered operating system error 112(There is not enough space on the disk.) while attempting to expand the physical file 'E:\Daten\MSSQL15.ABNAHME21\MSSQL\DATA\msi_dm_fst.mdf'.
+End Info
+Info: 2026-10-08 00:32:55.46
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description:   Zeilen geladen (vf_fst_krn_fbw_tn_in_200601): 987305
+End Info
+Info: 2026-10-08 00:32:55.47
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description: [LOAD_200601] vf_fst_krn_fbw_tn: SELECT INTO dbo.vf_fst_krn_fbw_tn_in_200601 | Zeilen: 987305
+End Info
+Info: 2026-10-08 00:32:55.50
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description:   SELECT INTO [vf_fst_krn_fbw_tn_in_200602_LOADING] WHERE mon_id = 200602 (wird zu _in_ umbenannt)
+End Info
+Info: 2026-10-08 00:35:11.66
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description: WARNUNG [SELECT INTO vf_fst_krn_fbw_tn_in_200602_LOADING] Versuch 1/3: Could not allocate a new page for database 'msi_dm_fst' because the 'PRIMARY' filegroup is full due to lack of storage space or database files reaching the maximum allowed size. Note that UNLIMITED files are still limited to 16TB. Create the necessary space by dropping objects in the filegroup, adding additional files to the filegroup, or setting autogrowth on for existing files in the filegroup.
+End Info
+Info: 2026-10-08 00:35:11.68
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description: WARNUNG [Dateiwachstum]: Datendatei konnte nicht vergroessert werden - Laufwerk vermutlich voll: MODIFY FILE encountered operating system error 112(There is not enough space on the disk.) while attempting to expand the physical file 'E:\Daten\MSSQL15.ABNAHME21\MSSQL\DATA\msi_dm_fst.mdf'.
+End Info
+Info: 2026-10-08 00:35:12.07
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description: WARNUNG [SELECT INTO vf_fst_krn_tn_in_201107_LOADING] Versuch 3/3: Could not allocate a new page for database 'msi_dm_fst' because the 'PRIMARY' filegroup is full due to lack of storage space or database files reaching the maximum allowed size. Note that UNLIMITED files are still limited to 16TB. Create the necessary space by dropping objects in the filegroup, adding additional files to the filegroup, or setting autogrowth on for existing files in the filegroup.
+End Info
+Info: 2026-10-08 00:35:12.08
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description: WARNUNG [Dateiwachstum]: Datendatei konnte nicht vergroessert werden - Laufwerk vermutlich voll: MODIFY FILE encountered operating system error 112(There is not enough space on the disk.) while attempting to expand the physical file 'E:\Daten\MSSQL15.ABNAHME21\MSSQL\DATA\msi_dm_fst.mdf'.
+End Info
+Error: 2026-10-08 00:35:12.08
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description: FEHLER bei pv=201107 (vf_fst_krn_tn_in_201107): [SELECT INTO vf_fst_krn_tn_in_201107_LOADING] fehlgeschlagen: Could not allocate a new page for database 'msi_dm_fst' because the 'PRIMARY' filegroup is full due to lack of storage space or database files reaching the maximum allowed size. Note that UNLIMITED files are still limited to 16TB. Create the necessary space by dropping objects in the filegroup, adding additional files to the filegroup, or setting autogrowth on for existing files in the filegroup.
+End Error
+Info: 2026-10-08 00:35:12.11
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description:   SELECT INTO [vf_fst_krn_tn_in_201108_LOADING] WHERE mon_id = 201108 (wird zu _in_ umbenannt)
+End Info
+Info: 2026-10-08 00:35:12.21
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description: WARNUNG [SELECT INTO vf_fst_krn_fbw_tn_in_201009_LOADING] Versuch 3/3: Could not allocate a new page for database 'msi_dm_fst' because the 'PRIMARY' filegroup is full due to lack of storage space or database files reaching the maximum allowed size. Note that UNLIMITED files are still limited to 16TB. Create the necessary space by dropping objects in the filegroup, adding additional files to the filegroup, or setting autogrowth on for existing files in the filegroup.
+End Info
+Info: 2026-10-08 00:35:12.22
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description: WARNUNG [Dateiwachstum]: Datendatei konnte nicht vergroessert werden - Laufwerk vermutlich voll: MODIFY FILE encountered operating system error 112(There is not enough space on the disk.) while attempting to expand the physical file 'E:\Daten\MSSQL15.ABNAHME21\MSSQL\DATA\msi_dm_fst.mdf'.
+End Info
+Error: 2026-10-08 00:35:12.22
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description: FEHLER bei pv=201009 (vf_fst_krn_fbw_tn_in_201009): [SELECT INTO vf_fst_krn_fbw_tn_in_201009_LOADING] fehlgeschlagen: Could not allocate a new page for database 'msi_dm_fst' because the 'PRIMARY' filegroup is full due to lack of storage space or database files reaching the maximum allowed size. Note that UNLIMITED files are still limited to 16TB. Create the necessary space by dropping objects in the filegroup, adding additional files to the filegroup, or setting autogrowth on for existing files in the filegroup.
+End Error
+Info: 2026-10-08 00:35:12.27
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description:   SELECT INTO [vf_fst_krn_fbw_tn_in_201010_LOADING] WHERE mon_id = 201010 (wird zu _in_ umbenannt)
+End Info
+Info: 2026-10-08 00:35:12.27
+   Code: 0x00000000
+   Source: SCR13_Daten_Laden SCR13_Daten_Laden
+   Description: WARNUNG [SELECT INTO vf_fst_krn_fbw_tn_in_200905_LOADING] Versuch 3/3: Could not allocate a new page for database 'msi_dm_fst' because the 'PRIMARY' filegroup is full due to lack of storage space or database files reaching the maximum allowed size. Note that UNLIMITED files are still limited to 16TB. Create the necessary space by dropping objects in the filegroup, adding additional files to the filegroup, or setting autogrowth on for existing files in the filegroup.
+End Info
+Info: 2026-10-08 00:35:12.27
