@@ -1,0 +1,1 @@
+Hi Sebastian, auf msi_dm_lst_sgbiii ist der Legacy Cardinality Estimator aus, auf msi_dm_lst_sgbii ist er noch an (LEGACY_CARDINALITY_ESTIMATION = 1). Darf ich ihn auf sgbii ausschalten? Alternativ nur für die Dauer des Ladelaufs und danach wieder an.
