@@ -1,0 +1,7 @@
+Hi Sebastian, kurze Bestätigung zum Ladeverfahren, bevor ich es umsetze:
+
+Die Ladeart legt der Entwickler je Tabelle fest – über einen neuen Parameter in der Parametertabelle (z. B. FaktenStageCCIInsert = TRUE), statt über einen CMD-Parameter für den ganzen Job:
+- Parameter gesetzt (nur bei Tabellen mit CCI): Stage_in-Tabelle wird leer mit CCI angelegt, dann INSERT INTO ... WITH (TABLOCK).
+- Parameter nicht gesetzt: wie bisher SELECT INTO, CCI im Nachgang.
+
+So können innerhalb eines Jobs nur die Tabellen mit großen Monatsscheiben umgestellt werden. Passt das so?
