@@ -1,0 +1,1 @@
+Hi Sebastian, auf dem Server laufen noch alte Paketstände. Kannst du bitte die aktuellen Pakete (Fakten und Dimension) einspielen und beide neu starten? Falls der Fehler dann weiterhin auftritt, schaue ich mir den Code an.
