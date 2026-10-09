@@ -1,4 +1,4 @@
-Hi Sebastian, kurze Bestätigung zum Ladeverfahren, bevor ich es umsetze:
+﻿Hi Sebastian, kurze Bestätigung zum Ladeverfahren, bevor ich es umsetze:
 
 Die Ladeart legt der Entwickler je Tabelle fest – über einen neuen Parameter in der Parametertabelle, statt über einen CMD-Parameter für den ganzen Job:
 - Parameter gesetzt (nur bei Tabellen mit CCI): Stage_in-Tabelle wird leer mit CCI angelegt, dann INSERT INTO ... WITH (TABLOCK).
