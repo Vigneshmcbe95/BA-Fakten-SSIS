@@ -1,7 +1,16 @@
 Hi Sebastian, kurze Bestätigung zum Ladeverfahren, bevor ich es umsetze:
 
-Die Ladeart legt der Entwickler je Tabelle fest – über einen neuen Parameter in der Parametertabelle (z. B. FaktenStageCCIInsert = TRUE), statt über einen CMD-Parameter für den ganzen Job:
+Die Ladeart legt der Entwickler je Tabelle fest – über einen neuen Parameter in der Parametertabelle, statt über einen CMD-Parameter für den ganzen Job:
 - Parameter gesetzt (nur bei Tabellen mit CCI): Stage_in-Tabelle wird leer mit CCI angelegt, dann INSERT INTO ... WITH (TABLOCK).
 - Parameter nicht gesetzt: wie bisher SELECT INTO, CCI im Nachgang.
 
-So können innerhalb eines Jobs nur die Tabellen mit großen Monatsscheiben umgestellt werden. Passt das so?
+Eintrag in der Parametertabelle des Datamarts (tm_<Datenbank>_param, z. B. msi_dm_fst.dbo.tm_msi_dm_fst_param), eine Zeile je Tabelle:
+- Verfahren = Tabellenname (tf_-Name, z. B. tf_fst_krn_tn)
+- Parameter = FaktenStageCCIInsert
+- Wert      = TRUE
+
+Beispiel:
+INSERT INTO msi_dm_fst.dbo.tm_msi_dm_fst_param (Verfahren, Parameter, Wert)
+VALUES ('tf_fst_krn_tn', 'FaktenStageCCIInsert', 'TRUE');
+
+Ohne diese Zeile (oder mit Wert FALSE) bleibt es beim bisherigen Laden. So können innerhalb eines Jobs nur die Tabellen mit großen Monatsscheiben umgestellt werden. Passt das so?
