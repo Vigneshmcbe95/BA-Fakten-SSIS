@@ -148,6 +148,40 @@ SELECT
             If sqlConn IsNot Nothing AndAlso sqlConn.State <> ConnectionState.Closed Then
                 sqlConn.Close()
             End If
+            ' Immer ausfuehren, auch wenn PaketEnd selbst fehlschlaegt.
+            LegacyCEWiederherstellen()
+        End Try
+    End Sub
+
+    ' -----------------------------------------------------------------------
+    ' LegacyCEWiederherstellen - Schaltet LEGACY_CARDINALITY_ESTIMATION wieder
+    ' ein, wenn SCR02 es fuer den Lauf ausgeschaltet hat (Vermerk
+    ' ETL_LegacyCE_WarAn an der Datenbank), und entfernt den Vermerk.
+    ' -----------------------------------------------------------------------
+    Private Sub LegacyCEWiederherstellen()
+        Dim sql As String =
+"IF EXISTS (SELECT 1 FROM sys.extended_properties WHERE class = 0 AND name = N'ETL_LegacyCE_WarAn')
+BEGIN
+    EXEC (N'ALTER DATABASE SCOPED CONFIGURATION SET LEGACY_CARDINALITY_ESTIMATION = ON;');
+    EXEC sp_dropextendedproperty @name = N'ETL_LegacyCE_WarAn';
+    SELECT 1;
+END
+ELSE
+    SELECT 0;"
+        Try
+            Dim cm As ConnectionManager = Dts.Connections(ConnectionName)
+            Dim builder As New SqlConnectionStringBuilder(cm.ConnectionString)
+            Using conn As New SqlConnection(builder.ConnectionString)
+                conn.Open()
+                Using cmd As New SqlCommand(sql, conn)
+                    cmd.CommandTimeout = 0
+                    If Convert.ToInt32(cmd.ExecuteScalar()) = 1 Then
+                        Log("Legacy CE: wieder eingeschaltet (war vor dem Lauf an)")
+                    End If
+                End Using
+            End Using
+        Catch ex As Exception
+            Log("WARNUNG [Legacy CE]: Wiedereinschalten fehlgeschlagen - bitte manuell pruefen: " & ex.Message)
         End Try
     End Sub
 

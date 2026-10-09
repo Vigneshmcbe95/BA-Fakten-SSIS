@@ -64,6 +64,13 @@ Partial Public Class ScriptMain
 
             Dim connStr As String = HoleVerbindungszeichenfolge()
 
+            ' -- Schritt 0: Legacy Cardinality Estimator ausschalten ----------
+            ' PolyBase-Abfragen scheitern, wenn LEGACY_CARDINALITY_ESTIMATION an
+            ' ist. Deshalb hier VOR dem ersten PolyBase-Zugriff (Schritt 8) aus-
+            ' schalten; SCR22 schaltet es am Paketende wieder ein.
+            Log("Schritt 0: Legacy Cardinality Estimator pruefen")
+            LegacyCEAusschalten(connStr)
+
             ' -- Schritt 1: ETL_Fakt_Arbeitsliste sicherstellen -------------------
             Log("Schritt 1: ETL_Fakt_Arbeitsliste sicherstellen")
             ArbeitslisteSicherstellen(connStr)
@@ -298,6 +305,40 @@ ELSE
 
         SqlAusfuehren(connStr, sql, "ETL_Fakt_FehlerHistorie sicherstellen")
         Log("ETL_Fakt_FehlerHistorie: geprueft/angelegt ")
+
+    End Sub
+
+    ' -----------------------------------------------------------------------
+    ' LegacyCEAusschalten - Schaltet LEGACY_CARDINALITY_ESTIMATION fuer den
+    ' Lauf aus, falls es an ist. Dass es vorher an war, wird als Extended
+    ' Property ETL_LegacyCE_WarAn an der Datenbank vermerkt - so weiss SCR22
+    ' am Paketende (auch nach einem abgebrochenen Lauf), dass es wieder
+    ' eingeschaltet werden muss.
+    ' -----------------------------------------------------------------------
+    Private Sub LegacyCEAusschalten(connStr As String)
+
+        Dim sql As String =
+"IF EXISTS (SELECT 1 FROM sys.database_scoped_configurations
+           WHERE name = 'LEGACY_CARDINALITY_ESTIMATION' AND CAST(value AS int) = 1)
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM sys.extended_properties WHERE class = 0 AND name = N'ETL_LegacyCE_WarAn')
+        EXEC sp_addextendedproperty @name = N'ETL_LegacyCE_WarAn', @value = N'1';
+    EXEC (N'ALTER DATABASE SCOPED CONFIGURATION SET LEGACY_CARDINALITY_ESTIMATION = OFF;');
+    SELECT 1;
+END
+ELSE IF EXISTS (SELECT 1 FROM sys.extended_properties WHERE class = 0 AND name = N'ETL_LegacyCE_WarAn')
+    SELECT 2;
+ELSE
+    SELECT 0;"
+
+        Select Case Convert.ToInt32(SqlSkalarAusfuehren(connStr, sql, "Legacy CE ausschalten"))
+            Case 1
+                Log("Legacy CE: war an - fuer den Lauf ausgeschaltet (SCR22 schaltet es am Ende wieder ein)")
+            Case 2
+                Log("Legacy CE: bereits aus, Vermerk aus frueherem Lauf vorhanden - SCR22 schaltet es am Ende wieder ein")
+            Case Else
+                Log("Legacy CE: aus - keine Aenderung noetig")
+        End Select
 
     End Sub
 
