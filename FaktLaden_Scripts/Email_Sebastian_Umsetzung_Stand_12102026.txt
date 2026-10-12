@@ -1,0 +1,25 @@
+﻿Betreff: Fakten- und Dimensionsladen – umgesetzte Änderungen
+
+Hi Sebastian,
+
+kurzer Stand, was umgesetzt ist (alles im Git):
+
+1. Legacy Cardinality Estimator (Fakten + Dimension)
+   Das Paket schaltet ihn beim Start aus, falls er an ist, und am Ende wieder ein – auch nach einem abgebrochenen Lauf.
+
+2. Master Key (Fakten + Dimension)
+   Öffnet sich der Key automatisch, wird er unverändert genutzt. Sonst Versuch mit dem Paket-Kennwort; klappt das nicht, werden externe Tabellen, Data Sources und Credentials gelöscht und alles neu angelegt.
+
+3. Ladeart je Tabelle (Fakten)
+   Neuer Parameter FaktenStageCCIInsert = TRUE in tm_<Datenbank>_param (nur bei FaktenClusteredIndex = CCI): Stage-Tabelle mit CCI, Laden per INSERT INTO ... WITH (TABLOCK), Daten direkt komprimiert. Ohne Parameter wie bisher SELECT INTO.
+
+4. Speicherreservierung vor dem Laden wieder entfernt; die automatische Dateivergrößerung bei vollem Speicher bleibt.
+
+Zu aktualisierende Skripte:
+- Fakten: SCR02, SCR13, SCR22
+- Dimension: Vorbereitung, PaketEnd
+
+Kannst du die Pakete auf den Servern aktualisieren?
+
+Viele Grüße
+Nils
