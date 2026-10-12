@@ -1,0 +1,16 @@
+﻿Hi Sebastian,
+
+Ladeart je Tabelle (Fakten) ist umgesetzt:
+Neuer Parameter FaktenStageCCIInsert = TRUE in tm_<Datenbank>_param (nur bei FaktenClusteredIndex = CCI): Stage-Tabelle mit CCI, Laden per INSERT INTO ... WITH (TABLOCK), Daten direkt komprimiert. Ohne Parameter wie bisher SELECT INTO.
+
+Bitte für die gewünschten Tabellen den Parameter mit Wert eintragen, eine Zeile je Tabelle:
+- Verfahren = tf_-Name der Tabelle
+- Parameter = FaktenStageCCIInsert
+- Wert      = TRUE
+
+Beispiel:
+INSERT INTO msi_dm_fst.dbo.tm_msi_dm_fst_param (Verfahren, Parameter, Wert)
+VALUES ('tf_fst_krn_tn', 'FaktenStageCCIInsert', 'TRUE');
+
+Viele Grüße
+Nils
