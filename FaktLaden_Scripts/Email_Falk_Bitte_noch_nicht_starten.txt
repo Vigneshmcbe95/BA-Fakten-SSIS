@@ -1,0 +1,1 @@
+﻿Hallo Falk, bitte den Lauf vorerst noch nicht neu starten. Ich prüfe gerade den Wiederanlauf, damit nach einem Fehler nicht wieder alles komplett neu geladen wird. Ich melde mich, sobald du starten kannst. Danke! Viele Grüße
