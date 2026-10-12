@@ -1,4 +1,4 @@
-﻿Hi Sebastian, ich habe die Änderung umgesetzt: Der Entwickler kann je Tabelle über den Parameter FaktenStageCCIInsert in tm_<Datenbank>_param die Ladeart festlegen. Für große Datenmengen Wert = TRUE, sonst FALSE.
+﻿Hi Sebastian, ich habe die Änderung umgesetzt: Der Entwickler kann je Tabelle über den Parameter FaktenStageCCIInsert in tm_<Datenbank>_param die Ladeart festlegen. Für große Datenmengen Wert = TRUE, sonst FALSE. Ist der Parameter nicht eingetragen, wird wie bisher per SELECT INTO geladen.
 
 INSERT INTO msi_dm_fst.dbo.tm_msi_dm_fst_param (Verfahren, Parameter, Wert)
 VALUES ('tf_fst_krn_tn', 'FaktenStageCCIInsert', 'TRUE');
