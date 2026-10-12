@@ -1,0 +1,11 @@
+﻿Tag 1 – 08.10.2026
+1. Abbruch des FST-Ladelaufs in SCR13 analysiert – Ursache: kein Speicherplatz auf Laufwerk E: (Windows-Fehler 112).
+2. Speicheranalyse aller Datamarts erstellt (Dateigröße, belegt, frei) – nicht allokierten Platz in msi_dm_bst_v3 identifiziert.
+3. Ladeverfahren (Staging, CCI, Partitionstausch) gegen Microsoft-Best-Practices geprüft und mit Sebastian Optionen besprochen.
+4. PolyBase-Fehler auf msi_dm_lst_sgbii analysiert – Ursache: Legacy Cardinality Estimator aktiv.
+
+Tag 2 – 09.10.2026
+1. Legacy-Cardinality-Estimator-Umschaltung an den Paketanfang verlegt (SCR02 aus, SCR22 wieder an).
+2. Master-Key-Fehler in SCR02 auf Q0006112 (msi_dm_zwg) analysiert und Lösung ausgearbeitet.
+3. Laden in CCI-Staging-Tabellen (INSERT INTO mit TABLOCK) konzipiert – Steuerung je Tabelle über die Parametertabelle.
+4. Offene Punkte für Laden_DIM und Laden_FAKTEN zusammengestellt (Datenqualitätsprüfung, Themengebiet ALLE, Master Key).
