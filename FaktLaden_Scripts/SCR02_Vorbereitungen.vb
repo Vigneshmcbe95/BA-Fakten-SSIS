@@ -343,64 +343,79 @@ ELSE
     End Sub
 
     ' -----------------------------------------------------------------------
-    ' MasterKeyPruefen - Stellt sicher, dass der Datenbank-Master-Key
-    ' existiert.
+    ' MasterKeyPruefen - Stellt sicher, dass ein fuer PolyBase nutzbarer
+    ' Datenbank-Master-Key existiert:
+    '   1) kein Key                          -> anlegen
+    '   2) automatisch oeffenbar (SMK)       -> unveraendert lassen
+    '   3) mit dem Paket-Kennwort oeffenbar  -> an den Service Master Key koppeln
+    '   4) sonst                             -> externe Tabellen, Data Sources
+    '      und Credentials loeschen, Key neu anlegen (Schritte 4-7 legen die
+    '      PolyBase-Objekte danach wieder an)
     ' -----------------------------------------------------------------------
     Private Sub MasterKeyPruefen(connStr As String)
 
-        Dim sqlPruefen As String =
-"SELECT CASE
-    WHEN EXISTS (
-        SELECT 1 FROM sys.symmetric_keys
-        WHERE  name = '##MS_DatabaseMasterKey##'
-    ) THEN 1 ELSE 0 END"
+        Dim kennwort As String = _credKennwort.Replace("'", "''")
 
-        Dim vorhanden As Boolean =
-            Convert.ToInt32(SqlSkalarAusfuehren(connStr, sqlPruefen, "Master Key prüfen")) = 1
+        Dim vorhanden As Boolean = Convert.ToInt32(SqlSkalarAusfuehren(connStr,
+"SELECT CASE WHEN EXISTS (SELECT 1 FROM sys.symmetric_keys WHERE name = '##MS_DatabaseMasterKey##') THEN 1 ELSE 0 END",
+            "Master Key prüfen")) = 1
 
+        ' 1) Kein Key -> anlegen und an den Service Master Key koppeln
         If Not vorhanden Then
             Log("Master Key: nicht vorhanden wird angelegt")
-            Dim sqlErstellen As String =
-                "CREATE MASTER KEY ENCRYPTION BY PASSWORD = '" & _credKennwort & "';"
-            SqlAusfuehren(connStr, sqlErstellen, "Master Key anlegen")
-            Log("Master Key: erfolgreich angelegt ")
-            KoppleMasterKeyAnServiceMasterKey(connStr)
+            SqlAusfuehren(connStr,
+                "CREATE MASTER KEY ENCRYPTION BY PASSWORD = '" & kennwort & "';" &
+                " ALTER MASTER KEY ADD ENCRYPTION BY SERVICE MASTER KEY;",
+                "Master Key anlegen")
+            Log("Master Key: erfolgreich angelegt und an Service Master Key gekoppelt")
             Return
         End If
 
-        ' Existiert nicht heisst automatisch oeffenbar - aktiv pruefen
-        Log("Master Key: vorhanden wird geprueft ob er in dieser Session oeffenbar ist")
+        ' 2) Wird der Key automatisch ueber den Service Master Key geoeffnet,
+        '    ist er fuer PolyBase nutzbar - unabhaengig vom Kennwort.
+        Dim automatisch As Boolean = Convert.ToInt32(SqlSkalarAusfuehren(connStr,
+            "SELECT CAST(is_master_key_encrypted_by_server AS int) FROM sys.databases WHERE name = DB_NAME();",
+            "Master Key automatisch oeffenbar")) = 1
+        If automatisch Then
+            Log("Master Key: vorhanden und automatisch oeffenbar (Service Master Key) - keine Aenderung")
+            Return
+        End If
+
+        ' 3) Mit dem Paket-Kennwort oeffnen und in derselben Sitzung koppeln
         Using conn As New SqlConnection(connStr)
             conn.Open()
             Try
                 Using cmd As New SqlCommand(
-                    "OPEN MASTER KEY DECRYPTION BY PASSWORD = '" & _credKennwort & "';", conn)
+                    "OPEN MASTER KEY DECRYPTION BY PASSWORD = '" & kennwort & "';" &
+                    " ALTER MASTER KEY ADD ENCRYPTION BY SERVICE MASTER KEY;" &
+                    " CLOSE MASTER KEY;", conn)
                     cmd.ExecuteNonQuery()
                 End Using
-                Log("Master Key: laesst sich oeffnen uebersprungen ")
+                Log("Master Key: mit Paket-Kennwort geoeffnet und an Service Master Key gekoppelt")
+                Return
             Catch ex As Exception
-                Log("Master Key: laesst sich nicht oeffnen (" & ex.Message & ") wird geloescht und neu angelegt")
-                Using cmd As New SqlCommand("DROP MASTER KEY;", conn)
-                    cmd.ExecuteNonQuery()
-                End Using
-                Using cmd As New SqlCommand(
-                    "CREATE MASTER KEY ENCRYPTION BY PASSWORD = '" & _credKennwort & "';", conn)
-                    cmd.ExecuteNonQuery()
-                End Using
-                Log("Master Key: erfolgreich neu angelegt ")
+                Log("Master Key: weder automatisch noch mit dem Paket-Kennwort oeffenbar (" & ex.Message & ")")
             End Try
         End Using
 
-        KoppleMasterKeyAnServiceMasterKey(connStr)
+        ' 4) Neu anlegen. Zuerst alles entfernen, was am Master Key haengt
+        '    (wie im Dimensionspaket): externe Tabellen, Data Sources, Credentials.
+        Log("Master Key: wird neu angelegt - externe Tabellen, Data Sources und Credentials werden vorher geloescht")
+        SqlAusfuehren(connStr,
+"DECLARE @sql nvarchar(max) = N'';
+SELECT @sql = @sql + N'DROP EXTERNAL TABLE ' + QUOTENAME(s.name) + N'.' + QUOTENAME(t.name) + N';'
+FROM sys.external_tables t JOIN sys.schemas s ON s.schema_id = t.schema_id;
+SELECT @sql = @sql + N'DROP EXTERNAL DATA SOURCE ' + QUOTENAME(name) + N';'
+FROM sys.external_data_sources;
+SELECT @sql = @sql + N'DROP DATABASE SCOPED CREDENTIAL ' + QUOTENAME(name) + N';'
+FROM sys.database_scoped_credentials;
+EXEC sp_executesql @sql;
+IF EXISTS (SELECT 1 FROM sys.symmetric_keys WHERE name = '##MS_DatabaseMasterKey##') DROP MASTER KEY;
+CREATE MASTER KEY ENCRYPTION BY PASSWORD = '" & kennwort & "';
+ALTER MASTER KEY ADD ENCRYPTION BY SERVICE MASTER KEY;",
+            "Master Key neu anlegen")
+        Log("Master Key: neu angelegt und an Service Master Key gekoppelt")
 
-    End Sub
-
-    ' -----------------------------------------------------------------------
-    ' Fuer PolyBase DMS: automatisches Oeffnen sicherstellen
-    ' -----------------------------------------------------------------------
-    Private Sub KoppleMasterKeyAnServiceMasterKey(connStr As String)
-        Log("Master Key: wird an Service Master Key gekoppelt (fuer automatisches Oeffnen, auch durch PolyBase DMS)")
-        SqlAusfuehren(connStr, "ALTER MASTER KEY ADD ENCRYPTION BY SERVICE MASTER KEY;", "Master Key an Service Master Key koppeln")
     End Sub
 
     ' -----------------------------------------------------------------------

@@ -16,6 +16,10 @@ Imports System.Linq
 '  Zweck        : Laedt die Daten partitionsweise aus ext.<fakt> in
 '                 _in_-Tabellen: SELECT INTO _LOADING, danach atomares
 '                 Umbenennen. Parallel und wiederaufsetzbar.
+'                 Optional je Tabelle (Parameter FaktenStageCCIInsert = TRUE,
+'                 nur bei CCI): _LOADING leer mit CCI anlegen, dann
+'                 INSERT INTO ... WITH (TABLOCK) - Daten werden direkt
+'                 komprimiert geladen.
 '  Ablauf       : STAGING_ERSTELLT -> DATEN_GELADEN
 '  Wiederholung : 3 Versuche je SQL-Anweisung, 30 s Wartezeit
 '  Protokoll    : Nur SSIS-Events (FireInformation / FireError)
@@ -108,7 +112,8 @@ Partial Public Class ScriptMain
                     Continue For
                 End If
 
-                Log("  Partitionswerte: " & partWerte.Count.ToString())
+                Log("  Partitionswerte: " & partWerte.Count.ToString() &
+                    " | Ladeart: " & If(v.StageCciInsert, "CCI-INSERT (FaktenStageCCIInsert)", "SELECT INTO"))
 
                 Try
                     StatusSetzen(connStr, v.ID, "DATEN_LADEN")
@@ -472,19 +477,43 @@ WHERE c.object_id = OBJECT_ID('dbo.[" & v.Faktentabelle.ToLower().Replace("'", "
         ' schon angelegt hat und erst danach fehlgeschlagen ist (z.B. Verbindungsfehler
         ' nach erfolgreichem SELECT INTO), macht das jeden Retry selbst-bereinigend -
         ' sonst schlaegt jeder weitere Versuch mit "already an object" fehl.
-        Dim sql As String =
-            "IF OBJECT_ID('dbo.[" & loadingTable & "]','U') IS NOT NULL DROP TABLE dbo.[" & loadingTable & "];" & vbCrLf &
-            "SELECT" & vbCrLf &
-            selectList & vbCrLf &
-            "INTO dbo.[" & loadingTable & "]" & vbCrLf &
-            "FROM ext.[" & extTable & "]" & vbCrLf &
-            "WHERE [" & v.PartitionColumn & "] = " & partitionValue & ";"
+        Dim sql As String
+        Dim ladeart As String
+        If v.StageCciInsert Then
+            ' CCI-INSERT: _LOADING leer als Strukturkopie der Faktentabelle anlegen,
+            ' CCI auf die leere Tabelle, dann einfuegen. Der CCI bekommt gleich den
+            ' Namen der spaeteren _in_-Tabelle - SCR16 erkennt ihn und ueberspringt.
+            Dim inTable As String = loadingTable.Substring(0, loadingTable.Length - "_LOADING".Length)
+            Dim spaltenListe As String = Convert.ToString(SqlSkalar(connStr,
+                "SELECT STRING_AGG(CAST(QUOTENAME(c.name) AS nvarchar(max)), ',') WITHIN GROUP (ORDER BY c.column_id) " &
+                "FROM sys.columns c WHERE c.object_id = OBJECT_ID('dbo.[" & v.Faktentabelle.ToLower().Replace("'", "''") & "]') AND c.is_computed = 0;",
+                "Spaltenliste " & loadingTable))
+            sql =
+                "IF OBJECT_ID('dbo.[" & loadingTable & "]','U') IS NOT NULL DROP TABLE dbo.[" & loadingTable & "];" & vbCrLf &
+                "SELECT TOP 0 * INTO dbo.[" & loadingTable & "] FROM dbo.[" & v.Faktentabelle.ToLower() & "];" & vbCrLf &
+                "CREATE CLUSTERED COLUMNSTORE INDEX [CCI_" & inTable & "] ON dbo.[" & loadingTable & "];" & vbCrLf &
+                "INSERT INTO dbo.[" & loadingTable & "] WITH (TABLOCK) (" & spaltenListe & ")" & vbCrLf &
+                "SELECT" & vbCrLf &
+                selectList & vbCrLf &
+                "FROM ext.[" & extTable & "]" & vbCrLf &
+                "WHERE [" & v.PartitionColumn & "] = " & partitionValue & ";"
+            ladeart = "CCI-INSERT"
+        Else
+            sql =
+                "IF OBJECT_ID('dbo.[" & loadingTable & "]','U') IS NOT NULL DROP TABLE dbo.[" & loadingTable & "];" & vbCrLf &
+                "SELECT" & vbCrLf &
+                selectList & vbCrLf &
+                "INTO dbo.[" & loadingTable & "]" & vbCrLf &
+                "FROM ext.[" & extTable & "]" & vbCrLf &
+                "WHERE [" & v.PartitionColumn & "] = " & partitionValue & ";"
+            ladeart = "SELECT INTO"
+        End If
 
         SyncLock _logSperre
-            Log("  SELECT INTO [" & loadingTable & "] WHERE " & v.PartitionColumn & " = " & partitionValue & " (wird zu _in_ umbenannt)")
+            Log("  " & ladeart & " [" & loadingTable & "] WHERE " & v.PartitionColumn & " = " & partitionValue & " (wird zu _in_ umbenannt)")
         End SyncLock
 
-        SqlAusfuehren(connStr, sql, "SELECT INTO " & loadingTable)
+        SqlAusfuehren(connStr, sql, ladeart & " " & loadingTable)
 
         Return Convert.ToInt32(SqlSkalar(connStr,
             "SELECT COUNT(*) FROM dbo.[" & loadingTable & "]",
@@ -499,10 +528,13 @@ WHERE c.object_id = OBJECT_ID('dbo.[" & v.Faktentabelle.ToLower().Replace("'", "
         Dim liste As New List(Of VerfahrenInfo)()
         Dim sql As String =
             "SELECT a.ID, a.Verfahren, a.Themengebiet, a.LetzterSchritt," &
-            "       pf.Wert AS Faktentabelle, pp.Wert AS PartitionColumn" &
+            "       pf.Wert AS Faktentabelle, pp.Wert AS PartitionColumn," &
+            "       pi.Wert AS IndexTyp, ps.Wert AS StageCciInsert" &
             " FROM   dbo.ETL_Fakt_Arbeitsliste a" &
             " JOIN   " & _parameterDB & ".dbo." & _parametertab & " pf ON pf.Verfahren=dbo.fn_ParamVerfahren(a.Verfahren) AND pf.Parameter='Faktentabelle'" &
             " JOIN   " & _parameterDB & ".dbo." & _parametertab & " pp ON pp.Verfahren=dbo.fn_ParamVerfahren(a.Verfahren) AND pp.Parameter='Faktenpartitionsspalte'" &
+            " LEFT JOIN " & _parameterDB & ".dbo." & _parametertab & " pi ON pi.Verfahren=dbo.fn_ParamVerfahren(a.Verfahren) AND pi.Parameter='FaktenClusteredIndex'" &
+            " LEFT JOIN " & _parameterDB & ".dbo." & _parametertab & " ps ON ps.Verfahren=dbo.fn_ParamVerfahren(a.Verfahren) AND ps.Parameter='FaktenStageCCIInsert'" &
             " WHERE  a.Status IN ('STAGING_ERSTELLT','DATEN_LADEN')" &
             " AND    a.RunID = " & _runID & " ORDER BY a.Verfahren"
 
@@ -517,6 +549,8 @@ WHERE c.object_id = OBJECT_ID('dbo.[" & v.Faktentabelle.ToLower().Replace("'", "
                         Using rdr As SqlDataReader = cmd.ExecuteReader()
                             While rdr.Read()
                                 Dim rawPart As String = rdr(5).ToString().Trim()
+                                Dim indexTyp As String = If(rdr.IsDBNull(6), "", rdr(6).ToString().Trim().ToUpper())
+                                Dim cciSchalter As String = If(rdr.IsDBNull(7), "", rdr(7).ToString().Trim().ToUpper())
                                 liste.Add(New VerfahrenInfo With {
                                     .ID = rdr.GetInt32(0),
                                     .Verfahren = rdr(1).ToString().Trim(),
@@ -524,7 +558,8 @@ WHERE c.object_id = OBJECT_ID('dbo.[" & v.Faktentabelle.ToLower().Replace("'", "
                                     .LetzterSchritt = If(rdr.IsDBNull(3), "", rdr(3).ToString().Trim()),
                                     .Faktentabelle = rdr(4).ToString().Trim(),
                                     .PartitionColumn = If(rawPart.Contains("|"),
-                                        rawPart.Substring(0, rawPart.IndexOf("|")), rawPart)
+                                        rawPart.Substring(0, rawPart.IndexOf("|")), rawPart),
+                                    .StageCciInsert = (indexTyp = "CCI" AndAlso cciSchalter = "TRUE")
                                 })
                             End While
                         End Using
@@ -833,6 +868,7 @@ WHERE f.type_desc = 'ROWS'"
         Public Property LetzterSchritt As String
         Public Property Faktentabelle As String
         Public Property PartitionColumn As String
+        Public Property StageCciInsert As Boolean
     End Class
 
     ' -----------------------------------------------------------------------
