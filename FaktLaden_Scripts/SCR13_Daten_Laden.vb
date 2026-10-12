@@ -41,9 +41,6 @@ Partial Public Class ScriptMain
     Private Const SQL_FEHLER_FILEGROUP_VOLL As Integer = 1105
     Private Const SQL_FEHLER_SEITE_NICHT_ZUWEISBAR As Integer = 1101
 
-    ' Platzreservierung vor dem Laden (siehe SpeicherReservieren)
-    Private Const RESERVE_MIN_MB As Long = 51200       ' mindestens 50 GB reservieren
-    Private Const LAUFWERK_PUFFER_MB As Long = 10240   ' 10 GB bleiben auf dem Laufwerk immer frei
     Private Const DATEIWACHSTUM_SCHRITT_MB As Integer = 10240 ' 10 GB je Wachstumsschritt
     Private ReadOnly _wachstumsSperre As New Object()
 
@@ -131,28 +128,6 @@ Partial Public Class ScriptMain
 
             Log("Arbeitspakete gesamt (Verfahren x Partition): " & arbeitspakete.Count.ToString() &
                 " | Parallelitaet: " & _maxparallel.ToString())
-
-            ' Platz fuer den ganzen Ladelauf vorab reservieren. Reicht der Platz
-            ' auf dem Laufwerk nicht, wird hier abgebrochen - nicht erst nachts.
-            ' Kann die Pruefung selbst nicht laufen (z.B. fehlende Berechtigung),
-            ' wird ohne Reservierung weitergeladen wie bisher.
-            Dim speicherOk As Boolean = True
-            If arbeitspakete.Count > 0 Then
-                Try
-                    speicherOk = SpeicherReservieren(connStr)
-                Catch ex As Exception
-                    Log("WARNUNG [Speicher]: Reservierung nicht moeglich, Laden laeuft ohne Reservierung weiter: " & ex.Message)
-                End Try
-            End If
-            If Not speicherOk Then
-                Dim msg As String = "Nicht genug Speicherplatz fuer den Ladelauf - Abbruch vor dem Laden (Details im Log)."
-                For Each v As VerfahrenInfo In aktiveVerfahren
-                    FehlerSetzen(connStr, v.ID, msg)
-                Next
-                LogFehler(msg)
-                Dts.TaskResult = ScriptResults.Failure
-                Return
-            End If
 
             ' ─────────────────────────────────────────────────────────────────
             ' Phase 2 (parallel): alle Partitionen aller Verfahren ueber EINE
@@ -693,105 +668,6 @@ EXEC sp_executesql @sql;"
             End Try
         End SyncLock
     End Sub
-
-    ' -----------------------------------------------------------------------
-    ' SpeicherReservieren - Vergroessert die Datendateien der Standard-
-    ' Dateigruppe EINMAL vor dem parallelen Laden. So muss waehrend des
-    ' Ladens nichts wachsen, und niemand sonst kann den Platz nachts belegen.
-    ' Bedarf = groesste vorhandene Partition x Parallelitaet x 1,5,
-    ' mindestens RESERVE_MIN_MB. Eine Datei waechst nur, wenn auf ihrem
-    ' Laufwerk danach noch LAUFWERK_PUFFER_MB frei bleiben.
-    ' Rueckgabe False = nicht genug Platz auf dem Laufwerk -> Lauf abbrechen.
-    ' -----------------------------------------------------------------------
-    Private Function SpeicherReservieren(connStr As String) As Boolean
-
-        ' 1) Bedarf schaetzen
-        Dim groesstePartMb As Long = Convert.ToInt64(SqlSkalar(connStr,
-"SELECT ISNULL(MAX(mb), 0) FROM (
-    SELECT SUM(a.total_pages) / 128 AS mb
-    FROM sys.partitions p
-    JOIN sys.allocation_units a ON a.container_id = p.partition_id
-    JOIN sys.tables t ON t.object_id = p.object_id
-    GROUP BY p.object_id, p.partition_number) x", "Speicher: groesste Partition"))
-        Dim parallel As Integer = Math.Max(1, _maxparallel)
-        Dim bedarfMb As Long = Math.Max(RESERVE_MIN_MB, groesstePartMb * parallel * 3 \ 2)
-
-        ' 2) Datendateien der Standard-Dateigruppe lesen: Groesse, freier
-        '    Platz in der Datei und freier Platz auf dem Laufwerk
-        Dim sql As String =
-"SELECT f.name,
-       CAST(f.size / 128 AS bigint) AS groesse_mb,
-       CAST((f.size - FILEPROPERTY(f.name, 'SpaceUsed')) / 128 AS bigint) AS frei_mb,
-       CAST(vs.available_bytes / 1048576 AS bigint) AS laufwerk_frei_mb,
-       vs.volume_mount_point
-FROM sys.database_files f
-JOIN sys.filegroups fg ON fg.data_space_id = f.data_space_id AND fg.is_default = 1
-CROSS APPLY sys.dm_os_volume_stats(DB_ID(), f.file_id) vs
-WHERE f.type_desc = 'ROWS'"
-
-        Dim namen As New List(Of String)()
-        Dim groesseMb As New List(Of Long)()
-        Dim laufwerk As New List(Of String)()
-        Dim laufwerkFreiMb As New Dictionary(Of String, Long)()
-        Dim freiInDateienMb As Long = 0
-
-        Using conn As New SqlConnection(connStr)
-            conn.Open()
-            Using cmd As New SqlCommand(sql, conn)
-                cmd.CommandTimeout = 0
-                Using rdr As SqlDataReader = cmd.ExecuteReader()
-                    While rdr.Read()
-                        namen.Add(rdr.GetString(0))
-                        groesseMb.Add(Convert.ToInt64(rdr(1)))
-                        freiInDateienMb += Convert.ToInt64(rdr(2))
-                        Dim lw As String = rdr.GetString(4)
-                        laufwerk.Add(lw)
-                        laufwerkFreiMb(lw) = Convert.ToInt64(rdr(3))
-                    End While
-                End Using
-            End Using
-        End Using
-
-        If namen.Count = 0 Then
-            Log("Speicher: keine Datendateien der Standard-Dateigruppe gefunden - Reservierung uebersprungen")
-            Return True
-        End If
-
-        Log("Speicher: Bedarf " & bedarfMb.ToString() & " MB (groesste Partition " & groesstePartMb.ToString() &
-            " MB x " & parallel.ToString() & " parallel x 1,5) | frei in den Datendateien " & freiInDateienMb.ToString() & " MB")
-
-        If freiInDateienMb >= bedarfMb Then
-            Log("Speicher: genug Platz in den Datendateien - keine Vergroesserung noetig")
-            Return True
-        End If
-
-        ' 3) Fehlenden Platz gleichmaessig auf die Dateien verteilen
-        Dim fehltMb As Long = bedarfMb - freiInDateienMb
-        Dim jeDateiMb As Long = CLng(Math.Ceiling(fehltMb / CDbl(namen.Count)))
-
-        ' 4) Je Laufwerk pruefen: nach dem Wachsen muss der Puffer frei bleiben
-        For Each lw As String In laufwerkFreiMb.Keys
-            Dim aktLw As String = lw
-            Dim benoetigtMb As Long = jeDateiMb * laufwerk.Where(Function(x) x = aktLw).Count()
-            If laufwerkFreiMb(lw) - benoetigtMb < LAUFWERK_PUFFER_MB Then
-                LogFehler("Speicher: Laufwerk " & lw & " frei " & laufwerkFreiMb(lw).ToString() & " MB, benoetigt " &
-                          (benoetigtMb + LAUFWERK_PUFFER_MB).ToString() & " MB (inkl. " & LAUFWERK_PUFFER_MB.ToString() &
-                          " MB Puffer) - bitte Platz auf dem Laufwerk schaffen")
-                Return False
-            End If
-        Next
-
-        ' 5) Dateien einmalig vergroessern
-        For i As Integer = 0 To namen.Count - 1
-            Dim neuMb As Long = groesseMb(i) + jeDateiMb
-            SqlAusfuehren(connStr,
-                "ALTER DATABASE CURRENT MODIFY FILE (NAME = N'" & namen(i).Replace("'", "''") & "', SIZE = " & neuMb.ToString() & "MB);",
-                "Speicher reservieren " & namen(i))
-            Log("Speicher: Datei " & namen(i) & " von " & groesseMb(i).ToString() & " MB auf " & neuMb.ToString() & " MB vergroessert")
-        Next
-        Return True
-
-    End Function
 
     ' -----------------------------------------------------------------------
     ' SqlSkalar - Fuehrt eine skalare SQL-Abfrage mit Wiederholung aus;
