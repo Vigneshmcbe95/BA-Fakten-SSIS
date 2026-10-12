@@ -319,7 +319,7 @@ ELSE
 
         Dim sql As String =
 "IF EXISTS (SELECT 1 FROM sys.database_scoped_configurations
-           WHERE name = 'LEGACY_CARDINALITY_ESTIMATION' AND CAST(value AS int) = 1)
+           WHERE name = 'LEGACY_CARDINALITY_ESTIMATION' AND CAST(value AS nvarchar(20)) = N'1')
 BEGIN
     IF NOT EXISTS (SELECT 1 FROM sys.extended_properties WHERE class = 0 AND name = N'ETL_LegacyCE_WarAn')
         EXEC sp_addextendedproperty @name = N'ETL_LegacyCE_WarAn', @value = N'1';
