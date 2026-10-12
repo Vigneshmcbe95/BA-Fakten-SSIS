@@ -102,8 +102,8 @@ Partial Public Class ScriptMain
 
         Log("  Erstelle externe Tabelle: " & extFullName)
 
-        ' Extract Oracle environment from ExtTableLocation
-        ' Example: "ISTAT.STATRT.VM_DDL_SQL_SERVER" → "ISTAT"
+        ' Oracle-Umgebung aus ExtTableLocation ermitteln
+        ' Beispiel: "ISTAT.STATRT.VM_DDL_SQL_SERVER" → "ISTAT"
         Dim oracleEnvironment As String = _extTableLocation.Split("."c)(0).ToUpper()
 
         ' Oracle-Objektname aus der Steuerliste kann als tf_... oder vf_...
@@ -116,12 +116,12 @@ Partial Public Class ScriptMain
         ' der Fehler zeigt sich erst spaeter beim Laden in SCR13.
         Dim oracleObjektName As String = OracleObjektNameAufloesen(connStr, v.Themengebiet, v.Verfahren)
 
-        ' Oracle LOCATION: <ENVIRONMENT>.<THEMENGEBIET>.<VERFAHREN> (all UPPER)
+        ' Oracle LOCATION: <UMGEBUNG>.<THEMENGEBIET>.<VERFAHREN> (alles in Grossbuchstaben)
         Dim location As String = oracleEnvironment & "." & v.Themengebiet.ToUpper() & "." & oracleObjektName.ToUpper()
 
         Log("  Oracle Location: " & location)
 
-        ' Build dynamic SQL using columns_ext directly from tm_polybase_struktur
+        ' Dynamisches SQL direkt aus columns_ext von tm_polybase_struktur aufbauen
         Dim sqlBuild As String =
 "DECLARE @drop nvarchar(max), @crt nvarchar(max);
 
@@ -147,7 +147,7 @@ END
 EXEC(@drop);
 EXEC(@crt);"
 
-        ' Execute the dynamic SQL
+        ' Dynamisches SQL ausfuehren
         Dim versuch As Integer = 0
         While versuch < MAX_VERSUCHE
             versuch += 1

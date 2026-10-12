@@ -195,7 +195,7 @@ WHERE COLNO IS NOT NULL;"
     ' InsertTabelle - Fuegt eine Zeile in die Zieltabelle ein.
     ' -----------------------------------------------------------------------
     Private Function InsertTabelle(connStr As String, thema As String, tab As String, tabOracle As String) As Integer
-        ' DELETE old data
+        ' Alte Daten loeschen
         Dim sqlDelete As String =
 "DELETE FROM dbo.tm_polybase_struktur
 WHERE themengebiet = @thema
@@ -211,7 +211,7 @@ WHERE themengebiet = @thema
             End Using
         End Using
 
-        ' INSERT new data with columns_dbo and columns_ext
+        ' Neue Daten mit columns_dbo und columns_ext einfuegen
         ' Datentyp-Konvertierung (aktueller Stand, identisch zu Laden_DIM):
         '   columns_ext : Oracle NUMBER/decimal/numeric ohne/mit Praezision 0 -> float,
         '                 mit Praezision > 0 -> decimal(p, ISNULL(s,0)); char-Laenge

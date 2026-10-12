@@ -197,9 +197,9 @@ END;"
 
     ' -----------------------------------------------------------------------
     ' VerarbeiteDatei
-    '   Audit-Tabelle  : INSERT only – tabelle = parsed name,
-    '                                  tabname_filter = raw line
-    '   Arbeitstabelle : DELETE by FILE_NAME, then INSERT
+    '   Audit-Tabelle  : nur INSERT – tabelle = ermittelter Tabellenname,
+    '                                  tabname_filter = Originalzeile
+    '   Arbeitstabelle : DELETE je FILE_NAME, danach INSERT
     ' -----------------------------------------------------------------------
     Private Sub VerarbeiteDatei(dateipfad As String,
                                 dateiname As String,
@@ -253,7 +253,7 @@ END;"
             Dim tabellenname As String = TabellennameBestimmen(zeile)
 
             Try
-                ' 1. Audit-Tabelle: tabelle = parsed name, tabname_filter = raw line
+                ' 1. Audit-Tabelle: tabelle = ermittelter Tabellenname, tabname_filter = Originalzeile
                 SqlMitParameternAusfuehren(connStr,
                     "INSERT INTO dbo." & _auditTabelle &
                     " (typ, tabelle, file_name, tabellentyp, umgebung," &
@@ -271,7 +271,7 @@ END;"
                         .filter = zeile
                     })
 
-                ' 2. Arbeitstabelle: tabelle = parsed name, tabname_filter = raw line
+                ' 2. Arbeitstabelle: tabelle = ermittelter Tabellenname, tabname_filter = Originalzeile
                 SqlMitParameternAusfuehren(connStr,
                     "INSERT INTO dbo." & _steuerlistenTabelle &
                     " (tabelle, FILE_NAME, tabellentyp, umgebung," &
@@ -386,19 +386,19 @@ END;"
         End If
         If t.Success Then Return zeile.Substring(0, t.Index)
 
-        ' bare date digits after colon: tf_table:20260400 or tf_table:202604
+        ' reine Datumsziffern nach Doppelpunkt: tf_table:20260400 oder tf_table:202604
         t = Regex.Match(zeile, ":((?:19|20)\d{4,})", RegexOptions.IgnoreCase)
         If t.Success Then Return zeile.Substring(0, t.Index)
 
-        ' date suffix embedded in table name: tf_table_20240606
+        ' Datums-Suffix im Tabellennamen: tf_table_20240606
         t = Regex.Match(zeile, "_((?:19|20)\d{4,})$", RegexOptions.IgnoreCase)
         If t.Success Then Return zeile.Substring(0, t.Index)
 
-        ' :MONID token (with or without leading underscore)
+        ' :MONID-Token (mit oder ohne fuehrenden Unterstrich)
         t = Regex.Match(zeile, "_?:MONID", RegexOptions.IgnoreCase)
         If t.Success Then Return zeile.Substring(0, t.Index)
 
-        ' :YEAR token (with or without leading underscore)
+        ' :YEAR-Token (mit oder ohne fuehrenden Unterstrich)
         t = Regex.Match(zeile, "_?:YEAR", RegexOptions.IgnoreCase)
         If t.Success Then Return zeile.Substring(0, t.Index)
 
