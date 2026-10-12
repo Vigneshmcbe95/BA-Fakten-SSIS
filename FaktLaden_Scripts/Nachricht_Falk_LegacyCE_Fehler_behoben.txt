@@ -1,0 +1,5 @@
+﻿Hallo Falk, der Fehler im Dimensionslauf ("Conversion failed ... 'OFF' to data type int") kam aus meiner letzten Änderung (Prüfung Legacy Cardinality Estimator). Ist jetzt behoben und im Git. Bitte aktualisieren:
+- Dimension: Vorbereitung
+- Fakten: SCR02
+
+Danach kannst du den Lauf neu starten. Danke! Viele Grüße
