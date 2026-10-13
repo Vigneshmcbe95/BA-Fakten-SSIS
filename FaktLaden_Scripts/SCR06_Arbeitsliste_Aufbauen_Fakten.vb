@@ -296,6 +296,7 @@ WHERE a.Status = 'ERFOLG'
             '   SCR20 (Nachlauf je Partition) -> ab SCR20
             '   SCR21 (Nachlauf je Verfahren) -> ab SCR21
             '   Nachlauf fertig               -> bleibt, PaketEnd setzt ERFOLG
+            ' ERFOLG setzt nur PaketEnd (SCR22) - es bedeutet "Lauf fertig".
             ' Alles andere -> AUSSTEHEND (SCR13 ueberspringt bereits geladene
             ' Monate). SCR14 und SCR19 sind nicht sicher wiederholbar.
             resetSql = "
@@ -315,8 +316,8 @@ CROSS APPLY (SELECT CASE CASE WHEN a.Status = 'FEHLER' THEN ISNULL(a.LetzterSchr
         WHEN 'KOMPRIMIERUNG_ERSTELLT' THEN 'STAGE_DML_ERFOLG'
         WHEN 'NCCI_OUT'               THEN 'STAGE_DML_ERFOLG'
         WHEN 'NCCI_OUT_ERSTELLT'      THEN 'STAGE_DML_ERFOLG'
-        WHEN 'ERFOLG'                 THEN 'ERFOLG'
-        WHEN 'NACHLAUF_PART'          THEN 'ERFOLG'
+        WHEN 'PARTITIONSTAUSCH_ERFOLG' THEN 'PARTITIONSTAUSCH_ERFOLG'
+        WHEN 'NACHLAUF_PART'          THEN 'PARTITIONSTAUSCH_ERFOLG'
         WHEN 'NACHLAUF_PART_ERFOLG'   THEN 'NACHLAUF_PART_ERFOLG'
         WHEN 'NACHLAUF_VERF'          THEN 'NACHLAUF_PART_ERFOLG'
         WHEN 'NACHLAUF_VERF_ERFOLG'   THEN 'NACHLAUF_VERF_ERFOLG'

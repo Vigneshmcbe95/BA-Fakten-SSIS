@@ -11,7 +11,7 @@ Imports Microsoft.SqlServer.Dts.Runtime
 '  Zweck        : Fuehrt den Partitionstausch je geladener Partition durch:
 '                 SWITCH OUT nach _out_, CHECK-Constraint auf _in_, SWITCH
 '                 IN, Aufraeumen und Endstatus.
-'  Ablauf       : NCCI_OUT_ERSTELLT -> ERFOLG
+'  Ablauf       : NCCI_OUT_ERSTELLT -> PARTITIONSTAUSCH_ERFOLG
 '  Wiederholung : 3 Versuche je SQL-Anweisung, 30 s Wartezeit
 '  Protokoll    : Nur SSIS-Events (FireInformation / FireError)
 ' =============================================================================
@@ -379,7 +379,7 @@ Partial Public Class ScriptMain
     ' Arbeitslisten-Zeile.
     ' -----------------------------------------------------------------------
     Private Sub StatusSetzenErfolg(connStr As String, id As Integer)
-        SqlAusfuehren(connStr, "UPDATE dbo.ETL_Fakt_Arbeitsliste SET Status='ERFOLG',LetzterSchritt='ERFOLG',AktualisiertAm=GETDATE() WHERE ID=" & id, "ERFOLG")
+        SqlAusfuehren(connStr, "UPDATE dbo.ETL_Fakt_Arbeitsliste SET Status='PARTITIONSTAUSCH_ERFOLG',LetzterSchritt='PARTITIONSTAUSCH_ERFOLG',AktualisiertAm=GETDATE() WHERE ID=" & id, "PARTITIONSTAUSCH_ERFOLG")
     End Sub
 
     ' -----------------------------------------------------------------------

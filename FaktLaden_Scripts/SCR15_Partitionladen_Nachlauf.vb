@@ -12,7 +12,7 @@ Imports Microsoft.SqlServer.Dts.Runtime
 '  Zweck        : Fuehrt die optionale Nachlauf-Prozedur
 '                 usp_Faktenladen_Partitionladen_Nachlauf_<fakt> je
 '                 Partition aus, sofern vorhanden.
-'  Ablauf       : ERFOLG -> NACHLAUF_PART_ERFOLG
+'  Ablauf       : PARTITIONSTAUSCH_ERFOLG -> NACHLAUF_PART_ERFOLG
 '  Wiederholung : 3 Versuche je SQL-Anweisung, 30 s Wartezeit
 '  Protokoll    : Nur SSIS-Events (FireInformation / FireError)
 ' =============================================================================
@@ -26,7 +26,7 @@ Partial Public Class ScriptMain
     Private Const MAX_VERSUCHE As Integer = 3
     Private Const WARTE_SEK As Integer = 30
 
-    Private Const STATUS_START As String = "ERFOLG"
+    Private Const STATUS_START As String = "PARTITIONSTAUSCH_ERFOLG"
     Private Const STATUS_RUN As String = "NACHLAUF_PART"
     Private Const STATUS_OK As String = "NACHLAUF_PART_ERFOLG"
 
