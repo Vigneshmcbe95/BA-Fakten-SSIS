@@ -69,8 +69,14 @@ Partial Public Class ScriptMain
                     Dim verfKey As String = v.Verfahren.Trim().ToLower()
                     Dim werteListe As List(Of String) = Nothing
                     If Not verfahrenWerte.TryGetValue(verfKey, werteListe) OrElse werteListe.Count = 0 Then
-                        Log("  WARNUNG: Keine Partitionswerte in BA::objPartitionValues -> uebersprungen")
-                        Continue For
+                        ' Wiederanlauf (SCR11 lief fuer diese Tabelle nicht): Monate aus
+                        ' den vorhandenen _in_-Tabellen
+                        werteListe = MonateAusInTabellen(connStr, v.Faktentabelle)
+                        If werteListe.Count = 0 Then
+                            Log("  WARNUNG: Keine Partitionswerte in BA::objPartitionValues -> uebersprungen")
+                            Continue For
+                        End If
+                        Log("  Wiederanlauf: " & werteListe.Count.ToString() & " Monate aus den _in_-Tabellen")
                     End If
                     Log("  Partitionen: " & werteListe.Count.ToString())
                     ' Je Partition isoliert tauschen: ein Fehler bei einer Partition
@@ -290,6 +296,34 @@ Partial Public Class ScriptMain
     ' -----------------------------------------------------------------------
     Private Function IndexVorhanden(connStr As String, tbl As String, idxName As String) As Boolean
         Return Convert.ToInt32(SqlSkalar(connStr, "SELECT COUNT(*) FROM sys.indexes WHERE object_id=OBJECT_ID('dbo.[" & tbl & "]') AND name='" & idxName & "'", "Index pruefen")) > 0
+    End Function
+
+    ' -----------------------------------------------------------------------
+    ' MonateAusInTabellen - Wiederanlauf: liefert die Monate einer Tabelle aus
+    ' den vorhandenen _in_-Tabellen (<fakt>_in_<monat>), wenn sie nicht in
+    ' BA::objPartitionValues steht (SCR11 lief fuer sie in diesem Lauf nicht).
+    ' -----------------------------------------------------------------------
+    Private Function MonateAusInTabellen(connStr As String, faktentabelle As String) As List(Of String)
+        Dim liste As New List(Of String)()
+        Dim sql As String =
+            "SELECT x.Monat FROM (" &
+            "SELECT SUBSTRING(t.name, LEN(@praefix) + 1, 50) AS Monat FROM sys.tables t " &
+            "WHERE t.schema_id = SCHEMA_ID('dbo') AND LEFT(t.name, LEN(@praefix)) = @praefix) x " &
+            "WHERE TRY_CAST(x.Monat AS bigint) IS NOT NULL " &
+            "ORDER BY TRY_CAST(x.Monat AS bigint);"
+        Using conn As New SqlConnection(connStr)
+            conn.Open()
+            Using cmd As New SqlCommand(sql, conn)
+                cmd.CommandTimeout = 0
+                cmd.Parameters.AddWithValue("@praefix", faktentabelle.Trim().ToLower() & "_in_")
+                Using rdr As SqlDataReader = cmd.ExecuteReader()
+                    While rdr.Read()
+                        liste.Add(rdr.GetString(0))
+                    End While
+                End Using
+            End Using
+        End Using
+        Return liste
     End Function
 
     ' -----------------------------------------------------------------------

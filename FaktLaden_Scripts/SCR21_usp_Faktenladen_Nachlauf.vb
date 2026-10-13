@@ -65,10 +65,11 @@ Partial Public Class ScriptMain
 
             ' BA::objPartitionValues lesen
             Dim partObjekt As Object = Dts.Variables("BA::objPartitionValues").Value
+            ' Leer auch beim Wiederanlauf ab SCR21 - dann kommen die Monate je
+            ' Tabelle aus der Faktentabelle (MonateAusFaktentabelle)
             If partObjekt Is Nothing Then
-                Log("BA::objPartitionValues ist leer -> keine Nachlauf-Aufrufe noetig")
-                Dts.TaskResult = ScriptResults.Success
-                Return
+                Log("BA::objPartitionValues ist leer -> Monate je Tabelle aus der Faktentabelle")
+                partObjekt = New String(-1, 2) {}
             End If
 
             Dim partArray(,) As String = CType(partObjekt, String(,))
@@ -107,6 +108,21 @@ Partial Public Class ScriptMain
 
                 Dim meineWerte As List(Of String) = Nothing
                 If Not verfahrenWerte.TryGetValue(v.Verfahren, meineWerte) OrElse meineWerte.Count = 0 Then
+                    ' Wiederanlauf ab SCR21 (SCR11 lief fuer diese Tabelle nicht):
+                    ' Monate mit Daten aus den Partitionen der Faktentabelle
+                    Try
+                        meineWerte = MonateAusFaktentabelle(connStr, v.Verfahren)
+                    Catch ex As Exception
+                        cntFehler += 1
+                        FehlerSetzen(connStr, v.ID, ex.Message)
+                        LogFehler("FEHLER '" & v.Verfahren & "': " & ex.Message)
+                        Continue For
+                    End Try
+                    If meineWerte.Count > 0 Then
+                        Log("  Wiederanlauf: " & meineWerte.Count.ToString() & " Monate aus der Faktentabelle")
+                    End If
+                End If
+                If meineWerte.Count = 0 Then
                     Log("  WARNUNG: Keine Partitionswerte -> uebersprungen")
                     StatusSetzen(connStr, v.ID, STATUS_OK)
                     cntOK += 1
@@ -201,6 +217,40 @@ Partial Public Class ScriptMain
             Dts.TaskResult = ScriptResults.Failure
         End Try
     End Sub
+
+    ' -----------------------------------------------------------------------
+    ' MonateAusFaktentabelle - Wiederanlauf: liefert die Monate mit Daten aus
+    ' den Partitionen der Faktentabelle (nur Metadaten, kein Datenscan), wenn
+    ' die Tabelle nicht in BA::objPartitionValues steht (SCR11 lief nicht).
+    ' -----------------------------------------------------------------------
+    Private Function MonateAusFaktentabelle(connStr As String, verfahren As String) As List(Of String)
+        Dim liste As New List(Of String)()
+        Dim sql As String =
+            "DECLARE @fakt sysname = (SELECT TOP 1 LOWER(LTRIM(RTRIM(Wert))) FROM " & _parameterDB & ".dbo." & _parametertab &
+            " WHERE Verfahren = dbo.fn_ParamVerfahren(@verfahren) AND Parameter = 'Faktentabelle');" &
+            " SELECT CAST(x.Monat AS varchar(20)) FROM (" &
+            " SELECT CAST(prv.value AS bigint) AS Monat, SUM(p.rows) AS Zeilen" &
+            " FROM sys.partitions p" &
+            " JOIN sys.indexes i ON i.object_id = p.object_id AND i.index_id = p.index_id" &
+            " JOIN sys.partition_schemes ps ON ps.data_space_id = i.data_space_id" &
+            " JOIN sys.partition_range_values prv ON prv.function_id = ps.function_id AND prv.boundary_id = p.partition_number" &
+            " WHERE p.object_id = OBJECT_ID(N'dbo.' + QUOTENAME(@fakt)) AND p.index_id IN (0, 1)" &
+            " GROUP BY CAST(prv.value AS bigint)) x" &
+            " WHERE x.Zeilen > 0 ORDER BY x.Monat;"
+        Using conn As New SqlConnection(connStr)
+            conn.Open()
+            Using cmd As New SqlCommand(sql, conn)
+                cmd.CommandTimeout = 0
+                cmd.Parameters.AddWithValue("@verfahren", verfahren)
+                Using rdr As SqlDataReader = cmd.ExecuteReader()
+                    While rdr.Read()
+                        liste.Add(rdr.GetString(0))
+                    End While
+                End Using
+            End Using
+        End Using
+        Return liste
+    End Function
 
     ' -----------------------------------------------------------------------
     ' VerfahrenLaden - Laedt die zu verarbeitenden Verfahren aus der

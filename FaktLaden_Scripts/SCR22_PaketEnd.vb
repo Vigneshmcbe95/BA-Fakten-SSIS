@@ -187,7 +187,8 @@ ELSE
 
     ' -----------------------------------------------------------------------
     ' NichtGetauschteProtokollieren - Listet die Verfahren dieses Laufs, die
-    ' weder ERFOLG (nach dem Partitionstausch) noch FEHLER sind. Sie werden
+    ' weder ERFOLG noch FEHLER sind und den Partitionstausch nicht erreicht
+    ' haben (NACHLAUF_*_ERFOLG kommt erst nach dem Tausch). Sie werden
     ' gleich danach auf ERFOLG gesetzt. Das ist richtig, wenn es keine Daten
     ' gab (z.B. "kein Ladevorgang noetig"), sonst ein Hinweis auf ein Problem.
     ' -----------------------------------------------------------------------
@@ -196,6 +197,7 @@ ELSE
 "SELECT Verfahren, Status, ISNULL(LetzterSchritt, '') AS LetzterSchritt
 FROM dbo.ETL_Fakt_Arbeitsliste
 WHERE RunID = @RunID AND Status <> 'FEHLER' AND Status <> 'ERFOLG'
+  AND Status NOT IN ('NACHLAUF_PART_ERFOLG', 'NACHLAUF_VERF_ERFOLG')
 ORDER BY Verfahren"
         Dim anzahl As Integer = 0
         Using cmd As New SqlCommand(sql, conn)

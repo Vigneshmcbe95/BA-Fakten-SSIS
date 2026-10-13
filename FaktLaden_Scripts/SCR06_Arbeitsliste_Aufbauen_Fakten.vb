@@ -11,7 +11,8 @@ Imports Microsoft.SqlServer.Dts.Runtime
 '  Paket        : Fakten Laden (SSIS)
 '  Zweck        : Baut die Arbeitsliste fuer den Lauf auf: traegt neue
 '                 Verfahren ein, setzt FEHLER- und haengengebliebene Zeilen
-'                 auf AUSSTEHEND zurueck und aktualisiert die RunID.
+'                 zurueck (AUSSTEHEND oder Wiederanlauf ab dem Fehlerpunkt)
+'                 und aktualisiert die RunID.
 '  Protokoll    : Nur SSIS-Events (FireInformation / FireError)
 ' =============================================================================
 <Microsoft.SqlServer.Dts.Tasks.ScriptTask.SSISScriptTaskEntryPointAttribute()>
@@ -265,6 +266,7 @@ WHERE p.Verfahren IS NOT NULL;"
         End If
 
         Dim rowsAffected As Integer = 0
+        Dim wiederanlauf As Integer = 0
         Dim resetSql As String = ""
         Dim resetReason As String = ""
 
@@ -287,24 +289,44 @@ WHERE a.Status = 'ERFOLG'
             resetReason = "Nur ERFOLG vorhanden → Alle ERFOLG zu AUSSTEHEND (kompletter Neulauf)"
 
         ElseIf countFehler > 0 OrElse countOther > 0 Then
-            ' Fall 2: FEHLER oder haengengebliebene Zeilen (z.B. DATEN_GELADEN nach
-            ' abgebrochenem Lauf) -> alle NICHT-ERFOLG zu AUSSTEHEND, wie im
-            ' Dimensionspaket. Nur FEHLER zurueckzusetzen liess haengengebliebene
-            ' Tabellen liegen; sie wurden nie fertig geladen.
+            ' Fall 2: FEHLER oder haengengebliebene Zeilen (z.B. nach abgebrochenem
+            ' Lauf). Wiederanlauf ab dem Fehlerpunkt, wo das sicher ist - der
+            ' Schritt kommt bei FEHLER aus LetzterSchritt, sonst aus Status:
+            '   SCR16 bis SCR18 und vor SCR19 -> ab SCR16 (legt fehlende _out_ an)
+            '   SCR20 (Nachlauf je Partition) -> ab SCR20
+            '   SCR21 (Nachlauf je Verfahren) -> ab SCR21
+            '   Nachlauf fertig               -> bleibt, PaketEnd setzt ERFOLG
+            ' Alles andere -> AUSSTEHEND (SCR13 ueberspringt bereits geladene
+            ' Monate). SCR14 und SCR19 sind nicht sicher wiederholbar.
             resetSql = "
 UPDATE a
-SET a.Status = 'AUSSTEHEND',
-    a.LetzterSchritt = NULL,
+SET a.Status = z.NeuerStatus,
+    a.LetzterSchritt = CASE WHEN z.NeuerStatus = 'AUSSTEHEND' THEN NULL ELSE z.NeuerStatus END,
     a.Fehlermeldung = NULL,
     a.Versuche = 0,
     a.AktualisiertAm = GETDATE()
+OUTPUT inserted.Verfahren, deleted.Status, ISNULL(deleted.LetzterSchritt, ''), inserted.Status
 FROM dbo.ETL_Fakt_Arbeitsliste a
+CROSS APPLY (SELECT CASE CASE WHEN a.Status = 'FEHLER' THEN ISNULL(a.LetzterSchritt, '') ELSE a.Status END
+        WHEN 'STAGE_DML_ERFOLG'       THEN 'STAGE_DML_ERFOLG'
+        WHEN 'INDEX_IN_OUT'           THEN 'STAGE_DML_ERFOLG'
+        WHEN 'INDEX_IN_OUT_ERSTELLT'  THEN 'STAGE_DML_ERFOLG'
+        WHEN 'KOMPRIMIERUNG'          THEN 'STAGE_DML_ERFOLG'
+        WHEN 'KOMPRIMIERUNG_ERSTELLT' THEN 'STAGE_DML_ERFOLG'
+        WHEN 'NCCI_OUT'               THEN 'STAGE_DML_ERFOLG'
+        WHEN 'NCCI_OUT_ERSTELLT'      THEN 'STAGE_DML_ERFOLG'
+        WHEN 'ERFOLG'                 THEN 'ERFOLG'
+        WHEN 'NACHLAUF_PART'          THEN 'ERFOLG'
+        WHEN 'NACHLAUF_PART_ERFOLG'   THEN 'NACHLAUF_PART_ERFOLG'
+        WHEN 'NACHLAUF_VERF'          THEN 'NACHLAUF_PART_ERFOLG'
+        WHEN 'NACHLAUF_VERF_ERFOLG'   THEN 'NACHLAUF_VERF_ERFOLG'
+        ELSE 'AUSSTEHEND' END AS NeuerStatus) z
 INNER JOIN " & _parameterDB & ".dbo." & _parametertabelle & " p ON LOWER(p.Verfahren) = dbo.fn_ParamVerfahren(a.Verfahren)
 INNER JOIN dbo." & _steuerlistenTabelle & " f ON dbo.fn_ParamVerfahren(LOWER(LTRIM(RTRIM(f.tabelle)))) = LOWER(LTRIM(RTRIM(p.Verfahren)))
     AND LOWER(LTRIM(RTRIM(f.themengebiet))) = LOWER(LTRIM(RTRIM(a.Themengebiet)))" & DateiFilter() & "
 WHERE a.Status NOT IN ('ERFOLG', 'AUSSTEHEND')
   AND p.Verfahren IS NOT NULL;"
-            resetReason = "FEHLER oder ANDERE vorhanden → Alle NICHT-ERFOLG zu AUSSTEHEND (Erfolge bleiben)"
+            resetReason = "FEHLER oder ANDERE vorhanden → NICHT-ERFOLG zu AUSSTEHEND bzw. Wiederanlauf ab Fehlerpunkt (Erfolge bleiben)"
 
         Else
             Return "Kein Reset nötig (nur AUSSTEHEND oder keine Daten)"
@@ -316,7 +338,18 @@ WHERE a.Status NOT IN ('ERFOLG', 'AUSSTEHEND')
                 conn.Open()
                 Using cmd As New SqlCommand(resetSql, conn)
                     cmd.CommandTimeout = 0
-                    rowsAffected = cmd.ExecuteNonQuery()
+                    Using rdr As SqlDataReader = cmd.ExecuteReader()
+                        While rdr.Read()
+                            Dim neuerStatus As String = rdr.GetString(3)
+                            If neuerStatus <> "AUSSTEHEND" Then
+                                wiederanlauf += 1
+                                Log("  Wiederanlauf: " & rdr.GetString(0) & " | " & rdr.GetString(1) & " / " &
+                                    rdr.GetString(2) & " -> " & neuerStatus)
+                            End If
+                        End While
+                        rdr.Close()
+                        rowsAffected = rdr.RecordsAffected
+                    End Using
                 End Using
             End Using
         Catch ex As Exception
@@ -324,7 +357,8 @@ WHERE a.Status NOT IN ('ERFOLG', 'AUSSTEHEND')
             Throw New Exception("Reset fehlgeschlagen: " & ex.Message, ex)
         End Try
 
-        Return resetReason & " → " & rowsAffected.ToString() & " Zeilen zurückgesetzt"
+        Return resetReason & " → " & rowsAffected.ToString() & " Zeilen zurückgesetzt" &
+            If(wiederanlauf > 0, " (davon " & wiederanlauf.ToString() & " Wiederanlauf ab Fehlerpunkt)", "")
 
     End Function
 
