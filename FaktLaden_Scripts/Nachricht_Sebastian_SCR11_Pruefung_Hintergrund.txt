@@ -14,3 +14,24 @@ Mein Vorschlag: Die Prüfung bleibt, läuft aber parallel statt nacheinander. Gl
 
 Grüße
 Nils
+
+----------------------------------------------------------------------
+English
+----------------------------------------------------------------------
+
+Hi Sebastian,
+
+briefly on the check in SCR11 and why it's there:
+
+1. At the start there was no check. Then errors occurred, because Oracle has empty partitions (start partition, future months created in advance, extra boundaries). These empty months went into the run, and the later steps failed on them.
+
+2. That's why we added the check: SCR11 asks Oracle per month whether there is data, and filters out empty months beforehand.
+
+3. We wanted to make it faster by taking the information from the Oracle metadata (NUM_ROWS in V_PARTITION_INFO). But Dirk replied that you can't rely on it, because the statistics in Oracle aren't always up to date. So we still query the data in Oracle directly.
+
+4. If we remove the check, we have to test it first, because the empty partitions in Oracle can cause errors in the later steps again.
+
+My proposal: keep the check, but run it in parallel instead of one after another. Same result, just much faster (zwg: 30 min -> approx. 4 min).
+
+Regards,
+Nils
