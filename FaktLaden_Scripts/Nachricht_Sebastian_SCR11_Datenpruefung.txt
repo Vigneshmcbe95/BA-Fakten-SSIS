@@ -1,0 +1,26 @@
+﻿Hi Sebastian,
+
+kurz zu SCR11 (Schritt "Datenprüfung"), damit wir richtig entscheiden:
+
+Was SCR11 macht:
+SCR11 liest die Partitionsgrenzen aus Oracle (v_partition_info) und berechnet daraus die Monatswerte. Danach fragt es je Monat in Oracle ab, ob es dort überhaupt Daten gibt (SELECT TOP 1 1 ... WHERE Monat = x). Das ist kein Zeilenvergleich Quelle/Ziel, sondern nur "Daten ja/nein". Monate ohne Daten werden aussortiert – erst danach werden die Partitionen auf dem SQL Server angelegt und geladen.
+
+Warum es diese Prüfung gibt:
+In Oracle gibt es leere Partitionen: Startpartition, im Voraus angelegte Zukunftsmonate und zusätzliche Grenzen (z. B. 20230901 neben 20230900). Aus den Grenzen allein sieht man nicht, ob Daten drin sind. Ohne die Prüfung würde SCR13 für so einen leeren Monat 0 Zeilen laden und den Lauf abbrechen (so war es im Juni, deshalb wurde die Prüfung eingebaut).
+
+Warum es so lange dauert:
+Die Prüfung läuft Monat für Monat nacheinander, je Monat 3–30 Sekunden über PolyBase. Bei zwg waren es 257 Monate = 30 Minuten, in der Produktion mit 600–700 Partitionen entsprechend länger.
+
+Was passieren kann, wenn wir sie abschalten:
+- Leere Partition in Oracle -> SCR13 bricht mit "0 Zeilen" ab.
+- Oder, falls wir 0 Zeilen zulassen: leere Partitionen auf dem SQL Server, und die Tabellen-Prozeduren (StagetabellenDML, Nachlauf) laufen auf leere Monate – wie die sich dabei verhalten, ist nicht getestet.
+- Gerade beim Laden eines einzelnen Monats zum Stichtag: Ist genau dieser Monat in Oracle leer oder hat eine fehlerhafte Grenze, geht es schief.
+
+Meine Vorschläge:
+1. Prüfung parallel statt nacheinander (gleiche Abfrage, gleiches Ergebnis, nur 8 gleichzeitig). zwg: 30 Min -> ca. 4 Min. Kein Risiko, nur SCR11 betroffen.
+2. Zusätzlich ein Schalter zum Abschalten, wie besprochen. Standard = Prüfung an. Abschalten nur für Tabellen, bei denen sicher ist, dass es keine leeren Partitionen in Oracle gibt. Das sollten wir aber vorher in der Abnahme testen, gerade mit einem Einzelmonat und einer Tabelle mit leeren Grenzen.
+
+Ich würde mit 1 anfangen und den Schalter danach einbauen und testen. Passt das für dich?
+
+Grüße
+Nils
