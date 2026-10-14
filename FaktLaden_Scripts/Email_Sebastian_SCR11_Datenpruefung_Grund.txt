@@ -1,0 +1,53 @@
+﻿Betreff: SCR11 - warum es die Datenprüfung gibt
+
+Hallo Sebastian,
+
+kurz zur Prüfung in SCR11:
+
+Warum es sie gibt:
+Am Anfang gab es die Prüfung nicht. Im Juni hatte Falk bei msi_dm_bb (Tabelle tf_bb_bewa_zkt) einen Fehler: Der Lauf brach ab, weil einige Monate in Oracle leer waren:
+- der September in allen Jahren (dort gibt es in Oracle nur 01-Scheiben, die Grenze ...0900 ist leer)
+- der aktuelle Monat (in Oracle schon angelegt, aber noch keine Daten)
+
+SCR11 sieht in Oracle nur die Partitionsgrenzen, nicht ob Daten drin sind. Deshalb fragt SCR11 seitdem je Monat in Oracle nach, ob Daten da sind, und lässt leere Monate weg.
+
+Warum nicht über Metadaten:
+Wir wollten das schneller über die Oracle-Metadaten (NUM_ROWS) machen. Laut Dirk sind die Statistiken in Oracle aber nicht immer aktuell. Deshalb fragen wir direkt die Daten ab.
+
+Wenn wir die Prüfung entfernen:
+Dann kommen die leeren Monate wieder in den Lauf und es gibt wieder Fehler wie bei Falk. Das müssten wir vorher testen.
+
+Mein Vorschlag:
+Die Prüfung bleibt, läuft aber parallel statt nacheinander. Gleiches Ergebnis, nur deutlich schneller (zwg: 30 Min -> ca. 4 Min).
+
+Grüße
+Nils
+
+----------------------------------------------------------------------
+English
+----------------------------------------------------------------------
+
+Subject: SCR11 - why the data check exists
+
+Hi Sebastian,
+
+briefly on the check in SCR11:
+
+Why it exists:
+At the start there was no check. In June Falk had an error with msi_dm_bb (table tf_bb_bewa_zkt): the run stopped because some months in Oracle were empty:
+- September in every year (Oracle only has 01 slices there, the ...0900 boundary is empty)
+- the current month (already created in Oracle, but no data yet)
+
+SCR11 only sees the partition boundaries in Oracle, not whether there is data in them. So since then SCR11 asks Oracle per month whether there is data, and leaves out empty months.
+
+Why not via metadata:
+We wanted to make it faster using the Oracle metadata (NUM_ROWS). But according to Dirk, the statistics in Oracle aren't always up to date. So we query the data directly.
+
+If we remove the check:
+The empty months go into the run again and we get errors again, like Falk did. We would have to test that first.
+
+My proposal:
+Keep the check, but run it in parallel instead of one after another. Same result, just much faster (zwg: 30 min -> approx. 4 min).
+
+Regards,
+Nils
