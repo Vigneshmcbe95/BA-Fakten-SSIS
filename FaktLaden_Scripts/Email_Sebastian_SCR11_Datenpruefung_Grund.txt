@@ -28,38 +28,3 @@ Die Prüfung bleibt, läuft aber parallel statt nacheinander. Gleiches Ergebnis,
 
 Grüße
 Nils
-
-----------------------------------------------------------------------
-English
-----------------------------------------------------------------------
-
-Subject: SCR11 - why the data check exists
-
-Hi Sebastian,
-
-briefly on the check in SCR11:
-
-Why it exists:
-At the start there was no check. In June Falk had an error with msi_dm_bb (table tf_bb_bewa_zkt): the run stopped because some months in Oracle were empty:
-- September in every year (Oracle only has 01 slices there, the ...0900 boundary is empty)
-- the current month (already created in Oracle, but no data yet)
-
-SCR11 only sees the partition boundaries in Oracle, not whether there is data in them. So since then SCR11 asks Oracle per month whether there is data, and leaves out empty months.
-
-Why not via metadata:
-We wanted to make it faster using the Oracle metadata (NUM_ROWS). But according to Dirk, the statistics in Oracle aren't always up to date. So we query the data directly.
-
-If we remove the check:
-The empty months go into the run again. Possible consequences:
-- SCR13 stops with "0 rows" (like Falk's case).
-- If SCR13 simply leaves empty months out, the later steps still know the month: SCR14 (StagetabellenDML), SCR17 (compression) and SCR18 (NCCI) look for the staging table and stop.
-- The Nachlauf (SCR20/21) runs for empty months - how the procedures handle that is not tested.
-- Empty partitions are created on SQL Server. If an empty boundary lies between months that are already loaded, the neighbouring month has to be taken out of the fact table briefly and put back. If the run stops exactly then, that month is missing from the fact table.
-- This happens again in every run, as long as the month is empty in Oracle.
-So we would have to test this in Abnahme first.
-
-My proposal:
-Keep the check, but run it in parallel instead of one after another. Same result, just much faster (zwg: 30 min -> approx. 4 min).
-
-Regards,
-Nils
