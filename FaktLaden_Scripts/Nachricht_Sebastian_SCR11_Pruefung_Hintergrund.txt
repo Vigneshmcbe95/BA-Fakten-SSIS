@@ -1,0 +1,16 @@
+﻿Hi Sebastian,
+
+kurz zur Prüfung in SCR11 und warum sie drin ist:
+
+1. Am Anfang gab es die Prüfung nicht. Dann kam es zu Fehlern, weil es in Oracle leere Partitionen gibt (Startpartition, im Voraus angelegte Zukunftsmonate, zusätzliche Grenzen). Diese leeren Monate gingen mit in den Lauf, und die Folgeschritte sind daran abgebrochen.
+
+2. Deshalb haben wir die Prüfung eingebaut: SCR11 fragt je Monat in Oracle ab, ob Daten vorhanden sind, und sortiert leere Monate vorher aus.
+
+3. Wir wollten das schneller machen und die Info aus den Oracle-Metadaten nehmen (NUM_ROWS in V_PARTITION_INFO). Dirk hat aber geantwortet, dass man sich darauf nicht verlassen kann, weil die Statistiken in Oracle nicht immer aktuell sind. Deshalb fragen wir weiterhin direkt die Daten in Oracle ab.
+
+4. Wenn wir die Prüfung entfernen, müssen wir das vorher testen, weil die leeren Partitionen in Oracle wieder Fehler in den Folgeschritten verursachen können.
+
+Mein Vorschlag: Die Prüfung bleibt, läuft aber parallel statt nacheinander. Gleiches Ergebnis, nur deutlich schneller (zwg: 30 Min -> ca. 4 Min).
+
+Grüße
+Nils
