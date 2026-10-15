@@ -310,22 +310,10 @@ Partial Public Class ScriptMain
         ' ─── SELECT INTO _LOADING (atomar) ───
         Dim zeilen As Integer = DatenLadenSelectInto(connStr, v, loadingTable, extTable, pv)
 
-        ' ─── 0 Zeilen darf hier NICHT vorkommen ───
-        ' SCR11 uebergibt nur Partitionswerte MIT Daten - leere Grenzpartitionen
-        ' (z.B. unterhalb des MSSQL-Minimums oder die offene obere Grenze) werden
-        ' bereits dort ausgeschlossen. Kommt hier dennoch eine Partition ohne
-        ' Daten an, ist das ein echter Fehler (falsche Partitionsspalte, fehlende
-        ' Oracle-Daten, falscher Verfahrensname o.ae.) -> Lauf mit klarer Meldung
-        ' abbrechen statt still zu ueberspringen.
+        ' Leere Partition wird uebertragen
         If zeilen = 0 Then
-            SqlAusfuehren(connStr,
-                "IF OBJECT_ID('dbo.[" & loadingTable & "]','U') IS NOT NULL DROP TABLE dbo.[" & loadingTable & "];",
-                "DROP _LOADING leer " & pv)
-            Throw New Exception("Partition " & v.PartitionColumn & " = " & pv & ": [ext." & extTable &
-                "] lieferte 0 Zeilen. Diese Partition haette nach der SCR11-Berechnung Daten enthalten muessen. " &
-                "Bitte pruefen: (1) existiert der Wert in Oracle (SELECT DISTINCT " & v.PartitionColumn &
-                " FROM ext.[" & extTable & "])? (2) ist die Faktenpartitionsspalte [" & v.PartitionColumn &
-                "] in der Parametertabelle fuer Verfahren [" & v.Verfahren & "] korrekt?")
+            Log("  Info: " & v.PartitionColumn & " = " & pv & " liefert 0 Zeilen -> leere Partition")
+            LogSchreiben(connStr, v.Verfahren, "LEER_" & pv, "0 Zeilen - leere Partition wird uebertragen")
         End If
 
         ' ─── RENAME _LOADING → _in_ (atomar abschliessen) ───

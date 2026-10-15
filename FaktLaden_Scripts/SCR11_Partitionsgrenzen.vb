@@ -1083,21 +1083,23 @@ Partial Public Class ScriptMain
     End Sub
 
     Private Function WerteMitDatenFiltern(connStr As String, v As VerfahrenInfo, werte As List(Of Integer)) As List(Of Integer)
-        ' Werte aus dem DISTINCT-Fallback (View ohne Partitionsmetadaten) haben per Definition Daten -> Einzelpruefung je Wert ueberspringen (bei Views Full Scan je Wert).
-        If _werteAusDistinct Then
-            Log("  Datenpruefung je Partition uebersprungen: " & werte.Count.ToString() & " Werte aus DISTINCT der Quelle.")
-            Return New List(Of Integer)(werte)
-        End If
-        Dim ergebnis As New List(Of Integer)()
-        Dim i As Integer = 0
-        For Each w As Integer In werte
-            i += 1
-            If PartitionHatDaten(connStr, v, w) Then ergebnis.Add(w)
-            If i Mod 20 = 0 OrElse i = werte.Count Then
-                Log("  Datenpruefung: " & i.ToString() & "/" & werte.Count.ToString() & " geprueft (zuletzt " & w.ToString() & ")")
-            End If
-        Next
-        Return ergebnis
+        ' Datenpruefung deaktiviert: leere Partitionen werden mit uebertragen
+        Log("  Datenpruefung deaktiviert: " & werte.Count.ToString() & " Werte ungeprueft uebernommen")
+        Return New List(Of Integer)(werte)
+        'If _werteAusDistinct Then
+        '    Log("  Datenpruefung je Partition uebersprungen: " & werte.Count.ToString() & " Werte aus DISTINCT der Quelle.")
+        '    Return New List(Of Integer)(werte)
+        'End If
+        'Dim ergebnis As New List(Of Integer)()
+        'Dim i As Integer = 0
+        'For Each w As Integer In werte
+        '    i += 1
+        '    If PartitionHatDaten(connStr, v, w) Then ergebnis.Add(w)
+        '    If i Mod 20 = 0 OrElse i = werte.Count Then
+        '        Log("  Datenpruefung: " & i.ToString() & "/" & werte.Count.ToString() & " geprueft (zuletzt " & w.ToString() & ")")
+        '    End If
+        'Next
+        'Return ergebnis
     End Function
 
     ' -----------------------------------------------------------------------
