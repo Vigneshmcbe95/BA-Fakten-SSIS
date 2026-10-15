@@ -1,0 +1,32 @@
+﻿Betreff: SCR13 - 0 Zeilen in leere Partition laden?
+
+Hallo Sebastian,
+
+technisch ja: SCR13 könnte bei 0 Zeilen eine leere Tabelle behalten und weiterlaufen.
+Dann können aber die alten Daten auf dem SQL Server verloren gehen. Beispiel:
+
+Vor dem Lauf:
+- SQL Server: Partition (mon_id) 202609 = 1.000.000 Zeilen
+- Oracle:     Partition (mon_id) 202609 = gerade leer (z.B. wird neu geladen)
+
+Was passieren würde:
+1. SCR13 lädt Partition 202609 aus Oracle -> 0 Zeilen -> leere Staging-Tabelle _in_
+2. SCR19 SWITCH OUT: die 1.000.000 Zeilen gehen aus der Faktentabelle nach _out_
+3. SCR19 SWITCH IN: die leere _in_ kommt in die Faktentabelle -> Partition 202609 = 0 Zeilen
+4. SCR19 Aufräumen: _out_ wird gelöscht -> die 1.000.000 Zeilen sind weg
+
+Der Lauf meldet "erfolgreich", es fällt also niemandem auf.
+Das gilt für 6-stellige (mon_id) und 8-stellige Partitionswerte (z.B. mow-Scheiben) gleichermaßen.
+
+Heute:
+- Mit der SCR11-Prüfung: Partition 202609 wird übersprungen, die 1.000.000 Zeilen bleiben.
+- Ohne die Prüfung: SCR13 bricht mit "0 Zeilen" ab - lästig, aber die Daten sind sicher.
+
+"0 Zeilen ok" passt nur, wenn der Entwickler komplett neu laden will (Oracle = Wahrheit);
+will er vorhandene Daten behalten, löscht eine leere Oracle-Partition sie.
+
+Außerdem: Die Entwickler-Prozeduren (SCR14 DML, SCR20/21 Nachlauf) würden dann
+auf leeren Partitionen laufen - wie sie damit umgehen, ist nicht getestet.
+
+Grüße
+Nils
