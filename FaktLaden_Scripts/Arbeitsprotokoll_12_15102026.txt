@@ -1,0 +1,23 @@
+﻿Tag 1 – 12.10.2026
+1. Laden in CCI-Staging-Tabellen umgesetzt (SCR13, Steuerung je Tabelle über die Parametertabelle).
+2. Legacy Cardinality Estimator auch in Laden_DIM am Anfang aus- und am Ende wieder eingeschaltet.
+3. Master-Key-Prüfung in SCR02 (Fakten) und Vorbereitung (DIM) umgesetzt – automatisch öffnender Key bleibt erhalten.
+4. Abstimmung zu Ladeart-Parametern und Testläufen.
+
+Tag 2 – 13.10.2026
+1. Wiederaufsetzen nach Fehler umgesetzt: SCR06 setzt fehlerhafte Verfahren auf den letzten erfolgreichen Schritt zurück.
+2. SCR16–SCR18 und Nachlauf (SCR20/SCR21) können ab dem Fehlerpunkt fortgesetzt werden.
+3. Eigener Status nach dem Partitionstausch (SCR19), ERFOLG erst am Paketende (SCR22).
+4. Fehlerlog des Testlaufs analysiert.
+
+Tag 3 – 14.10.2026
+1. Abstimmung: Abbruch in Produktion, Git-Stand, Laufzeit der Datenprüfung, Credential-Fehler.
+2. Laufzeit der SCR11-Datenprüfung in Produktion (600–700 Partitionen) analysiert.
+3. Hintergrund, Risiken und Alternativen der Datenprüfung zusammengestellt.
+4. Mögliche Folgefehler ohne Datenprüfung (Beispiel msi_dm_bb) dokumentiert.
+
+Tag 4 – 15.10.2026
+1. Testskripte für die Datenprüfung erstellt (TOP 1, rownum = 1, FORCE EXTERNALPUSHDOWN); SCR11-Prüfung deaktiviert, SCR13 überträgt leere Partitionen.
+2. Fehler beim gleichzeitigen Lauf von DIM und Fakten analysiert – Ursache: gemeinsame PolyBase-Objekte wurden gegenseitig gelöscht.
+3. Eigene PolyBase-Objekte je Paket (_FAKT/_DIM) und eigene Staging-Tabelle umgesetzt; Credential wird angepasst statt gelöscht, Master Key nicht mehr automatisch gelöscht, Kennwort nicht mehr im Log.
+4. Bereinigungsskript für alte PolyBase-Objekte erstellt; Test angestoßen.
