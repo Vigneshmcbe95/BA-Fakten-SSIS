@@ -24,7 +24,8 @@ JOIN sys.external_data_sources ds ON ds.data_source_id = t.data_source_id
 WHERE ds.name = @alteDataSource
 UNION ALL SELECT 'EXTERNAL DATA SOURCE', name FROM sys.external_data_sources WHERE name = @alteDataSource
 UNION ALL SELECT 'CREDENTIAL', name FROM sys.database_scoped_credentials WHERE name = @altesCredential
-UNION ALL SELECT 'TABLE (alte dbo-Kopie)', 'dbo.vm_ddl_sql_server' WHERE OBJECT_ID('dbo.vm_ddl_sql_server', 'U') IS NOT NULL;
+UNION ALL SELECT 'TABLE (alte dbo-Kopie)', 'dbo.vm_ddl_sql_server' WHERE OBJECT_ID('dbo.vm_ddl_sql_server', 'U') IS NOT NULL
+UNION ALL SELECT 'TABLE (alte Staging)', 'dbo.ddl_staging' WHERE OBJECT_ID('dbo.ddl_staging', 'U') IS NOT NULL;
 
 -- Weitere Data Sources, die das alte Credential nutzen (werden NICHT geloescht)
 SELECT 'nutzt altes Credential - bleibt' AS hinweis, ds.name
@@ -63,6 +64,9 @@ END;
 
 IF OBJECT_ID('dbo.vm_ddl_sql_server', 'U') IS NOT NULL
     DROP TABLE dbo.vm_ddl_sql_server;
+
+IF OBJECT_ID('dbo.ddl_staging', 'U') IS NOT NULL
+    DROP TABLE dbo.ddl_staging;
 
 PRINT 'Alte PolyBase-Objekte bereinigt.';
 GO

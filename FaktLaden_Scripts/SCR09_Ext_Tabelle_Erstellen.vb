@@ -109,7 +109,7 @@ Partial Public Class ScriptMain
         ' Oracle-Objektname aus der Steuerliste kann als tf_... oder vf_...
         ' gepflegt sein, waehrend das tatsaechliche Oracle-Objekt das jeweils
         ' andere Praefix hat (Tippfehler/Konvention in der Steuerliste). Gegen
-        ' die lokal gestagte Oracle-DDL-Metadatenkopie (dbo.ddl_staging, von
+        ' die lokal gestagte Oracle-DDL-Metadatenkopie (dbo.ddl_staging_fakt, von
         ' SCR07 je Lauf aktualisiert) pruefen, welches Praefix tatsaechlich
         ' existiert, statt blind das Steuerlisten-Praefix zu verwenden -
         ' sonst zeigt LOCATION auf ein nicht existierendes Oracle-Objekt und
@@ -189,7 +189,7 @@ WHERE schema_id = SCHEMA_ID('" & _extSchema & "')
     End Sub
 
     ' -----------------------------------------------------------------------
-    ' OracleObjektNameAufloesen - Prueft anhand von dbo.ddl_staging (lokale
+    ' OracleObjektNameAufloesen - Prueft anhand von dbo.ddl_staging_fakt (lokale
     ' Kopie der Oracle-DDL-Metadaten, siehe SCR07), ob der Steuerlisten-Name
     ' 1:1 als Oracle-Objekt existiert. Falls nicht und der Name mit tf_/vf_
     ' beginnt, wird das jeweils andere Praefix probiert. Existiert auch das
@@ -219,16 +219,16 @@ WHERE schema_id = SCHEMA_ID('" & _extSchema & "')
         Throw New Exception(
             "Oracle-Objekt fuer Themengebiet '" & thema & "' nicht gefunden - weder '" & name &
             "' noch" & If(alternativName IsNot Nothing, " '" & alternativName & "'", "") &
-            " existiert in dbo.ddl_staging. Bitte Steuerliste/Oracle-Objektname pruefen.")
+            " existiert in dbo.ddl_staging_fakt. Bitte Steuerliste/Oracle-Objektname pruefen.")
     End Function
 
     ' -----------------------------------------------------------------------
     ' OracleObjektExistiert - Prueft, ob ein Tabellenname fuer ein
-    ' Themengebiet in dbo.ddl_staging vorkommt.
+    ' Themengebiet in dbo.ddl_staging_fakt vorkommt.
     ' -----------------------------------------------------------------------
     Private Function OracleObjektExistiert(connStr As String, thema As String, tab As String) As Boolean
         Dim sql As String =
-"SELECT COUNT(*) FROM dbo.ddl_staging
+"SELECT COUNT(*) FROM dbo.ddl_staging_fakt
 WHERE THMNAME = @thema
   AND TABNAME = @tab"
         Using conn As New SqlConnection(connStr)

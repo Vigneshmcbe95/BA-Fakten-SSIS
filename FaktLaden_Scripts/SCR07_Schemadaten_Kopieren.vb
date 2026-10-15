@@ -80,7 +80,7 @@ Partial Public Class ScriptMain
 
                     ' Steuerlisten-Name kann als tf_... oder vf_... gepflegt sein,
                     ' waehrend das tatsaechliche Oracle-Objekt (vm_ddl_sql_server,
-                    ' hier ueber dbo.ddl_staging gespiegelt) das jeweils andere
+                    ' hier ueber dbo.ddl_staging_fakt gespiegelt) das jeweils andere
                     ' Praefix hat. Gleiche Aufloesung wie in SCR09
                     ' (OracleObjektNameAufloesen) - sonst liefert die direkte
                     ' TABNAME-Abfrage 0 Zeilen und der Lauf bricht ohne echten
@@ -112,7 +112,7 @@ Partial Public Class ScriptMain
             Next
 
             ' 5. STAGING BLEIBT ERHALTEN - nicht löschen!
-            Log("Staging-Tabelle dbo.ddl_staging bleibt fuer Debugging erhalten")
+            Log("Staging-Tabelle dbo.ddl_staging_fakt bleibt fuer Debugging erhalten")
 
             Log("Erfolgreich: " & cntOK.ToString() & " | Fehler: " & cntFehler.ToString())
             Dts.TaskResult = If(cntFehler > 0, ScriptResults.Failure, ScriptResults.Success)
@@ -133,20 +133,20 @@ Partial Public Class ScriptMain
 
         ' Prüfen ob Staging bereits existiert
         Dim existsSQL As String =
-            "SELECT COUNT(*) FROM sys.tables WHERE name = 'ddl_staging' AND schema_id = SCHEMA_ID('dbo');"
+            "SELECT COUNT(*) FROM sys.tables WHERE name = 'ddl_staging_fakt' AND schema_id = SCHEMA_ID('dbo');"
 
         Dim stagingExists As Integer = Convert.ToInt32(SqlSkalar(connStr, existsSQL, "Staging Check"))
 
         If stagingExists > 0 Then
             Dim rowCount As Integer = Convert.ToInt32(SqlSkalar(connStr,
-                "SELECT COUNT(*) FROM dbo.ddl_staging;", "Staging Count"))
+                "SELECT COUNT(*) FROM dbo.ddl_staging_fakt;", "Staging Count"))
 
             If rowCount > 0 Then
                 Log("Staging-Tabelle existiert bereits mit " & rowCount.ToString() & " Zeilen - wird neu geladen")
-                SqlAusfuehren(connStr, "DROP TABLE dbo.ddl_staging;", "Staging DROP")
+                SqlAusfuehren(connStr, "DROP TABLE dbo.ddl_staging_fakt;", "Staging DROP")
             Else
                 Log("Staging-Tabelle existiert aber ist leer - wird neu geladen")
-                SqlAusfuehren(connStr, "DROP TABLE dbo.ddl_staging;", "Staging DROP")
+                SqlAusfuehren(connStr, "DROP TABLE dbo.ddl_staging_fakt;", "Staging DROP")
             End If
         End If
 
@@ -171,18 +171,18 @@ Partial Public Class ScriptMain
     PRECISION,
     SCALE,
     IS_NULLABLE
-INTO dbo.ddl_staging
+INTO dbo.ddl_staging_fakt
 FROM [" & _datenbank & "].[" & _extTableSchema & "].[" & _extTableName & "]
 WHERE COLNO IS NOT NULL;"
 
         SqlAusfuehren(connStr, sqlSelect, "Staging SELECT INTO")
 
         Dim sqlIndex As String =
-            "CREATE INDEX ix_ddl_staging_thm_tab ON dbo.ddl_staging (THMNAME, TABNAME);"
+            "CREATE INDEX ix_ddl_staging_fakt_thm_tab ON dbo.ddl_staging_fakt (THMNAME, TABNAME);"
         SqlAusfuehren(connStr, sqlIndex, "Staging INDEX")
 
         Dim rows As Integer = Convert.ToInt32(SqlSkalar(connStr,
-            "SELECT COUNT(*) FROM dbo.ddl_staging;", "Staging COUNT"))
+            "SELECT COUNT(*) FROM dbo.ddl_staging_fakt;", "Staging COUNT"))
 
         Log("Staging abgeschlossen: " & rows.ToString() & " Zeilen geladen.")
 
@@ -296,7 +296,7 @@ SELECT DISTINCT
         END,
         ' NULL'
     )
-FROM dbo.ddl_staging ddl
+FROM dbo.ddl_staging_fakt ddl
 WHERE ddl.THMNAME = @thema
   AND ddl.TABNAME = @tabOracle;"
 
@@ -330,7 +330,7 @@ WHERE themengebiet = @thema
     End Function
 
     ' -----------------------------------------------------------------------
-    ' TabellenNameInStagingAufloesen - Prueft anhand von dbo.ddl_staging, ob
+    ' TabellenNameInStagingAufloesen - Prueft anhand von dbo.ddl_staging_fakt, ob
     ' der Steuerlisten-Name 1:1 als Oracle-Objekt vorkommt. Falls nicht und
     ' der Name mit tf_/vf_ beginnt, wird das jeweils andere Praefix probiert
     ' (gleiche Logik wie OracleObjektNameAufloesen in SCR09 - dort gegen
@@ -364,11 +364,11 @@ WHERE themengebiet = @thema
 
     ' -----------------------------------------------------------------------
     ' TabelleInStagingVorhanden - Prueft, ob ein Tabellenname fuer ein
-    ' Themengebiet in dbo.ddl_staging vorkommt.
+    ' Themengebiet in dbo.ddl_staging_fakt vorkommt.
     ' -----------------------------------------------------------------------
     Private Function TabelleInStagingVorhanden(connStr As String, thema As String, tab As String) As Boolean
         Dim sql As String =
-"SELECT COUNT(*) FROM dbo.ddl_staging
+"SELECT COUNT(*) FROM dbo.ddl_staging_fakt
 WHERE THMNAME = @thema
   AND TABNAME = @tab;"
 
