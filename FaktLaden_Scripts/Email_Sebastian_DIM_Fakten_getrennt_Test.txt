@@ -1,0 +1,21 @@
+﻿Betreff: DIM/Fakten getrennt + leere Partitionen - bitte Test starten
+
+Hallo Sebastian,
+
+1. Gleichzeitiger Lauf (Fehler 15.10.): DIM und Fakten nutzten dieselben PolyBase-Objekte
+   und haben sich gegenseitig gelöscht. Jetzt hat jedes Paket eigene Objekte (_FAKT / _DIM)
+   und löscht nur noch diese. Master Key wird nicht mehr automatisch gelöscht.
+   DIM und Fakten können jetzt gleichzeitig laufen.
+
+2. Leere Partitionen: Prüfung in SCR11 auskommentiert, SCR13 bricht bei 0 Zeilen
+   nicht mehr ab (nur Info-Log).
+
+Geändert: Fakten SCR02, SCR07, SCR09, SCR11, SCR13, Run_Laden_FAKTEN.cmd;
+DIM Vorbereitung, SCR_02, Run_Laden_DIM.cmd.
+
+Bitte Test starten:
+- DIM und Fakten gleichzeitig auf einer Datenbank
+- Fakten mit leeren Partitionen (z.B. tf_bb_bewa_zkt), inkl. Nachlauf
+
+Grüße
+Nils
