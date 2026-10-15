@@ -1,0 +1,18 @@
+﻿Betreff: SCR11 - Datenprüfung rausnehmen, leere Partitionen mit 0 Zeilen laden
+
+Hallo Sebastian,
+
+in SCR11 nutzen wir bereits "SELECT TOP 1 1 ... WHERE <partitionsspalte> = <wert>",
+also wie rownum = 1 nur die erste Zeile - kein count(*).
+
+Ich habe zusätzlich "OPTION (FORCE EXTERNALPUSHDOWN)" getestet: etwas schneller,
+aber kein großer Unterschied.
+
+Daher schlage ich vor: Wir nehmen die Prüfung in SCR11 raus und laden leere
+Partitionen mit 0 Zeilen (Oracle = Wahrheit). Dafür passe ich SCR13 an,
+damit es bei 0 Zeilen nicht mehr abbricht.
+
+Das würde ich vorher in der Abnahme testen. Passt das für dich?
+
+Grüße
+Nils
