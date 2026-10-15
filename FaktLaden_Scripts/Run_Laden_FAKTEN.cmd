@@ -156,11 +156,11 @@ set PARAM_ORDNER_ARCHIV=!ATOMIC_STL_ORDNER!\Archiv
 set PARAM_MAXPARALLEL=8
 
 :: --- Externe Oracle-Quelle ---
-set PARAM_EXT_SOURCE_NAME=Oracle-!ATOMIC_ENVIRONMENT!
+set PARAM_EXT_SOURCE_NAME=Oracle-!ATOMIC_ENVIRONMENT!-FAKT
 set PARAM_EXT_SOURCE_LOCATION=oracle://!ATOMIC_ORACLE_HOSTPORT!
 set PARAM_EXT_TABLE_LOCATION=!ATOMIC_ENVIRONMENT!.STATRT.VM_DDL_SQL_SERVER
 set PARAM_EXT_TABLE_SCHEMA=ext
-set PARAM_EXT_TABLE_NAME=vm_ddl_sql_server
+set PARAM_EXT_TABLE_NAME=vm_ddl_sql_server_fakt
 
 :: --- Oracle-Schema der Partitionssicht V_PARTITION_INFO (Owner-Filter in SCR11) ---
 set PARAM_PARTITION_SCHEMA=BI_DM_EXPORT
@@ -201,7 +201,7 @@ set BLOCKING_PID=
 
 for /f "tokens=2 delims==" %%P in ('wmic process where "name='DTExec.exe'" get processid /format:list 2^>nul ^| find "="') do (
     set CURRENT_PID=%%P
-    for /f "tokens=*" %%C in ('wmic process where "processid='!CURRENT_PID!'" get commandline /format:list 2^>nul ^| find /I "BA::Datenbank].Value;""!ATOMIC_DATENBANKNAME!"""') do (
+    for /f "tokens=*" %%C in ('wmic process where "processid='!CURRENT_PID!'" get commandline /format:list 2^>nul ^| find /I "Laden_FAKTEN.dtsx" ^| find /I "BA::Datenbank].Value;""!ATOMIC_DATENBANKNAME!"""') do (
         set PROCESS_RUNNING=1
         set BLOCKING_PID=!CURRENT_PID!
     )

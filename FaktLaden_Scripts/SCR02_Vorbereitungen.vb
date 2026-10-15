@@ -92,6 +92,10 @@ Partial Public Class ScriptMain
             Log("Schritt 3: PolyBase Master Key pruefen")
             MasterKeyPruefen(connStr)
 
+            ' -- Schritt 3a: Eigene PolyBase-Objekte loeschen ----------------
+            Log("Schritt 3a: Eigene PolyBase-Objekte loeschen")
+            EigeneObjekteLoeschen(connStr)
+
             ' -- Schritt 4: PolyBase Credential ------------------------------
             Log("Schritt 4: PolyBase Credential pruefen")
             CredentialPruefen(connStr)
@@ -187,7 +191,7 @@ Partial Public Class ScriptMain
         _steuerlistenTabelle = Dts.Variables("BA::SteuerlistenTabelle").Value.ToString().Trim()
         _partitionSchema = Dts.Variables("BA::partition_schema").Value.ToString().Trim()
         _extLoginTimeout = Dts.Variables("BA::LoginTimeout").Value.ToString().Trim()
-        _credName = _server & "_" & _credBenutzer
+        _credName = _server & "_" & _credBenutzer & "_FAKT"
 
         Log("Steuerlisten-Tabelle: dbo." & _steuerlistenTabelle)
 
@@ -348,9 +352,7 @@ ELSE
     '   1) kein Key                          -> anlegen
     '   2) automatisch oeffenbar (SMK)       -> unveraendert lassen
     '   3) mit dem Paket-Kennwort oeffenbar  -> an den Service Master Key koppeln
-    '   4) sonst                             -> externe Tabellen, Data Sources
-    '      und Credentials loeschen, Key neu anlegen (Schritte 4-7 legen die
-    '      PolyBase-Objekte danach wieder an)
+    '   4) sonst                             -> Abbruch mit Hinweis (kein Loeschen)
     ' -----------------------------------------------------------------------
     Private Sub MasterKeyPruefen(connStr As String)
 
@@ -398,23 +400,71 @@ ELSE
             End Try
         End Using
 
-        ' 4) Neu anlegen. Zuerst alles entfernen, was am Master Key haengt
-        '    (wie im Dimensionspaket): externe Tabellen, Data Sources, Credentials.
-        Log("Master Key: wird neu angelegt - externe Tabellen, Data Sources und Credentials werden vorher geloescht")
+        ' 4) Nicht oeffenbar: nichts loeschen (DIM nutzt denselben Master Key)
+        Throw New Exception(MasterKeyHinweis())
+
+    End Sub
+
+    ' -----------------------------------------------------------------------
+    ' MasterKeyHinweis - Meldung mit SQL zum manuellen Neuanlegen.
+    ' -----------------------------------------------------------------------
+    Private Function MasterKeyHinweis() As String
+        Return "Master Key ist vorhanden, laesst sich aber weder automatisch noch mit dem " &
+            "Oracle-Kennwort (BA::CredKennwort) oeffnen. Bitte pruefen, ob sich das Oracle-Kennwort " &
+            "geaendert hat. Falls ja, folgendes SQL manuell in der Datenbank ausfuehren " &
+            "(nur wenn kein DIM-/Fakten-Lauf aktiv ist) und den Lauf neu starten:" & vbCrLf &
+"DECLARE @sql nvarchar(max) = N'';
+SELECT @sql += N'DROP EXTERNAL TABLE ' + QUOTENAME(s.name) + N'.' + QUOTENAME(t.name) + N';'
+FROM sys.external_tables t JOIN sys.schemas s ON s.schema_id = t.schema_id;
+SELECT @sql += N'DROP EXTERNAL DATA SOURCE ' + QUOTENAME(name) + N';' FROM sys.external_data_sources;
+SELECT @sql += N'DROP DATABASE SCOPED CREDENTIAL ' + QUOTENAME(name) + N';' FROM sys.database_scoped_credentials;
+EXEC sp_executesql @sql;
+DROP MASTER KEY;
+CREATE MASTER KEY ENCRYPTION BY PASSWORD = '<Oracle-Kennwort>';
+ALTER MASTER KEY ADD ENCRYPTION BY SERVICE MASTER KEY;"
+    End Function
+
+    ' -----------------------------------------------------------------------
+    ' EigeneObjekteLoeschen - Loescht nur die eigenen PolyBase-Objekte:
+    ' ext-Tabellen auf der eigenen Data Source, die Data Source und das
+    ' Credential. Objekte von DIM bleiben unberuehrt.
+    ' -----------------------------------------------------------------------
+    Private Sub EigeneObjekteLoeschen(connStr As String)
+
         SqlAusfuehren(connStr,
 "DECLARE @sql nvarchar(max) = N'';
-SELECT @sql = @sql + N'DROP EXTERNAL TABLE ' + QUOTENAME(s.name) + N'.' + QUOTENAME(t.name) + N';'
-FROM sys.external_tables t JOIN sys.schemas s ON s.schema_id = t.schema_id;
-SELECT @sql = @sql + N'DROP EXTERNAL DATA SOURCE ' + QUOTENAME(name) + N';'
-FROM sys.external_data_sources;
-SELECT @sql = @sql + N'DROP DATABASE SCOPED CREDENTIAL ' + QUOTENAME(name) + N';'
-FROM sys.database_scoped_credentials;
+SELECT @sql += N'DROP EXTERNAL TABLE ' + QUOTENAME(s.name) + N'.' + QUOTENAME(t.name) + N';'
+FROM sys.external_tables t
+JOIN sys.schemas s ON s.schema_id = t.schema_id
+JOIN sys.external_data_sources ds ON ds.data_source_id = t.data_source_id
+WHERE ds.name = N'" & _extSourceName & "';
 EXEC sp_executesql @sql;
-IF EXISTS (SELECT 1 FROM sys.symmetric_keys WHERE name = '##MS_DatabaseMasterKey##') DROP MASTER KEY;
-CREATE MASTER KEY ENCRYPTION BY PASSWORD = '" & kennwort & "';
-ALTER MASTER KEY ADD ENCRYPTION BY SERVICE MASTER KEY;",
-            "Master Key neu anlegen")
-        Log("Master Key: neu angelegt und an Service Master Key gekoppelt")
+IF EXISTS (SELECT 1 FROM sys.external_data_sources WHERE name = N'" & _extSourceName & "')
+   AND NOT EXISTS (SELECT 1 FROM sys.external_tables t
+                   JOIN sys.external_data_sources ds ON ds.data_source_id = t.data_source_id
+                   WHERE ds.name = N'" & _extSourceName & "')
+    DROP EXTERNAL DATA SOURCE [" & _extSourceName & "];
+IF EXISTS (SELECT 1 FROM sys.database_scoped_credentials WHERE name = N'" & _credName & "')
+   AND NOT EXISTS (SELECT 1 FROM sys.external_data_sources ds
+                   JOIN sys.database_scoped_credentials c ON c.credential_id = ds.credential_id
+                   WHERE c.name = N'" & _credName & "')
+    DROP DATABASE SCOPED CREDENTIAL [" & _credName & "];",
+            "Eigene PolyBase-Objekte loeschen")
+
+        ' Was noch uebrig ist, wird von anderen Objekten genutzt und bleibt erhalten
+        Dim rest As Object = SqlSkalarAusfuehren(connStr,
+"SELECT STRING_AGG(CAST(x AS nvarchar(max)), ', ') FROM (
+    SELECT N'Data Source [' + ds.name + N']' AS x FROM sys.external_data_sources ds
+    WHERE ds.name = N'" & _extSourceName & "'
+    UNION ALL
+    SELECT N'Credential [' + c.name + N']' FROM sys.database_scoped_credentials c
+    WHERE c.name = N'" & _credName & "') r",
+            "Eigene PolyBase-Objekte pruefen")
+        If rest IsNot Nothing AndAlso rest IsNot DBNull.Value Then
+            Log("WARNUNG: noch in Verwendung, bleibt erhalten: " & rest.ToString())
+        Else
+            Log("Eigene ext-Tabellen, Data Source [" & _extSourceName & "] und Credential [" & _credName & "] geloescht")
+        End If
 
     End Sub
 
@@ -431,27 +481,24 @@ ALTER MASTER KEY ADD ENCRYPTION BY SERVICE MASTER KEY;",
         Dim vorhanden As Boolean =
             Convert.ToInt32(SqlSkalarAusfuehren(connStr, sqlPruefen, "Credential prüfen")) > 0
 
+        Dim kennwort As String = _credKennwort.Replace("'", "''")
+
         If vorhanden Then
-            Log("Credential [" & _credName & "]: bereits vorhanden wird neu angelegt")
+            ' Noch in Verwendung (siehe Schritt 3a) -> nur Kennwort aktualisieren
+            Log("Credential [" & _credName & "]: vorhanden - Kennwort wird aktualisiert")
             SqlAusfuehren(connStr,
-"DECLARE @sql nvarchar(max) = N'';
- SELECT @sql = @sql + N'DROP EXTERNAL TABLE ' + QUOTENAME(s.name) + N'.' + QUOTENAME(t.name) + N';'
- FROM sys.external_tables t JOIN sys.schemas s ON t.schema_id = s.schema_id
- WHERE s.name = '" & _extTabSchema & "';
- EXEC sp_executesql @sql;",
-                "Abhaengige externe Tabellen loeschen")
-            SqlAusfuehren(connStr,
-                "IF EXISTS (SELECT 1 FROM sys.external_data_sources WHERE name = '" & _extSourceName & "') DROP EXTERNAL DATA SOURCE [" & _extSourceName & "];",
-                "Abhaengige Data Source loeschen")
-            SqlAusfuehren(connStr, "DROP DATABASE SCOPED CREDENTIAL [" & _credName & "];", "Credential loeschen")
-        Else
-            Log("Credential [" & _credName & "]: nicht vorhanden wird angelegt")
+"ALTER DATABASE SCOPED CREDENTIAL [" & _credName & "]
+ WITH IDENTITY = '" & _credBenutzer & "',
+      SECRET   = '" & kennwort & "';", "Credential aktualisieren")
+            Return
         End If
+
+        Log("Credential [" & _credName & "]: nicht vorhanden wird angelegt")
 
         Dim sqlErstellen As String =
 "CREATE DATABASE SCOPED CREDENTIAL [" & _credName & "]
  WITH IDENTITY = '" & _credBenutzer & "',
-      SECRET   = '" & _credKennwort & "';"
+      SECRET   = '" & kennwort & "';"
         SqlAusfuehren(connStr, sqlErstellen, "Credential anlegen")
         Log("Credential [" & _credName & "]: erfolgreich angelegt ")
 
@@ -471,11 +518,19 @@ ALTER MASTER KEY ADD ENCRYPTION BY SERVICE MASTER KEY;",
             Convert.ToInt32(SqlSkalarAusfuehren(connStr, sqlPruefen, "Data Source prüfen")) > 0
 
         If vorhanden Then
-            Log("External Data Source [" & _extSourceName & "]: bereits vorhanden wird neu angelegt")
-            SqlAusfuehren(connStr, "DROP EXTERNAL DATA SOURCE [" & _extSourceName & "];", "Data Source loeschen")
-        Else
-            Log("External Data Source [" & _extSourceName & "]: nicht vorhanden wird angelegt")
+            Dim ort As Object = SqlSkalarAusfuehren(connStr,
+                "SELECT location FROM sys.external_data_sources WHERE name = '" & _extSourceName & "'",
+                "Data Source Ort")
+            If ort IsNot Nothing AndAlso ort IsNot DBNull.Value AndAlso
+               Not String.Equals(ort.ToString(), _extSourceLocation, StringComparison.OrdinalIgnoreCase) Then
+                Log("WARNUNG: External Data Source [" & _extSourceName & "] zeigt auf " & ort.ToString() &
+                    " statt " & _extSourceLocation)
+            End If
+            Log("External Data Source [" & _extSourceName & "]: vorhanden - bleibt erhalten")
+            Return
         End If
+
+        Log("External Data Source [" & _extSourceName & "]: nicht vorhanden wird angelegt")
 
         Dim sqlErstellen As String =
 "CREATE EXTERNAL DATA SOURCE [" & _extSourceName & "]
@@ -529,11 +584,11 @@ ALTER MASTER KEY ADD ENCRYPTION BY SERVICE MASTER KEY;",
             Convert.ToInt32(SqlSkalarAusfuehren(connStr, sqlPruefen, "DDL-Tabelle prüfen")) > 0
 
         If vorhanden Then
-            Log("Externe DDL-Tabelle [" & vollName & "]: bereits vorhanden wird neu angelegt")
-            SqlAusfuehren(connStr, "DROP EXTERNAL TABLE " & vollName & ";", "DDL-Tabelle loeschen")
-        Else
-            Log("Externe DDL-Tabelle [" & vollName & "]: nicht vorhanden wird angelegt")
+            Log("Externe DDL-Tabelle [" & vollName & "]: vorhanden - bleibt erhalten")
+            Return
         End If
+
+        Log("Externe DDL-Tabelle [" & vollName & "]: nicht vorhanden wird angelegt")
 
         Dim sqlErstellen As String =
 "CREATE EXTERNAL TABLE " & vollName & "
@@ -612,6 +667,14 @@ WITH (
     End Sub
 
     ' -----------------------------------------------------------------------
+    ' OhneKennwort - Ersetzt das Kennwort fuer das Protokoll durch ***.
+    ' -----------------------------------------------------------------------
+    Private Function OhneKennwort(sql As String) As String
+        If String.IsNullOrEmpty(_credKennwort) Then Return sql
+        Return sql.Replace(_credKennwort.Replace("'", "''"), "***").Replace(_credKennwort, "***")
+    End Function
+
+    ' -----------------------------------------------------------------------
     ' SqlAusfuehren - Fuehrt eine SQL-Anweisung (Non-Query) mit
     ' Wiederholung aus; protokolliert Warnung und vollstaendiges
     ' SQL-Statement bei Fehlern.
@@ -636,7 +699,7 @@ WITH (
                 letzterFehler = ex
                 Log(String.Format("WARNUNG [{0}] Versuch {1}/{2}: {3}",
                     beschreibung, versuch, MAX_VERSUCHE, ex.Message))
-                If versuch = 1 Then Log("SQL Statement [" & beschreibung & "]: " & sql)
+                If versuch = 1 Then Log("SQL Statement [" & beschreibung & "]: " & OhneKennwort(sql))
                 If versuch < MAX_VERSUCHE Then
                     System.Threading.Thread.Sleep(WARTE_SEK * 1000)
                 End If
