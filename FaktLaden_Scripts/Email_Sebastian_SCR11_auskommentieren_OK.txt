@@ -1,0 +1,14 @@
+﻿Betreff: SCR11 - Prüfung auskommentieren / SCR13 leere Partitionen
+
+Hallo Sebastian,
+
+ok, verstanden.
+
+Zur Info: In SCR11 nutzen wir bereits "SELECT TOP 1 1" (wie rownum = 1), kein count(*).
+
+Ich kommentiere die Prüfung in SCR11 aus und passe SCR13 an: Bei 0 Zeilen kommt
+kein Fehler mehr, die Partition wird leer übertragen.
+Ich melde mich, sobald es eingecheckt ist.
+
+Grüße
+Nils
