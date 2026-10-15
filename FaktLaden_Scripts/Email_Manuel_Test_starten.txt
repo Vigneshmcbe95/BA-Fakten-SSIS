@@ -1,0 +1,8 @@
+﻿Hallo Manuel,
+
+die Erweiterungen sind fertig. Du kannst die Tests wie bisher selbst starten.
+
+Falls ein Fehler kommt, schick mir bitte Server, Datenbank und die Fehlermeldung bzw. das Log. Ich schaue es mir dann an und helfe dir. So arbeiten wir aktuell auch mit dem FST-Team.
+
+Gruß
+Nils
