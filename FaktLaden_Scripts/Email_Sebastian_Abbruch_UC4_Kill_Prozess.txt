@@ -1,33 +1,40 @@
-﻿Betreff: AW: Kill über Automic - Prozess wird bei Abbruch jetzt beendet (bitte in Automic konfigurieren)
+﻿Betreff: AW: Kill über Automic - Prozess wird bei Abbruch jetzt beendet (Laden_FAKTEN und Laden_DIM, bitte in Automic konfigurieren)
 
 Hallo Sebastian,
 
-der Abbruch über Automic hatte keinen Effekt auf das Paket, weil Automic nur die cmd.exe des Jobs (Run_Laden_FAKTEN.cmd) beendet. Der Kindprozess DTExec.exe läuft auf dem Server weiter.
+der Abbruch über Automic hatte keinen Effekt auf das Paket, weil Automic nur die cmd.exe des Jobs (Run_Laden_FAKTEN.cmd bzw. Run_Laden_DIM.cmd) beendet. Der Kindprozess DTExec.exe läuft auf dem Server weiter.
 
-Ich habe dafür ein separates Skript erstellt, das den laufenden DTExec-Prozess beendet:
+Ich habe dafür für beide Ladepakete je ein separates Skript erstellt, das den laufenden DTExec-Prozess beendet:
 
-  Kill_Laden_FAKTEN.cmd
-  Speicherort: E:\BDATA\Batches\Ladepakete\Kill_Laden_FAKTEN.cmd
-  (im Repo: FaktLaden_Scripts\Kill_Laden_FAKTEN.cmd)
+  Ladepaket       Ladejob                  Kill-Skript
+  ---------------------------------------------------------------------
+  Laden_FAKTEN    Run_Laden_FAKTEN.cmd     Kill_Laden_FAKTEN.cmd
+  Laden_DIM       Run_Laden_DIM.cmd        Kill_Laden_DIM.cmd
 
-Was das Skript macht:
-  - Sucht den DTExec-Prozess (Laden_FAKTEN.dtsx) für die übergebene Datenbank
-    (gleiche Methode wie die Blockierungsprüfung in Run_Laden_FAKTEN.cmd).
-  - Beendet den Prozess inkl. Kindprozessen (taskkill /F /T).
-  - Löscht das Lockfile (SSIS_FAKTEN_<Verfahren>_<Datenbank>.lock).
-  - Schreibt ein Log nach \\<Server>\Batches\<Verfahren>\prog\log\Kill_Laden_FAKTEN_<DB>_<Datum>_<Zeit>.log
+  Speicherort (beide): E:\BDATA\Batches\Ladepakete\
+  (in den Repos BA-Fakten-SSIS\FaktLaden_Scripts bzw. Laden_DIM)
+
+Was die Skripte machen:
+  - Suchen den DTExec-Prozess des jeweiligen Pakets (Laden_FAKTEN.dtsx bzw. Laden_DIM.dtsx)
+    für die übergebene Datenbank (gleiche Methode wie die Blockierungsprüfung im Ladejob).
+  - Beenden den Prozess inkl. Kindprozessen (taskkill /F /T).
+  - Löschen das Lockfile (SSIS_FAKTEN_... bzw. SSIS_DIM_<Verfahren>_<Datenbank>.lock).
+  - Schreiben ein Log nach \\<Server>\Batches\<Verfahren>\prog\log\Kill_Laden_<FAKTEN|DIM>_<DB>_<Datum>_<Zeit>.log
 
 Aufruf:
   Kill_Laden_FAKTEN.cmd <Verfahren> <Datenbankname>
+  Kill_Laden_DIM.cmd    <Verfahren> <Datenbankname>
 
-WICHTIG: Bitte genau die gleichen Parameter verwenden, mit denen Run_Laden_FAKTEN.cmd
+WICHTIG: Bitte genau die gleichen Parameter verwenden, mit denen der jeweilige Ladejob
 aufgerufen wird:
-  Verfahren     = 7. Parameter von Run_Laden_FAKTEN.cmd (z.B. FAKTEN, FST, LST)
-  Datenbankname = 8. Parameter von Run_Laden_FAKTEN.cmd (z.B. msi_dm_lst_sgbii)
+  Verfahren     = 7. Parameter von Run_Laden_FAKTEN.cmd bzw. Run_Laden_DIM.cmd
+                  (z.B. DWH, AST, BB, BST, FST, LST)
+  Datenbankname = 8. Parameter von Run_Laden_FAKTEN.cmd bzw. Run_Laden_DIM.cmd
 Bei abweichender Schreibweise wird der Prozess nicht gefunden.
+Der FAKTEN-Job muss das FAKTEN-Kill-Skript aufrufen, der DIM-Job das DIM-Kill-Skript.
 
-Bitte in Automic einrichten:
-  Der Aufruf von Kill_Laden_FAKTEN.cmd soll beim Klick auf "Abbruch" des Ladejobs
+Bitte in Automic einrichten (für beide Ladejobs):
+  Der Aufruf des passenden Kill-Skripts soll beim Klick auf "Abbruch" des Ladejobs
   ausgeführt werden. Das kann z.B. als Post-Process des Ladejobs bei Abbruch oder
   als eigener Job im Abbruch-Zweig des Workflows umgesetzt werden - je nachdem,
   was in unserer Automic-Version bei einem manuellen Abbruch ausgeführt wird.
@@ -40,9 +47,10 @@ Exitcodes: 0 = beendet oder kein Prozess gefunden, 1 = Parameter fehlt,
 Hinweise:
   - Beim Beenden von DTExec rollt SQL Server laufende Statements zurück
     (z.B. SELECT INTO ..._LOADING), das kann etwas dauern.
-  - Übrig gebliebene *_LOADING-Tabellen müssen vor dem nächsten Lauf bereinigt werden.
+  - Beim Faktenladen müssen übrig gebliebene *_LOADING-Tabellen vor dem nächsten Lauf
+    bereinigt werden.
 
-Kannst du das Skript in Automic hinterlegen und mit einem Testlauf prüfen?
+Kannst du die Skripte in Automic hinterlegen und mit einem Testlauf prüfen?
 Ich unterstütze gern beim Test.
 
 Grüße
