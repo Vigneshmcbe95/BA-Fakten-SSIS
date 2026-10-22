@@ -1,57 +1,25 @@
-﻿Betreff: AW: Kill über Automic - Prozess wird bei Abbruch jetzt beendet (Laden_FAKTEN und Laden_DIM, bitte in Automic konfigurieren)
+﻿Betreff: AW: Kill über Automic - Prozess wird bei Abbruch jetzt beendet (Laden_FAKTEN und Laden_DIM)
 
 Hallo Sebastian,
 
-der Abbruch über Automic hatte keinen Effekt auf das Paket, weil Automic nur die cmd.exe des Jobs (Run_Laden_FAKTEN.cmd bzw. Run_Laden_DIM.cmd) beendet. Der Kindprozess DTExec.exe läuft auf dem Server weiter.
+ein Abbruch über Automic beendet nur die cmd.exe des Jobs. Der Kindprozess DTExec.exe läuft auf dem Server weiter. Ich habe dafür je Paket ein Kill-Skript erstellt:
 
-Ich habe dafür für beide Ladepakete je ein separates Skript erstellt, das den laufenden DTExec-Prozess beendet:
+  Ladejob                  Kill-Skript
+  Run_Laden_FAKTEN.cmd     Kill_Laden_FAKTEN.cmd
+  Run_Laden_DIM.cmd        Kill_Laden_DIM.cmd
 
-  Ladepaket       Ladejob                  Kill-Skript
-  ---------------------------------------------------------------------
-  Laden_FAKTEN    Run_Laden_FAKTEN.cmd     Kill_Laden_FAKTEN.cmd
-  Laden_DIM       Run_Laden_DIM.cmd        Kill_Laden_DIM.cmd
+Speicherort: E:\BDATA\Batches\Ladepakete\
 
-  Speicherort (beide): E:\BDATA\Batches\Ladepakete\
-  (in den Repos BA-Fakten-SSIS\FaktLaden_Scripts bzw. Laden_DIM)
+Das Skript findet den DTExec-Prozess der übergebenen Datenbank, beendet ihn samt Kindprozessen, löscht das Lockfile und schreibt ein Log.
 
-Was die Skripte machen:
-  - Suchen den DTExec-Prozess des jeweiligen Pakets (Laden_FAKTEN.dtsx bzw. Laden_DIM.dtsx)
-    für die übergebene Datenbank (gleiche Methode wie die Blockierungsprüfung im Ladejob).
-  - Beenden den Prozess inkl. Kindprozessen (taskkill /F /T).
-  - Löschen das Lockfile (SSIS_FAKTEN_... bzw. SSIS_DIM_<Verfahren>_<Datenbank>.lock).
-  - Schreiben ein Log nach \\<Server>\Batches\<Verfahren>\prog\log\Kill_Laden_<FAKTEN|DIM>_<DB>_<Datum>_<Zeit>.log
+Aufruf: Kill_Laden_<FAKTEN|DIM>.cmd <Verfahren> <Datenbankname>
+Bitte die gleichen Parameter wie beim Ladejob verwenden (7. und 8. Parameter von Run_Laden_*.cmd). Bei abweichender Schreibweise wird der Prozess nicht gefunden.
 
-Aufruf:
-  Kill_Laden_FAKTEN.cmd <Verfahren> <Datenbankname>
-  Kill_Laden_DIM.cmd    <Verfahren> <Datenbankname>
+Bitte in Automic einrichten: Beim Klick auf "Abbruch" des jeweiligen Ladejobs soll das passende Kill-Skript ausgeführt werden - entweder als Post-Process bei Abbruch oder als eigener Job im Abbruch-Zweig des Workflows.
 
-WICHTIG: Bitte genau die gleichen Parameter verwenden, mit denen der jeweilige Ladejob
-aufgerufen wird:
-  Verfahren     = 7. Parameter von Run_Laden_FAKTEN.cmd bzw. Run_Laden_DIM.cmd
-                  (z.B. DWH, AST, BB, BST, FST, LST)
-  Datenbankname = 8. Parameter von Run_Laden_FAKTEN.cmd bzw. Run_Laden_DIM.cmd
-Bei abweichender Schreibweise wird der Prozess nicht gefunden.
-Der FAKTEN-Job muss das FAKTEN-Kill-Skript aufrufen, der DIM-Job das DIM-Kill-Skript.
+Kannst du das einrichten und mit einem Testlauf prüfen? Ich unterstütze gern.
 
-Bitte in Automic einrichten (für beide Ladejobs):
-  Der Aufruf des passenden Kill-Skripts soll beim Klick auf "Abbruch" des Ladejobs
-  ausgeführt werden. Das kann z.B. als Post-Process des Ladejobs bei Abbruch oder
-  als eigener Job im Abbruch-Zweig des Workflows umgesetzt werden - je nachdem,
-  was in unserer Automic-Version bei einem manuellen Abbruch ausgeführt wird.
-  Der Job bekommt dieselben Variablen/Parameter für Verfahren und Datenbankname
-  wie der Ladejob.
-
-Exitcodes: 0 = beendet oder kein Prozess gefunden, 1 = Parameter fehlt,
-4 = Prozess konnte nicht beendet werden.
-
-Hinweise:
-  - Beim Beenden von DTExec rollt SQL Server laufende Statements zurück
-    (z.B. SELECT INTO ..._LOADING), das kann etwas dauern.
-  - Beim Faktenladen müssen übrig gebliebene *_LOADING-Tabellen vor dem nächsten Lauf
-    bereinigt werden.
-
-Kannst du die Skripte in Automic hinterlegen und mit einem Testlauf prüfen?
-Ich unterstütze gern beim Test.
+Hinweis: Nach dem Kill rollt SQL Server laufende Statements zurück, das kann dauern. Beim Faktenladen müssen übrig gebliebene *_LOADING-Tabellen vor dem nächsten Lauf bereinigt werden.
 
 Grüße
 Nils
