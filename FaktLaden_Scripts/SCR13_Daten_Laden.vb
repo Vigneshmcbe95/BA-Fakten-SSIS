@@ -33,6 +33,11 @@ Partial Public Class ScriptMain
     Private Const CONN_NAME As String = "Verbindung"
     Private Const MAX_VERSUCHE As Integer = 3
     Private Const WARTE_SEK As Integer = 30
+    Private Const MAX_FEHLER_OHNE_ERFOLG As Integer = 5
+    Private Const MAX_VERBINDUNGSFEHLER_FOLGE As Integer = 20
+    Private Const VORAB_MB_JE_STREAM As Integer = 10240
+    Private _verbindungsFehlerFolge As Integer = 0
+    Private _globalerAbbruch As Boolean = False
 
     ' SQL-Fehler 1105 und 1101 = "Dateigruppe voll". Tritt auf, wenn mehrere
     ' parallele SELECT INTO gleichzeitig Platz brauchen, waehrend die
@@ -135,6 +140,12 @@ Partial Public Class ScriptMain
             ' ─────────────────────────────────────────────────────────────────
             Dim zeilenJeVerfahren As New ConcurrentDictionary(Of Integer, Long)()
             Dim fehlerJeVerfahren As New ConcurrentDictionary(Of Integer, Integer)()
+            Dim erledigtJeVerfahren As New ConcurrentDictionary(Of Integer, Integer)()
+            Dim abbruchVerfahren As New ConcurrentDictionary(Of Integer, Boolean)()
+            Dim erwartetJeVerfahren As Dictionary(Of Integer, Integer) =
+                arbeitspakete.GroupBy(Function(p) p.V.ID).ToDictionary(Function(g) g.Key, Function(g) g.Count())
+
+            DateienVorabVergroessern(connStr)
 
             ' Legacy Cardinality Estimator nur fuer den Ladevorgang deaktivieren,
             ' falls er aktiv ist - danach wieder in den Ausgangszustand
@@ -143,20 +154,37 @@ Partial Public Class ScriptMain
             Try
                 Dim opts As New ParallelOptions With {.MaxDegreeOfParallelism = _maxparallel}
                 Parallel.ForEach(arbeitspakete, opts,
-                    Sub(p As ArbeitsPaket)
+                    Sub(p As ArbeitsPaket, schleife As ParallelLoopState)
+                        If abbruchVerfahren.ContainsKey(p.V.ID) Then Return
                         Try
                             Dim zeilen As Long = VerarbeitePartition(p.V, p.Pv, connStr)
                             zeilenJeVerfahren.AddOrUpdate(p.V.ID, zeilen, Function(k, alt) alt + zeilen)
+                            erledigtJeVerfahren.AddOrUpdate(p.V.ID, 1, Function(k, alt) alt + 1)
+                            Interlocked.Exchange(_verbindungsFehlerFolge, 0)
                         Catch ex As Exception
-                            fehlerJeVerfahren.AddOrUpdate(p.V.ID, 1, Function(k, alt) alt + 1)
+                            Dim fehlerAnz As Integer = fehlerJeVerfahren.AddOrUpdate(p.V.ID, 1, Function(k, alt) alt + 1)
                             Interlocked.Increment(_cntFehler)
                             _fehlerListe.Add("FEHLER '" & p.V.Verfahren & "' pv=" & p.Pv & ": " & ex.Message)
                             LogFehler("FEHLER bei pv=" & p.Pv & " (" & p.V.Faktentabelle.ToLower() & "_in_" & p.Pv & "): " & ex.Message)
+                            If Not zeilenJeVerfahren.ContainsKey(p.V.ID) AndAlso fehlerAnz >= MAX_FEHLER_OHNE_ERFOLG Then
+                                If abbruchVerfahren.TryAdd(p.V.ID, True) Then Log("Verfahren abgebrochen: " & p.V.Verfahren)
+                            End If
+                            If IstVerbindungsfehler(ex) Then
+                                If Interlocked.Increment(_verbindungsFehlerFolge) >= MAX_VERBINDUNGSFEHLER_FOLGE Then
+                                    _globalerAbbruch = True
+                                    schleife.Stop()
+                                End If
+                            End If
                         End Try
                     End Sub)
             Finally
                 If legacyCEWarAn Then LegacyCEWiederAktivieren(connStr)
             End Try
+
+            If _globalerAbbruch Then
+                LogFehler("Abbruch: Verbindungsfehler in Folge")
+                Interlocked.Increment(_cntFehler)
+            End If
 
             ' ─────────────────────────────────────────────────────────────────
             ' Phase 3 (sequentiell): Status je Verfahren abschliessen
@@ -167,10 +195,19 @@ Partial Public Class ScriptMain
                 Dim gesamtZeilen As Long = 0
                 zeilenJeVerfahren.TryGetValue(v.ID, gesamtZeilen)
 
+                Dim erledigt As Integer = 0
+                erledigtJeVerfahren.TryGetValue(v.ID, erledigt)
+                Dim erwartet As Integer = 0
+                erwartetJeVerfahren.TryGetValue(v.ID, erwartet)
+
                 If fehlerAnzahl > 0 Then
                     FehlerSetzen(connStr, v.ID, fehlerAnzahl.ToString() & " Partition(en) fehlgeschlagen")
                     LogSchreiben(connStr, v.Verfahren, "FEHLER_SCR13",
                         fehlerAnzahl.ToString() & " Partition(en) fehlgeschlagen")
+                ElseIf erledigt < erwartet Then
+                    FehlerSetzen(connStr, v.ID, (erwartet - erledigt).ToString() & " Partition(en) offen")
+                    LogSchreiben(connStr, v.Verfahren, "FEHLER_SCR13",
+                        (erwartet - erledigt).ToString() & " Partition(en) offen")
                 Else
                     StatusSetzen(connStr, v.ID, "DATEN_GELADEN")
                     LogSchreiben(connStr, v.Verfahren, "SCHRITT_6",
@@ -476,7 +513,8 @@ WHERE c.object_id = OBJECT_ID('dbo.[" & v.Faktentabelle.ToLower().Replace("'", "
             Log("  " & ladeart & " [" & loadingTable & "] WHERE " & v.PartitionColumn & " = " & partitionValue & " (wird zu _in_ umbenannt)")
         End SyncLock
 
-        SqlAusfuehren(connStr, sql, ladeart & " " & loadingTable)
+        Dim betroffen As Integer = SqlAusfuehren(connStr, sql, ladeart & " " & loadingTable)
+        If betroffen > 0 Then Return betroffen
 
         Return Convert.ToInt32(SqlSkalar(connStr,
             "SELECT COUNT(*) FROM dbo.[" & loadingTable & "]",
@@ -610,6 +648,7 @@ WHERE c.object_id = OBJECT_ID('dbo.[" & v.Faktentabelle.ToLower().Replace("'", "
                     Log(String.Format("WARNUNG [{0}] Versuch {1}/{2}: {3}", beschreibung, versuch, MAX_VERSUCHE, ex.Message))
                 If versuch = 1 Then Log("SQL Statement [" & beschreibung & "]: " & sql)
                 End SyncLock
+                If IstNichtWiederholbar(ex) Then Exit While
                 If istFilegroupVoll Then
                     DateiWachstumErzwingen(connStr)
                 ElseIf versuch < MAX_VERSUCHE Then
@@ -618,8 +657,65 @@ WHERE c.object_id = OBJECT_ID('dbo.[" & v.Faktentabelle.ToLower().Replace("'", "
             End Try
         End While
         Throw New Exception(String.Format("[{0}] fehlgeschlagen: {1}", beschreibung,
-            If(letzterFehler IsNot Nothing, letzterFehler.Message, "Unbekannt")))
+            If(letzterFehler IsNot Nothing, letzterFehler.Message, "Unbekannt")), letzterFehler)
     End Function
+
+    Private Function SqlNummer(ex As Exception) As Integer
+        Dim e As Exception = ex
+        While e IsNot Nothing
+            If TypeOf e Is SqlException Then Return CType(e, SqlException).Number
+            e = e.InnerException
+        End While
+        Return 0
+    End Function
+
+    Private Function IstNichtWiederholbar(ex As Exception) As Boolean
+        Select Case SqlNummer(ex)
+            Case 102, 156, 207, 208, 245, 2714
+                Return True
+        End Select
+        Return False
+    End Function
+
+    Private Function IstVerbindungsfehler(ex As Exception) As Boolean
+        Select Case SqlNummer(ex)
+            Case 53, 64, 233, 4060, 10053, 10054, 10060, 18456
+                Return True
+        End Select
+        Return ex.Message.Contains("Cannot open database") OrElse ex.Message.Contains("The login failed")
+    End Function
+
+    Private Sub DateienVorabVergroessern(connStr As String)
+        Try
+            Dim sql As String =
+"DECLARE @bedarfMB bigint = " & (CLng(_maxparallel) * VORAB_MB_JE_STREAM).ToString() & ";
+DECLARE @sql nvarchar(max) = N'';
+WITH f AS (
+    SELECT f.name,
+           CAST(f.size AS bigint) / 128 AS groesseMB,
+           CAST(FILEPROPERTY(f.name, 'SpaceUsed') AS bigint) / 128 AS belegtMB,
+           v.available_bytes / 1048576 AS platzMB,
+           COUNT(*) OVER () AS anz
+    FROM sys.database_files f
+    JOIN sys.filegroups fg ON fg.data_space_id = f.data_space_id AND fg.is_default = 1
+    CROSS APPLY sys.dm_os_volume_stats(DB_ID(), f.file_id) v
+    WHERE f.type_desc = 'ROWS'
+), g AS (
+    SELECT name, groesseMB, platzMB,
+           @bedarfMB / anz - (groesseMB - belegtMB) AS zuwachs
+    FROM f
+)
+SELECT @sql = @sql + N'ALTER DATABASE ' + QUOTENAME(DB_NAME()) + N' MODIFY FILE (NAME = ' + QUOTENAME(name) +
+              N', SIZE = ' + CAST(groesseMB + CASE WHEN zuwachs > platzMB * 0.9 THEN CAST(platzMB * 0.9 AS bigint) ELSE zuwachs END AS varchar(20)) + N'MB); '
+FROM g
+WHERE zuwachs > 0 AND platzMB * 0.9 >= 1;
+IF @sql <> N'' EXEC sp_executesql @sql;"
+            SqlAusfuehren(connStr, sql, "Dateien vergroessern")
+            Log("Dateien vorab vergroessert.")
+        Catch ex As Exception
+            Log("WARNUNG [Dateien vergroessern]: " & ex.Message)
+        End Try
+    End Sub
 
     ' -----------------------------------------------------------------------
     ' DateiWachstumErzwingen - Reagiert auf SQL-Fehler 1105/1101 ("Dateigruppe
@@ -678,7 +774,7 @@ EXEC sp_executesql @sql;"
                     Log(String.Format("WARNUNG [{0}] Versuch {1}/{2}: {3}", beschreibung, versuch, MAX_VERSUCHE, ex.Message))
                 If versuch = 1 Then Log("SQL Statement [" & beschreibung & "]: " & sql)
                 End SyncLock
-                If versuch < MAX_VERSUCHE Then Thread.Sleep(WARTE_SEK * 1000) Else Throw
+                If versuch < MAX_VERSUCHE AndAlso Not IstNichtWiederholbar(ex) Then Thread.Sleep(WARTE_SEK * 1000) Else Throw
             End Try
         End While
         Return Nothing

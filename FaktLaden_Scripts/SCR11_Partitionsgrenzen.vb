@@ -326,14 +326,20 @@ Partial Public Class ScriptMain
                     Dim cntSplit As Integer = 0
                     Dim cntSkip As Integer = 0
 
-                    For Each pe As PartitionsEintrag In zuVerarbeiten
-                        If pe.Modus = "NEU" Then
-                            PartitionSplitDurchfuehren(connStr, v, pf, ps, dateigruppe, pe.Wert)
-                            cntSplit += 1
-                        Else
-                            cntSkip += 1
-                        End If
-                    Next
+                    Dim neuWerte As List(Of Integer) = zuVerarbeiten.Where(Function(z) z.Modus = "NEU").Select(Function(z) z.Wert).ToList()
+                    cntSkip = zuVerarbeiten.Count - neuWerte.Count
+
+                    If neuWerte.Count > 1 AndAlso FaktentabelleLeer(connStr, v.Faktentabelle) Then
+                        cntSplit = PartitionGrenzenGesammelt(connStr, pf, ps, dateigruppe, neuWerte)
+                        cntSkip += neuWerte.Count - cntSplit
+                    Else
+                        For Each pe As PartitionsEintrag In zuVerarbeiten
+                            If pe.Modus = "NEU" Then
+                                PartitionSplitDurchfuehren(connStr, v, pf, ps, dateigruppe, pe.Wert)
+                                cntSplit += 1
+                            End If
+                        Next
+                    End If
 
                     Log("  SPLIT ausgefuehrt: " & cntSplit.ToString() & " | Uebersprungen: " & cntSkip.ToString())
 
@@ -650,6 +656,54 @@ Partial Public Class ScriptMain
             End Try
         End While
         Return liste
+    End Function
+
+    Private Function FaktentabelleLeer(connStr As String, faktentabelle As String) As Boolean
+        Dim summe As Object = SqlSkalar(connStr,
+            "SELECT ISNULL(SUM(p.rows),0) FROM sys.partitions p JOIN sys.tables t ON t.object_id=p.object_id " &
+            "WHERE t.schema_id=SCHEMA_ID('dbo') AND t.name='" & faktentabelle.Replace("'", "''") & "' AND p.index_id<2",
+            "Tabelle leer?")
+        Return Convert.ToInt64(If(summe, 1L)) = 0L
+    End Function
+
+    Private Function PartitionGrenzenGesammelt(connStr As String, pf As String, ps As String,
+                                               dateigruppe As String, werte As List(Of Integer)) As Integer
+        Dim vorhanden As New HashSet(Of Integer)()
+        Dim versuch As Integer = 0
+        While versuch < MAX_VERSUCHE
+            versuch += 1
+            Try
+                Using conn As New SqlConnection(connStr)
+                    conn.Open()
+                    Using cmd As New SqlCommand(
+                        "SELECT CONVERT(int,prv.value) FROM sys.partition_range_values prv " &
+                        "JOIN sys.partition_functions pfn ON prv.function_id=pfn.function_id " &
+                        "WHERE pfn.name='" & pf & "'", conn)
+                        cmd.CommandTimeout = 0
+                        Using rdr As SqlDataReader = cmd.ExecuteReader()
+                            While rdr.Read()
+                                If Not rdr.IsDBNull(0) Then vorhanden.Add(rdr.GetInt32(0))
+                            End While
+                        End Using
+                    End Using
+                End Using
+                Exit While
+            Catch ex As Exception
+                If versuch < MAX_VERSUCHE Then System.Threading.Thread.Sleep(WARTE_SEK * 1000) Else Throw
+            End Try
+        End While
+
+        Dim fehlend As List(Of Integer) = werte.Distinct().Where(Function(w) Not vorhanden.Contains(w)).OrderBy(Function(w) w).ToList()
+        Const BATCH_GROESSE As Integer = 200
+        For i As Integer = 0 To fehlend.Count - 1 Step BATCH_GROESSE
+            Dim sb As New System.Text.StringBuilder()
+            For Each w As Integer In fehlend.Skip(i).Take(BATCH_GROESSE)
+                sb.Append("ALTER PARTITION SCHEME [" & ps & "] NEXT USED [" & dateigruppe & "];")
+                sb.Append("ALTER PARTITION FUNCTION [" & pf & "]() SPLIT RANGE(" & w.ToString() & ");")
+            Next
+            SqlAusfuehren(connStr, sb.ToString(), "SPLIT Batch")
+        Next
+        Return fehlend.Count
     End Function
 
     ' -----------------------------------------------------------------------
