@@ -38,6 +38,7 @@ Partial Public Class ScriptMain
     Private Const VORAB_MB_JE_STREAM As Integer = 10240
     Private _verbindungsFehlerFolge As Integer = 0
     Private _globalerAbbruch As Boolean = False
+    Private _abbruchGrund As String = ""
 
     ' SQL-Fehler 1105 und 1101 = "Dateigruppe voll". Tritt auf, wenn mehrere
     ' parallele SELECT INTO gleichzeitig Platz brauchen, waehrend die
@@ -155,7 +156,7 @@ Partial Public Class ScriptMain
                 Dim opts As New ParallelOptions With {.MaxDegreeOfParallelism = _maxparallel}
                 Parallel.ForEach(arbeitspakete, opts,
                     Sub(p As ArbeitsPaket, schleife As ParallelLoopState)
-                        If abbruchVerfahren.ContainsKey(p.V.ID) Then Return
+                        If _globalerAbbruch OrElse abbruchVerfahren.ContainsKey(p.V.ID) Then Return
                         Try
                             Dim zeilen As Long = VerarbeitePartition(p.V, p.Pv, connStr)
                             zeilenJeVerfahren.AddOrUpdate(p.V.ID, zeilen, Function(k, alt) alt + zeilen)
@@ -171,6 +172,7 @@ Partial Public Class ScriptMain
                             End If
                             If IstVerbindungsfehler(ex) Then
                                 If Interlocked.Increment(_verbindungsFehlerFolge) >= MAX_VERBINDUNGSFEHLER_FOLGE Then
+                                    _abbruchGrund = "Verbindungsfehler in Folge"
                                     _globalerAbbruch = True
                                     schleife.Stop()
                                 End If
@@ -182,7 +184,7 @@ Partial Public Class ScriptMain
             End Try
 
             If _globalerAbbruch Then
-                LogFehler("Abbruch: Verbindungsfehler in Folge")
+                LogFehler("Abbruch: " & _abbruchGrund)
                 Interlocked.Increment(_cntFehler)
             End If
 
@@ -654,6 +656,7 @@ WHERE c.object_id = OBJECT_ID('dbo.[" & v.Faktentabelle.ToLower().Replace("'", "
                 ElseIf versuch < MAX_VERSUCHE Then
                     Thread.Sleep(WARTE_SEK * 1000)
                 End If
+                If _globalerAbbruch Then Exit While
             End Try
         End While
         Throw New Exception(String.Format("[{0}] fehlgeschlagen: {1}", beschreibung,
@@ -749,6 +752,10 @@ EXEC sp_executesql @sql;"
                 SyncLock _logSperre
                     Log("WARNUNG [Dateiwachstum]: Datendatei konnte nicht vergroessert werden - Laufwerk vermutlich voll: " & ex.Message)
                 End SyncLock
+                If ex.Message.Contains("operating system error 112") OrElse ex.Message.Contains("not enough space on the disk") Then
+                    _abbruchGrund = "Laufwerk voll"
+                    _globalerAbbruch = True
+                End If
             End Try
         End SyncLock
     End Sub
