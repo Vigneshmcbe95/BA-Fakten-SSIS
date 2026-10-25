@@ -1,0 +1,11 @@
+﻿SCR11 (Partitionsgrenzen)
+
+- Von den 21 Verfahren sind 17 tf_*-Tabellen und 4 vf_*-Views.
+  - Die Tabellen lesen ihre Grenzen aus den Oracle-Metadaten, das dauert je Tabelle etwa 20 s.
+  - Die 4 Views haben keine Metadaten, daher führt SCR11 auf jeder View ein SELECT DISTINCT mow_id aus. Das kostet die Zeit: vf_lstp_bg_bs 31–55 min, vf_lstp_pers_bs etwa 9 min, die anderen beiden unter 2 min. Es zählt keine Zeilen, und die Datenprüfung je Partition (SELECT TOP 1) ist ausgeschaltet („Datenpruefung deaktiviert“).
+- Lauf 1 (19.10., Wiederanlauf): SCR11 dauerte 1 h 16 min, fast alles im DISTINCT auf den Views. Die Grenzen waren schon vorhanden.
+- Lauf 2 (20.10., frischer Lauf): SCR11 dauerte 4 h 39 min, weil die SPLITs einzeln ausgeführt wurden (rund 13.000 insgesamt), jeweils mit eigener Verbindung und Info-Abfrage.
+  - Lösung für einen frischen Lauf: Die Grenzen werden jetzt in Batches zu 200 auf einer Verbindung angelegt. Das ist committet, aber noch nicht an einem echten frischen Lauf bestätigt.
+
+Letzter Fehler
+- Das Laden brach ab, weil die PRIMARY-Dateigruppe voll war (Laufwerk E: ohne Speicherplatz, OS-Fehler 112). Der Platz auf E: muss freigeräumt oder erweitert werden, bevor der nächste Lauf startet.
