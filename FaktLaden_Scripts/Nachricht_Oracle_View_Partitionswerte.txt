@@ -1,0 +1,6 @@
+﻿Hallo,
+
+meinst du, wir sollen in Oracle eine View mit den mow_id-/mon_id-Werten anlegen und die Partitionswerte dann von dort abfragen?
+
+Gruß
+Nils
