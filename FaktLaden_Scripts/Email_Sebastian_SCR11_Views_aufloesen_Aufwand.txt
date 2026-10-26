@@ -1,0 +1,15 @@
+﻿Betreff: AW: SCR11_Partitionsgrenzen
+
+Hallo Sebastian,
+
+danke, jetzt ist es klar: SCR11 ermittelt die von der View referenzierten Tabellen, liest deren Partitionsgrenzen aus der Metaview und bildet bei mehreren Faktentabellen die Schnittmenge (INNER JOIN).
+
+Aufwand: ca. 2 Tage, inkl. Test in der Abnahme auf den 4 Views.
+Voraussetzung: BI_DM_EXPORT darf ALL_DEPENDENCIES lesen. Falls nicht, müsste der Oracle-DBA die Rechte vergeben oder eine Export-View anlegen.
+
+Wenn keine Tabellen oder Partitionen gefunden werden, bleibt das bisherige DISTINCT als Rückfall erhalten.
+
+Soll ich das umsetzen?
+
+Grüße
+Nils
