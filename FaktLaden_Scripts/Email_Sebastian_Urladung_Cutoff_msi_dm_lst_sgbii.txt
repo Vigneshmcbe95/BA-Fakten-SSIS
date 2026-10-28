@@ -1,0 +1,19 @@
+﻿Betreff: AW: Polybase - Abnahme - msi_dm_lst_sgbii
+
+Hallo Sebastian,
+
+vielen Dank für den Hinweis, und entschuldige die Probleme mit dem Speicherplatz.
+
+Ich habe es mir angesehen: Ein fester Wert in der STL wie vf_lstp_pers_bw_20260603 wird in unserem Paket als Cut-Off behandelt, so wie wir es damals mit Falk abgestimmt haben. Das heißt, es werden alle Partitionen bis einschließlich 20260603 geladen und nicht nur diese eine Scheibe. Deshalb sieht es wie eine Urladung aus.
+
+Alle Schreibweisen der STL und was jeweils geladen wird, findest du auf der Confluence-Seite:
+https://confluence.webapp.sdst.sbaintern.de/spaces/PROJEKTTRESOR/pages/1162019893/Fakten+Steuerliste
+
+Soll nur ein bestimmter Monat geladen werden, geht das schon heute mit der Listen-Schreibweise, z.B. tabelle:YYYYMM(202606).
+
+Es wäre schön, wenn wir die Tabelle noch einmal gemeinsam im Team durchgehen, damit alle mit dem Verhalten der einzelnen Schreibweisen einverstanden sind. Falls etwas anders funktionieren soll, z.B. ein fester Wert nur genau diese eine Partition lädt, passen wir das gerne an.
+
+Sag mir einfach Bescheid, wann es dir passt.
+
+Mit besten Grüßen
+Nils
