@@ -1,0 +1,22 @@
+﻿Betreff: Vorschlag Cut-Off – Fakten Steuerliste
+
+Hallo Sebastian,
+
+wie besprochen hier mein Vorschlag für Dienstag:
+
+1. Bestehende Schreibweisen bleiben gleich, laden aber nur noch genau diese Partition:
+   tabelle_20260603   -> nur 20260603
+   tabelle:202604     -> nur 202604
+   tabelle:MONID(-1)  -> nur der Vormonat
+
+2. Cut-Off nur noch mit neuer Schreibweise:
+   tabelle:<=202604   -> alle Partitionen bis einschließlich 202604
+
+3. Alle anderen Schreibweisen (Wildcards, YYYYMM(), LAST_...) bleiben unverändert.
+
+Die Cut-Off-Funktion bleibt im Code erhalten und wird nur noch über "<=" aufgerufen. Damit gibt es keine ungewollte Urladung mehr, auch wenn eine Stichtag-Steuerliste nicht angepasst wird.
+
+Die Confluence-Seite "Fakten Steuerliste" passe ich danach entsprechend an.
+
+Mit besten Grüßen
+Nils
