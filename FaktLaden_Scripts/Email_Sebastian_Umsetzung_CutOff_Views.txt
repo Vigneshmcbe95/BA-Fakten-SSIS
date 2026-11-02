@@ -1,0 +1,19 @@
+﻿Betreff: Umsetzung: Cut-Off mit <= und Partitionen bei Views über Basistabelle
+
+Hallo Sebastian,
+
+danke für dein Feedback. Beide Punkte sind jetzt umgesetzt:
+
+1. Fester Wert und Cut-Off in der Steuerliste
+- tabelle_20260603 bzw. tabelle:20260603 lädt jetzt genau diese eine Partition (kein Full Load mehr).
+- Neu: tabelle:<=202604 (bzw. tabelle_<=202604) lädt alle Partitionen bis einschließlich diesem Wert (Cut-Off).
+- Alle anderen Schreibweisen (Wildcards, Listen, Tokens wie MONID(-1)) bleiben unverändert.
+
+2. Partitionswerte bei Views (z. B. vf_lstp_bg_bs)
+- Für Views werden die Partitionswerte jetzt über ALL_DEPENDENCIES aus der Basistabelle im selben Schema gelesen (z. B. TF_LSTP_BG_BS), statt per SELECT DISTINCT auf die View.
+- Findet sich keine partitionierte Basistabelle, greift weiterhin der bisherige DISTINCT als Fallback.
+
+Geänderte Skripte: SCR02, SCR03, SCR04, SCR11. Die Tests in der Simulation sind erfolgreich. Als Nächstes folgen das Deployment auf Q0003713 und ein Test mit vf_lstp_pers_bw_20260603, tabelle:<=… und vf_lstp_bg_bs. Die Confluence-Seite „Fakten Steuerliste“ passe ich entsprechend an.
+
+Viele Grüße
+Nils

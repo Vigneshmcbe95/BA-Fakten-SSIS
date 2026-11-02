@@ -1,0 +1,15 @@
+﻿Betreff: GitHub Push nicht möglich – SAML-Anmeldung schlägt fehl
+
+Hallo Sebastian,
+
+die Änderungen sind lokal committet (3 Commits auf Branch Special/TRESOR, Repo A3-BIKI/A3-SQL-Server-UEB), aber der Push ist aktuell nicht möglich:
+
+- Der Push mit Passwort wird abgelehnt (403), es wird ein Personal Access Token benötigt.
+- Den Token kann ich nicht erstellen, weil die SAML-Anmeldung an GitHub Enterprise mit der Meldung „Another user already owns the email“ fehlschlägt.
+
+Weißt du, wer bei uns GitHub Enterprise administriert? Das Authentication-Log müsste geprüft und meine SAML-Identität mit dem bestehenden Konto verknüpft werden (Benutzer: ruemmelinD1).
+
+Falls es dringend ist, könnte alternativ jemand mit Push-Rechten den Branch für mich pushen.
+
+Viele Grüße
+Nils
