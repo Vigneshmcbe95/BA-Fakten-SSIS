@@ -15,5 +15,7 @@ danke für dein Feedback. Beide Punkte sind jetzt umgesetzt:
 
 Geänderte Skripte: SCR02, SCR03, SCR04, SCR11. Die Tests in der Simulation sind erfolgreich. Als Nächstes folgen das Deployment auf Q0003713 und ein Test mit vf_lstp_pers_bw_20260603, tabelle:<=… und vf_lstp_bg_bs. Die Confluence-Seite „Fakten Steuerliste“ passe ich entsprechend an.
 
+Bitte gerne mit dem Testen fortfahren.
+
 Viele Grüße
 Nils
