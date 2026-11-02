@@ -148,7 +148,7 @@ Partial Public Class ScriptMain
                 Log("  Prozedur existiert")
 
                 ' Signatur-Vorabpruefung: SCR21 ruft IMMER mit 11 Parametern auf
-                ' (originale 10 + @MowIdListe, seit 2026-06-05). Aeltere/eigene
+                ' (originale 10 + @MowIdListe). Aeltere/eigene
                 ' Prozeduren, die noch nicht auf 11 Parameter erweitert wurden,
                 ' scheitern sonst mit einer kryptischen SQL-Server-Meldung
                 ' ("has too many arguments specified") ohne erkennbaren Bezug
