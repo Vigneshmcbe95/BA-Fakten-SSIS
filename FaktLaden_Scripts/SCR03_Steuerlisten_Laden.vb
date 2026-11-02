@@ -342,8 +342,9 @@ END;"
     '   tabelle_*                   - Wildcard alle: jede Partition
     '   tabelle_202* / _2026*       - Wildcard-Praefix (* ? +): Mengen-Treffer
     '   tabelle_[12] / _20260[1-6]  - Klammer-/Bereichsmuster: Mengen-Treffer
-    '   tabelle_<JJJJMM[TT]>        - fester Datums-Suffix (in SCR11 Cut-Off)
-    '   tabelle:<JJJJMM[TT]>        - fester Datumswert nach Doppelpunkt (Cut-Off)
+    '   tabelle_<JJJJMM[TT]>        - fester Datums-Suffix (genau diese Partition)
+    '   tabelle:<JJJJMM[TT]>        - fester Datumswert nach Doppelpunkt (genau diese)
+    '   tabelle:<=<JJJJMM[TT]>      - Cut-Off: alle Partitionen <= Wert
     '   tabelle:<TOKEN>(...)        - Token: :YYYYMM(), :YYYY(), :LAST_MM(),
     '                                 :LAST_YYYYMM(), :LAST_YYYY(), :MONID(),
     '                                 :MONID6(), :MONID4(), :YEAR()
@@ -362,7 +363,7 @@ END;"
                 "Tabellenname '" & zeile & "' hat ein unbekanntes Format. " &
                 "Erlaubte Schreibweisen: 'tabelle', 'tabelle_*', 'tabelle_202*', " &
                 "'tabelle_[12]', 'tabelle_20260[1-6]', 'tabelle_<JJJJMM[TT]>', " &
-                "'tabelle:<JJJJMM[TT]>' oder 'tabelle:<TOKEN>(...)' " &
+                "'tabelle:<JJJJMM[TT]>', 'tabelle:<=<JJJJMM[TT]>' oder 'tabelle:<TOKEN>(...)' " &
                 "(z.B. :YYYYMM(), :YYYY(), :LAST_MM(), :LAST_YYYYMM(), " &
                 ":MONID(), :MONID6(), :MONID4(), :YEAR()). " &
                 "Bitte den Tabellennamen in der STL-Datei entsprechend angeben.")
@@ -377,6 +378,10 @@ END;"
     ' Wildcard ab und liefert den Basisnamen (noch ohne Validierung).
     ' -----------------------------------------------------------------------
     Private Function RohenTabellennamenExtrahieren(zeile As String) As String
+
+        ' Cut-Off: tf_table:<=202604 / tf_table_<=202604
+        Dim c As Match = Regex.Match(zeile, "[_:]<=\s*\d+$")
+        If c.Success Then Return zeile.Substring(0, c.Index)
 
         ' :YYYYMM( / :YYYY( / :YY( / :MM( etc.
         Dim t As Match = Regex.Match(zeile, ":[YM]{2,6}\(", RegexOptions.IgnoreCase)

@@ -67,7 +67,7 @@ Partial Public Class ScriptMain
 
             For Each z As Zeile In zeilen
 
-                ' Ergebnis: ENTWEDER ein Einzelwert (partition_wert -> Cut-Off in SCR11)
+                ' Ergebnis: ENTWEDER Cut-Off-Wert bei '<=' (partition_wert)
                 ' ODER ein Regex-Muster (where_klausel -> Mengen-Treffer in SCR11).
                 Dim wert As String = Nothing
                 Dim muster As String = Nothing
@@ -89,7 +89,7 @@ Partial Public Class ScriptMain
                 ZurueckSchreiben(connStr, z.TabnameFilter, z.FileName, muster, wert)
             Next
 
-            Log("partition_wert (Cut-Off) gefuellt: " & cntWert.ToString())
+            Log("partition_wert (Cut-Off <=) gefuellt: " & cntWert.ToString())
             Log("where_klausel  (Regex-Muster)    : " & cntMuster.ToString())
             Log("ohne Treffer                     : " & cntOhne.ToString())
             Dts.TaskResult = ScriptResults.Success
@@ -103,12 +103,11 @@ Partial Public Class ScriptMain
 
     ' -----------------------------------------------------------------------
     ' FilterAnalysieren - Wandelt einen Steuerlisten-Filter in GENAU EINES um:
-    '   * partWert : ein einzelner numerischer Wert (Einzelmonat/-jahr, Datums-
-    '                token oder fester Wert) -> in SCR11 als Cut-Off interpretiert
-    '                (Full Load aller Partitionen <= Wert).
+    '   * partWert : Cut-Off-Wert nur bei '<=' (z.B. tabelle:<=202604)
+    '                -> in SCR11 alle Partitionen <= Wert.
     '   * regexMuster: ein .NET-Regex, der gegen die REALEN Partitionswerte
     '                  matcht (Wildcards * ? +, Klammern [..], IN-Listen,
-    '                  LAST_*-Fenster) -> in SCR11 als Mengen-Treffer expandiert.
+    '                  LAST_*-Fenster, fester Wert = genau diese Partition).
     ' Spiegelt die Oracle-Logik (MonId/YearId/getKlausel/getPosReg + star2regex).
     ' -----------------------------------------------------------------------
     Private Sub FilterAnalysieren(filter As String, ByRef partWert As String, ByRef regexMuster As String)
@@ -160,22 +159,29 @@ Partial Public Class ScriptMain
         End If
         sel = sel.Trim()
 
+        ' Cut-Off nur mit '<=' (z.B. tabelle:<=202604)
+        If sel.StartsWith("<=") Then
+            m = Regex.Match(sel, "^<=\s*(\d+)$")
+            If m.Success Then partWert = m.Groups(1).Value
+            Return
+        End If
+
         ' Enthaelt der Selektor Regex-/Wildcard-Metazeichen? -> Mengen-Muster
         If Regex.IsMatch(sel, "[\*\?\+\[\]\-]") Then
             regexMuster = MusterZuRegex(sel)
             Return
         End If
 
-        ' Sonst: einzelner fester Wert (Ziffern) -> Cut-Off
+        ' Fester Wert -> genau diese Partition (Praefix wie IN-Liste)
         m = Regex.Match(f, "((?:19|20)\d{4}\d*)")
         If m.Success Then
-            partWert = m.Groups(1).Value
+            regexMuster = ListeZuRegex(m.Groups(1).Value)
             Return
         End If
 
         ' Bare 4-stelliges YYMM-Suffix (z.B. _1502)
         m = Regex.Match(f, "_(\d{4})$")
-        If m.Success Then partWert = m.Groups(1).Value
+        If m.Success Then regexMuster = ListeZuRegex(m.Groups(1).Value)
 
     End Sub
 
