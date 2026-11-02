@@ -1,0 +1,16 @@
+﻿Betreff: Umsetzung: Fester Wert und Cut-Off mit <= in der Steuerliste
+
+Hallo Sebastian,
+
+danke für dein Feedback. Der Punkt Cut-Off ist jetzt umgesetzt:
+
+- tabelle_20260603 bzw. tabelle:20260603 lädt jetzt genau diese eine Partition (kein Full Load mehr).
+- Neu: tabelle:<=202604 (bzw. tabelle_<=202604) lädt alle Partitionen bis einschließlich diesem Wert (Cut-Off).
+- Alle anderen Schreibweisen (Wildcards, Listen, Tokens wie MONID(-1)) bleiben unverändert.
+
+Geänderte Skripte: SCR03, SCR04. Die Tests in der Simulation sind erfolgreich. Als Nächstes folgen das Deployment auf Q0003713 und ein Test mit vf_lstp_pers_bw_20260603 und tabelle:<=…. Die Confluence-Seite „Fakten Steuerliste“ passe ich entsprechend an.
+
+Bitte gerne mit dem Testen fortfahren.
+
+Viele Grüße
+Nils

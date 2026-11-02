@@ -1,0 +1,16 @@
+﻿Betreff: Umsetzung: Partitionswerte bei Views über Basistabelle (ALL_DEPENDENCIES)
+
+Hallo Sebastian,
+
+der Punkt Views ist jetzt umgesetzt:
+
+- Für Views (z. B. vf_lstp_bg_bs) werden die Partitionswerte jetzt über ALL_DEPENDENCIES aus der Basistabelle im selben Schema gelesen (z. B. TF_LSTP_BG_BS), statt per SELECT DISTINCT auf die View.
+- Findet sich keine partitionierte Basistabelle, greift weiterhin der bisherige DISTINCT als Fallback.
+- Die externe Tabelle ext.all_dependencies wird in SCR02 automatisch angelegt.
+
+Geänderte Skripte: SCR02, SCR11. Die Tests in der Simulation sind erfolgreich. Als Nächstes folgen das Deployment auf Q0003713 und ein Test mit vf_lstp_bg_bs.
+
+Bitte gerne mit dem Testen fortfahren.
+
+Viele Grüße
+Nils
