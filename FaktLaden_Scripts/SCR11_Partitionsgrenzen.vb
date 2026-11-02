@@ -496,19 +496,81 @@ Partial Public Class ScriptMain
     End Function
 
     ' -----------------------------------------------------------------------
-    ' OracleAlleWerteLaden - Laedt alle eindeutigen Partitionswerte aus der
-    ' Oracle-Partitionssicht ext.v_partition_info (DISTINCT HIGH_VALUE je
-    ' Faktentabelle, Owner = BA::partition_schema). HIGH_VALUE enthaelt den
-    ' bereits bereinigten ganzzahligen Partitionswert; nicht-numerische Werte
-    ' werden uebersprungen.
+    ' OracleAlleWerteLaden - Partitionswerte der Quelle: Tabelle aus
+    ' ext.v_partition_info, View ueber ihre Basistabelle(n), sonst DISTINCT.
     ' -----------------------------------------------------------------------
     Private Function OracleAlleWerteLaden(connStr As String, v As VerfahrenInfo) As List(Of Integer)
-        Dim liste As New List(Of Integer)()
         _werteAusDistinct = False
+        Dim liste As List(Of Integer) = HighValueWerteLaden(connStr, v.Themengebiet, v.Verfahren)
+        If liste.Count > 0 Then Return liste
+
+        ' View: Partitionen der Basistabelle(n) aus den Metadaten
+        liste = BasistabellenWerteLaden(connStr, v)
+        If liste.Count > 0 Then Return liste
+
+        ' Fallback: Partitionswerte direkt aus der Quelle (scannt die Quelle)
+        Log("  Keine Partitionsmetadaten fuer [" & v.Verfahren & "] -> Fallback: DISTINCT " & v.PartitionsSpalte & " aus ext.[" & v.Verfahren.ToLower() & "]")
+        _werteAusDistinct = True
+        Return OracleDistinctWerteLaden(connStr, v)
+    End Function
+
+    ' -----------------------------------------------------------------------
+    ' BasistabellenWerteLaden - Basistabellen einer View ueber
+    ' ext.all_dependencies (gleicher Owner), Partitionswerte je Tabelle,
+    ' bei mehreren Tabellen nur gemeinsame Werte.
+    ' -----------------------------------------------------------------------
+    Private Function BasistabellenWerteLaden(connStr As String, v As VerfahrenInfo) As List(Of Integer)
+        Dim basis As New List(Of String())()
+        Dim sql As String =
+            "SELECT DISTINCT REFERENCED_OWNER, REFERENCED_NAME FROM ext.[all_dependencies] " &
+            "WHERE OWNER = UPPER('" & v.Themengebiet & "') " &
+            "  AND NAME  = UPPER('" & v.Verfahren & "') " &
+            "  AND REFERENCED_TYPE = 'TABLE'"
+        Try
+            Using conn As New SqlConnection(connStr)
+                conn.Open()
+                Using cmd As New SqlCommand(sql, conn)
+                    cmd.CommandTimeout = 0
+                    Using rdr As SqlDataReader = cmd.ExecuteReader()
+                        While rdr.Read()
+                            basis.Add(New String() {rdr.GetString(0), rdr.GetString(1)})
+                        End While
+                    End Using
+                End Using
+            End Using
+        Catch ex As Exception
+            Log("  Basistabellen nicht lesbar: " & ex.Message)
+            Return New List(Of Integer)()
+        End Try
+
+        Dim gemeinsam As HashSet(Of Integer) = Nothing
+        For Each b As String() In basis
+            Dim werte As List(Of Integer) = HighValueWerteLaden(connStr, b(0), b(1))
+            Log("  Basistabelle " & b(0) & "." & b(1) & ": " & werte.Count.ToString() & " Partitionswerte")
+            ' Tabelle ohne Partitionen nicht beruecksichtigen
+            If werte.Count = 0 Then Continue For
+            If gemeinsam Is Nothing Then
+                gemeinsam = New HashSet(Of Integer)(werte)
+            Else
+                gemeinsam.IntersectWith(werte)
+            End If
+        Next
+
+        If gemeinsam Is Nothing Then Return New List(Of Integer)()
+        Log("  View [" & v.Verfahren & "]: " & gemeinsam.Count.ToString() & " Partitionswerte aus Basistabelle(n)")
+        Return gemeinsam.ToList()
+    End Function
+
+    ' -----------------------------------------------------------------------
+    ' HighValueWerteLaden - Partitionswerte einer Tabelle aus
+    ' ext.v_partition_info (HIGH_VALUE umgerechnet).
+    ' -----------------------------------------------------------------------
+    Private Function HighValueWerteLaden(connStr As String, owner As String, tabelle As String) As List(Of Integer)
+        Dim liste As New List(Of Integer)()
         Dim sql As String =
             "SELECT DISTINCT HIGH_VALUE FROM ext.[v_partition_info] " &
-            "WHERE TABLE_NAME = UPPER('" & v.Verfahren & "') " &
-            "  AND OWNER      = UPPER('" & v.Themengebiet & "') " &
+            "WHERE TABLE_NAME = UPPER('" & tabelle & "') " &
+            "  AND OWNER      = UPPER('" & owner & "') " &
             "  AND HIGH_VALUE IS NOT NULL"
 
         Dim versuch As Integer = 0
@@ -573,16 +635,7 @@ Partial Public Class ScriptMain
                         Log("  Leere obere Grenzpartition entfernt: " & maxWert.ToString())
                     End If
                 End If
-                If liste.Count > 0 Then Return liste
-                ' Keine Partitionsmetadaten in v_partition_info - typisch fuer eine
-                ' VIEW-Quelle (vf_*): Views haben keine Eintraege in
-                ' dba_tab_partitions. Fallback: tatsaechliche Partitionswerte direkt
-                ' aus der ext-Quelle lesen (DISTINCT). Diese Werte sind echte
-                ' Datenwerte -> keine Umrechnung. Hinweis: dieser Pfad scannt die Quelle.
-                Log("  Keine Partitionsmetadaten in v_partition_info fuer [" & v.Verfahren & "] (z.B. View-Quelle) -> Fallback: DISTINCT " & v.PartitionsSpalte & " aus ext.[" & v.Verfahren.ToLower() & "]")
-                Dim distinctWerte As List(Of Integer) = OracleDistinctWerteLaden(connStr, v)
-                _werteAusDistinct = True
-                Return distinctWerte
+                Return liste
             Catch ex As Exception
                 If versuch < MAX_VERSUCHE Then System.Threading.Thread.Sleep(WARTE_SEK * 1000) Else Throw
             End Try

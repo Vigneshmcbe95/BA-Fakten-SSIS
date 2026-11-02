@@ -116,6 +116,10 @@ Partial Public Class ScriptMain
             Log("Schritt 7a: Externe Partitionssicht [" & _extTabSchema & ".v_partition_info] pruefen")
             ExtPartitionInfoTabellePruefen(connStr)
 
+            ' -- Schritt 7b: Externe Abhaengigkeiten (View -> Basistabelle) --
+            Log("Schritt 7b: Externe Abhaengigkeiten [" & _extTabSchema & ".all_dependencies] pruefen")
+            ExtAbhaengigkeitenPruefen(connStr)
+
             ' -- Schritt 8: Lokale DBO-Kopie der DDL-Tabelle erstellen -------
             Log("Schritt 8: Lokale dbo-Kopie [dbo." & _extTabDDLName & "] erstellen")
             DboKopieErstellen(connStr)
@@ -663,6 +667,48 @@ WITH (
 
         SqlAusfuehren(connStr, sqlErstellen, "Partitionssicht anlegen")
         Log("Externe Partitionssicht [" & vollName & "]: erfolgreich angelegt ")
+
+    End Sub
+
+    ' -----------------------------------------------------------------------
+    ' ExtAbhaengigkeitenPruefen - Legt <ext>.all_dependencies neu an
+    ' (Oracle ALL_DEPENDENCIES). SCR11 findet damit die Basistabellen
+    ' einer View. Fehler sind nicht kritisch (SCR11 nutzt dann DISTINCT).
+    ' -----------------------------------------------------------------------
+    Private Sub ExtAbhaengigkeitenPruefen(connStr As String)
+
+        Dim vollName As String = _extTabSchema & ".[all_dependencies]"
+        Dim oracleEnvironment As String = _extTabDDLLocation.Split("."c)(0).ToUpper()
+        Dim location As String = oracleEnvironment & ".SYS.ALL_DEPENDENCIES"
+
+        Try
+            SqlAusfuehren(connStr,
+"IF EXISTS (SELECT 1 FROM sys.external_tables
+            WHERE schema_id = SCHEMA_ID('" & _extTabSchema & "')
+            AND   name      = 'all_dependencies')
+    DROP EXTERNAL TABLE " & vollName & ";", "Abhaengigkeiten loeschen")
+
+            SqlAusfuehren(connStr,
+"CREATE EXTERNAL TABLE " & vollName & "
+(
+    OWNER                VARCHAR(512) COLLATE Latin1_General_100_CS_AS_SC_UTF8 NULL,
+    NAME                 VARCHAR(512) COLLATE Latin1_General_100_CS_AS_SC_UTF8 NULL,
+    TYPE                 VARCHAR(80)  COLLATE Latin1_General_100_CS_AS_SC_UTF8 NULL,
+    REFERENCED_OWNER     VARCHAR(512) COLLATE Latin1_General_100_CS_AS_SC_UTF8 NULL,
+    REFERENCED_NAME      VARCHAR(512) COLLATE Latin1_General_100_CS_AS_SC_UTF8 NULL,
+    REFERENCED_TYPE      VARCHAR(80)  COLLATE Latin1_General_100_CS_AS_SC_UTF8 NULL,
+    REFERENCED_LINK_NAME VARCHAR(512) COLLATE Latin1_General_100_CS_AS_SC_UTF8 NULL,
+    DEPENDENCY_TYPE      VARCHAR(16)  COLLATE Latin1_General_100_CS_AS_SC_UTF8 NULL
+)
+WITH (
+    DATA_SOURCE = [" & _extSourceName & "],
+    LOCATION    = N'" & location & "'
+);", "Abhaengigkeiten anlegen")
+
+            Log("Externe Abhaengigkeiten [" & vollName & "]: angelegt (" & location & ")")
+        Catch ex As Exception
+            Log("WARNUNG: Externe Abhaengigkeiten [" & vollName & "] nicht angelegt: " & ex.Message)
+        End Try
 
     End Sub
 
