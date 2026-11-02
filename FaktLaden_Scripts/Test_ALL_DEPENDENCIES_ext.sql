@@ -37,15 +37,27 @@ WITH (
 );
 
 
--- 3) Basistabellen/-views einer View
+-- Hinweis: immer mit WHERE abfragen, sonst wird das ganze Dictionary übertragen
+
+-- 3a) Sichtbare Schemata (ohne SYS)
+SELECT OWNER, COUNT(*) AS anzahl
+FROM   ext.all_dependencies
+WHERE  OWNER <> 'SYS'
+GROUP BY OWNER
+ORDER BY OWNER;
+
+-- 3b) Basistabellen/-views einer View (View existiert je Schema)
 SELECT OWNER, NAME, TYPE, REFERENCED_OWNER, REFERENCED_NAME, REFERENCED_TYPE
 FROM   ext.all_dependencies
 WHERE  NAME = 'VF_LSTP_BG_BS'
   AND  REFERENCED_TYPE IN ('TABLE', 'VIEW');
 
 
--- 4) Partitionen der Basistabellen (aus V_PARTITION_INFO)
-SELECT d.NAME            AS view_name,
+-- 4) Partitionen der Basistabellen (aus V_PARTITION_INFO), Schema immer filtern
+DECLARE @owner VARCHAR(128) = 'XRO_DM_STAT_LST_SGBII';
+
+SELECT d.OWNER,
+       d.NAME            AS view_name,
        d.REFERENCED_NAME AS basistabelle,
        p.PARTITION_NAME,
        p.HIGH_VALUE
@@ -53,9 +65,15 @@ FROM   ext.all_dependencies d
 JOIN   ext.v_partition_info p
        ON  p.OWNER      = d.REFERENCED_OWNER
        AND p.TABLE_NAME = d.REFERENCED_NAME
-WHERE  d.NAME = 'VF_LSTP_BG_BS'
+WHERE  d.OWNER = @owner
+  AND  d.NAME  = 'VF_LSTP_BG_BS'
   AND  d.REFERENCED_TYPE = 'TABLE'
 ORDER BY d.REFERENCED_NAME, p.PARTITION_NAME;
+
+-- 4b) Falls 4) leer: Basistabelle in V_PARTITION_INFO vorhanden?
+SELECT DISTINCT OWNER, TABLE_NAME
+FROM   ext.v_partition_info
+WHERE  TABLE_NAME = 'TF_LSTP_BG_BS';
 
 
 -- 5) Aufräumen nach dem Test
