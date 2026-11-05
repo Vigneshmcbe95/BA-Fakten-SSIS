@@ -1,0 +1,26 @@
+﻿Betreff: AW: Laden in CI mit PAGE-Compression per INSERT INTO – Rückfrage
+
+Hallo Sebastian,
+
+zur Umsetzung von CI mit PAGE-Compression per INSERT INTO habe ich noch eine Rückfrage.
+
+Ursache des Fehlers bei tf_bvd_aa: Die Faktentabelle hatte noch einen CCI (CCI_tf_bvd_aa), die Staging-Tabelle wurde mit dem Parameter CI ohne Clustered Index angelegt. Dadurch passte die Struktur für den SWITCH nicht.
+
+Wie soll das Paket bei einer Umstellung von CCI auf CI vorgehen?
+
+Variante 1: Drop durch den Anwender
+- Bei einer Umstellung von CCI auf CI löscht ihr die Faktentabelle vorher selbst (so wie jetzt bei BVD).
+- Das Paket erkennt „Tabelle existiert nicht“ und legt sie anhand des Parameters neu an (CI mit PAGE-Compression).
+- Das Laden erfolgt danach per INSERT INTO direkt in die Faktentabelle, ohne Staging-Tabellen und ohne SWITCH.
+
+Variante 2: Drop durch das Paket
+- Das Paket erkennt selbst, dass Parameter (CI) und vorhandene Tabelle (CCI) nicht zusammenpassen.
+- Es löscht die Faktentabelle, legt sie als CI mit PAGE-Compression neu an und lädt per INSERT INTO.
+- Achtung: Dabei gehen alle vorhandenen Daten der Tabelle verloren und es ist eine komplette Neuladung nötig.
+
+Mein Vorschlag wäre Variante 1, damit keine Daten ungewollt gelöscht werden. Bei einem Mismatch mit vorhandenen Daten würde das Paket nur eine Warnung ausgeben und die Tabelle unverändert lassen.
+
+Außerdem noch eine Frage: Wird die Tabelle während des Ladens von Anwendern abgefragt? Beim INSERT INTO ist die Partition bzw. Tabelle für die Dauer des Ladens gesperrt, beim SWITCH nur für Millisekunden.
+
+Viele Grüße
+Nils
