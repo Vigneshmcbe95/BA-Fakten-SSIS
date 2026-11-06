@@ -1,0 +1,22 @@
+﻿Betreff: AW: Polybase Statistik – Steuerliste Fakten umgesetzt + Rückfrage LAST_*
+
+Hallo Sebastian,
+
+danke für die Ergänzung in Confluence. Ich habe alle Schreibweisen mit deiner Spalte „Was geladen werden soll“ abgeglichen.
+
+Dabei habe ich noch einen Fehler behoben: tabelle:YEAR(-1) hat bisher alle Partitionen geladen, jetzt werden nur die Partitionen des Jahres 2025 geladen. Der Cut-Off mit :<= bleibt wie besprochen drin.
+
+Zu den LAST_*-Schreibweisen habe ich noch eine Rückfrage. Aktuell wird „n zurück + aktueller Monat bzw. aktuelles Jahr“ geladen (Beispiel Juni 2026):
+
+- tabelle:LAST_MM(3)     -> 4 Monate: 202603–202606 (3 zurück + aktueller)
+- tabelle:LAST_YYYYMM(6) -> 7 Monate: 202512–202606 (6 zurück + aktueller)
+- tabelle:LAST_YYYY(2)   -> 3 Jahre: 2024, 2025, 2026 (2 zurück + aktuelles)
+
+In Confluence steht bei LAST_MM(3) und LAST_YYYYMM(6) dagegen genau n Monate (z. B. ^(202604|202605|202606)). Bei LAST_YYYY(2) steht im Text „Letzte 2 Jahre (inkl. aktuellem)“, die Regex zeigt aber 3 Jahre.
+
+Soll es so bleiben (n zurück + aktueller), oder sollen genau n Monate bzw. Jahre inklusive aktuellem geladen werden?
+
+Noch ein kleiner Hinweis: In der Zeile tabelle:<=20260401 steht in der Spalte „Vom Skript erzeugt“ 2026041. Richtig ist 20260401.
+
+Viele Grüße
+Nils
