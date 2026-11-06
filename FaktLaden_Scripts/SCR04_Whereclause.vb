@@ -172,6 +172,13 @@ Partial Public Class ScriptMain
             Return
         End If
 
+        ' Reiner Zahlenwert ab 4 Stellen (z.B. :YEAR(-1) -> 2025) -> genau dieser Wert
+        m = Regex.Match(sel, "^(\d{4,})$")
+        If m.Success Then
+            regexMuster = ListeZuRegex(m.Groups(1).Value)
+            Return
+        End If
+
         ' Fester Wert -> genau diese Partition (Praefix wie IN-Liste)
         m = Regex.Match(f, "((?:19|20)\d{4}\d*)")
         If m.Success Then
@@ -237,6 +244,7 @@ Partial Public Class ScriptMain
 
     ' -----------------------------------------------------------------------
     ' TokenAufloesen - Loest Platzhalter-Token in einer Vorlage auf.
+    ' Der ':' bleibt erhalten (z.B. tabelle:YEAR(-1) -> tabelle:2025).
     ' -----------------------------------------------------------------------
     Private Function TokenAufloesen(f As String) As String
         Dim r As String = f
@@ -246,20 +254,20 @@ Partial Public Class ScriptMain
         ' das :MONID6?-Muster es nicht faelschlich anfasst.
         m = Regex.Match(r, ":MONID4\((-?\d+)\)", RegexOptions.IgnoreCase)
         While m.Success
-            r = r.Replace(m.Value, _refDatum.AddMonths(CInt(m.Groups(1).Value)).ToString("yyMM"))
+            r = r.Replace(m.Value, ":" & _refDatum.AddMonths(CInt(m.Groups(1).Value)).ToString("yyMM"))
             m = Regex.Match(r, ":MONID4\((-?\d+)\)", RegexOptions.IgnoreCase)
         End While
 
         ' :MONID(n) / :MONID6(n) -> 4-stelliges Jahr + Monat (YYYYMM)
         m = Regex.Match(r, ":MONID6?\((-?\d+)\)", RegexOptions.IgnoreCase)
         While m.Success
-            r = r.Replace(m.Value, _refDatum.AddMonths(CInt(m.Groups(1).Value)).ToString("yyyyMM"))
+            r = r.Replace(m.Value, ":" & _refDatum.AddMonths(CInt(m.Groups(1).Value)).ToString("yyyyMM"))
             m = Regex.Match(r, ":MONID6?\((-?\d+)\)", RegexOptions.IgnoreCase)
         End While
 
         m = Regex.Match(r, ":YEAR\((-?\d+)\)", RegexOptions.IgnoreCase)
         While m.Success
-            r = r.Replace(m.Value, _refDatum.AddYears(CInt(m.Groups(1).Value)).ToString("yyyy"))
+            r = r.Replace(m.Value, ":" & _refDatum.AddYears(CInt(m.Groups(1).Value)).ToString("yyyy"))
             m = Regex.Match(r, ":YEAR\((-?\d+)\)", RegexOptions.IgnoreCase)
         End While
 
