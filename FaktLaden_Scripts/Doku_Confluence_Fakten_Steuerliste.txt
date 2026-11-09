@@ -1,0 +1,33 @@
+﻿Confluence „Fakten Steuerliste“ – neue Tabelle (Beispiele: Lauf im Juni 2026)
+
+| Schreibweise (Beispiel) | Typ | Vom Skript erzeugt | Was geladen wird |
+|---|---|---|---|
+| tabelle | AUTOMATIC | – | Alle in Oracle vorhandenen Partitionen |
+| tabelle:202604 | Fester Wert nach : | Regex ^(202604) | Genau Partition 202604 |
+| tabelle:<=202604 | Cut-Off (6-stellig) | partition_wert = 202604 | Cut-Off: alle Partitionen ≤ 202604 |
+| tabelle:<=20260401 | Cut-Off (8-stellig) | partition_wert = 20260401 | Cut-Off: alle Partitionen ≤ 20260401 |
+| tabelle:LAST_MM(3) | Letzte n Monate | Regex ^(202603|202604|202605|202606) | 3 Monate zurück + aktueller Monat (4 Monate) |
+| tabelle:LAST_YY(1) | Letzte n Jahre | Regex ^(2025|2026) | 1 Jahr zurück + aktuelles Jahr |
+| tabelle:LAST_YYYY(2) | Letzte n Jahre | Regex ^(2024|2025|2026) | 2 Jahre zurück + aktuelles Jahr (3 Jahre) |
+| tabelle:LAST_YYYYMM(6) | Letzte n Monate | Regex ^(202512|…|202606) | 6 Monate zurück + aktueller Monat (7 Monate) |
+| tabelle:MONID6(0) | Relativer Monat | Regex ^(202606) | Genau 202606 |
+| tabelle:MONID(-1) | Relativer Monat | Regex ^(202605) | Genau 202605 |
+| tabelle:YEAR(-1) | Relatives Jahr | Regex ^(2025) | Alle Partitionen des Jahres 2025 |
+| tabelle:YYYY(2025,2026) | IN-Liste Jahre | Regex ^(2025|2026) | Alle Partitionen aus 2025 und 2026 |
+| tabelle:YYYYMM(202601,202604) | IN-Liste Monate | Regex ^(202601|202604) | Genau diese Monate |
+| tabelle_202* | Wildcard-Präfix | Regex ^202.{0,128}$ | Alle Partitionen, die mit 202 beginnen (2020er) |
+| tabelle_2026* | Wildcard-Präfix | Regex ^2026.{0,128}$ | Alle Partitionen des Jahres 2026 |
+| tabelle_2026? | ?-Quantor | Regex ^2026?$ | 202 oder 2026 (selten genutzt) |
+| tabelle_2026[01][0-9] | Klammerklasse | Regex ^2026[01][0-9]$ | Passende Monate 2026 |
+| tabelle_20260[1-6] | Bereich (Klammer) | Regex ^20260[1-6]$ | 202601–202606 (Jan–Jun 2026) |
+| tabelle_202604 | Fester Wert (6-stellig) | Regex ^(202604) | Genau Partition 202604 |
+| tabelle_20260401 | Fester Wert (8-stellig) | Regex ^(20260401) | Genau Partition 20260401 |
+| tabelle_* | Wildcard (alle) | Regex ^.{0,128}$ | Alle Partitionen |
+| tabelle_:MONID4(-1) | Rel. Monat, 2-stell. Jahr | Regex ^(2605) | Genau 2605 (JJMM) |
+
+Hinweise:
+- Referenzdatum ist der Monat des Laufs. Die Beispiele gelten für einen Lauf im Juni 2026.
+- Feste Werte und Tokens laden genau diese Partition(en). Ein Cut-Off (alle Partitionen ≤ Wert) gibt es nur mit <=.
+- Bei 8-stelligen Partitionen (JJJJMMTT) lädt ein 6-stelliger Wert alle Partitionen dieses Monats, z. B. 202604 lädt 20260400–20260403.
+- LAST_*(n): n zurück + aktueller Monat bzw. aktuelles Jahr.
+- Views (vf_…): Die Partitionswerte werden über ALL_DEPENDENCIES aus der Basistabelle im selben Schema gelesen. Gibt es keine partitionierte Basistabelle, wird per DISTINCT auf die View ermittelt.

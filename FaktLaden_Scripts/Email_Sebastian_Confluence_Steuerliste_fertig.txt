@@ -1,0 +1,8 @@
+﻿Betreff: AW: Polybase Statistik – Confluence „Fakten Steuerliste“ angepasst
+
+Hallo Sebastian,
+
+die Confluence-Seite „Fakten Steuerliste“ ist angepasst (Spalte „Was geladen wird“ entspricht jetzt der Implementierung, inkl. Cut-Off mit <=, YEAR(-1) und LAST_* = n zurück + aktueller). Du kannst deine Spalte jetzt entfernen.
+
+Viele Grüße
+Nils
