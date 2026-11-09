@@ -1,0 +1,10 @@
+﻿Betreff: AW: Polybase Statistik
+
+Hallo Sebastian,
+
+1. Die Implementierung entspricht bereits deiner Spalte „Was geladen werden soll“. Ich habe allerdings keine Bearbeitungsrechte für die Confluence-Seite. Kannst du die Seite anpassen oder mir die Rechte geben? Den fertigen Text schicke ich dir gerne.
+
+2. Der Index wird jetzt immer aus der Parametertabelle (FaktenClusteredIndex) bestimmt. Hat eine bestehende Faktentabelle einen anderen Index als im Parameter angegeben, bricht das Paket für dieses Verfahren mit einer klaren Fehlermeldung ab, und die Tabelle bleibt unverändert. In diesem Fall löschst du die Faktentabelle einfach manuell und startest den Job erneut. Die Faktentabelle wird dann mit dem Index laut Parameter neu angelegt.
+
+Viele Grüße
+Nils
