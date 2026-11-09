@@ -69,16 +69,17 @@ Partial Public Class ScriptMain
                         "Tabelle pruefen")) = 1
 
                     If tabelleExistiert Then
-                        ' Struktur pruefen: CCI vorhanden? Partitioniert?
-                        Dim hatCCI As Boolean = Convert.ToInt32(SqlSkalar(connStr,
-                            "SELECT COUNT(*) FROM sys.indexes WHERE object_id=OBJECT_ID('dbo.[" & v.Faktentabelle & "]') AND type=5",
-                            "CCI pruefen")) > 0
+                        ' Struktur pruefen: Index wie Parameter? Partitioniert?
+                        Dim istTyp As Integer = Convert.ToInt32(SqlSkalar(connStr,
+                            "SELECT ISNULL(MAX(type),0) FROM sys.indexes WHERE object_id=OBJECT_ID('dbo.[" & v.Faktentabelle & "]') AND index_id<=1",
+                            "Index pruefen"))
+                        Dim sollTyp As Integer = IndexTypErwartet(v.IndexType)
                         Dim istPartitioniert As Boolean = Convert.ToInt32(SqlSkalar(connStr,
                             "SELECT COUNT(*) FROM sys.indexes i " &
                             "JOIN sys.partition_schemes ps ON i.data_space_id=ps.data_space_id " &
                             "WHERE i.object_id=OBJECT_ID('dbo.[" & v.Faktentabelle & "]')",
                             "Partition pruefen")) > 0
-                        Dim strukturOK As Boolean = (v.IndexType <> "CCI" OrElse hatCCI) AndAlso istPartitioniert
+                        Dim strukturOK As Boolean = (istTyp = sollTyp) AndAlso istPartitioniert
                         If strukturOK Then
                             Log("  Faktentabelle dbo." & v.Faktentabelle & " existiert bereits (Struktur OK) -> uebersprungen")
                             LogSchreiben(connStr, v.Verfahren, "SCHRITT_3",
@@ -98,9 +99,11 @@ Partial Public Class ScriptMain
                                     " | PF: PF_" & v.PartitionColumn & "_" & v.Faktentabelle &
                                     " | Index: " & v.IndexType & " | Komprimierung: " & v.Compression)
                             Else
-                                Log("  WARNUNG: dbo." & v.Faktentabelle & " hat Daten aber falsche Struktur -> manuelle Korrektur noetig")
-                                LogSchreiben(connStr, v.Verfahren, "SCHRITT_3",
-                                    "WARNUNG: Faktentabelle hat Daten aber falsche Struktur -> uebersprungen: dbo." & v.Faktentabelle)
+                                ' Daten vorhanden -> nichts aendern, Verfahren abbrechen
+                                Throw New Exception("Struktur passt nicht zum Parameter: dbo." & v.Faktentabelle &
+                                    " hat " & IndexTypName(istTyp) & If(istPartitioniert, "", " (nicht partitioniert)") &
+                                    ", Parameter FaktenClusteredIndex = " & v.IndexType & " (" & IndexTypName(sollTyp) & ")" &
+                                    " -> Tabelle loeschen (wird neu angelegt) oder Parameter anpassen")
                             End If
                         End If
                     Else
@@ -136,8 +139,28 @@ Partial Public Class ScriptMain
     End Sub
 
     ' -----------------------------------------------------------------------
+    ' IndexTypErwartet - Index laut Parameter FaktenClusteredIndex:
+    ' CCI -> 5, CI/TRUE -> 1, sonst Heap -> 0 (wie sys.indexes.type).
+    ' -----------------------------------------------------------------------
+    Private Function IndexTypErwartet(indexType As String) As Integer
+        Select Case indexType
+            Case "CCI" : Return 5
+            Case "CI", "TRUE" : Return 1
+            Case Else : Return 0
+        End Select
+    End Function
+
+    Private Function IndexTypName(typ As Integer) As String
+        Select Case typ
+            Case 5 : Return "CCI"
+            Case 1 : Return "CI"
+            Case Else : Return "Heap"
+        End Select
+    End Function
+
+    ' -----------------------------------------------------------------------
     ' FaktentabelleErstellen - Erstellt Partitionsfunktion / -schema, die
-    ' Faktentabelle und den Clustered Columnstore Index.
+    ' Faktentabelle und den Clustered Index laut Parameter (CI oder CCI).
     ' -----------------------------------------------------------------------
     Private Sub FaktentabelleErstellen(connStr As String, v As VerfahrenInfo)
 
@@ -246,11 +269,21 @@ Partial Public Class ScriptMain
         ' (_out_) und SCR16 (_in_) sein, sonst schlaegt SCR19 (Partitions-
         ' tausch/SWITCH) mit "different values for the DATA_COMPRESSION
         ' option" fehl.
-        If v.IndexType <> "CCI" AndAlso (v.Compression = "PAGE" OrElse v.Compression = "ROW") Then
+        If IndexTypErwartet(v.IndexType) = 0 AndAlso (v.Compression = "PAGE" OrElse v.Compression = "ROW") Then
             SqlAusfuehren(connStr,
                 "ALTER TABLE dbo.[" & v.Faktentabelle.ToLower() & "] REBUILD WITH (DATA_COMPRESSION=" & v.Compression & ");",
                 "Faktentabelle komprimieren")
             Log("  Komprimierung " & v.Compression & " auf Faktentabelle angewandt")
+        End If
+
+        ' CI anlegen (Parameter CI/TRUE) - Partitionsspalte als Schluessel, Komprimierung direkt
+        If IndexTypErwartet(v.IndexType) = 1 Then
+            Dim ciKompr As String = If(v.Compression = "PAGE" OrElse v.Compression = "ROW", v.Compression, "NONE")
+            SqlAusfuehren(connStr,
+                "CREATE CLUSTERED INDEX [CI_" & v.Faktentabelle.ToLower() & "] ON dbo.[" & v.Faktentabelle.ToLower() & "] ([" & v.PartitionColumn & "])" &
+                " WITH (DATA_COMPRESSION=" & ciKompr & ", SORT_IN_TEMPDB=ON) ON [" & ps & "]([" & v.PartitionColumn & "]);",
+                "CI erstellen")
+            Log("  CI angelegt (partitioniert, Komprimierung " & ciKompr & ")")
         End If
 
         ' CCI anlegen - erbt Partition vom Partitionsschema der Tabelle

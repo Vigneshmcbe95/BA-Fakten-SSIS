@@ -423,7 +423,7 @@ Partial Public Class ScriptMain
                                     .ID = rdr.GetInt32(0), .Verfahren = rdr(1).ToString().Trim(),
                                     .LetzterSchritt = If(rdr.IsDBNull(2), "", rdr(2).ToString().Trim()),
                                     .Faktentabelle = rdr(3).ToString().Trim(),
-                                    .IndexType = rdr(4).ToString().Trim(),
+                                    .IndexType = If(rdr(4).ToString().Trim() = "CI", "TRUE", rdr(4).ToString().Trim()),
                                     .PartitionColumn = If(rawPart.Contains("|"), rawPart.Substring(0, rawPart.IndexOf("|")), rawPart)})
                             End While
                         End Using
