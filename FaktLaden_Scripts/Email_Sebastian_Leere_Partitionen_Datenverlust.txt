@@ -1,0 +1,18 @@
+﻿Betreff: AW: MOLAP Freigabe Würfel "Bevoelkerung_sgb2_Gebiet"
+
+Hallo Sebastian,
+
+das Paket löscht keine kompletten Tabellen. Beim Partitionstausch werden aber die alten Partitionen durch leere Partitionen ersetzt.
+
+Ablauf:
+1. Das Paket holt die Liste der Partitionen aus Oracle (bei Views aus der Basistabelle).
+2. Im Fall von Michael (Würfel „Bevoelkerung_sgb2_Gebiet“ auf MOLAP Freigabe) liefert die View für die Partitionen vor Juli 2025 vermutlich 0 Zeilen.
+3. Seit der Änderung vom 15.10. werden auch leere Partitionen übertragen.
+4. Beim Partitionstausch wird die alte Partition herausgetauscht und die leere Partition eingetauscht. Die alten Daten werden danach gelöscht.
+
+Ich stelle es wieder so um, dass leere Partitionen übersprungen werden: Liefert Oracle für eine Partition 0 Zeilen, wird sie nicht getauscht und die vorhandenen Daten in der Faktentabelle bleiben erhalten. Im Log erscheint eine Warnung. Soll eine Partition bewusst geleert werden, muss sie manuell gelöscht werden.
+
+Frage: Liefert die View auf Freigabe für die Partitionen vor Juli 2025 bewusst keine Daten mehr (z.B. Zeitfilter in der View oder archivierte Daten)? Auf Abnahme sind die Daten noch vorhanden.
+
+Viele Grüße
+Nils
