@@ -116,7 +116,8 @@ Partial Public Class ScriptMain
                     Continue For
                 End If
 
-                Dim procName As String = "usp_Faktenladen_StagetabellenDML_" & v.Verfahren
+                Dim procName As String = "usp_Faktenladen_StagetabellenDML_" & v.Faktentabelle.ToLower()
+                If Not ProzedurExistiert(connStr, procName) AndAlso ProzedurExistiert(connStr, "usp_Faktenladen_StagetabellenDML_" & v.Verfahren) Then procName = "usp_Faktenladen_StagetabellenDML_" & v.Verfahren
                 Log("  Prozedur: " & procName)
 
                 If Not ProzedurExistiert(connStr, procName) Then

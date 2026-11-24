@@ -133,7 +133,8 @@ Partial Public Class ScriptMain
                 Dim mowIdListe As String = String.Join(",", meineWerte.ToArray())
                 Log("  MowIdListe: " & mowIdListe)
 
-                Dim procName As String = "usp_Faktenladen_Nachlauf_" & v.Verfahren
+                Dim procName As String = "usp_Faktenladen_Nachlauf_" & v.Faktentabelle.ToLower()
+                If Not ProzedurExistiert(connStr, procName) AndAlso ProzedurExistiert(connStr, "usp_Faktenladen_Nachlauf_" & v.Verfahren) Then procName = "usp_Faktenladen_Nachlauf_" & v.Verfahren
                 Log("  Prozedur: " & procName)
 
                 If Not ProzedurExistiert(connStr, procName) Then
@@ -259,7 +260,8 @@ Partial Public Class ScriptMain
     Private Function VerfahrenLaden(connStr As String) As List(Of VerfahrenInfo)
         Dim liste As New List(Of VerfahrenInfo)()
         Dim sql As String =
-"SELECT a.ID, a.Verfahren, a.Themengebiet, a.LetzterSchritt" &
+"SELECT a.ID, a.Verfahren, a.Themengebiet, a.LetzterSchritt," &
+"       ISNULL((SELECT TOP 1 LTRIM(RTRIM(p.Wert)) FROM " & _parameterDB & ".dbo." & _parametertab & " p WHERE p.Verfahren=dbo.fn_ParamVerfahren(a.Verfahren) AND p.Parameter='Faktentabelle'), a.Verfahren) AS Faktentabelle" &
 " FROM  dbo.ETL_Fakt_Arbeitsliste a" &
 " WHERE a.Status IN ('" & STATUS_START & "','" & STATUS_RUN & "')" &
 " AND   a.RunID = " & _runID &
@@ -279,7 +281,8 @@ Partial Public Class ScriptMain
                                     .ID = rdr.GetInt32(0),
                                     .Verfahren = rdr(1).ToString().Trim(),
                                     .Themengebiet = rdr(2).ToString().Trim(),
-                                    .LetzterSchritt = If(rdr.IsDBNull(3), "", rdr(3).ToString().Trim())})
+                                    .LetzterSchritt = If(rdr.IsDBNull(3), "", rdr(3).ToString().Trim()),
+                                    .Faktentabelle = rdr(4).ToString().Trim()})
                             End While
                         End Using
                     End Using
@@ -421,6 +424,7 @@ Partial Public Class ScriptMain
         Public Property Verfahren As String
         Public Property Themengebiet As String
         Public Property LetzterSchritt As String
+        Public Property Faktentabelle As String
     End Class
 
     ' -----------------------------------------------------------------------

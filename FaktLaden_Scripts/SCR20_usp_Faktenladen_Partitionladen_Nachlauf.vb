@@ -135,7 +135,8 @@ Partial Public Class ScriptMain
 
                 Log("  Partitionen: " & String.Join(", ", meineWerte.ToArray()))
 
-                Dim procName As String = "usp_Faktenladen_Partitionladen_Nachlauf_" & v.Verfahren
+                Dim procName As String = "usp_Faktenladen_Partitionladen_Nachlauf_" & v.Faktentabelle.ToLower()
+                If Not ProzedurExistiert(connStr, procName) AndAlso ProzedurExistiert(connStr, "usp_Faktenladen_Partitionladen_Nachlauf_" & v.Verfahren) Then procName = "usp_Faktenladen_Partitionladen_Nachlauf_" & v.Verfahren
                 Log("  Prozedur: " & procName)
 
                 If Not ProzedurExistiert(connStr, procName) Then
