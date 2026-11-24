@@ -1,0 +1,12 @@
+﻿Betreff: AW: Würfel LST_II_BS_EK bzw. DM-Copy
+
+Hallo Sebastian,
+
+ich habe die Ursache gefunden. tf_lstp_pers_bs wird über die View vf_lstp_pers_bs geladen. Das Paket hat den Prozedurnamen aus dem Verfahren gebildet und nach usp_Faktenladen_StagetabellenDML_vf_lstp_pers_bs gesucht. Diese Prozedur gibt es nicht, daher wurde der Aufruf ohne Fehler übersprungen. Das betrifft alle vf_-Verfahren, auch die Nachlauf-Prozeduren.
+
+Ich habe es angepasst: Der Prozedurname wird jetzt aus der Faktentabelle gebildet (usp_Faktenladen_StagetabellenDML_tf_lstp_pers_bs).
+
+Nach der Bereitstellung muss vf_lstp_pers_bs neu geladen werden. Danach steht GLF_ID_XSOZ auf 0 und der Würfel LST_II_BS_EK sollte wieder durchlaufen.
+
+Viele Grüße
+Nils
