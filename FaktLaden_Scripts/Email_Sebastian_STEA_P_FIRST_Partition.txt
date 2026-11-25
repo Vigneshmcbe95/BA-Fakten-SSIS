@@ -1,0 +1,22 @@
+﻿Hallo Sebastian,
+
+ich habe das zweite Problem von Feriz analysiert (242 statt 324 Monate bei STEA).
+
+Ursache: TF_STEA ist in Oracle erst ab 10/2006 monatlich partitioniert. Die 82 Monate 199912–200609 liegen alle zusammen in einer Partition (P_FIRST, HIGH_VALUE 200610). Das Paket arbeitet mit den Partitionsgrenzen und sieht diese Monate deshalb nicht einzeln. Sie werden aktuell nicht aus Oracle geladen; in SQL Server stehen sie nur aus einer früheren Beladung.
+
+Frage: Kann P_FIRST in Oracle monatlich aufgeteilt werden? Dann funktioniert das Paket ohne Änderung, und das wäre die sauberste Lösung.
+
+Falls nicht, gibt es zwei Möglichkeiten im Paket:
+
+1. Monatsweise aus Oracle laden
+• Vorteil: kleine Änderung, Ablauf wie bei allen anderen Monaten.
+• Herausforderung: Jeder Monat liest die komplette P_FIRST, also 82 Vollscans. Bei einem Komplettladen dauert das sehr lange.
+
+2. P_FIRST einmal komplett laden und in SQL Server aufteilen
+• Vorteil: nur ein Lesevorgang in Oracle, das Aufteilen in Monate läuft lokal und schnell.
+• Herausforderung: Änderungen an zwei Skripten nötig, und eine Zwischentabelle braucht kurzzeitig zusätzlichen Platz (etwa so viel wie die 82 Monate).
+
+Für die aktuellen Monate und Ferizs Test ist das nicht relevant, es betrifft nur die Daten vor 10/2006.
+
+Viele Grüße
+Nils
