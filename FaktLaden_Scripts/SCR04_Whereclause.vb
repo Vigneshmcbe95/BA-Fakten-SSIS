@@ -211,7 +211,7 @@ Partial Public Class ScriptMain
         Dim roh As String = liste.Trim().TrimStart("("c).TrimEnd(")"c)
         Dim teile As New List(Of String)()
         For Each t As String In roh.Split(","c)
-            Dim s As String = t.Trim().Trim("'"c).Trim()
+            Dim s As String = t.Trim().Trim("'"c).Trim().TrimStart(":"c)
             If s.Length > 0 Then teile.Add(Regex.Escape(s))
         Next
         If teile.Count = 0 Then Return Nothing
