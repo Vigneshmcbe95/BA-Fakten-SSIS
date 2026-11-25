@@ -1,6 +1,8 @@
 ﻿Hallo Sebastian,
 
-ich habe das zweite Problem von Feriz analysiert (242 statt 324 Monate bei STEA).
+Problem 1 von Feriz (0 Treffer bei YYYYMM(:MONID(..))) ist behoben: Bitte SCR04 deployen und STEA neu laden.
+
+Das zweite Problem (242 statt 324 Monate bei STEA) habe ich analysiert.
 
 Ursache: TF_STEA ist in Oracle erst ab 10/2006 monatlich partitioniert. Die 82 Monate 199912–200609 liegen alle zusammen in einer Partition (P_FIRST, HIGH_VALUE 200610). Das Paket arbeitet mit den Partitionsgrenzen und sieht diese Monate deshalb nicht einzeln. Diese Monate werden aktuell nicht aus Oracle geladen und stehen in SQL Server nur aus einer früheren Beladung.
 
