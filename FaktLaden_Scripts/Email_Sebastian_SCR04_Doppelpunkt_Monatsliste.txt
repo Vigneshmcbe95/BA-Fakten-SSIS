@@ -1,0 +1,6 @@
+﻿Hallo Sebastian,
+
+Fehler gefunden und behoben: Bei Monatslisten wie YYYYMM(:MONID(0),…) blieb der Doppelpunkt im Suchmuster, daher 0 Treffer. Bitte SCR04 deployen und FST/msi_dm_fst sowie STEA neu laden.
+
+Viele Grüße
+Nils
