@@ -1,63 +1,79 @@
-fehlt_in_ext
-lkv_id
-mow_id
-prs_id
-bak_id
-zsk_id
-glf_id
-glf_id_xsoz
-glf_id_allegro
-bur_id
-azw_id_erwerb
+fehlt_in_oracle
 mdi_id_zverwerb_mm
 mdi_id_zewt_mm
 mdi_id_zset_mm
-gbt_id_zverwerb
-gbt_id_zewt
-gbt_id_vset
-gbt_id_zsum
-gbt_id_vsum
-gbt_id_asum
-gbt_id_agsum
-jan_id_eink_vkap_vvuv
-jan_id_eink_vsons
-jan_id_vkrg_valg_vren
-jan_id_eink_vunh
-jan_id_eink_vkig
-beb_eink_zewt
-beb_eink_zset
-beb_eink_zkig
-beb_eink_zunh
-beb_eink_zkrg
-beb_eink_zalg
-beb_eink_zren
-beb_eink_zkap
-beb_eink_zvuv
-beb_eink_zwog
-beb_eink_zson
-beb_eink_zsons
-beb_eink_zsum
-beb_eink_vewt
-beb_eink_vset
-beb_eink_vkig
-beb_eink_vunh
-beb_eink_vkrg
-beb_eink_valg
-beb_eink_vren
-beb_eink_vkap
-beb_eink_vvuv
-beb_eink_vwog
-beb_eink_vson
-beb_eink_vsons
-beb_eink_vsum
-beb_eink_asum
-beb_eink_agsum
-beb_anz_bestand
-gbt_id_zverwerb_ueb
-gbt_id_zewt_ueb
-gbt_id_zset_ueb
-beb_eink_zkug
-beb_eink_vkug
-gbt_id_zverwerb_ger
-gbt_id_zewt_ger
-gbt_id_zset_ger
+
+TABNAME	COLNO	COLNAME
+tf_lstp_pers_bs_eink	11	gbt_id_zverwerb_mm
+tf_lstp_pers_bs_eink	11	gbt_id_zverwerb_mm
+tf_lstp_pers_bs_eink	11	gbt_id_zverwerb_mm
+tf_lstp_pers_bs_eink	11	gbt_id_zverwerb_mm
+tf_lstp_pers_bs_eink	11	gbt_id_zverwerb_mm
+tf_lstp_pers_bs_eink	11	gbt_id_zverwerb_mm
+tf_lstp_pers_bs_eink	11	gbt_id_zverwerb_mm
+tf_lstp_pers_bs_eink	11	gbt_id_zverwerb_mm
+tf_lstp_pers_bs_eink	11	gbt_id_zverwerb_mm
+tf_lstp_pers_bs_eink	11	gbt_id_zverwerb_mm
+tf_lstp_pers_bs_eink	11	gbt_id_zverwerb_mm
+tf_lstp_pers_bs_eink	12	gbt_id_zewt_mm
+tf_lstp_pers_bs_eink	12	gbt_id_zewt_mm
+tf_lstp_pers_bs_eink	12	gbt_id_zewt_mm
+tf_lstp_pers_bs_eink	12	gbt_id_zewt_mm
+tf_lstp_pers_bs_eink	12	gbt_id_zewt_mm
+tf_lstp_pers_bs_eink	12	gbt_id_zewt_mm
+tf_lstp_pers_bs_eink	12	gbt_id_zewt_mm
+tf_lstp_pers_bs_eink	12	gbt_id_zewt_mm
+tf_lstp_pers_bs_eink	12	gbt_id_zewt_mm
+tf_lstp_pers_bs_eink	12	gbt_id_zewt_mm
+tf_lstp_pers_bs_eink	12	gbt_id_zewt_mm
+tf_lstp_pers_bs_eink	13	gbt_id_zset_mm
+tf_lstp_pers_bs_eink	13	gbt_id_zset_mm
+tf_lstp_pers_bs_eink	13	gbt_id_zset_mm
+tf_lstp_pers_bs_eink	13	gbt_id_zset_mm
+tf_lstp_pers_bs_eink	13	gbt_id_zset_mm
+tf_lstp_pers_bs_eink	13	gbt_id_zset_mm
+tf_lstp_pers_bs_eink	13	gbt_id_zset_mm
+tf_lstp_pers_bs_eink	13	gbt_id_zset_mm
+tf_lstp_pers_bs_eink	13	gbt_id_zset_mm
+tf_lstp_pers_bs_eink	13	gbt_id_zset_mm
+tf_lstp_pers_bs_eink	13	gbt_id_zset_mm
+tf_lstp_pers_bs_eink_20260303	11	gbt_id_zverwerb_mm
+tf_lstp_pers_bs_eink_20260303	12	gbt_id_zewt_mm
+tf_lstp_pers_bs_eink_20260303	13	gbt_id_zset_mm
+tf_lstp_pers_bs_eink_20260402	11	gbt_id_zverwerb_mm
+tf_lstp_pers_bs_eink_20260402	12	gbt_id_zewt_mm
+tf_lstp_pers_bs_eink_20260402	13	gbt_id_zset_mm
+tf_lstp_pers_bs_eink_20260501	11	gbt_id_zverwerb_mm
+tf_lstp_pers_bs_eink_20260501	12	gbt_id_zewt_mm
+tf_lstp_pers_bs_eink_20260501	13	gbt_id_zset_mm
+tf_lstp_pers_bs_eink_20260600	11	gbt_id_zverwerb_mm
+tf_lstp_pers_bs_eink_20260600	12	gbt_id_zewt_mm
+tf_lstp_pers_bs_eink_20260600	13	gbt_id_zset_mm
+
+tabname	colno	colname
+tf_lstp_pers_bs_eink	11	gbt_id_zverwerb_mm
+tf_lstp_pers_bs_eink	11	gbt_id_zverwerb_mm
+tf_lstp_pers_bs_eink	12	gbt_id_zewt_mm
+tf_lstp_pers_bs_eink	12	gbt_id_zewt_mm
+tf_lstp_pers_bs_eink	13	gbt_id_zset_mm
+tf_lstp_pers_bs_eink	13	gbt_id_zset_mm
+tf_lstp_pers_bs_eink	14	gbt_id_zverwerb
+tf_lstp_pers_bs_eink	14	gbt_id_zverwerb
+tf_lstp_pers_bs_eink	15	gbt_id_zewt
+tf_lstp_pers_bs_eink	15	gbt_id_zewt
+tf_lstp_pers_bs_eink	26	beb_eink_zewt
+tf_lstp_pers_bs_eink	26	beb_eink_zewt
+tf_lstp_pers_bs_eink	27	beb_eink_zset
+tf_lstp_pers_bs_eink	27	beb_eink_zset
+tf_lstp_pers_bs_eink	55	gbt_id_zverwerb_ueb
+tf_lstp_pers_bs_eink	55	gbt_id_zverwerb_ueb
+tf_lstp_pers_bs_eink	56	gbt_id_zewt_ueb
+tf_lstp_pers_bs_eink	56	gbt_id_zewt_ueb
+tf_lstp_pers_bs_eink	57	gbt_id_zset_ueb
+tf_lstp_pers_bs_eink	57	gbt_id_zset_ueb
+tf_lstp_pers_bs_eink	60	gbt_id_zverwerb_ger
+tf_lstp_pers_bs_eink	60	gbt_id_zverwerb_ger
+tf_lstp_pers_bs_eink	61	gbt_id_zewt_ger
+tf_lstp_pers_bs_eink	61	gbt_id_zewt_ger
+tf_lstp_pers_bs_eink	62	gbt_id_zset_ger
+tf_lstp_pers_bs_eink	62	gbt_id_zset_ger
