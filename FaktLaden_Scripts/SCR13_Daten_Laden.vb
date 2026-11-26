@@ -474,6 +474,11 @@ WHERE c.object_id = OBJECT_ID('dbo.[" & v.Faktentabelle.ToLower().Replace("'", "
         If extTable.ToLower() = "tf_lst_tkug_pers_verbl" Then
             selectList = selectList.Replace("[ftv_ezp_id])", "[FTB_EZP_ID])")
         End If
+        If v.Faktentabelle.ToLower() = "tf_lstp_pers_bs_eink" Then
+            selectList = selectList.Replace("[mdi_id_zverwerb_mm])", "[gbt_id_zverwerb_mm])") _
+                                   .Replace("[mdi_id_zewt_mm])", "[gbt_id_zewt_mm])") _
+                                   .Replace("[mdi_id_zset_mm])", "[gbt_id_zset_mm])")
+        End If
 
         ' DROP vorab im selben Batch: falls ein vorheriger Versuch die Tabelle
         ' schon angelegt hat und erst danach fehlgeschlagen ist (z.B. Verbindungsfehler
