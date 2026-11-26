@@ -1,0 +1,12 @@
+﻿Hallo Sebastian,
+
+die Ausnahme für tf_lstp_pers_bs_eink ist eingebaut, analog zu LST_III. Die drei Spalten heißen in Oracle anders und werden jetzt so geladen:
+
+• gbt_id_zverwerb_mm → mdi_id_zverwerb_mm
+• gbt_id_zewt_mm → mdi_id_zewt_mm
+• gbt_id_zset_mm → mdi_id_zset_mm
+
+Die Ausnahme gilt nur für diese Tabelle. Bitte SCR13 deployen und tf_lstp_pers_bs_eink neu laden.
+
+Viele Grüße
+Nils
