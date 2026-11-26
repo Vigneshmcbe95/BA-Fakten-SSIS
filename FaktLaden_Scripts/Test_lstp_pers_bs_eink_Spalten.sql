@@ -21,7 +21,7 @@ WHERE f.object_id = OBJECT_ID('dbo.tf_lstp_pers_bs_eink')
   AND f.is_computed = 0
   AND NOT EXISTS (SELECT 1 FROM dbo.ddl_staging_fakt d
                   WHERE d.TABNAME LIKE '%LSTP_PERS_BS_EINK%'
-                    AND d.COLNAME = f.name)
+                    AND UPPER(d.COLNAME) COLLATE DATABASE_DEFAULT = UPPER(f.name) COLLATE DATABASE_DEFAULT)
 ORDER BY f.column_id;
 
 -- 3. Oracle-Spalten, die in der Faktentabelle fehlen
@@ -30,7 +30,7 @@ FROM dbo.ddl_staging_fakt d
 WHERE d.TABNAME LIKE '%LSTP_PERS_BS_EINK%'
   AND NOT EXISTS (SELECT 1 FROM sys.columns f
                   WHERE f.object_id = OBJECT_ID('dbo.tf_lstp_pers_bs_eink')
-                    AND f.name = d.COLNAME)
+                    AND UPPER(f.name) COLLATE DATABASE_DEFAULT = UPPER(d.COLNAME) COLLATE DATABASE_DEFAULT)
 ORDER BY d.TABNAME, d.COLNO;
 
 -- 4. Falls ddl_staging_fakt leer/nicht vorhanden: gleiche Prüfung über tm_polybase_struktur
